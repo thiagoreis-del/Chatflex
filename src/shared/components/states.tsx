@@ -11,7 +11,7 @@ export function PageHeader({
   actions,
 }: {
   title: string;
-  description?: string;
+  description?: string | undefined;
   actions?: ReactNode;
 }) {
   return (
@@ -49,10 +49,10 @@ function StateShell({
 }: {
   icon: ReactNode;
   title: string;
-  description?: string;
-  action?: ReactNode;
+  description?: string | undefined;
+  action?: ReactNode | undefined;
   tone?: "muted" | "danger" | "warning";
-  className?: string;
+  className?: string | undefined;
 }) {
   const toneCls = {
     muted: "bg-muted text-muted-foreground",
@@ -78,9 +78,9 @@ export function EmptyState({
   description,
   action,
 }: {
-  title?: string;
-  description?: string;
-  action?: ReactNode;
+  title?: string | undefined;
+  description?: string | undefined;
+  action?: ReactNode | undefined;
 }) {
   const { t } = useTranslation();
   return (
@@ -98,9 +98,9 @@ export function ErrorState({
   description,
   onRetry,
 }: {
-  title?: string;
-  description?: string;
-  onRetry?: () => void;
+  title?: string | undefined;
+  description?: string | undefined;
+  onRetry?: (() => void) | undefined;
 }) {
   const { t } = useTranslation(["errors", "common"]);
   return (
@@ -136,8 +136,8 @@ export function BackendUnavailable({
   onRetry,
   className,
 }: {
-  onRetry?: () => void;
-  className?: string;
+  onRetry?: (() => void) | undefined;
+  className?: string | undefined;
 }) {
   const { t } = useTranslation(["errors", "common"]);
   return (

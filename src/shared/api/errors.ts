@@ -19,7 +19,7 @@ export interface ApiErrorBody {
 export class ApiError extends Error {
   readonly kind: ApiErrorKind;
   readonly status: number;
-  readonly body?: ApiErrorBody;
+  readonly body: ApiErrorBody | undefined;
 
   constructor(kind: ApiErrorKind, status: number, body?: ApiErrorBody) {
     super(body?.message ?? kind);

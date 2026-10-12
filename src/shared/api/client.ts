@@ -15,7 +15,7 @@ import { ApiError, kindFromStatus, type ApiErrorBody } from "./errors";
 export interface RequestOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
-  signal?: AbortSignal;
+  signal?: AbortSignal | undefined;
   /** Não anexar access token. */
   anonymous?: boolean;
   /** Não tentar refresh em 401 (ex.: login, refresh). */
@@ -36,16 +36,16 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" };
   if (opts.body !== undefined) headers["Content-Type"] = "application/json";
   const token = tokenStore.get();
-  if (token && !opts.anonymous) headers.Authorization = `Bearer ${token}`;
+  if (token && !opts.anonymous) headers["Authorization"] = `Bearer ${token}`;
 
   let response: Response;
   try {
     response = await fetch(`${env.apiUrl}${path}`, {
       method: opts.method ?? "GET",
       headers,
-      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : null,
       credentials: "include",
-      signal: opts.signal,
+      signal: opts.signal ?? null,
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
