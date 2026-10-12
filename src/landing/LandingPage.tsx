@@ -40,7 +40,7 @@ export function LandingPage() {
                 {t("title")}
               </h1>
               <p className="mt-5 max-w-xl text-lg text-muted-foreground">{t("subtitle")}</p>
-              <Button asChild size="lg" className="mt-8 h-12 px-6 text-base">
+              <Button asChild size="lg" className="mt-8 h-12 px-6 text-base shadow-brand">
                 <Link to="/login">
                   {t("cta")} <ArrowRight className="size-4" aria-hidden />
                 </Link>
