@@ -6,7 +6,13 @@ import { isApiError } from "@/shared/api/errors";
 import { AccessDenied, BackendUnavailable, ErrorState, LoadingState } from "./states";
 
 /** Contrato pendente: mostrado quando o endpoint ainda não existe no backend. */
-export function DataUnavailable({ contract, compact = false }: { contract?: string | undefined; compact?: boolean }) {
+export function DataUnavailable({
+  contract,
+  compact = false,
+}: {
+  contract?: string | undefined;
+  compact?: boolean;
+}) {
   const { t } = useTranslation();
   return (
     <div className={compact ? "space-y-1" : "flex flex-col items-center gap-2 p-8 text-center"}>
@@ -14,7 +20,8 @@ export function DataUnavailable({ contract, compact = false }: { contract?: stri
       <p className="font-medium text-muted-foreground">{t("states.dataUnavailable")}</p>
       {contract && (
         <p className="text-xs text-muted-foreground">
-          {t("states.pendingContractLabel")} <code className="rounded bg-muted px-1 py-0.5">{contract}</code>
+          {t("states.pendingContractLabel")}{" "}
+          <code className="rounded bg-muted px-1 py-0.5">{contract}</code>
         </p>
       )}
     </div>
@@ -26,11 +33,20 @@ export function DataUnavailable({ contract, compact = false }: { contract?: stri
  * 403 → acesso negado; rede/5xx → backend indisponível; 404 → contrato pendente;
  * 429 → tentativa excessiva; demais → erro genérico.
  */
-export function QueryError({ error, contract, onRetry }: { error: unknown; contract?: string | undefined; onRetry?: () => void }) {
+export function QueryError({
+  error,
+  contract,
+  onRetry,
+}: {
+  error: unknown;
+  contract?: string | undefined;
+  onRetry?: () => void;
+}) {
   const { t } = useTranslation(["errors", "common"]);
   if (isApiError(error)) {
     if (error.kind === "forbidden") return <AccessDenied />;
-    if (error.kind === "network" || error.kind === "server") return <BackendUnavailable onRetry={onRetry} />;
+    if (error.kind === "network" || error.kind === "server")
+      return <BackendUnavailable onRetry={onRetry} />;
     if (error.kind === "notFound") return <DataUnavailable contract={contract} />;
     if (error.kind === "rateLimited")
       return (
@@ -60,6 +76,8 @@ export function QueryBoundary<T>({
 }) {
   if (query.isPending) return <LoadingState />;
   if (query.error || query.data === undefined)
-    return <QueryError error={query.error} contract={contract} onRetry={() => void query.refetch()} />;
+    return (
+      <QueryError error={query.error} contract={contract} onRetry={() => void query.refetch()} />
+    );
   return <>{children(query.data)}</>;
 }

@@ -4,8 +4,22 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DateDisplay, EmptyState, LoadingState, PageHeader, Pagination, QueryError } from "@/shared/components";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DateDisplay,
+  EmptyState,
+  LoadingState,
+  PageHeader,
+  Pagination,
+  QueryError,
+} from "@/shared/components";
 import { formatNumber } from "@/shared/format/format";
 import { CompanyStatusBadge } from "@/modules/platform-admin/components/badges";
 import { FilterBar, SelectFilter, TextFilter } from "@/modules/platform-admin/components/FilterBar";
@@ -80,7 +94,11 @@ export function CompaniesListPage({
       {q.isPending ? (
         <LoadingState />
       ) : q.error ? (
-        <QueryError error={q.error} contract={companyContracts.list} onRetry={() => void q.refetch()} />
+        <QueryError
+          error={q.error}
+          contract={companyContracts.list}
+          onRetry={() => void q.refetch()}
+        />
       ) : !q.data.data.length ? (
         <EmptyState title={t("companies.empty")} />
       ) : (
@@ -115,7 +133,9 @@ export function CompaniesListPage({
                     <TableCell>
                       <CompanyStatusBadge status={c.status} />
                     </TableCell>
-                    <TableCell>{c.planName ?? plans.data?.find((p) => p.id === c.planId)?.name ?? c.planId}</TableCell>
+                    <TableCell>
+                      {c.planName ?? plans.data?.find((p) => p.id === c.planId)?.name ?? c.planId}
+                    </TableCell>
                     <TableCell>
                       <DateDisplay value={c.dueDate} />
                     </TableCell>
@@ -123,7 +143,9 @@ export function CompaniesListPage({
                       <DateDisplay value={c.trialEndsAt} />
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {c.usersCount !== undefined ? `${formatNumber(c.usersCount)} / ${formatNumber(c.userLimit)}` : formatNumber(c.userLimit)}
+                      {c.usersCount !== undefined
+                        ? `${formatNumber(c.usersCount)} / ${formatNumber(c.userLimit)}`
+                        : formatNumber(c.userLimit)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {c.connectionsCount !== undefined
@@ -133,12 +155,18 @@ export function CompaniesListPage({
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button asChild variant="ghost" size="sm">
-                          <Link to="/app/plataforma/empresas/$companyId" params={{ companyId: c.id }}>
+                          <Link
+                            to="/app/plataforma/empresas/$companyId"
+                            params={{ companyId: c.id }}
+                          >
                             {t("common:actions.view")}
                           </Link>
                         </Button>
                         <Button asChild variant="ghost" size="sm">
-                          <Link to="/app/plataforma/empresas/$companyId/editar" params={{ companyId: c.id }}>
+                          <Link
+                            to="/app/plataforma/empresas/$companyId/editar"
+                            params={{ companyId: c.id }}
+                          >
                             {t("common:actions.edit")}
                           </Link>
                         </Button>
@@ -149,7 +177,12 @@ export function CompaniesListPage({
               </TableBody>
             </Table>
           </div>
-          <Pagination page={q.data.page} pageSize={q.data.pageSize} total={q.data.total} onPageChange={(page) => setSearch({ page })} />
+          <Pagination
+            page={q.data.page}
+            pageSize={q.data.pageSize}
+            total={q.data.total}
+            onPageChange={(page) => setSearch({ page })}
+          />
         </>
       )}
     </div>

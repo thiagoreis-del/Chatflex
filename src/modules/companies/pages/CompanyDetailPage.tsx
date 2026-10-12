@@ -5,9 +5,28 @@ import { useTranslation } from "react-i18next";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DateDisplay, EmptyState, LoadingState, MoneyDisplay, PageHeader, QueryBoundary, QueryError } from "@/shared/components";
-import { CompanyStatusBadge, InvoiceStatusBadge, SubscriptionStatusBadge } from "@/modules/platform-admin/components/badges";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DateDisplay,
+  EmptyState,
+  LoadingState,
+  MoneyDisplay,
+  PageHeader,
+  QueryBoundary,
+  QueryError,
+} from "@/shared/components";
+import {
+  CompanyStatusBadge,
+  InvoiceStatusBadge,
+  SubscriptionStatusBadge,
+} from "@/modules/platform-admin/components/badges";
 import { UsageProgress } from "@/modules/platform-admin/components/UsageProgress";
 import { PlanFeatureList } from "@/modules/plans/components/PlanFeatureList";
 import { planContracts, planQuery } from "@/modules/plans/api";
@@ -45,8 +64,17 @@ function UsagePanel({ companyId }: { companyId: string }) {
       {(u) => (
         <div className="space-y-5">
           <UsageProgress label={t("usage.users")} used={u.users.used} limit={u.users.limit} />
-          <UsageProgress label={t("usage.connections")} used={u.connections.used} limit={u.connections.limit} />
-          <UsageProgress label={t("usage.storage")} used={u.storage.usedMb} limit={u.storage.limitMb} unit="mb" />
+          <UsageProgress
+            label={t("usage.connections")}
+            used={u.connections.used}
+            limit={u.connections.limit}
+          />
+          <UsageProgress
+            label={t("usage.storage")}
+            used={u.storage.usedMb}
+            limit={u.storage.limitMb}
+            unit="mb"
+          />
           {u.updatedAt && (
             <p className="text-xs text-muted-foreground">
               {t("usage.updatedAt")} <DateDisplay value={u.updatedAt} withTime />
@@ -63,14 +91,22 @@ function SummaryPanel({ companyId, kind }: { companyId: string; kind: "users" | 
   const q = useQuery(companyUsageQuery(companyId));
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">{t(kind === "users" ? "companies.detail.usersSummary" : "companies.detail.connectionsSummary")}</p>
+      <p className="text-sm text-muted-foreground">
+        {t(
+          kind === "users"
+            ? "companies.detail.usersSummary"
+            : "companies.detail.connectionsSummary",
+        )}
+      </p>
       <QueryBoundary query={q} contract={companyContracts.usage}>
         {(u) => (
           <UsageProgress label={t(`usage.${kind}`)} used={u[kind].used} limit={u[kind].limit} />
         )}
       </QueryBoundary>
       <Button variant="outline" disabled aria-disabled="true">
-        {t(kind === "users" ? "companies.detail.manageUsers" : "companies.detail.manageConnections")}
+        {t(
+          kind === "users" ? "companies.detail.manageUsers" : "companies.detail.manageConnections",
+        )}
       </Button>
     </div>
   );
@@ -82,14 +118,39 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
   const [action, setAction] = useState<CompanyAction | null>(null);
   const [tab, setTab] = useState("overview");
   const plan = useQuery({ ...planQuery(q.data?.planId ?? ""), enabled: !!q.data?.planId });
-  const subs = useQuery({ ...subscriptionsQuery({ page: 1, pageSize: 10, companyId }), enabled: tab === "subscription" });
-  const invoices = useQuery({ ...invoicesQuery({ page: 1, pageSize: 20, companyId }), enabled: tab === "invoices" });
-  const audit = useQuery({ ...auditQuery({ page: 1, pageSize: 20, companyId }), enabled: tab === "audit" });
+  const subs = useQuery({
+    ...subscriptionsQuery({ page: 1, pageSize: 10, companyId }),
+    enabled: tab === "subscription",
+  });
+  const invoices = useQuery({
+    ...invoicesQuery({ page: 1, pageSize: 20, companyId }),
+    enabled: tab === "invoices",
+  });
+  const audit = useQuery({
+    ...auditQuery({ page: 1, pageSize: 20, companyId }),
+    enabled: tab === "audit",
+  });
 
   if (q.isPending) return <LoadingState />;
-  if (q.error || !q.data) return <QueryError error={q.error} contract={companyContracts.detail} onRetry={() => void q.refetch()} />;
+  if (q.error || !q.data)
+    return (
+      <QueryError
+        error={q.error}
+        contract={companyContracts.detail}
+        onRetry={() => void q.refetch()}
+      />
+    );
   const c = q.data;
-  const tabs = ["overview", "subscription", "limits", "users", "connections", "features", "invoices", "audit"] as const;
+  const tabs = [
+    "overview",
+    "subscription",
+    "limits",
+    "users",
+    "connections",
+    "features",
+    "invoices",
+    "audit",
+  ] as const;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -106,7 +167,9 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
       />
       <div className="flex flex-wrap items-center gap-3">
         <CompanyStatusBadge status={c.status} />
-        <span className="text-sm text-muted-foreground">{plan.data?.name ?? c.planName ?? c.planId}</span>
+        <span className="text-sm text-muted-foreground">
+          {plan.data?.name ?? c.planName ?? c.planId}
+        </span>
       </div>
 
       <section className="rounded-xl border bg-card p-4" aria-labelledby="acoes">
@@ -115,7 +178,12 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
         </h2>
         <div className="flex flex-wrap gap-2">
           {availableActions(c).map((a) => (
-            <Button key={a} size="sm" variant={a === "suspend" || a === "cancel" ? "destructive" : "outline"} onClick={() => setAction(a)}>
+            <Button
+              key={a}
+              size="sm"
+              variant={a === "suspend" || a === "cancel" ? "destructive" : "outline"}
+              onClick={() => setAction(a)}
+            >
               {t(`actions.${a}`)}
             </Button>
           ))}
@@ -172,10 +240,15 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
                         <Info label={t("subscriptions.columns.status")}>
                           <SubscriptionStatusBadge status={s.status} />
                         </Info>
-                        <Info label={t("subscriptions.columns.cycle")}>{t(`billingCycle.${s.billingCycle}`)}</Info>
-                        <Info label={t("subscriptions.columns.plan")}>{s.planName ?? s.planId}</Info>
+                        <Info label={t("subscriptions.columns.cycle")}>
+                          {t(`billingCycle.${s.billingCycle}`)}
+                        </Info>
+                        <Info label={t("subscriptions.columns.plan")}>
+                          {s.planName ?? s.planId}
+                        </Info>
                         <Info label={t("subscriptions.columns.period")}>
-                          <DateDisplay value={s.currentPeriodStart} /> – <DateDisplay value={s.currentPeriodEnd} />
+                          <DateDisplay value={s.currentPeriodStart} /> –{" "}
+                          <DateDisplay value={s.currentPeriodEnd} />
                         </Info>
                         <Info label={t("subscriptions.columns.nextCharge")}>
                           <DateDisplay value={s.nextChargeAt ?? null} />
@@ -255,7 +328,12 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
         </div>
       </Tabs>
 
-      <SensitiveActionDialog key={action ?? "none"} company={c} action={action} onClose={() => setAction(null)} />
+      <SensitiveActionDialog
+        key={action ?? "none"}
+        company={c}
+        action={action}
+        onClose={() => setAction(null)}
+      />
     </div>
   );
 }

@@ -1,5 +1,11 @@
 export type SubscriptionStatus = "trialing" | "active" | "past_due" | "suspended" | "cancelled";
-export const subscriptionStatuses: SubscriptionStatus[] = ["trialing", "active", "past_due", "suspended", "cancelled"];
+export const subscriptionStatuses: SubscriptionStatus[] = [
+  "trialing",
+  "active",
+  "past_due",
+  "suspended",
+  "cancelled",
+];
 
 export interface Subscription {
   id: string;
@@ -17,7 +23,13 @@ export interface Subscription {
 }
 
 export type InvoiceStatus = "open" | "paid" | "overdue" | "cancelled" | "refunded";
-export const invoiceStatuses: InvoiceStatus[] = ["open", "paid", "overdue", "cancelled", "refunded"];
+export const invoiceStatuses: InvoiceStatus[] = [
+  "open",
+  "paid",
+  "overdue",
+  "cancelled",
+  "refunded",
+];
 
 /** Valor final sempre definido pelo backend. O frontend nunca marca fatura como paga. */
 export interface Invoice {

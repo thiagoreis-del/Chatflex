@@ -3,7 +3,17 @@ import { cn } from "@/lib/utils";
 import { formatNumber } from "@/shared/format/format";
 
 /** Uso vs. contratado — valores exclusivamente do backend. */
-export function UsageProgress({ label, used, limit, unit }: { label: string; used: number; limit: number; unit?: "mb" }) {
+export function UsageProgress({
+  label,
+  used,
+  limit,
+  unit,
+}: {
+  label: string;
+  used: number;
+  limit: number;
+  unit?: "mb";
+}) {
   const { t } = useTranslation("platform");
   const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   const near = pct >= 85;
@@ -26,9 +36,14 @@ export function UsageProgress({ label, used, limit, unit }: { label: string; use
         aria-valuetext={text}
         className="h-2.5 overflow-hidden rounded-full bg-muted"
       >
-        <div className={cn("h-full rounded-full transition-all", near ? "bg-warning" : "bg-primary")} style={{ width: `${pct}%` }} />
+        <div
+          className={cn("h-full rounded-full transition-all", near ? "bg-warning" : "bg-primary")}
+          style={{ width: `${pct}%` }}
+        />
       </div>
-      {near && <p className="text-xs font-medium text-warning-foreground">{t("usage.nearLimit")}</p>}
+      {near && (
+        <p className="text-xs font-medium text-warning-foreground">{t("usage.nearLimit")}</p>
+      )}
     </div>
   );
 }

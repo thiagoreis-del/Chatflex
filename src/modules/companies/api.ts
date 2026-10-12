@@ -3,7 +3,13 @@ import { apiRequest } from "@/shared/api/client";
 import { companyKeys } from "@/shared/api/query-keys";
 import { platformEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import type { Paginated } from "@/shared/types/pagination";
-import type { Company, CompanyFilters, CompanyInput, CompanyUsage, CreateCompanyRequest } from "./types";
+import type {
+  Company,
+  CompanyFilters,
+  CompanyInput,
+  CompanyUsage,
+  CreateCompanyRequest,
+} from "./types";
 
 export const companyContracts = {
   list: "GET /platform/companies",
@@ -14,7 +20,8 @@ export const companyContracts = {
 export const companiesQuery = (filters: CompanyFilters) =>
   queryOptions({
     queryKey: companyKeys.list(filters),
-    queryFn: ({ signal }) => apiRequest<Paginated<Company>>(withQuery(ep.companies, filters), { signal }),
+    queryFn: ({ signal }) =>
+      apiRequest<Paginated<Company>>(withQuery(ep.companies, filters), { signal }),
   });
 
 export const companyQuery = (companyId: string) =>
@@ -33,7 +40,10 @@ export function createCompany(body: CreateCompanyRequest) {
   return apiRequest<Company>(ep.companies, { method: "POST", body });
 }
 
-export function updateCompany(companyId: string, body: Partial<CompanyInput> & { reason?: string; dueDate?: string }) {
+export function updateCompany(
+  companyId: string,
+  body: Partial<CompanyInput> & { reason?: string; dueDate?: string },
+) {
   return apiRequest<Company>(ep.company(companyId), { method: "PATCH", body });
 }
 

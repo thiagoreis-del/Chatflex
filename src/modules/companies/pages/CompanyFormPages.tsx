@@ -20,7 +20,11 @@ export function CompanyCreatePage() {
       createCompany({
         ...v,
         status: v.status as CompanyStatus,
-        firstAdmin: { name: v.firstAdmin.name, email: v.firstAdmin.email, phone: v.firstAdmin.phone || undefined },
+        firstAdmin: {
+          name: v.firstAdmin.name,
+          email: v.firstAdmin.email,
+          phone: v.firstAdmin.phone || undefined,
+        },
       }),
     onSuccess: async (company) => {
       toast.success(t("companies.form.created"));
@@ -28,13 +32,24 @@ export function CompanyCreatePage() {
         qc.invalidateQueries({ queryKey: companyKeys.lists() }),
         qc.invalidateQueries({ queryKey: platformKeys.dashboard() }),
       ]);
-      await navigate({ to: "/app/plataforma/empresas/$companyId", params: { companyId: company.id } });
+      await navigate({
+        to: "/app/plataforma/empresas/$companyId",
+        params: { companyId: company.id },
+      });
     },
   });
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <PageHeader title={t("companies.form.newTitle")} description={t("companies.form.newSubtitle")} />
-      <CompanyForm mode="create" submitting={m.isPending} serverError={m.error ? t(errorMessageKey(m.error)) : null} onSubmit={(v) => m.mutate(v)} />
+      <PageHeader
+        title={t("companies.form.newTitle")}
+        description={t("companies.form.newSubtitle")}
+      />
+      <CompanyForm
+        mode="create"
+        submitting={m.isPending}
+        serverError={m.error ? t(errorMessageKey(m.error)) : null}
+        onSubmit={(v) => m.mutate(v)}
+      />
     </div>
   );
 }
@@ -46,7 +61,11 @@ export function CompanyEditPage({ companyId }: { companyId: string }) {
   const q = useQuery(companyQuery(companyId));
   const m = useMutation({
     mutationFn: (v: CompanyFormOutput) => {
-      const { firstAdmin: _ignored, trialDays: _t, ...rest } = v as CompanyFormOutput & { firstAdmin?: unknown };
+      const {
+        firstAdmin: _ignored,
+        trialDays: _t,
+        ...rest
+      } = v as CompanyFormOutput & { firstAdmin?: unknown };
       return updateCompany(companyId, { ...rest, status: rest.status as CompanyStatus });
     },
     onSuccess: async () => {
@@ -68,7 +87,13 @@ export function CompanyEditPage({ companyId }: { companyId: string }) {
       <PageHeader title={t("companies.form.editTitle")} description={q.data?.tradeName} />
       <QueryBoundary query={q} contract={companyContracts.detail}>
         {(company) => (
-          <CompanyForm mode="edit" company={company} submitting={m.isPending} serverError={serverError} onSubmit={(v) => m.mutate(v)} />
+          <CompanyForm
+            mode="edit"
+            company={company}
+            submitting={m.isPending}
+            serverError={serverError}
+            onSubmit={(v) => m.mutate(v)}
+          />
         )}
       </QueryBoundary>
     </div>

@@ -10,5 +10,6 @@ export const auditContract = "GET /platform/audit-events";
 export const auditQuery = (filters: AuditFilters) =>
   queryOptions({
     queryKey: auditKeys.list(filters),
-    queryFn: ({ signal }) => apiRequest<Paginated<AuditEvent>>(withQuery(ep.auditEvents, filters), { signal }),
+    queryFn: ({ signal }) =>
+      apiRequest<Paginated<AuditEvent>>(withQuery(ep.auditEvents, filters), { signal }),
   });

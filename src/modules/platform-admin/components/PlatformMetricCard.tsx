@@ -21,12 +21,18 @@ export function PlatformMetricCard({
   return (
     <section className="rounded-xl border bg-card p-5 shadow-soft">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-sans text-sm font-medium tracking-normal text-muted-foreground">{label}</h2>
+        <h2 className="font-sans text-sm font-medium tracking-normal text-muted-foreground">
+          {label}
+        </h2>
         <span
           aria-hidden
           className={cn(
             "grid size-8 place-items-center rounded-lg",
-            tone === "danger" ? "bg-destructive/10 text-destructive" : tone === "warning" ? "bg-warning/20 text-warning-foreground" : "bg-secondary text-primary",
+            tone === "danger"
+              ? "bg-destructive/10 text-destructive"
+              : tone === "warning"
+                ? "bg-warning/20 text-warning-foreground"
+                : "bg-secondary text-primary",
           )}
         >
           {icon}

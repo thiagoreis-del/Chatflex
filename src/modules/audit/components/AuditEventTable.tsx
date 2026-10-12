@@ -1,11 +1,24 @@
 import { useTranslation } from "react-i18next";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { DateDisplay, EmptyState } from "@/shared/components";
 import { AuditResultBadge } from "@/modules/platform-admin/components/badges";
 import type { AuditEvent } from "../types";
 
 /** Somente leitura. Mostra apenas metadados; nunca conteúdo sensível. */
-export function AuditEventTable({ events, hideCompany = false }: { events: AuditEvent[]; hideCompany?: boolean }) {
+export function AuditEventTable({
+  events,
+  hideCompany = false,
+}: {
+  events: AuditEvent[];
+  hideCompany?: boolean;
+}) {
   const { t } = useTranslation("platform");
   if (!events.length) return <EmptyState title={t("audit.empty")} />;
   return (

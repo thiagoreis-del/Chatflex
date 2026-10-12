@@ -3,9 +3,13 @@ import { isValidCpfOrCnpj, normalizeDocument } from "@/shared/validation/documen
 import { companyStatuses } from "./types";
 
 // Mensagens são chaves de tradução do namespace `validation` em common.
-const req = (max = 200) => z.string().trim().min(1, "validation.required").max(max, "validation.tooLong");
+const req = (max = 200) =>
+  z.string().trim().min(1, "validation.required").max(max, "validation.tooLong");
 const int = (min = 0) =>
-  z.coerce.number({ message: "validation.number" }).int("validation.integer").min(min, "validation.min");
+  z.coerce
+    .number({ message: "validation.number" })
+    .int("validation.integer")
+    .min(min, "validation.min");
 const phone = z
   .string()
   .trim()
