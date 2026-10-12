@@ -28,7 +28,11 @@ export function PageHeader({
 export function LoadingState({ label, className }: { label?: string; className?: string }) {
   const { t } = useTranslation();
   return (
-    <div role="status" aria-live="polite" className={cn("flex items-center justify-center gap-2 p-8 text-muted-foreground", className)}>
+    <div
+      role="status"
+      aria-live="polite"
+      className={cn("flex items-center justify-center gap-2 p-8 text-muted-foreground", className)}
+    >
       <Loader2 className="size-5 animate-spin" aria-hidden />
       <span>{label ?? t("states.loading")}</span>
     </div>
@@ -56,7 +60,9 @@ function StateShell({
     warning: "bg-warning/20 text-warning-foreground",
   }[tone];
   return (
-    <section className={cn("mx-auto flex max-w-md flex-col items-center gap-3 p-8 text-center", className)}>
+    <section
+      className={cn("mx-auto flex max-w-md flex-col items-center gap-3 p-8 text-center", className)}
+    >
       <div className={cn("grid size-12 place-items-center rounded-2xl", toneCls)} aria-hidden>
         {icon}
       </div>
@@ -67,12 +73,35 @@ function StateShell({
   );
 }
 
-export function EmptyState({ title, description, action }: { title?: string; description?: string; action?: ReactNode }) {
+export function EmptyState({
+  title,
+  description,
+  action,
+}: {
+  title?: string;
+  description?: string;
+  action?: ReactNode;
+}) {
   const { t } = useTranslation();
-  return <StateShell icon={<Inbox className="size-6" />} title={title ?? t("states.empty")} description={description} action={action} />;
+  return (
+    <StateShell
+      icon={<Inbox className="size-6" />}
+      title={title ?? t("states.empty")}
+      description={description}
+      action={action}
+    />
+  );
 }
 
-export function ErrorState({ title, description, onRetry }: { title?: string; description?: string; onRetry?: () => void }) {
+export function ErrorState({
+  title,
+  description,
+  onRetry,
+}: {
+  title?: string;
+  description?: string;
+  onRetry?: () => void;
+}) {
   const { t } = useTranslation(["errors", "common"]);
   return (
     <StateShell
@@ -103,7 +132,13 @@ export function AccessDenied({ className }: { className?: string }) {
   );
 }
 
-export function BackendUnavailable({ onRetry, className }: { onRetry?: () => void; className?: string }) {
+export function BackendUnavailable({
+  onRetry,
+  className,
+}: {
+  onRetry?: () => void;
+  className?: string;
+}) {
   const { t } = useTranslation(["errors", "common"]);
   return (
     <StateShell

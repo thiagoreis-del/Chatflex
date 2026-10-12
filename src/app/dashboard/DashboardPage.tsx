@@ -11,7 +11,15 @@ import { useApiStatus } from "@/shared/api/api-status";
 import { useSocketStatus } from "@/shared/socket/socket-client";
 import { cn } from "@/lib/utils";
 
-function InfoCard({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
+function InfoCard({
+  icon,
+  title,
+  children,
+}: {
+  icon: ReactNode;
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <section className="rounded-2xl border bg-card p-5 shadow-soft">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -27,7 +35,10 @@ function StatusDot({ tone }: { tone: "ok" | "warn" | "off" }) {
   return (
     <span
       aria-hidden
-      className={cn("inline-block size-2.5 rounded-full", tone === "ok" ? "bg-success" : tone === "warn" ? "bg-warning" : "bg-muted-foreground/50")}
+      className={cn(
+        "inline-block size-2.5 rounded-full",
+        tone === "ok" ? "bg-success" : tone === "warn" ? "bg-warning" : "bg-muted-foreground/50",
+      )}
     />
   );
 }
@@ -59,13 +70,23 @@ export function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <InfoCard icon={<Activity className="size-4" />} title={t("api.title")}>
           <span className="flex items-center gap-2">
-            <StatusDot tone={apiStatus === "online" ? "ok" : apiStatus === "offline" ? "warn" : "off"} />
+            <StatusDot
+              tone={apiStatus === "online" ? "ok" : apiStatus === "offline" ? "warn" : "off"}
+            />
             {t(`api.${apiStatus}`)}
           </span>
         </InfoCard>
         <InfoCard icon={<Radio className="size-4" />} title={t("socket.title")}>
           <span className="flex items-center gap-2">
-            <StatusDot tone={socketStatus === "connected" ? "ok" : socketStatus === "reconnecting" ? "warn" : "off"} />
+            <StatusDot
+              tone={
+                socketStatus === "connected"
+                  ? "ok"
+                  : socketStatus === "reconnecting"
+                    ? "warn"
+                    : "off"
+              }
+            />
             <span className="text-base">{t(`socket.${socketStatus}`)}</span>
           </span>
         </InfoCard>
@@ -87,7 +108,9 @@ export function DashboardPage() {
           <ul className="mt-4 flex flex-wrap gap-2">
             {user.permissions.map((p) => (
               <li key={p}>
-                <Badge variant="secondary" className="font-mono">{p}</Badge>
+                <Badge variant="secondary" className="font-mono">
+                  {p}
+                </Badge>
               </li>
             ))}
           </ul>
@@ -97,16 +120,25 @@ export function DashboardPage() {
       </section>
 
       <section aria-labelledby="indicadores">
-        <h2 id="indicadores" className="text-lg font-semibold">{t("indicators.title")}</h2>
+        <h2 id="indicadores" className="text-lg font-semibold">
+          {t("indicators.title")}
+        </h2>
         <p className="text-sm text-muted-foreground">{t("indicators.description")}</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           {(["open", "waiting", "closed"] as const).map((k) => (
             <div key={k} className="rounded-2xl border border-dashed bg-muted/40 p-5">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="font-sans text-sm font-medium tracking-normal text-muted-foreground">{t(`indicators.${k}`)}</h3>
+                <h3 className="font-sans text-sm font-medium tracking-normal text-muted-foreground">
+                  {t(`indicators.${k}`)}
+                </h3>
                 <Badge variant="outline">{t("common:states.unavailable")}</Badge>
               </div>
-              <p className="mt-3 text-2xl font-semibold text-muted-foreground" aria-label={t("common:states.pendingContract")}>—</p>
+              <p
+                className="mt-3 text-2xl font-semibold text-muted-foreground"
+                aria-label={t("common:states.pendingContract")}
+              >
+                —
+              </p>
             </div>
           ))}
         </div>

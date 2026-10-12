@@ -7,10 +7,22 @@
   "cta": "Entrar na plataforma",
   "benefitsTitle": "Feito para o dia a dia do atendimento",
   "benefits": {
-    "queues": { "title": "Filas organizadas", "text": "Cada conversa chega para a equipe certa, na ordem certa." },
-    "team": { "title": "Equipe alinhada", "text": "Perfis e permissões para cada pessoa ver só o que precisa." },
-    "history": { "title": "Histórico completo", "text": "Contexto de cada cliente sempre à mão, sem planilhas." },
-    "secure": { "title": "Seguro por padrão", "text": "Sessões protegidas e acesso controlado pelo servidor." }
+    "queues": {
+      "title": "Filas organizadas",
+      "text": "Cada conversa chega para a equipe certa, na ordem certa."
+    },
+    "team": {
+      "title": "Equipe alinhada",
+      "text": "Perfis e permissões para cada pessoa ver só o que precisa."
+    },
+    "history": {
+      "title": "Histórico completo",
+      "text": "Contexto de cada cliente sempre à mão, sem planilhas."
+    },
+    "secure": {
+      "title": "Seguro por padrão",
+      "text": "Sessões protegidas e acesso controlado pelo servidor."
+    }
   },
   "preview": {
     "customer": "Cliente",

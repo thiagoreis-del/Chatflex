@@ -22,5 +22,7 @@ export function AppLogo({ className }: { className?: string }) {
 
 export function AppName({ className }: { className?: string }) {
   const { t } = useTranslation();
-  return <span className={cn("font-display font-bold tracking-tight", className)}>{t("appName")}</span>;
+  return (
+    <span className={cn("font-display font-bold tracking-tight", className)}>{t("appName")}</span>
+  );
 }

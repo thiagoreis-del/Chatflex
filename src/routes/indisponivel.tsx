@@ -4,7 +4,8 @@ import { BackendUnavailable } from "@/shared/components";
 import { pageMeta } from "@/shared/config/meta";
 
 export const Route = createFileRoute("/indisponivel")({
-  head: () => pageMeta("errors:unavailable.meta", "errors:unavailable.description", { noindex: true }),
+  head: () =>
+    pageMeta("errors:unavailable.meta", "errors:unavailable.description", { noindex: true }),
   component: UnavailableRoute,
 });
 

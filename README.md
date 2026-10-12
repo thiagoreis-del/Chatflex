@@ -27,13 +27,13 @@ bunx tsc --noEmit    # verificação de tipos
 
 ## Variáveis (todas públicas)
 
-| Variável | Uso |
-| --- | --- |
-| `VITE_API_URL` | URL base da API |
-| `VITE_SOCKET_URL` | URL do Socket |
-| `VITE_APP_NAME` | Nome exibido |
-| `VITE_APP_URL` | URL pública do app |
-| `VITE_USE_MOCKS` | `true` ativa mocks de demonstração |
+| Variável          | Uso                                |
+| ----------------- | ---------------------------------- |
+| `VITE_API_URL`    | URL base da API                    |
+| `VITE_SOCKET_URL` | URL do Socket                      |
+| `VITE_APP_NAME`   | Nome exibido                       |
+| `VITE_APP_URL`    | URL pública do app                 |
+| `VITE_USE_MOCKS`  | `true` ativa mocks de demonstração |
 
 Toda variável `VITE_` vai para o navegador. **Nunca** use para segredos.
 

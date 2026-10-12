@@ -2,7 +2,11 @@ import { i18n } from "@/shared/i18n";
 import { env } from "./env";
 
 /** Metadados de página a partir das traduções. */
-export function pageMeta(titleKey: string, descriptionKey?: string, extra: { noindex?: boolean } = {}) {
+export function pageMeta(
+  titleKey: string,
+  descriptionKey?: string,
+  extra: { noindex?: boolean } = {},
+) {
   const title = `${i18n.t(titleKey)} · ${env.appName}`;
   const description = i18n.t(descriptionKey ?? "landing:metaDescription");
   return {

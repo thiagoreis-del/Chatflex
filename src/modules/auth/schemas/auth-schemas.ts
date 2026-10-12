@@ -22,5 +22,8 @@ export const resetSchema = z
     password: z.string().min(8, "validation.passwordMin").max(128),
     confirm: z.string().min(1, "validation.passwordRequired"),
   })
-  .refine((v) => v.password === v.confirm, { message: "validation.passwordMismatch", path: ["confirm"] });
+  .refine((v) => v.password === v.confirm, {
+    message: "validation.passwordMismatch",
+    path: ["confirm"],
+  });
 export type ResetValues = z.infer<typeof resetSchema>;

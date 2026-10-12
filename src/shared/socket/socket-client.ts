@@ -19,12 +19,7 @@ import { createStore, useStore } from "@/shared/hooks/create-store";
 export const SOCKET_ENABLED = false;
 
 export type SocketStatus =
-  | "disabled"
-  | "idle"
-  | "connecting"
-  | "connected"
-  | "reconnecting"
-  | "disconnected";
+  "disabled" | "idle" | "connecting" | "connected" | "reconnecting" | "disconnected";
 
 export const socketStatusStore = createStore<SocketStatus>(SOCKET_ENABLED ? "idle" : "disabled");
 

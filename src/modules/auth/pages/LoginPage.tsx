@@ -11,11 +11,13 @@ import { AuthLayout } from "../components/AuthLayout";
 import { FormField } from "../components/FormField";
 import { loginSchema, type LoginValues } from "../schemas/auth-schemas";
 
-export function LoginPage({ redirectTo }: { redirectTo?: string }) {
+export function LoginPage({ redirectTo }: { redirectTo?: string | undefined }) {
   const { t } = useTranslation(["auth", "errors"]);
   const navigate = useNavigate();
   const [formError, setFormError] = useState<string | null>(null);
-  const { register, handleSubmit, formState } = useForm<LoginValues>({ resolver: zodResolver(loginSchema) });
+  const { register, handleSubmit, formState } = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+  });
 
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
@@ -39,10 +41,25 @@ export function LoginPage({ redirectTo }: { redirectTo?: string }) {
   return (
     <AuthLayout title={t("auth:login.title")} subtitle={t("auth:login.subtitle")}>
       <form onSubmit={onSubmit} noValidate className="space-y-4">
-        <FormField label={t("auth:login.email")} type="email" autoComplete="email" error={formState.errors.email?.message} {...register("email")} />
-        <FormField label={t("auth:login.password")} type="password" autoComplete="current-password" error={formState.errors.password?.message} {...register("password")} />
+        <FormField
+          label={t("auth:login.email")}
+          type="email"
+          autoComplete="email"
+          error={formState.errors.email?.message}
+          {...register("email")}
+        />
+        <FormField
+          label={t("auth:login.password")}
+          type="password"
+          autoComplete="current-password"
+          error={formState.errors.password?.message}
+          {...register("password")}
+        />
         {formError && (
-          <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p
+            role="alert"
+            className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
             {formError}
           </p>
         )}
@@ -50,11 +67,16 @@ export function LoginPage({ redirectTo }: { redirectTo?: string }) {
           {formState.isSubmitting ? t("auth:login.submitting") : t("auth:login.submit")}
         </Button>
         <div className="text-center">
-          <Link to="/esqueci-minha-senha" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+          <Link
+            to="/esqueci-minha-senha"
+            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+          >
             {t("auth:login.forgot")}
           </Link>
         </div>
-        {env.useMocks && <p className="text-center text-xs text-muted-foreground">{t("auth:login.demoHint")}</p>}
+        {env.useMocks && (
+          <p className="text-center text-xs text-muted-foreground">{t("auth:login.demoHint")}</p>
+        )}
       </form>
     </AuthLayout>
   );

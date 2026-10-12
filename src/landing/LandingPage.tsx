@@ -36,7 +36,9 @@ export function LandingPage() {
               <p className="inline-flex rounded-full bg-accent px-3 py-1 text-sm font-medium text-accent-foreground">
                 {t("eyebrow")}
               </p>
-              <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">{t("title")}</h1>
+              <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
+                {t("title")}
+              </h1>
               <p className="mt-5 max-w-xl text-lg text-muted-foreground">{t("subtitle")}</p>
               <Button asChild size="lg" className="mt-8 h-12 px-6 text-base">
                 <Link to="/login">
@@ -50,11 +52,17 @@ export function LandingPage() {
               <div className="rounded-[1.75rem] border bg-card p-5 shadow-soft">
                 <div className="flex items-center justify-between border-b pb-3">
                   <span className="text-sm font-semibold">{t("preview.customer")}</span>
-                  <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-secondary-foreground">{t("preview.queue")}</span>
+                  <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-secondary-foreground">
+                    {t("preview.queue")}
+                  </span>
                 </div>
                 <div className="space-y-3 py-4">
-                  <p className="max-w-[80%] rounded-2xl rounded-tl-sm bg-muted px-4 py-2.5 text-sm">{t("preview.msg1")}</p>
-                  <p className="ml-auto max-w-[80%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2.5 text-sm text-primary-foreground">{t("preview.msg2")}</p>
+                  <p className="max-w-[80%] rounded-2xl rounded-tl-sm bg-muted px-4 py-2.5 text-sm">
+                    {t("preview.msg1")}
+                  </p>
+                  <p className="ml-auto max-w-[80%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2.5 text-sm text-primary-foreground">
+                    {t("preview.msg2")}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 pt-1 text-xs text-muted-foreground">
                   <span className="size-2 rounded-full bg-success" /> {t("preview.agent")}
@@ -69,7 +77,10 @@ export function LandingPage() {
           <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {benefits.map(({ key, icon: Icon }) => (
               <li key={key} className="rounded-2xl border bg-card p-6">
-                <span className="grid size-10 place-items-center rounded-xl bg-secondary text-secondary-foreground" aria-hidden>
+                <span
+                  className="grid size-10 place-items-center rounded-xl bg-secondary text-secondary-foreground"
+                  aria-hidden
+                >
                   <Icon className="size-5" />
                 </span>
                 <h3 className="mt-4 text-lg font-semibold">{t(`benefits.${key}.title`)}</h3>

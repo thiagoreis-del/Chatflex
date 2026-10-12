@@ -14,7 +14,9 @@ export function ForgotPasswordPage() {
   const { t } = useTranslation(["auth", "errors"]);
   const [sent, setSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const { register, handleSubmit, formState } = useForm<ForgotValues>({ resolver: zodResolver(forgotSchema) });
+  const { register, handleSubmit, formState } = useForm<ForgotValues>({
+    resolver: zodResolver(forgotSchema),
+  });
 
   const onSubmit = handleSubmit(async ({ email }) => {
     setFormError(null);
@@ -37,15 +39,28 @@ export function ForgotPasswordPage() {
         </p>
       ) : (
         <form onSubmit={onSubmit} noValidate className="space-y-4">
-          <FormField label={t("auth:login.email")} type="email" autoComplete="email" error={formState.errors.email?.message} {...register("email")} />
-          {formError && <p role="alert" className="text-sm text-destructive">{formError}</p>}
+          <FormField
+            label={t("auth:login.email")}
+            type="email"
+            autoComplete="email"
+            error={formState.errors.email?.message}
+            {...register("email")}
+          />
+          {formError && (
+            <p role="alert" className="text-sm text-destructive">
+              {formError}
+            </p>
+          )}
           <Button type="submit" className="w-full" disabled={formState.isSubmitting}>
             {formState.isSubmitting ? t("auth:forgot.submitting") : t("auth:forgot.submit")}
           </Button>
         </form>
       )}
       <div className="mt-4 text-center">
-        <Link to="/login" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+        <Link
+          to="/login"
+          className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+        >
           {t("auth:forgot.backToLogin")}
         </Link>
       </div>

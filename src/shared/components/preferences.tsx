@@ -19,7 +19,11 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={`${t("theme.label")}: ${t(`theme.${theme}`)}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={`${t("theme.label")}: ${t(`theme.${theme}`)}`}
+        >
           <Icon className="size-5" aria-hidden />
         </Button>
       </DropdownMenuTrigger>
@@ -42,13 +46,20 @@ export function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={`${t("language.label")}: ${t(`language.${i18n.language}`)}`}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={`${t("language.label")}: ${t(`language.${i18n.language}`)}`}
+        >
           <Languages className="size-5" aria-hidden />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>{t("language.label")}</DropdownMenuLabel>
-        <DropdownMenuRadioGroup value={i18n.language} onValueChange={(v) => void i18n.changeLanguage(v)}>
+        <DropdownMenuRadioGroup
+          value={i18n.language}
+          onValueChange={(v) => void i18n.changeLanguage(v)}
+        >
           {supportedLanguages.map((lng) => (
             <DropdownMenuRadioItem key={lng} value={lng}>
               {t(`language.${lng}`)}

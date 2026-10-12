@@ -39,7 +39,9 @@ export function ConfirmDialog({
         {children}
         <AlertDialogFooter>
           <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>{confirmLabel ?? t("actions.confirm")}</AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>
+            {confirmLabel ?? t("actions.confirm")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -26,9 +26,9 @@ export async function mockRequest<T>(path: string, opts: RequestOptions): Promis
   const body = (opts.body ?? {}) as Record<string, string>;
   switch (path) {
     case endpoints.auth.login:
-      if (body.password !== "demo1234") throw new ApiError("unauthorized", 401);
+      if (body["password"] !== "demo1234") throw new ApiError("unauthorized", 401);
       mockLoggedIn = true;
-      return { accessToken: "mock-token", user: { ...demoUser, email: body.email } } as T;
+      return { accessToken: "mock-token", user: { ...demoUser, email: body["email"] } } as T;
     case endpoints.auth.refresh:
       if (!mockLoggedIn) throw new ApiError("unauthorized", 401);
       return { accessToken: "mock-token" } as T;
@@ -41,7 +41,7 @@ export async function mockRequest<T>(path: string, opts: RequestOptions): Promis
     case endpoints.auth.forgotPassword:
       return undefined as T;
     case endpoints.auth.resetPassword:
-      if (body.token === "expirado") throw new ApiError("validation", 422);
+      if (body["token"] === "expirado") throw new ApiError("validation", 422);
       return undefined as T;
     default:
       throw new ApiError("notFound", 404);
