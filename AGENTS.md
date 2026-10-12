@@ -8,3 +8,12 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Architecture rules
+- Folder layout follows the product context: `src/app`, `src/landing`, `src/modules/*`, `src/shared/*`, `src/mocks`; route files in `src/routes` stay thin and import pages. Why: keeps modules self-contained.
+- All HTTP goes through `src/shared/api/client.ts`; endpoint paths only in `src/shared/config/endpoints.ts`; env only via `src/shared/config/env.ts`. Why: single place for auth, refresh and errors.
+- Access token lives only in `src/shared/auth/token-store.ts` (memory). Why: security rule, refresh token is backend HttpOnly cookie.
+- `/app` routes are `ssr: false` and gated by `ensureSession()` in `beforeLoad`. Why: session exists only in browser memory.
+- Mocks are dynamically imported by the API client only when `VITE_USE_MOCKS=true`. Why: no silent fake data in production.
+- All visible text in `src/shared/i18n/locales/*`; app name via `{{appName}}` default variable. Why: i18n requirement.
+- Socket adapter stays disabled (`SOCKET_ENABLED`) until the backend contract is confirmed.

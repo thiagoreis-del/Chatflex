@@ -38,9 +38,6 @@ let bootstrapPromise: Promise<boolean> | null = null;
 export function ensureSession(): Promise<boolean> {
   const current = sessionStore.get();
   if (current.status === "authenticated") return Promise.resolve(true);
-  if (current.status === "unauthenticated" && !tokenStore.get()) {
-    // Já tentamos e falhou nesta carga; uma nova tentativa só ocorre via login.
-  }
   if (!bootstrapPromise) {
     sessionStore.set({ status: "loading", user: null });
     bootstrapPromise = (async () => {
