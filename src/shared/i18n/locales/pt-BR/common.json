@@ -12,13 +12,27 @@
     "backHome": "Voltar ao início",
     "goToDashboard": "Ir para o painel",
     "openMenu": "Abrir menu",
-    "closeMenu": "Fechar menu"
+    "closeMenu": "Fechar menu",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "edit": "Editar",
+    "view": "Ver",
+    "back": "Voltar",
+    "search": "Buscar",
+    "clearFilters": "Limpar filtros",
+    "next": "Continuar",
+    "create": "Criar"
   },
   "states": {
     "loading": "Carregando…",
     "empty": "Nada por aqui ainda.",
     "unavailable": "Indisponível",
-    "pendingContract": "Integração pendente"
+    "pendingContract": "Integração pendente",
+    "notInformed": "Não informado",
+    "dataUnavailable": "Dados indisponíveis",
+    "pendingContractLabel": "Contrato pendente:",
+    "all": "Todos",
+    "success": "Operação concluída."
   },
   "theme": {
     "label": "Tema",
@@ -41,6 +55,15 @@
       "whatsapp": "Conexões",
       "reports": "Relatórios",
       "settings": "Configurações"
+    },
+    "platform": {
+      "section": "Plataforma",
+      "overview": "Visão da plataforma",
+      "companies": "Empresas",
+      "plans": "Planos",
+      "subscriptions": "Assinaturas",
+      "invoices": "Faturas",
+      "audit": "Auditoria"
     }
   },
   "profile": {
@@ -56,5 +79,11 @@
   "logoutConfirm": {
     "title": "Sair da conta?",
     "description": "Sua sessão será encerrada neste navegador."
+  },
+  "pagination": {
+    "label": "Paginação",
+    "summary": "Página {{page}} de {{pages}} · {{total}} registros",
+    "previous": "Anterior",
+    "next": "Próxima"
   }
 }

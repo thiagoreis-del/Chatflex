@@ -1,11 +1,11 @@
-import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { notifyError, shouldRetry } from "@/shared/errors/handle-error";
 
 export const getRouter = () => {
+  // Consultas exibem o erro na própria página (QueryBoundary); mutações notificam por aviso.
   const queryClient = new QueryClient({
-    queryCache: new QueryCache({ onError: notifyError }),
     mutationCache: new MutationCache({ onError: notifyError }),
     defaultOptions: { queries: { retry: shouldRetry, refetchOnWindowFocus: false } },
   });
