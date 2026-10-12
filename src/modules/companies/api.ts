@@ -33,7 +33,7 @@ export function createCompany(body: CreateCompanyRequest) {
   return apiRequest<Company>(ep.companies, { method: "POST", body });
 }
 
-export function updateCompany(companyId: string, body: Partial<CompanyInput> & { reason?: string }) {
+export function updateCompany(companyId: string, body: Partial<CompanyInput> & { reason?: string; dueDate?: string }) {
   return apiRequest<Company>(ep.company(companyId), { method: "PATCH", body });
 }
 

@@ -59,7 +59,7 @@ export function SensitiveActionDialog({
         case "changePlan":
           return updateCompany(company.id, { planId, reason });
         case "changeDueDate":
-          return updateCompany(company.id, { reason, ...({ dueDate } as object) });
+          return updateCompany(company.id, { dueDate, reason });
         case "extendLimits":
           return updateCompanyLimits(company.id, { ...limits, reason });
         default:
