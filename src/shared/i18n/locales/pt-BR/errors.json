@@ -3,7 +3,7 @@
     "unauthorized": "Sua sessão expirou. Entre novamente.",
     "forbidden": "Você não tem permissão para esta ação.",
     "notFound": "O recurso solicitado não foi encontrado.",
-    "conflict": "Esta informação foi alterada por outra pessoa. Atualize e tente de novo.",
+    "conflict": "Esta informação foi alterada por outra pessoa. Atualize a página e tente de novo.",
     "validation": "Alguns dados estão inválidos. Revise e tente de novo.",
     "rateLimited": "Muitas tentativas. Aguarde um pouco e tente novamente.",
     "server": "O servidor encontrou um problema. Tente novamente em instantes.",

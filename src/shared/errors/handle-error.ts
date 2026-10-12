@@ -22,3 +22,8 @@ export function shouldRetry(failureCount: number, error: unknown) {
   }
   return false;
 }
+
+/** Chave de tradução para exibir um erro de API em formulários. */
+export function errorMessageKey(error: unknown): string {
+  return isApiError(error) ? `errors:${error.messageKey}` : "errors:api.unknown";
+}

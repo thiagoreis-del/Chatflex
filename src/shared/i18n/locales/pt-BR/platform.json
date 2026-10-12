@@ -1,0 +1,305 @@
+{
+  "dashboard": {
+    "meta": "Visão da plataforma",
+    "title": "Visão da plataforma",
+    "subtitle": "Indicadores gerais calculados pelo servidor.",
+    "metrics": {
+      "active": "Empresas ativas",
+      "trial": "Empresas em teste",
+      "overdue": "Empresas vencidas",
+      "suspended": "Empresas suspensas",
+      "users": "Usuários cadastrados",
+      "connections": "Conexões contratadas",
+      "revenue": "Receita mensal",
+      "pendingInvoices": "Faturas pendentes",
+      "delinquency": "Inadimplência"
+    },
+    "usageByPlan": "Uso por plano",
+    "usageByPlanEmpty": "Nenhuma empresa vinculada a planos.",
+    "companiesCount_one": "{{count}} empresa",
+    "companiesCount_other": "{{count}} empresas"
+  },
+  "companyStatus": {
+    "trial": "Em teste",
+    "active": "Ativa",
+    "overdue": "Vencida",
+    "suspended": "Suspensa",
+    "cancelled": "Cancelada",
+    "onboarding": "Implantação"
+  },
+  "subscriptionStatus": {
+    "trialing": "Em teste",
+    "active": "Ativa",
+    "past_due": "Em atraso",
+    "suspended": "Suspensa",
+    "cancelled": "Cancelada"
+  },
+  "invoiceStatus": {
+    "open": "Em aberto",
+    "paid": "Paga",
+    "overdue": "Vencida",
+    "cancelled": "Cancelada",
+    "refunded": "Reembolsada"
+  },
+  "auditResult": {
+    "success": "Sucesso",
+    "failure": "Falha",
+    "denied": "Negado"
+  },
+  "billingCycle": {
+    "monthly": "Mensal",
+    "annual": "Anual"
+  },
+  "features": {
+    "campaigns": "Campanhas",
+    "internalChat": "Chat interno",
+    "integrations": "Integrações",
+    "artificialIntelligence": "Inteligência artificial",
+    "advancedReports": "Relatórios avançados",
+    "externalApi": "API externa",
+    "automations": "Automações",
+    "enabled": "Habilitado",
+    "disabled": "Não incluído"
+  },
+  "usage": {
+    "users": "Usuários",
+    "connections": "Conexões",
+    "storage": "Armazenamento",
+    "ofLimit": "{{used}} de {{limit}}",
+    "storageOf": "{{used}} MB de {{limit}} MB",
+    "updatedAt": "Atualizado em",
+    "nearLimit": "Próximo do limite"
+  },
+  "companies": {
+    "meta": "Empresas",
+    "title": "Empresas",
+    "subtitle": "Clientes da plataforma, seus planos e situação.",
+    "new": "Nova empresa",
+    "searchPlaceholder": "Buscar por nome, documento ou e-mail",
+    "searchLabel": "Buscar empresas",
+    "filterStatus": "Status",
+    "filterPlan": "Plano",
+    "empty": "Nenhuma empresa encontrada.",
+    "columns": {
+      "company": "Empresa",
+      "status": "Status",
+      "plan": "Plano",
+      "dueDate": "Vencimento",
+      "trialEndsAt": "Fim do teste",
+      "users": "Usuários",
+      "connections": "Conexões",
+      "actions": "Ações"
+    },
+    "detail": {
+      "meta": "Detalhes da empresa",
+      "tabs": {
+        "overview": "Visão geral",
+        "subscription": "Assinatura",
+        "limits": "Limites",
+        "users": "Usuários",
+        "connections": "Conexões",
+        "features": "Funcionalidades",
+        "invoices": "Faturas",
+        "audit": "Auditoria"
+      },
+      "fields": {
+        "legalName": "Razão social",
+        "tradeName": "Nome fantasia",
+        "document": "CPF ou CNPJ",
+        "email": "E-mail",
+        "phone": "Telefone",
+        "responsibleName": "Responsável",
+        "plan": "Plano",
+        "dueDate": "Vencimento",
+        "trialEndsAt": "Fim do teste",
+        "createdAt": "Criada em",
+        "updatedAt": "Atualizada em",
+        "internalNotes": "Observações internas"
+      },
+      "actionsTitle": "Ações administrativas",
+      "usersSummary": "Resumo de usuários da empresa. A gestão de usuários chegará em uma etapa futura.",
+      "connectionsSummary": "Resumo de conexões da empresa. A gestão de conexões chegará em uma etapa futura.",
+      "manageUsers": "Gerenciar usuários (em breve)",
+      "manageConnections": "Gerenciar conexões (em breve)",
+      "noSubscription": "Nenhuma assinatura encontrada para esta empresa."
+    },
+    "form": {
+      "newMeta": "Nova empresa",
+      "editMeta": "Editar empresa",
+      "newTitle": "Nova empresa",
+      "editTitle": "Editar empresa",
+      "newSubtitle": "A empresa, o plano, os limites e o primeiro administrador são criados pelo servidor em uma única operação.",
+      "sections": {
+        "company": "Dados da empresa",
+        "plan": "Plano e período de teste",
+        "limits": "Limites",
+        "admin": "Primeiro administrador",
+        "notes": "Observações internas"
+      },
+      "trialDays": "Dias de teste",
+      "trialHint": "Use 0 para sem período de teste.",
+      "userLimit": "Limite de usuários",
+      "connectionLimit": "Limite de conexões",
+      "storageLimitMb": "Armazenamento (MB)",
+      "status": "Status",
+      "selectPlan": "Selecione um plano",
+      "plansUnavailable": "Não foi possível carregar os planos.",
+      "adminName": "Nome",
+      "adminEmail": "E-mail",
+      "adminPhone": "Telefone (opcional)",
+      "adminHint": "O administrador receberá um convite de primeiro acesso. Perfil, permissões e credenciais são definidos pelo servidor — nenhuma senha é criada aqui.",
+      "notesHint": "Visível apenas para superadministradores.",
+      "submitCreate": "Criar empresa",
+      "submitEdit": "Salvar alterações",
+      "created": "Empresa criada. O convite de primeiro acesso será enviado pelo servidor.",
+      "updated": "Empresa atualizada.",
+      "reasonLabel": "Motivo da alteração",
+      "conflict": "Os dados foram alterados por outra pessoa. Recarregue a página antes de salvar."
+    }
+  },
+  "actions": {
+    "activate": "Ativar",
+    "suspend": "Suspender",
+    "reactivate": "Reativar",
+    "cancel": "Cancelar empresa",
+    "endTrial": "Encerrar teste",
+    "changePlan": "Alterar plano",
+    "changeDueDate": "Alterar vencimento",
+    "extendLimits": "Ampliar limites",
+    "impact": {
+      "activate": "A empresa passará a ter acesso completo à plataforma.",
+      "suspend": "Todos os usuários da empresa perderão o acesso imediatamente até a reativação.",
+      "reactivate": "A empresa volta a ter acesso conforme o plano contratado.",
+      "cancel": "A assinatura será encerrada e a empresa perderá o acesso. Esta ação pode não ser reversível.",
+      "endTrial": "O período de teste termina agora e a cobrança do plano passa a valer.",
+      "changePlan": "Preço, limites e funcionalidades passam a seguir o novo plano.",
+      "changeDueDate": "A próxima cobrança seguirá a nova data.",
+      "extendLimits": "Os novos limites passam a valer imediatamente."
+    },
+    "dialog": {
+      "affected": "Empresa afetada",
+      "impactTitle": "Impacto",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Descreva o motivo desta ação",
+      "reasonMin": "Informe um motivo com pelo menos 10 caracteres.",
+      "newPlan": "Novo plano",
+      "newDueDate": "Novo vencimento",
+      "required": "Campo obrigatório.",
+      "secondTitle": "Confirmação final",
+      "secondDescription": "Para confirmar, digite o nome fantasia da empresa: {{name}}",
+      "secondLabel": "Nome fantasia",
+      "secondMismatch": "O nome digitado não confere.",
+      "confirm": "Confirmar",
+      "confirmFinal": "Confirmar definitivamente",
+      "running": "Enviando…",
+      "done": "Solicitação concluída pelo servidor."
+    }
+  },
+  "plans": {
+    "meta": "Planos",
+    "title": "Planos",
+    "subtitle": "Planos oferecidos às empresas. Preços e regras finais são validados pelo servidor.",
+    "new": "Novo plano",
+    "empty": "Nenhum plano cadastrado.",
+    "compare": "Comparação de recursos",
+    "columns": {
+      "name": "Plano",
+      "monthly": "Mensal",
+      "annual": "Anual",
+      "limits": "Limites",
+      "trial": "Teste",
+      "status": "Situação"
+    },
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "trialDays_one": "{{count}} dia",
+    "trialDays_other": "{{count}} dias",
+    "limitsShort": "{{users}} usuários · {{connections}} conexões · {{storage}} MB",
+    "linkedCompanies": "Empresas vinculadas",
+    "linkedEmpty": "Nenhuma empresa vinculada.",
+    "activate": "Ativar plano",
+    "deactivate": "Desativar plano",
+    "activated": "Plano ativado.",
+    "deactivated": "Plano desativado.",
+    "form": {
+      "newMeta": "Novo plano",
+      "detailMeta": "Plano",
+      "name": "Nome",
+      "description": "Descrição",
+      "monthlyPrice": "Preço mensal (R$)",
+      "annualPrice": "Preço anual (R$, opcional)",
+      "priceHint": "Valor de referência enviado em centavos. O servidor é a autoridade de preço.",
+      "priceInvalid": "Use o formato 199,90.",
+      "trialDays": "Dias de teste",
+      "features": "Funcionalidades",
+      "active": "Plano ativo",
+      "submitCreate": "Criar plano",
+      "submitEdit": "Salvar plano",
+      "created": "Plano criado.",
+      "updated": "Plano atualizado."
+    }
+  },
+  "subscriptions": {
+    "meta": "Assinaturas",
+    "title": "Assinaturas",
+    "subtitle": "Consulta de assinaturas. Cobranças são processadas exclusivamente pelo servidor.",
+    "empty": "Nenhuma assinatura encontrada.",
+    "columns": {
+      "company": "Empresa",
+      "plan": "Plano",
+      "cycle": "Ciclo",
+      "status": "Status",
+      "period": "Período atual",
+      "nextCharge": "Próxima cobrança",
+      "history": "Histórico"
+    },
+    "historyButton": "Ver histórico",
+    "historyTitle": "Histórico de alterações",
+    "companyIdFilter": "ID da empresa"
+  },
+  "invoices": {
+    "meta": "Faturas",
+    "title": "Faturas",
+    "subtitle": "Consulta de faturas. Valores e baixas são definidos somente pelo servidor.",
+    "empty": "Nenhuma fatura encontrada.",
+    "columns": {
+      "id": "Fatura",
+      "company": "Empresa",
+      "amount": "Valor",
+      "status": "Status",
+      "dueDate": "Vencimento",
+      "paidAt": "Pagamento",
+      "createdAt": "Emissão"
+    },
+    "filters": {
+      "dueFrom": "Vencimento de",
+      "dueTo": "Vencimento até",
+      "createdFrom": "Emitida de",
+      "createdTo": "Emitida até"
+    }
+  },
+  "audit": {
+    "meta": "Auditoria",
+    "title": "Auditoria",
+    "subtitle": "Registro somente leitura das ações administrativas. Dados sensíveis nunca são exibidos.",
+    "empty": "Nenhum evento encontrado.",
+    "columns": {
+      "date": "Data",
+      "user": "Usuário",
+      "company": "Empresa",
+      "action": "Ação",
+      "resource": "Recurso",
+      "result": "Resultado",
+      "reason": "Motivo",
+      "origin": "Origem"
+    },
+    "filters": {
+      "from": "De",
+      "to": "Até",
+      "companyId": "ID da empresa",
+      "userId": "ID do usuário",
+      "action": "Ação",
+      "result": "Resultado"
+    }
+  }
+}
