@@ -18,7 +18,6 @@ if (!i18n.isInitialized) {
     ns: ["common", "auth", "dashboard", "errors", "landing"],
     resources: { "pt-BR": { common, auth, dashboard, errors, landing } },
     interpolation: { escapeValue: false, defaultVariables: { appName: env.appName } },
-    initImmediate: false,
   });
 }
 
