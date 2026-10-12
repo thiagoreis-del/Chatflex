@@ -85,5 +85,16 @@
     "summary": "Página {{page}} de {{pages}} · {{total}} registros",
     "previous": "Anterior",
     "next": "Próxima"
+  },
+  "validation": {
+    "required": "Campo obrigatório.",
+    "tooLong": "Texto muito longo.",
+    "number": "Informe um número.",
+    "integer": "Informe um número inteiro.",
+    "min": "Valor abaixo do mínimo permitido.",
+    "max": "Valor acima do máximo permitido.",
+    "email": "Informe um e-mail válido.",
+    "phone": "Informe um telefone válido.",
+    "document": "CPF ou CNPJ inválido."
   }
 }
