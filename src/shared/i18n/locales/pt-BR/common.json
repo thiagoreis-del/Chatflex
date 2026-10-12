@@ -1,0 +1,60 @@
+{
+  "appName": "{{appName}}",
+  "logoAlt": "Logotipo do {{appName}}",
+  "skipToContent": "Pular para o conteúdo",
+  "demoBanner": "Ambiente de demonstração — dados fictícios",
+  "actions": {
+    "login": "Entrar",
+    "logout": "Sair",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "retry": "Tentar novamente",
+    "backHome": "Voltar ao início",
+    "goToDashboard": "Ir para o painel",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu"
+  },
+  "states": {
+    "loading": "Carregando…",
+    "empty": "Nada por aqui ainda.",
+    "unavailable": "Indisponível",
+    "pendingContract": "Integração pendente"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "language": {
+    "label": "Idioma",
+    "pt-BR": "Português (Brasil)"
+  },
+  "nav": {
+    "main": "Navegação principal",
+    "dashboard": "Painel",
+    "soon": "Em breve",
+    "modules": {
+      "tickets": "Atendimentos",
+      "contacts": "Contatos",
+      "queues": "Filas",
+      "whatsapp": "Conexões",
+      "reports": "Relatórios",
+      "settings": "Configurações"
+    }
+  },
+  "profile": {
+    "menu": "Menu do perfil",
+    "company": "Empresa",
+    "role": "Perfil"
+  },
+  "roles": {
+    "superadmin": "Superadministrador",
+    "company_admin": "Administrador da empresa",
+    "agent": "Atendente"
+  },
+  "logoutConfirm": {
+    "title": "Sair da conta?",
+    "description": "Sua sessão será encerrada neste navegador."
+  }
+}

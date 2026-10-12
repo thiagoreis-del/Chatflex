@@ -1,0 +1,34 @@
+{
+  "meta": "Painel",
+  "greeting": "Olá, {{name}}",
+  "subtitle": "Esta é a base do seu ambiente no {{appName}}.",
+  "api": {
+    "title": "API",
+    "unknown": "Verificando",
+    "online": "Conectada",
+    "offline": "Sem resposta"
+  },
+  "socket": {
+    "title": "Tempo real",
+    "disabled": "Desativado (contrato pendente)",
+    "idle": "Aguardando",
+    "connecting": "Conectando",
+    "connected": "Conectado",
+    "reconnecting": "Reconectando",
+    "disconnected": "Desconectado"
+  },
+  "company": "Empresa atual",
+  "role": "Perfil atual",
+  "permissions": {
+    "title": "Permissões carregadas",
+    "description": "Usadas apenas para ajustar a interface. O servidor valida cada ação.",
+    "none": "Nenhuma permissão informada."
+  },
+  "indicators": {
+    "title": "Indicadores",
+    "description": "Os indicadores serão exibidos quando a integração estiver disponível.",
+    "open": "Atendimentos abertos",
+    "waiting": "Aguardando na fila",
+    "closed": "Encerrados hoje"
+  }
+}

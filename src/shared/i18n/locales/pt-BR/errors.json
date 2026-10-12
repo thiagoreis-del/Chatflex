@@ -1,0 +1,37 @@
+{
+  "api": {
+    "unauthorized": "Sua sessão expirou. Entre novamente.",
+    "forbidden": "Você não tem permissão para esta ação.",
+    "notFound": "O recurso solicitado não foi encontrado.",
+    "conflict": "Esta informação foi alterada por outra pessoa. Atualize e tente de novo.",
+    "validation": "Alguns dados estão inválidos. Revise e tente de novo.",
+    "rateLimited": "Muitas tentativas. Aguarde um pouco e tente novamente.",
+    "server": "O servidor encontrou um problema. Tente novamente em instantes.",
+    "network": "Não foi possível conectar ao servidor.",
+    "aborted": "A operação foi cancelada.",
+    "unknown": "Algo deu errado. Tente novamente."
+  },
+  "generic": {
+    "title": "Algo deu errado",
+    "description": "Não foi possível carregar este conteúdo."
+  },
+  "403": {
+    "meta": "Acesso negado",
+    "title": "Acesso negado",
+    "description": "Seu perfil não tem acesso a esta área. Se precisar, fale com o administrador da sua empresa."
+  },
+  "404": {
+    "meta": "Página não encontrada",
+    "title": "Página não encontrada",
+    "description": "O endereço pode ter mudado ou não existe."
+  },
+  "unavailable": {
+    "meta": "Serviço indisponível",
+    "title": "Serviço temporariamente indisponível",
+    "description": "Não conseguimos falar com o servidor agora. Verifique sua conexão ou tente novamente em alguns minutos."
+  },
+  "pending": {
+    "title": "Integração pendente",
+    "description": "Este recurso depende de um serviço que ainda não foi conectado."
+  }
+}

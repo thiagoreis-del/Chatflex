@@ -1,0 +1,35 @@
+{
+  "metaTitle": "{{appName}} — atendimento multicanal para equipes",
+  "metaDescription": "Centralize as conversas da sua empresa no WhatsApp com filas, equipes e histórico em um só lugar.",
+  "eyebrow": "Atendimento multicanal",
+  "title": "Todas as conversas da sua equipe, em um só lugar.",
+  "subtitle": "O {{appName}} organiza o atendimento pelo WhatsApp em filas e equipes, para que nenhum cliente fique sem resposta.",
+  "cta": "Entrar na plataforma",
+  "benefitsTitle": "Feito para o dia a dia do atendimento",
+  "benefits": {
+    "queues": {
+      "title": "Filas organizadas",
+      "text": "Cada conversa chega para a equipe certa, na ordem certa."
+    },
+    "team": {
+      "title": "Equipe alinhada",
+      "text": "Perfis e permissões para cada pessoa ver só o que precisa."
+    },
+    "history": {
+      "title": "Histórico completo",
+      "text": "Contexto de cada cliente sempre à mão, sem planilhas."
+    },
+    "secure": {
+      "title": "Seguro por padrão",
+      "text": "Sessões protegidas e acesso controlado pelo servidor."
+    }
+  },
+  "preview": {
+    "customer": "Cliente",
+    "agent": "Atendente",
+    "msg1": "Oi! Meu pedido ainda não chegou.",
+    "msg2": "Olá! Vou verificar agora para você.",
+    "queue": "Fila: Suporte"
+  },
+  "footer": "© {{year}} {{appName}}"
+}
