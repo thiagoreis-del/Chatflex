@@ -26,7 +26,7 @@ export function DataUnavailable({ contract, compact = false }: { contract?: stri
  * 403 → acesso negado; rede/5xx → backend indisponível; 404 → contrato pendente;
  * 429 → tentativa excessiva; demais → erro genérico.
  */
-export function QueryError({ error, contract, onRetry }: { error: unknown; contract?: string; onRetry?: () => void }) {
+export function QueryError({ error, contract, onRetry }: { error: unknown; contract?: string | undefined; onRetry?: () => void }) {
   const { t } = useTranslation(["errors", "common"]);
   if (isApiError(error)) {
     if (error.kind === "forbidden") return <AccessDenied />;

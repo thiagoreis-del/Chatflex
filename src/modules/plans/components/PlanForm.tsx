@@ -54,7 +54,7 @@ export function PlanForm({
       storageLimitMb: plan?.storageLimitMb ?? 1024,
       trialDays: plan?.trialDays ?? 0,
       active: plan?.active ?? true,
-      features: plan?.features ?? Object.fromEntries(planFeatureKeys.map((k) => [k, false])) as Plan["features"],
+      features: plan?.features ?? (Object.fromEntries(planFeatureKeys.map((k) => [k, false])) as unknown as Plan["features"]),
     },
   });
   const e = formState.errors;

@@ -19,6 +19,18 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
+import { Route as AppPlataformaRouteImport } from './routes/app.plataforma'
+import { Route as AppPlataformaIndexRouteImport } from './routes/app.plataforma.index'
+import { Route as AppPlataformaAssinaturasRouteImport } from './routes/app.plataforma.assinaturas'
+import { Route as AppPlataformaAuditoriaRouteImport } from './routes/app.plataforma.auditoria'
+import { Route as AppPlataformaFaturasRouteImport } from './routes/app.plataforma.faturas'
+import { Route as AppPlataformaEmpresasIndexRouteImport } from './routes/app.plataforma.empresas.index'
+import { Route as AppPlataformaEmpresasNovaRouteImport } from './routes/app.plataforma.empresas.nova'
+import { Route as AppPlataformaPlanosIndexRouteImport } from './routes/app.plataforma.planos.index'
+import { Route as AppPlataformaPlanosPlanIdRouteImport } from './routes/app.plataforma.planos.$planId'
+import { Route as AppPlataformaPlanosNovoRouteImport } from './routes/app.plataforma.planos.novo'
+import { Route as AppPlataformaEmpresasCompanyIdIndexRouteImport } from './routes/app.plataforma.empresas.$companyId.index'
+import { Route as AppPlataformaEmpresasCompanyIdEditarRouteImport } from './routes/app.plataforma.empresas.$companyId.editar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +82,73 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPlataformaRoute = AppPlataformaRouteImport.update({
+  id: '/plataforma',
+  path: '/plataforma',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPlataformaIndexRoute = AppPlataformaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppPlataformaRoute,
+} as any)
+const AppPlataformaAssinaturasRoute =
+  AppPlataformaAssinaturasRouteImport.update({
+    id: '/assinaturas',
+    path: '/assinaturas',
+    getParentRoute: () => AppPlataformaRoute,
+  } as any)
+const AppPlataformaAuditoriaRoute = AppPlataformaAuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
+  getParentRoute: () => AppPlataformaRoute,
+} as any)
+const AppPlataformaFaturasRoute = AppPlataformaFaturasRouteImport.update({
+  id: '/faturas',
+  path: '/faturas',
+  getParentRoute: () => AppPlataformaRoute,
+} as any)
+const AppPlataformaEmpresasIndexRoute =
+  AppPlataformaEmpresasIndexRouteImport.update({
+    id: '/empresas/',
+    path: '/empresas/',
+    getParentRoute: () => AppPlataformaRoute,
+  } as any)
+const AppPlataformaEmpresasNovaRoute =
+  AppPlataformaEmpresasNovaRouteImport.update({
+    id: '/empresas/nova',
+    path: '/empresas/nova',
+    getParentRoute: () => AppPlataformaRoute,
+  } as any)
+const AppPlataformaPlanosIndexRoute =
+  AppPlataformaPlanosIndexRouteImport.update({
+    id: '/planos/',
+    path: '/planos/',
+    getParentRoute: () => AppPlataformaRoute,
+  } as any)
+const AppPlataformaPlanosPlanIdRoute =
+  AppPlataformaPlanosPlanIdRouteImport.update({
+    id: '/planos/$planId',
+    path: '/planos/$planId',
+    getParentRoute: () => AppPlataformaRoute,
+  } as any)
+const AppPlataformaPlanosNovoRoute = AppPlataformaPlanosNovoRouteImport.update({
+  id: '/planos/novo',
+  path: '/planos/novo',
+  getParentRoute: () => AppPlataformaRoute,
+} as any)
+const AppPlataformaEmpresasCompanyIdIndexRoute =
+  AppPlataformaEmpresasCompanyIdIndexRouteImport.update({
+    id: '/empresas/$companyId/',
+    path: '/empresas/$companyId/',
+    getParentRoute: () => AppPlataformaRoute,
+  } as any)
+const AppPlataformaEmpresasCompanyIdEditarRoute =
+  AppPlataformaEmpresasCompanyIdEditarRouteImport.update({
+    id: '/empresas/$companyId/editar',
+    path: '/empresas/$companyId/editar',
+    getParentRoute: () => AppPlataformaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,7 +160,19 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
+  '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
+  '/app/plataforma/faturas': typeof AppPlataformaFaturasRoute
+  '/app/plataforma/': typeof AppPlataformaIndexRoute
+  '/app/plataforma/empresas/nova': typeof AppPlataformaEmpresasNovaRoute
+  '/app/plataforma/planos/$planId': typeof AppPlataformaPlanosPlanIdRoute
+  '/app/plataforma/planos/novo': typeof AppPlataformaPlanosNovoRoute
+  '/app/plataforma/empresas/': typeof AppPlataformaEmpresasIndexRoute
+  '/app/plataforma/planos/': typeof AppPlataformaPlanosIndexRoute
+  '/app/plataforma/empresas/$companyId/editar': typeof AppPlataformaEmpresasCompanyIdEditarRoute
+  '/app/plataforma/empresas/$companyId/': typeof AppPlataformaEmpresasCompanyIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,6 +184,17 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app': typeof AppIndexRoute
+  '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
+  '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
+  '/app/plataforma/faturas': typeof AppPlataformaFaturasRoute
+  '/app/plataforma': typeof AppPlataformaIndexRoute
+  '/app/plataforma/empresas/nova': typeof AppPlataformaEmpresasNovaRoute
+  '/app/plataforma/planos/$planId': typeof AppPlataformaPlanosPlanIdRoute
+  '/app/plataforma/planos/novo': typeof AppPlataformaPlanosNovoRoute
+  '/app/plataforma/empresas': typeof AppPlataformaEmpresasIndexRoute
+  '/app/plataforma/planos': typeof AppPlataformaPlanosIndexRoute
+  '/app/plataforma/empresas/$companyId/editar': typeof AppPlataformaEmpresasCompanyIdEditarRoute
+  '/app/plataforma/empresas/$companyId': typeof AppPlataformaEmpresasCompanyIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -105,7 +207,19 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
+  '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
+  '/app/plataforma/faturas': typeof AppPlataformaFaturasRoute
+  '/app/plataforma/': typeof AppPlataformaIndexRoute
+  '/app/plataforma/empresas/nova': typeof AppPlataformaEmpresasNovaRoute
+  '/app/plataforma/planos/$planId': typeof AppPlataformaPlanosPlanIdRoute
+  '/app/plataforma/planos/novo': typeof AppPlataformaPlanosNovoRoute
+  '/app/plataforma/empresas/': typeof AppPlataformaEmpresasIndexRoute
+  '/app/plataforma/planos/': typeof AppPlataformaPlanosIndexRoute
+  '/app/plataforma/empresas/$companyId/editar': typeof AppPlataformaEmpresasCompanyIdEditarRoute
+  '/app/plataforma/empresas/$companyId/': typeof AppPlataformaEmpresasCompanyIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -119,7 +233,19 @@ export interface FileRouteTypes {
     | '/login'
     | '/redefinir-senha'
     | '/app/dashboard'
+    | '/app/plataforma'
     | '/app/'
+    | '/app/plataforma/assinaturas'
+    | '/app/plataforma/auditoria'
+    | '/app/plataforma/faturas'
+    | '/app/plataforma/'
+    | '/app/plataforma/empresas/nova'
+    | '/app/plataforma/planos/$planId'
+    | '/app/plataforma/planos/novo'
+    | '/app/plataforma/empresas/'
+    | '/app/plataforma/planos/'
+    | '/app/plataforma/empresas/$companyId/editar'
+    | '/app/plataforma/empresas/$companyId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -131,6 +257,17 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/app/dashboard'
     | '/app'
+    | '/app/plataforma/assinaturas'
+    | '/app/plataforma/auditoria'
+    | '/app/plataforma/faturas'
+    | '/app/plataforma'
+    | '/app/plataforma/empresas/nova'
+    | '/app/plataforma/planos/$planId'
+    | '/app/plataforma/planos/novo'
+    | '/app/plataforma/empresas'
+    | '/app/plataforma/planos'
+    | '/app/plataforma/empresas/$companyId/editar'
+    | '/app/plataforma/empresas/$companyId'
   id:
     | '__root__'
     | '/'
@@ -142,7 +279,19 @@ export interface FileRouteTypes {
     | '/login'
     | '/redefinir-senha'
     | '/app/dashboard'
+    | '/app/plataforma'
     | '/app/'
+    | '/app/plataforma/assinaturas'
+    | '/app/plataforma/auditoria'
+    | '/app/plataforma/faturas'
+    | '/app/plataforma/'
+    | '/app/plataforma/empresas/nova'
+    | '/app/plataforma/planos/$planId'
+    | '/app/plataforma/planos/novo'
+    | '/app/plataforma/empresas/'
+    | '/app/plataforma/planos/'
+    | '/app/plataforma/empresas/$companyId/editar'
+    | '/app/plataforma/empresas/$companyId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -228,16 +377,136 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/plataforma': {
+      id: '/app/plataforma'
+      path: '/plataforma'
+      fullPath: '/app/plataforma'
+      preLoaderRoute: typeof AppPlataformaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/plataforma/': {
+      id: '/app/plataforma/'
+      path: '/'
+      fullPath: '/app/plataforma/'
+      preLoaderRoute: typeof AppPlataformaIndexRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/assinaturas': {
+      id: '/app/plataforma/assinaturas'
+      path: '/assinaturas'
+      fullPath: '/app/plataforma/assinaturas'
+      preLoaderRoute: typeof AppPlataformaAssinaturasRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/auditoria': {
+      id: '/app/plataforma/auditoria'
+      path: '/auditoria'
+      fullPath: '/app/plataforma/auditoria'
+      preLoaderRoute: typeof AppPlataformaAuditoriaRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/faturas': {
+      id: '/app/plataforma/faturas'
+      path: '/faturas'
+      fullPath: '/app/plataforma/faturas'
+      preLoaderRoute: typeof AppPlataformaFaturasRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/empresas/': {
+      id: '/app/plataforma/empresas/'
+      path: '/empresas'
+      fullPath: '/app/plataforma/empresas/'
+      preLoaderRoute: typeof AppPlataformaEmpresasIndexRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/empresas/nova': {
+      id: '/app/plataforma/empresas/nova'
+      path: '/empresas/nova'
+      fullPath: '/app/plataforma/empresas/nova'
+      preLoaderRoute: typeof AppPlataformaEmpresasNovaRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/planos/': {
+      id: '/app/plataforma/planos/'
+      path: '/planos'
+      fullPath: '/app/plataforma/planos/'
+      preLoaderRoute: typeof AppPlataformaPlanosIndexRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/planos/$planId': {
+      id: '/app/plataforma/planos/$planId'
+      path: '/planos/$planId'
+      fullPath: '/app/plataforma/planos/$planId'
+      preLoaderRoute: typeof AppPlataformaPlanosPlanIdRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/planos/novo': {
+      id: '/app/plataforma/planos/novo'
+      path: '/planos/novo'
+      fullPath: '/app/plataforma/planos/novo'
+      preLoaderRoute: typeof AppPlataformaPlanosNovoRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/empresas/$companyId/': {
+      id: '/app/plataforma/empresas/$companyId/'
+      path: '/empresas/$companyId'
+      fullPath: '/app/plataforma/empresas/$companyId/'
+      preLoaderRoute: typeof AppPlataformaEmpresasCompanyIdIndexRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
+    '/app/plataforma/empresas/$companyId/editar': {
+      id: '/app/plataforma/empresas/$companyId/editar'
+      path: '/empresas/$companyId/editar'
+      fullPath: '/app/plataforma/empresas/$companyId/editar'
+      preLoaderRoute: typeof AppPlataformaEmpresasCompanyIdEditarRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
   }
 }
 
+interface AppPlataformaRouteChildren {
+  AppPlataformaAssinaturasRoute: typeof AppPlataformaAssinaturasRoute
+  AppPlataformaAuditoriaRoute: typeof AppPlataformaAuditoriaRoute
+  AppPlataformaFaturasRoute: typeof AppPlataformaFaturasRoute
+  AppPlataformaIndexRoute: typeof AppPlataformaIndexRoute
+  AppPlataformaEmpresasNovaRoute: typeof AppPlataformaEmpresasNovaRoute
+  AppPlataformaPlanosPlanIdRoute: typeof AppPlataformaPlanosPlanIdRoute
+  AppPlataformaPlanosNovoRoute: typeof AppPlataformaPlanosNovoRoute
+  AppPlataformaEmpresasIndexRoute: typeof AppPlataformaEmpresasIndexRoute
+  AppPlataformaPlanosIndexRoute: typeof AppPlataformaPlanosIndexRoute
+  AppPlataformaEmpresasCompanyIdEditarRoute: typeof AppPlataformaEmpresasCompanyIdEditarRoute
+  AppPlataformaEmpresasCompanyIdIndexRoute: typeof AppPlataformaEmpresasCompanyIdIndexRoute
+}
+
+const AppPlataformaRouteChildren: AppPlataformaRouteChildren = {
+  AppPlataformaAssinaturasRoute: AppPlataformaAssinaturasRoute,
+  AppPlataformaAuditoriaRoute: AppPlataformaAuditoriaRoute,
+  AppPlataformaFaturasRoute: AppPlataformaFaturasRoute,
+  AppPlataformaIndexRoute: AppPlataformaIndexRoute,
+  AppPlataformaEmpresasNovaRoute: AppPlataformaEmpresasNovaRoute,
+  AppPlataformaPlanosPlanIdRoute: AppPlataformaPlanosPlanIdRoute,
+  AppPlataformaPlanosNovoRoute: AppPlataformaPlanosNovoRoute,
+  AppPlataformaEmpresasIndexRoute: AppPlataformaEmpresasIndexRoute,
+  AppPlataformaPlanosIndexRoute: AppPlataformaPlanosIndexRoute,
+  AppPlataformaEmpresasCompanyIdEditarRoute:
+    AppPlataformaEmpresasCompanyIdEditarRoute,
+  AppPlataformaEmpresasCompanyIdIndexRoute:
+    AppPlataformaEmpresasCompanyIdIndexRoute,
+}
+
+const AppPlataformaRouteWithChildren = AppPlataformaRoute._addFileChildren(
+  AppPlataformaRouteChildren,
+)
+
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppPlataformaRoute: typeof AppPlataformaRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppPlataformaRoute: AppPlataformaRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
 }
 
