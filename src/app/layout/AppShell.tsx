@@ -11,6 +11,12 @@ import {
   Smartphone,
   BarChart3,
   Settings,
+  Building2,
+  Layers,
+  Repeat,
+  Receipt,
+  ScrollText,
+  Gauge,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -32,6 +38,7 @@ import {
 } from "@/shared/components";
 import { useSession } from "@/shared/auth/session-store";
 import { logout } from "@/shared/auth/auth-service";
+import { usePermissions } from "@/shared/permissions/permissions";
 
 const soonModules = [
   { key: "tickets", icon: MessagesSquare },
@@ -42,8 +49,26 @@ const soonModules = [
   { key: "settings", icon: Settings },
 ] as const;
 
+const platformLinks = [
+  { to: "/app/plataforma", key: "overview", icon: Gauge, exact: true },
+  { to: "/app/plataforma/empresas", key: "companies", icon: Building2, exact: false },
+  { to: "/app/plataforma/planos", key: "plans", icon: Layers, exact: false },
+  { to: "/app/plataforma/assinaturas", key: "subscriptions", icon: Repeat, exact: false },
+  { to: "/app/plataforma/faturas", key: "invoices", icon: Receipt, exact: false },
+  { to: "/app/plataforma/auditoria", key: "audit", icon: ScrollText, exact: false },
+] as const;
+
+const linkClass =
+  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring";
+const activeLink = {
+  className: "bg-sidebar-accent text-sidebar-accent-foreground",
+  "aria-current": "page" as const,
+};
+
 function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { t } = useTranslation();
+  const { hasRole } = usePermissions();
+  const isSuperadmin = hasRole("superadmin");
   return (
     <nav aria-label={t("nav.main")} className="flex flex-1 flex-col gap-6 px-3">
       <ul className="space-y-1">
@@ -62,6 +87,30 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
           </Link>
         </li>
       </ul>
+      {isSuperadmin && (
+        <div>
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            {t("nav.platform.section")}
+          </p>
+          <ul className="space-y-1">
+            {platformLinks.map(({ to, key, icon: Icon, exact }) => (
+              <li key={key}>
+                <Link
+                  to={to}
+                  onClick={onNavigate}
+                  className={linkClass}
+                  activeOptions={{ exact }}
+                  activeProps={activeLink}
+                >
+                  <Icon className="size-4" aria-hidden />
+                  {t(`nav.platform.${key}`)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {!isSuperadmin && (
       <div>
         <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
           {t("nav.soon")}
@@ -79,6 +128,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
           ))}
         </ul>
       </div>
+      )}
     </nav>
   );
 }
