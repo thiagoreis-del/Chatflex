@@ -15,7 +15,12 @@ const toneCls: Record<Tone, string> = {
 
 function StatusPill({ tone, label }: { tone: Tone; label: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold", toneCls[tone])}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold",
+        toneCls[tone],
+      )}
+    >
       <span className="size-1.5 rounded-full bg-current" aria-hidden />
       {label}
     </span>
@@ -59,7 +64,11 @@ export function InvoiceStatusBadge({ status }: { status: InvoiceStatus }) {
   return <StatusPill tone={invTone[status]} label={t(`invoiceStatus.${status}`)} />;
 }
 
-const auditTone: Record<AuditResult, Tone> = { success: "success", failure: "danger", denied: "warning" };
+const auditTone: Record<AuditResult, Tone> = {
+  success: "success",
+  failure: "danger",
+  denied: "warning",
+};
 export function AuditResultBadge({ result }: { result: AuditResult }) {
   const { t } = useTranslation("platform");
   return <StatusPill tone={auditTone[result]} label={t(`auditResult.${result}`)} />;

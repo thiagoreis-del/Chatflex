@@ -31,7 +31,14 @@ const plans: Plan[] = [
     connectionLimit: 1,
     storageLimitMb: 2048,
     trialDays: 7,
-    features: { ...allFeatures, campaigns: false, artificialIntelligence: false, advancedReports: false, externalApi: false, automations: false },
+    features: {
+      ...allFeatures,
+      campaigns: false,
+      artificialIntelligence: false,
+      advancedReports: false,
+      externalApi: false,
+      automations: false,
+    },
     active: true,
   },
   {
@@ -72,7 +79,16 @@ const names = [
   ["Academia Corpo Ativo Ltda", "Corpo Ativo"],
   ["Ótica Visão Clara ME", "Visão Clara"],
 ] as const;
-const statuses: CompanyStatus[] = ["active", "active", "trial", "overdue", "active", "suspended", "onboarding", "cancelled"];
+const statuses: CompanyStatus[] = [
+  "active",
+  "active",
+  "trial",
+  "overdue",
+  "active",
+  "suspended",
+  "onboarding",
+  "cancelled",
+];
 
 const iso = (daysFromNow: number) => new Date(Date.now() + daysFromNow * 86400000).toISOString();
 
@@ -125,7 +141,14 @@ const subscriptions: Subscription[] = companies.map((c, i) => ({
   nextChargeAt: c.status === "cancelled" ? null : iso(10),
 }));
 
-const invoiceStatuses: Invoice["status"][] = ["paid", "open", "overdue", "paid", "cancelled", "refunded"];
+const invoiceStatuses: Invoice["status"][] = [
+  "paid",
+  "open",
+  "overdue",
+  "paid",
+  "cancelled",
+  "refunded",
+];
 const invoices: Invoice[] = subscriptions.flatMap((s, i) =>
   [0, 1].map((k) => ({
     id: `fatura-${i + 1}-${k + 1}`,
@@ -142,7 +165,13 @@ const invoices: Invoice[] = subscriptions.flatMap((s, i) =>
 );
 
 const auditEvents: AuditEvent[] = [];
-function audit(action: string, resource: string, resourceId: string | null, companyId: string | null, reason: string | null = null) {
+function audit(
+  action: string,
+  resource: string,
+  resourceId: string | null,
+  companyId: string | null,
+  reason: string | null = null,
+) {
   const c = companies.find((x) => x.id === companyId);
   auditEvents.unshift({
     id: `auditoria-${auditEvents.length + 1}`,
@@ -165,7 +194,12 @@ audit("plan.update", "plan", "plano-profissional", null);
 function paginate<T>(items: T[], q: URLSearchParams): Paginated<T> {
   const page = Number(q.get("page") ?? 1);
   const pageSize = Number(q.get("pageSize") ?? 10);
-  return { data: items.slice((page - 1) * pageSize, page * pageSize), page, pageSize, total: items.length };
+  return {
+    data: items.slice((page - 1) * pageSize, page * pageSize),
+    page,
+    pageSize,
+    total: items.length,
+  };
 }
 
 const match = (q: URLSearchParams, key: string, value: string | null | undefined) =>
@@ -200,10 +234,20 @@ export function platformMock(fullPath: string, opts: RequestOptions): unknown {
         },
         usersTotal: companies.reduce((s, c) => s + (c.usersCount ?? 0), 0),
         connectionsContracted: companies.reduce((s, c) => s + c.connectionLimit, 0),
-        monthlyRevenueInCents: invoices.filter((i) => i.status === "paid").reduce((s, i) => s + i.amountInCents, 0),
-        pendingInvoices: invoices.filter((i) => i.status === "open" || i.status === "overdue").length,
-        delinquencyPercent: Math.round((companies.filter((c) => c.status === "overdue").length / companies.length) * 1000) / 10,
-        usageByPlan: plans.map((p) => ({ planId: p.id, planName: p.name, companies: companies.filter((c) => c.planId === p.id).length })),
+        monthlyRevenueInCents: invoices
+          .filter((i) => i.status === "paid")
+          .reduce((s, i) => s + i.amountInCents, 0),
+        pendingInvoices: invoices.filter((i) => i.status === "open" || i.status === "overdue")
+          .length,
+        delinquencyPercent:
+          Math.round(
+            (companies.filter((c) => c.status === "overdue").length / companies.length) * 1000,
+          ) / 10,
+        usageByPlan: plans.map((p) => ({
+          planId: p.id,
+          planName: p.name,
+          companies: companies.filter((c) => c.planId === p.id).length,
+        })),
       };
 
     case "companies": {
@@ -230,7 +274,10 @@ export function platformMock(fullPath: string, opts: RequestOptions): unknown {
         return paginate(
           companies.filter(
             (c) =>
-              (!s || `${c.legalName} ${c.tradeName} ${c.document} ${c.email}`.toLowerCase().includes(s)) &&
+              (!s ||
+                `${c.legalName} ${c.tradeName} ${c.document} ${c.email}`
+                  .toLowerCase()
+                  .includes(s)) &&
               match(q, "status", c.status) &&
               match(q, "planId", c.planId),
           ),
@@ -258,8 +305,15 @@ export function platformMock(fullPath: string, opts: RequestOptions): unknown {
       if (sub === "limits" || (!sub && method === "PATCH")) {
         const { reason, ...rest } = body;
         Object.assign(c, rest, { updatedAt: new Date().toISOString() });
-        if (rest["planId"]) c.planName = plans.find((p) => p.id === rest["planId"])?.name ?? c.planName;
-        audit(sub === "limits" ? "company.limits" : "company.update", "company", c.id, c.id, (reason as string) || null);
+        if (rest["planId"])
+          c.planName = plans.find((p) => p.id === rest["planId"])?.name ?? c.planName ?? "";
+        audit(
+          sub === "limits" ? "company.limits" : "company.update",
+          "company",
+          c.id,
+          c.id,
+          (reason as string) || null,
+        );
         return c;
       }
       return c;
@@ -285,7 +339,12 @@ export function platformMock(fullPath: string, opts: RequestOptions): unknown {
     }
 
     case "subscriptions":
-      return paginate(subscriptions.filter((s) => match(q, "companyId", s.companyId) && match(q, "status", s.status)), q);
+      return paginate(
+        subscriptions.filter(
+          (s) => match(q, "companyId", s.companyId) && match(q, "status", s.status),
+        ),
+        q,
+      );
 
     case "invoices":
       return paginate(

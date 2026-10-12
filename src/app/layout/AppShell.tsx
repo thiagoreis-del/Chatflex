@@ -111,23 +111,23 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
         </div>
       )}
       {!isSuperadmin && (
-      <div>
-        <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-          {t("nav.soon")}
-        </p>
-        <ul className="space-y-1">
-          {soonModules.map(({ key, icon: Icon }) => (
-            <li
-              key={key}
-              aria-disabled="true"
-              className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/45"
-            >
-              <Icon className="size-4" aria-hidden />
-              {t(`nav.modules.${key}`)}
-            </li>
-          ))}
-        </ul>
-      </div>
+        <div>
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            {t("nav.soon")}
+          </p>
+          <ul className="space-y-1">
+            {soonModules.map(({ key, icon: Icon }) => (
+              <li
+                key={key}
+                aria-disabled="true"
+                className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/45"
+              >
+                <Icon className="size-4" aria-hidden />
+                {t(`nav.modules.${key}`)}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </nav>
   );

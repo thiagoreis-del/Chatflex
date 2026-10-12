@@ -1,5 +1,13 @@
-export type CompanyStatus = "trial" | "active" | "overdue" | "suspended" | "cancelled" | "onboarding";
-export const companyStatuses: CompanyStatus[] = ["onboarding", "trial", "active", "overdue", "suspended", "cancelled"];
+export type CompanyStatus =
+  "trial" | "active" | "overdue" | "suspended" | "cancelled" | "onboarding";
+export const companyStatuses: CompanyStatus[] = [
+  "onboarding",
+  "trial",
+  "active",
+  "overdue",
+  "suspended",
+  "cancelled",
+];
 
 export interface Company {
   id: string;
@@ -66,4 +74,12 @@ export interface CreateCompanyRequest extends CompanyInput {
   firstAdmin: { name: string; email: string; phone?: string | undefined };
 }
 
-export type CompanyAction = "activate" | "suspend" | "reactivate" | "cancel" | "endTrial" | "changePlan" | "changeDueDate" | "extendLimits";
+export type CompanyAction =
+  | "activate"
+  | "suspend"
+  | "reactivate"
+  | "cancel"
+  | "endTrial"
+  | "changePlan"
+  | "changeDueDate"
+  | "extendLimits";

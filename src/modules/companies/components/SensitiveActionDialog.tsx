@@ -4,11 +4,24 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { auditKeys, companyKeys, platformKeys, subscriptionKeys } from "@/shared/api/query-keys";
 import { plansQuery } from "@/modules/plans/api";
 import { runCompanyStatusAction, updateCompany, updateCompanyLimits } from "../api";
@@ -111,9 +124,14 @@ export function SensitiveActionDialog({
     >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{step === 2 ? t("platform:actions.dialog.secondTitle") : t(`platform:actions.${action}`)}</DialogTitle>
+          <DialogTitle>
+            {step === 2
+              ? t("platform:actions.dialog.secondTitle")
+              : t(`platform:actions.${action}`)}
+          </DialogTitle>
           <DialogDescription>
-            {t("platform:actions.dialog.affected")}: <strong className="text-foreground">{company.tradeName}</strong> ({company.legalName})
+            {t("platform:actions.dialog.affected")}:{" "}
+            <strong className="text-foreground">{company.tradeName}</strong> ({company.legalName})
           </DialogDescription>
         </DialogHeader>
 
@@ -149,14 +167,27 @@ export function SensitiveActionDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                {plans.isError && <p className="text-sm text-destructive">{t("platform:companies.form.plansUnavailable")}</p>}
+                {plans.isError && (
+                  <p className="text-sm text-destructive">
+                    {t("platform:companies.form.plansUnavailable")}
+                  </p>
+                )}
               </div>
             )}
             {action === "changeDueDate" && (
               <div className="space-y-1.5">
                 <Label htmlFor="sa-due">{t("platform:actions.dialog.newDueDate")}</Label>
-                <Input id="sa-due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-                {touched && !dueDate && <p className="text-sm text-destructive">{t("platform:actions.dialog.required")}</p>}
+                <Input
+                  id="sa-due"
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+                {touched && !dueDate && (
+                  <p className="text-sm text-destructive">
+                    {t("platform:actions.dialog.required")}
+                  </p>
+                )}
               </div>
             )}
             {action === "extendLimits" && (
@@ -169,7 +200,12 @@ export function SensitiveActionDialog({
                       type="number"
                       min={company[k]}
                       value={limits[k]}
-                      onChange={(e) => setLimits((l) => ({ ...l, [k]: Math.max(company[k], Number(e.target.value) || 0) }))}
+                      onChange={(e) =>
+                        setLimits((l) => ({
+                          ...l,
+                          [k]: Math.max(company[k], Number(e.target.value) || 0),
+                        }))
+                      }
                     />
                   </div>
                 ))}
@@ -195,11 +231,20 @@ export function SensitiveActionDialog({
           </div>
         ) : (
           <div className="space-y-1.5">
-            <p className="text-sm">{t("platform:actions.dialog.secondDescription", { name: company.tradeName })}</p>
+            <p className="text-sm">
+              {t("platform:actions.dialog.secondDescription", { name: company.tradeName })}
+            </p>
             <Label htmlFor="sa-typed">{t("platform:actions.dialog.secondLabel")}</Label>
-            <Input id="sa-typed" value={typed} autoComplete="off" onChange={(e) => setTyped(e.target.value)} />
+            <Input
+              id="sa-typed"
+              value={typed}
+              autoComplete="off"
+              onChange={(e) => setTyped(e.target.value)}
+            />
             {typed && typed.trim() !== company.tradeName && (
-              <p className="text-sm text-destructive">{t("platform:actions.dialog.secondMismatch")}</p>
+              <p className="text-sm text-destructive">
+                {t("platform:actions.dialog.secondMismatch")}
+              </p>
             )}
           </div>
         )}

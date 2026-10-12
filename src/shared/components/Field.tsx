@@ -14,14 +14,24 @@ export function Field({
   label: string;
   error?: string | undefined;
   hint?: string | undefined;
-  children: (aria: { id: string; "aria-invalid": boolean; "aria-describedby"?: string }) => ReactNode;
+  children: (aria: {
+    id: string;
+    "aria-invalid": boolean;
+    "aria-describedby"?: string;
+  }) => ReactNode;
   className?: string;
 }) {
-  const describedBy = [hint ? `${id}-dica` : null, error ? `${id}-erro` : null].filter(Boolean).join(" ");
+  const describedBy = [hint ? `${id}-dica` : null, error ? `${id}-erro` : null]
+    .filter(Boolean)
+    .join(" ");
   return (
     <div className={className ?? "space-y-1.5"}>
       <Label htmlFor={id}>{label}</Label>
-      {children({ id, "aria-invalid": !!error, ...(describedBy ? { "aria-describedby": describedBy } : {}) })}
+      {children({
+        id,
+        "aria-invalid": !!error,
+        ...(describedBy ? { "aria-describedby": describedBy } : {}),
+      })}
       {hint && (
         <p id={`${id}-dica`} className="text-xs text-muted-foreground">
           {hint}
@@ -36,7 +46,15 @@ export function Field({
   );
 }
 
-export function FormSection({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
+export function FormSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
   return (
     <fieldset className="rounded-xl border bg-card p-5 shadow-soft">
       <legend className="sr-only">{title}</legend>

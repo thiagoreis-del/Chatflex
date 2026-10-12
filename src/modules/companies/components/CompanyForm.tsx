@@ -5,10 +5,21 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Field, FormSection } from "@/shared/components/Field";
 import { plansQuery } from "@/modules/plans/api";
-import { companyBaseSchema, createCompanySchema, type CompanyFormOutput, type CompanyFormValues } from "../schemas";
+import {
+  companyBaseSchema,
+  createCompanySchema,
+  type CompanyFormOutput,
+  type CompanyFormValues,
+} from "../schemas";
 import { companyStatuses, type Company } from "../types";
 
 export function CompanyForm({
@@ -63,16 +74,32 @@ export function CompanyForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
       <FormSection title={t("companies.form.sections.company")}>
-        <Field id="legalName" label={t("companies.detail.fields.legalName")} error={msg(e.legalName?.message)}>
+        <Field
+          id="legalName"
+          label={t("companies.detail.fields.legalName")}
+          error={msg(e.legalName?.message)}
+        >
           {(a) => <Input {...a} {...register("legalName")} />}
         </Field>
-        <Field id="tradeName" label={t("companies.detail.fields.tradeName")} error={msg(e.tradeName?.message)}>
+        <Field
+          id="tradeName"
+          label={t("companies.detail.fields.tradeName")}
+          error={msg(e.tradeName?.message)}
+        >
           {(a) => <Input {...a} {...register("tradeName")} />}
         </Field>
-        <Field id="document" label={t("companies.detail.fields.document")} error={msg(e.document?.message)}>
+        <Field
+          id="document"
+          label={t("companies.detail.fields.document")}
+          error={msg(e.document?.message)}
+        >
           {(a) => <Input {...a} inputMode="numeric" {...register("document")} />}
         </Field>
-        <Field id="responsibleName" label={t("companies.detail.fields.responsibleName")} error={msg(e.responsibleName?.message)}>
+        <Field
+          id="responsibleName"
+          label={t("companies.detail.fields.responsibleName")}
+          error={msg(e.responsibleName?.message)}
+        >
           {(a) => <Input {...a} {...register("responsibleName")} />}
         </Field>
         <Field id="email" label={t("companies.detail.fields.email")} error={msg(e.email?.message)}>
@@ -87,7 +114,10 @@ export function CompanyForm({
         <Field
           id="planId"
           label={t("companies.detail.fields.plan")}
-          error={msg(e.planId?.message) ?? (plans.isError ? t("companies.form.plansUnavailable") : undefined)}
+          error={
+            msg(e.planId?.message) ??
+            (plans.isError ? t("companies.form.plansUnavailable") : undefined)
+          }
         >
           {(a) => (
             <Controller
@@ -117,7 +147,12 @@ export function CompanyForm({
           )}
         </Field>
         {mode === "create" && (
-          <Field id="trialDays" label={t("companies.form.trialDays")} hint={t("companies.form.trialHint")} error={msg(e.trialDays?.message)}>
+          <Field
+            id="trialDays"
+            label={t("companies.form.trialDays")}
+            hint={t("companies.form.trialHint")}
+            error={msg(e.trialDays?.message)}
+          >
             {(a) => <Input {...a} type="number" min={0} {...register("trialDays")} />}
           </Field>
         )}
@@ -146,33 +181,70 @@ export function CompanyForm({
       </FormSection>
 
       <FormSection title={t("companies.form.sections.limits")}>
-        <Field id="userLimit" label={t("companies.form.userLimit")} error={msg(e.userLimit?.message)}>
+        <Field
+          id="userLimit"
+          label={t("companies.form.userLimit")}
+          error={msg(e.userLimit?.message)}
+        >
           {(a) => <Input {...a} type="number" min={1} {...register("userLimit")} />}
         </Field>
-        <Field id="connectionLimit" label={t("companies.form.connectionLimit")} error={msg(e.connectionLimit?.message)}>
+        <Field
+          id="connectionLimit"
+          label={t("companies.form.connectionLimit")}
+          error={msg(e.connectionLimit?.message)}
+        >
           {(a) => <Input {...a} type="number" min={0} {...register("connectionLimit")} />}
         </Field>
-        <Field id="storageLimitMb" label={t("companies.form.storageLimitMb")} error={msg(e.storageLimitMb?.message)}>
+        <Field
+          id="storageLimitMb"
+          label={t("companies.form.storageLimitMb")}
+          error={msg(e.storageLimitMb?.message)}
+        >
           {(a) => <Input {...a} type="number" min={0} {...register("storageLimitMb")} />}
         </Field>
       </FormSection>
 
       {mode === "create" && (
-        <FormSection title={t("companies.form.sections.admin")} description={t("companies.form.adminHint")}>
-          <Field id="adminName" label={t("companies.form.adminName")} error={msg(e.firstAdmin?.name?.message)}>
+        <FormSection
+          title={t("companies.form.sections.admin")}
+          description={t("companies.form.adminHint")}
+        >
+          <Field
+            id="adminName"
+            label={t("companies.form.adminName")}
+            error={msg(e.firstAdmin?.name?.message)}
+          >
             {(a) => <Input {...a} {...register("firstAdmin.name")} />}
           </Field>
-          <Field id="adminEmail" label={t("companies.form.adminEmail")} error={msg(e.firstAdmin?.email?.message)}>
-            {(a) => <Input {...a} type="email" autoComplete="off" {...register("firstAdmin.email")} />}
+          <Field
+            id="adminEmail"
+            label={t("companies.form.adminEmail")}
+            error={msg(e.firstAdmin?.email?.message)}
+          >
+            {(a) => (
+              <Input {...a} type="email" autoComplete="off" {...register("firstAdmin.email")} />
+            )}
           </Field>
-          <Field id="adminPhone" label={t("companies.form.adminPhone")} error={msg(e.firstAdmin?.phone?.message)}>
+          <Field
+            id="adminPhone"
+            label={t("companies.form.adminPhone")}
+            error={msg(e.firstAdmin?.phone?.message)}
+          >
             {(a) => <Input {...a} type="tel" {...register("firstAdmin.phone")} />}
           </Field>
         </FormSection>
       )}
 
-      <FormSection title={t("companies.form.sections.notes")} description={t("companies.form.notesHint")}>
-        <Field id="internalNotes" label={t("companies.detail.fields.internalNotes")} className="space-y-1.5 sm:col-span-2" error={msg(e.internalNotes?.message)}>
+      <FormSection
+        title={t("companies.form.sections.notes")}
+        description={t("companies.form.notesHint")}
+      >
+        <Field
+          id="internalNotes"
+          label={t("companies.detail.fields.internalNotes")}
+          className="space-y-1.5 sm:col-span-2"
+          error={msg(e.internalNotes?.message)}
+        >
           {(a) => <Textarea {...a} rows={4} {...register("internalNotes")} />}
         </Field>
       </FormSection>
@@ -184,7 +256,11 @@ export function CompanyForm({
       )}
       <div className="flex justify-end">
         <Button type="submit" disabled={submitting}>
-          {submitting ? t("common:actions.saving") : mode === "create" ? t("companies.form.submitCreate") : t("companies.form.submitEdit")}
+          {submitting
+            ? t("common:actions.saving")
+            : mode === "create"
+              ? t("companies.form.submitCreate")
+              : t("companies.form.submitEdit")}
         </Button>
       </div>
     </form>

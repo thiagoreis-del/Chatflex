@@ -5,7 +5,14 @@ import { toast } from "sonner";
 import { Check, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { EmptyState, MoneyDisplay, PageHeader, QueryBoundary } from "@/shared/components";
 import { companyKeys, planKeys } from "@/shared/api/query-keys";
 import { errorMessageKey } from "@/shared/errors/handle-error";
@@ -53,10 +60,16 @@ export function PlansListPage() {
                     {plans.map((p) => (
                       <TableRow key={p.id}>
                         <TableCell>
-                          <Link to="/app/plataforma/planos/$planId" params={{ planId: p.id }} className="font-medium hover:text-primary hover:underline">
+                          <Link
+                            to="/app/plataforma/planos/$planId"
+                            params={{ planId: p.id }}
+                            className="font-medium hover:text-primary hover:underline"
+                          >
                             {p.name}
                           </Link>
-                          <p className="max-w-64 truncate text-xs text-muted-foreground">{p.description}</p>
+                          <p className="max-w-64 truncate text-xs text-muted-foreground">
+                            {p.description}
+                          </p>
                         </TableCell>
                         <TableCell>
                           <MoneyDisplay cents={p.monthlyPrice} />
@@ -65,11 +78,17 @@ export function PlansListPage() {
                           <MoneyDisplay cents={p.annualPrice} />
                         </TableCell>
                         <TableCell className="text-sm">
-                          {t("plans.limitsShort", { users: p.userLimit, connections: p.connectionLimit, storage: p.storageLimitMb })}
+                          {t("plans.limitsShort", {
+                            users: p.userLimit,
+                            connections: p.connectionLimit,
+                            storage: p.storageLimitMb,
+                          })}
                         </TableCell>
                         <TableCell>{t("plans.trialDays", { count: p.trialDays })}</TableCell>
                         <TableCell>
-                          <Badge variant={p.active ? "default" : "outline"}>{p.active ? t("plans.active") : t("plans.inactive")}</Badge>
+                          <Badge variant={p.active ? "default" : "outline"}>
+                            {p.active ? t("plans.active") : t("plans.inactive")}
+                          </Badge>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -100,9 +119,15 @@ export function PlansListPage() {
                           {plans.map((p) => (
                             <TableCell key={p.id} className="text-center">
                               {p.features[k] ? (
-                                <Check className="mx-auto size-4 text-success" aria-label={t("features.enabled")} />
+                                <Check
+                                  className="mx-auto size-4 text-success"
+                                  aria-label={t("features.enabled")}
+                                />
                               ) : (
-                                <Minus className="mx-auto size-4 text-muted-foreground" aria-label={t("features.disabled")} />
+                                <Minus
+                                  className="mx-auto size-4 text-muted-foreground"
+                                  aria-label={t("features.disabled")}
+                                />
                               )}
                             </TableCell>
                           ))}
@@ -135,7 +160,11 @@ export function PlanCreatePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader title={t("plans.new")} description={t("plans.subtitle")} />
-      <PlanForm submitting={m.isPending} serverError={m.error ? t(errorMessageKey(m.error)) : null} onSubmit={(v) => m.mutate(v)} />
+      <PlanForm
+        submitting={m.isPending}
+        serverError={m.error ? t(errorMessageKey(m.error)) : null}
+        onSubmit={(v) => m.mutate(v)}
+      />
     </div>
   );
 }
@@ -146,7 +175,10 @@ export function PlanDetailPage({ planId }: { planId: string }) {
   const q = useQuery(planQuery(planId));
   const linked = useQuery(companiesQuery({ page: 1, pageSize: 50, planId }));
   const invalidate = () =>
-    Promise.all([qc.invalidateQueries({ queryKey: planKeys.detail(planId) }), qc.invalidateQueries({ queryKey: planKeys.lists() })]);
+    Promise.all([
+      qc.invalidateQueries({ queryKey: planKeys.detail(planId) }),
+      qc.invalidateQueries({ queryKey: planKeys.lists() }),
+    ]);
   const save = useMutation({
     mutationFn: (v: Parameters<typeof updatePlan>[1]) => updatePlan(planId, v),
     onSuccess: async () => {
@@ -171,7 +203,11 @@ export function PlanDetailPage({ planId }: { planId: string }) {
               title={plan.name}
               description={plan.description}
               actions={
-                <Button variant={plan.active ? "outline" : "default"} disabled={toggle.isPending} onClick={() => toggle.mutate(!plan.active)}>
+                <Button
+                  variant={plan.active ? "outline" : "default"}
+                  disabled={toggle.isPending}
+                  onClick={() => toggle.mutate(!plan.active)}
+                >
                   {plan.active ? t("plans.deactivate") : t("plans.activate")}
                 </Button>
               }
@@ -198,7 +234,11 @@ export function PlanDetailPage({ planId }: { planId: string }) {
               <ul className="divide-y">
                 {page.data.map((c) => (
                   <li key={c.id} className="flex items-center justify-between gap-2 py-2">
-                    <Link to="/app/plataforma/empresas/$companyId" params={{ companyId: c.id }} className="font-medium hover:text-primary hover:underline">
+                    <Link
+                      to="/app/plataforma/empresas/$companyId"
+                      params={{ companyId: c.id }}
+                      className="font-medium hover:text-primary hover:underline"
+                    >
                       {c.tradeName}
                     </Link>
                     <CompanyStatusBadge status={c.status} />
