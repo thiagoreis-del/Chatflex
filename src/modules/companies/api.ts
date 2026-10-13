@@ -160,6 +160,44 @@ export const companyConnectionsQuery = (companyId: string) =>
     retry: false,
   });
 
+interface BackendSimpleUser {
+  id: number;
+  name: string;
+  email: string;
+  queues?: { id: number; name: string }[];
+}
+
+export interface CompanyMember {
+  id: string;
+  name: string;
+  email: string;
+  queues: string[];
+}
+
+/**
+ * CONFIRMADO no backend ZapPro/Whaticket: GET /users/list?companyId=X
+ * retorna os usuários da empresa informada (SimpleListService). Uso exclusivo
+ * do superadmin para inspecionar empresas clientes.
+ */
+export const companyUsersQuery = (companyId: string) =>
+  queryOptions({
+    queryKey: [...companyKeys.usage(companyId), "users"],
+    queryFn: async ({ signal }): Promise<CompanyMember[]> => {
+      if (env.useMocks) return [];
+      const all = await apiRequest<BackendSimpleUser[]>(
+        `/users/list?companyId=${encodeURIComponent(companyId)}`,
+        { signal },
+      );
+      return all.map((u) => ({
+        id: String(u.id),
+        name: u.name,
+        email: u.email,
+        queues: (u.queues ?? []).map((q) => q.name),
+      }));
+    },
+    retry: false,
+  });
+
 export async function createCompany(body: CreateCompanyRequest) {
   if (env.useMocks) return apiRequest<Company>(ep.companies, { method: "POST", body });
   // O backend cria o primeiro administrador com o e-mail da empresa e senha padrão "mudar123".
