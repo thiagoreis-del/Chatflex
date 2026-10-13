@@ -5,13 +5,37 @@ import type { Paginated } from "@/shared/types/pagination";
 
 let seq = 9;
 const db: Contact[] = [
-  { id: 1, name: "Ana Souza", number: "5511987650001", email: "ana@exemplo.com", tags: ["cliente", "vip"] },
+  {
+    id: 1,
+    name: "Ana Souza",
+    number: "5511987650001",
+    email: "ana@exemplo.com",
+    tags: ["cliente", "vip"],
+  },
   { id: 2, name: "Bruno Lima", number: "5511987650002", email: null, tags: ["lead"] },
-  { id: 3, name: "Carla Mendes", number: "5511987650003", email: "carla@exemplo.com", tags: ["cliente"] },
+  {
+    id: 3,
+    name: "Carla Mendes",
+    number: "5511987650003",
+    email: "carla@exemplo.com",
+    tags: ["cliente"],
+  },
   { id: 4, name: "Diego Ramos", number: "5511987650004", email: null, tags: [] },
-  { id: 5, name: "Elisa Prado", number: "5511987650005", email: "elisa@exemplo.com", tags: ["fornecedor"] },
+  {
+    id: 5,
+    name: "Elisa Prado",
+    number: "5511987650005",
+    email: "elisa@exemplo.com",
+    tags: ["fornecedor"],
+  },
   { id: 6, name: "Fábio Nunes", number: "5511987650006", email: null, tags: ["lead"] },
-  { id: 7, name: "Gabriela Reis", number: "5511987650007", email: "gabi@exemplo.com", tags: ["cliente"] },
+  {
+    id: 7,
+    name: "Gabriela Reis",
+    number: "5511987650007",
+    email: "gabi@exemplo.com",
+    tags: ["cliente"],
+  },
   { id: 8, name: "Henrique Alves", number: "5511987650008", email: null, tags: [] },
 ];
 

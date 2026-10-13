@@ -23,5 +23,4 @@ export const createContact = (body: ContactInput) =>
   apiRequest<Contact>(ep.list, { method: "POST", body });
 export const updateContact = (id: number, body: ContactInput) =>
   apiRequest<Contact>(ep.detail(id), { method: "PUT", body });
-export const deleteContact = (id: number) =>
-  apiRequest<void>(ep.detail(id), { method: "DELETE" });
+export const deleteContact = (id: number) => apiRequest<void>(ep.detail(id), { method: "DELETE" });
