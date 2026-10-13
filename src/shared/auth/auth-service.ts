@@ -5,6 +5,7 @@ import { socketClient } from "@/shared/socket/socket-client";
 import { clearSession, sessionStore, setSessionUser } from "./session-store";
 import { tokenStore } from "./token-store";
 import type { AuthenticatedUser, LoginResponse } from "./types";
+import { normalizeUser } from "./normalize-user";
 
 setUnauthorizedHandler(() => {
   tokenStore.clear();
@@ -12,8 +13,9 @@ setUnauthorizedHandler(() => {
   clearSession();
 });
 
-export function fetchMe(signal?: AbortSignal) {
-  return apiRequest<AuthenticatedUser>(endpoints.auth.me, { signal });
+export async function fetchMe(signal?: AbortSignal): Promise<AuthenticatedUser> {
+  const raw = await apiRequest<unknown>(endpoints.auth.me, { signal });
+  return normalizeUser(raw);
 }
 
 export async function login(email: string, password: string) {
@@ -23,10 +25,13 @@ export async function login(email: string, password: string) {
     anonymous: true,
     skipRefresh: true,
   });
-  tokenStore.set(res.accessToken);
-  setSessionUser(res.user);
+  const token = res.accessToken ?? res.token;
+  if (!token) throw new Error("Token ausente na resposta de login");
+  tokenStore.set(token);
+  const user = normalizeUser(res.user);
+  setSessionUser(user);
   socketClient.connect();
-  return res.user;
+  return user;
 }
 
 let bootstrapPromise: Promise<boolean> | null = null;

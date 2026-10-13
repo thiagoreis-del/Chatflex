@@ -94,11 +94,12 @@ export function refreshAccessToken(): Promise<boolean> {
           method: "POST",
           anonymous: true,
         });
-        if (!res?.accessToken) {
+        const token = res?.accessToken ?? res?.token;
+        if (!token) {
           tokenStore.clear();
           return false;
         }
-        tokenStore.set(res.accessToken);
+        tokenStore.set(token);
         return true;
       } catch (error) {
         tokenStore.clear();
