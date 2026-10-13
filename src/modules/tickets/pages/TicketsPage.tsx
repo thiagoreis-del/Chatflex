@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, Search, Send } from "lucide-react";
+import { ArrowLeft, Search, Send, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,11 @@ import {
   updateTicketStatus,
 } from "../api";
 import type { Ticket, TicketStatus } from "../types";
+import { quickMessagesQuery } from "@/modules/quick-messages/api";
+import {
+  QuickMessagePicker,
+  filterQuickMessages,
+} from "@/modules/quick-messages/components/QuickMessagePicker";
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -146,9 +151,39 @@ function Conversation({
   onChange: (t: Ticket) => void;
 }) {
   const { t } = useTranslation("tickets");
+  const { t: tq } = useTranslation("quickMessages");
   const qc = useQueryClient();
   const messages = useQuery(messagesQuery(ticket.id));
   const [text, setText] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const quick = useQuery(quickMessagesQuery());
+  const slashTerm = /^\/(\S*)$/.exec(text)?.[1];
+  const showPicker = pickerOpen || slashTerm !== undefined;
+  const pickerTerm = slashTerm ?? "";
+  const pickerItems = filterQuickMessages(quick.data ?? [], pickerTerm).slice(0, 8);
+  const applyQuick = (message: string) => {
+    setText(message);
+    setPickerOpen(false);
+    setActiveIndex(0);
+  };
+  const onComposerKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showPicker || pickerItems.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => (i + 1) % pickerItems.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => (i - 1 + pickerItems.length) % pickerItems.length);
+    } else if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+      const m = pickerItems[activeIndex];
+      if (m) applyQuick(m.message);
+    } else if (e.key === "Escape") {
+      setPickerOpen(false);
+      if (slashTerm !== undefined) setText("");
+    }
+  };
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -260,10 +295,32 @@ function Conversation({
         </QueryBoundary>
       </div>
       {ticket.status === "open" ? (
-        <form onSubmit={submit} className="flex gap-2 border-t p-3">
+        <form onSubmit={submit} className="relative flex gap-2 border-t p-3">
+          {showPicker && (
+            <QuickMessagePicker
+              term={pickerTerm}
+              activeIndex={activeIndex}
+              onPick={(m) => applyQuick(m.message)}
+            />
+          )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={tq("picker.open")}
+            title={tq("picker.hint")}
+            onClick={() => setPickerOpen((o) => !o)}
+          >
+            <Zap className="size-4" />
+          </Button>
           <Input
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onKeyDown={onComposerKey}
+            onBlur={() => setPickerOpen(false)}
+            onChange={(e) => {
+              setText(e.target.value);
+              setActiveIndex(0);
+            }}
             placeholder={t("composer.placeholder")}
             aria-label={t("composer.placeholder")}
           />

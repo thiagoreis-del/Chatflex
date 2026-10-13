@@ -74,3 +74,9 @@ export const ticketKeys = {
   list: (filters: object) => ["company", "tickets", "list", filters] as const,
   messages: (id: number) => ["company", "tickets", "messages", id] as const,
 };
+
+/** Respostas rápidas pertencem à empresa da sessão; o backend filtra pelo token. */
+export const quickMessageKeys = {
+  all: ["company", "quick-messages"] as const,
+  list: () => ["company", "quick-messages", "list"] as const,
+};

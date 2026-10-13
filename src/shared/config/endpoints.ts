@@ -167,3 +167,20 @@ export const ticketContracts = [
   { method: "GET", path: "/messages/:ticketId", confirmed: false },
   { method: "POST", path: "/messages/:ticketId", confirmed: false },
 ] as const;
+
+/**
+ * Respostas rápidas.
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ */
+export const quickMessageEndpoints = {
+  base: "/quick-messages",
+  list: "/quick-messages/list",
+  detail: (id: number) => `/quick-messages/${id}`,
+} as const;
+
+export const quickMessageContracts = [
+  { method: "GET", path: "/quick-messages/list", confirmed: false },
+  { method: "POST", path: "/quick-messages", confirmed: false },
+  { method: "PUT", path: "/quick-messages/:id", confirmed: false },
+  { method: "DELETE", path: "/quick-messages/:id", confirmed: false },
+] as const;
