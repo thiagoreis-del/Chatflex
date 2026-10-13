@@ -13,7 +13,13 @@ const queues: Queue[] = [
 
 let userSeq = 5;
 const users: CompanyUser[] = [
-  { id: 1, name: "Pessoa Demonstração", email: "demo@exemplo.test", profile: "admin", queueIds: [1, 2, 3] },
+  {
+    id: 1,
+    name: "Pessoa Demonstração",
+    email: "demo@exemplo.test",
+    profile: "admin",
+    queueIds: [1, 2, 3],
+  },
   { id: 2, name: "Marina Costa", email: "marina@exemplo.test", profile: "user", queueIds: [1] },
   { id: 3, name: "Rafael Torres", email: "rafael@exemplo.test", profile: "user", queueIds: [2] },
   { id: 4, name: "Júlia Martins", email: "julia@exemplo.test", profile: "user", queueIds: [2, 3] },

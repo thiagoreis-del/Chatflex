@@ -7,6 +7,7 @@ import {
   Menu,
   MessagesSquare,
   Users,
+  UserCog,
   ListOrdered,
   Smartphone,
   BarChart3,
@@ -42,7 +43,6 @@ import { usePermissions } from "@/shared/permissions/permissions";
 
 const soonModules = [
   { key: "tickets", icon: MessagesSquare },
-  { key: "queues", icon: ListOrdered },
   { key: "reports", icon: BarChart3 },
   { key: "settings", icon: Settings },
 ] as const;
@@ -132,6 +132,32 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
               {t("nav.modules.contacts")}
             </Link>
           </li>
+          {hasRole("company_admin") && (
+            <>
+              <li>
+                <Link
+                  to="/app/usuarios"
+                  onClick={onNavigate}
+                  className={linkClass}
+                  activeProps={activeLink}
+                >
+                  <UserCog className="size-4" aria-hidden />
+                  {t("nav.modules.users")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/app/filas"
+                  onClick={onNavigate}
+                  className={linkClass}
+                  activeProps={activeLink}
+                >
+                  <ListOrdered className="size-4" aria-hidden />
+                  {t("nav.modules.queues")}
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
       )}
       {!isSuperadmin && (

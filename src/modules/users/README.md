@@ -1,3 +1,3 @@
 # users
 
-Módulo reservado para fases futuras. Não implementado na Fase 1.
+Usuários (atendentes) da empresa: lista paginada com busca, perfil e vínculo a filas. Contratos em `userEndpoints` — PENDENTES. Rotas restritas a `company_admin`.
