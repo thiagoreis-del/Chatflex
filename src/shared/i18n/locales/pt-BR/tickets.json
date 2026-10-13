@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "Atendimento",
+    "description": "Converse com seus clientes pelo WhatsApp."
+  },
+  "title": "Atendimento",
+  "search": "Buscar por nome ou número",
+  "tabs": { "pending": "Aguardando", "open": "Em atendimento", "closed": "Finalizados" },
+  "empty": "Nenhuma conversa nesta aba.",
+  "selectTitle": "Selecione uma conversa",
+  "selectDescription": "Escolha um atendimento na lista ao lado para ver as mensagens.",
+  "noQueue": "Sem fila",
+  "actions": {
+    "accept": "Aceitar",
+    "close": "Finalizar",
+    "reopen": "Reabrir",
+    "back": "Voltar"
+  },
+  "composer": {
+    "placeholder": "Digite uma mensagem…",
+    "send": "Enviar",
+    "acceptFirst": "Aceite o atendimento para responder."
+  },
+  "toast": {
+    "accepted": "Atendimento aceito.",
+    "closed": "Atendimento finalizado.",
+    "reopened": "Atendimento reaberto.",
+    "sendError": "Não foi possível enviar a mensagem."
+  }
+}

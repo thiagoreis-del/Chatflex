@@ -67,3 +67,10 @@ export const queueKeys = {
   all: ["company", "queues"] as const,
   list: () => ["company", "queues", "list"] as const,
 };
+
+/** Atendimentos pertencem à empresa da sessão; o backend filtra pelo token. */
+export const ticketKeys = {
+  all: ["company", "tickets"] as const,
+  list: (filters: object) => ["company", "tickets", "list", filters] as const,
+  messages: (id: number) => ["company", "tickets", "messages", id] as const,
+};
