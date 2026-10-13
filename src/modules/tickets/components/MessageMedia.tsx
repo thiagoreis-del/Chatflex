@@ -42,7 +42,11 @@ export function MessageMedia({ message }: { message: Message }) {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-w-3xl p-2">
             <DialogTitle className="sr-only">{message.body || t("media.image")}</DialogTitle>
-            <img src={url} alt={message.body || t("media.image")} className="max-h-[80vh] w-full rounded object-contain" />
+            <img
+              src={url}
+              alt={message.body || t("media.image")}
+              className="max-h-[80vh] w-full rounded object-contain"
+            />
           </DialogContent>
         </Dialog>
       </>

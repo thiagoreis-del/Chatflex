@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -210,10 +210,16 @@ function Conversation({
   });
   const [file, setFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const preview = file && file.type.startsWith("image/") ? URL.createObjectURL(file) : null;
-  useEffect(() => () => {
-    if (preview) URL.revokeObjectURL(preview);
-  }, [preview]);
+  const preview = useMemo(
+    () => (file && file.type.startsWith("image/") ? URL.createObjectURL(file) : null),
+    [file],
+  );
+  useEffect(
+    () => () => {
+      if (preview) URL.revokeObjectURL(preview);
+    },
+    [preview],
+  );
 
   const send = useMutation({
     mutationFn: ({ body, media }: { body: string; media: File | null }) =>
@@ -319,42 +325,85 @@ function Conversation({
         </QueryBoundary>
       </div>
       {ticket.status === "open" ? (
-        <form onSubmit={submit} className="relative flex gap-2 border-t p-3">
-          {showPicker && (
-            <QuickMessagePicker
-              term={pickerTerm}
-              activeIndex={activeIndex}
-              onPick={(m) => applyQuick(m.message)}
-            />
+        <form onSubmit={submit} className="relative border-t p-3">
+          {file && (
+            <div className="mb-2 flex items-center gap-3 rounded-lg border bg-muted/40 p-2">
+              {preview ? (
+                <img src={preview} alt={file.name} className="size-14 rounded object-cover" />
+              ) : (
+                <FileText className="size-8 text-muted-foreground" aria-hidden />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{file.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label={t("composer.removeAttachment")}
+                onClick={() => setFile(null)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
           )}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={tq("picker.open")}
-            title={tq("picker.hint")}
-            onClick={() => setPickerOpen((o) => !o)}
-          >
-            <Zap className="size-4" />
-          </Button>
-          <Input
-            value={text}
-            onKeyDown={onComposerKey}
-            onBlur={() => setPickerOpen(false)}
-            onChange={(e) => {
-              setText(e.target.value);
-              setActiveIndex(0);
-            }}
-            placeholder={t("composer.placeholder")}
-            aria-label={t("composer.placeholder")}
-          />
-          <Button
-            type="submit"
-            disabled={!text.trim() || send.isPending}
-            aria-label={t("composer.send")}
-          >
-            <Send className="size-4" />
-          </Button>
+          <div className="flex gap-2">
+            {showPicker && (
+              <QuickMessagePicker
+                term={pickerTerm}
+                activeIndex={activeIndex}
+                onPick={(m) => applyQuick(m.message)}
+              />
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={tq("picker.open")}
+              title={tq("picker.hint")}
+              onClick={() => setPickerOpen((o) => !o)}
+            >
+              <Zap className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("composer.attach")}
+              title={t("composer.attach")}
+              onClick={() => fileRef.current?.click()}
+            >
+              <Paperclip className="size-4" />
+            </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept={ACCEPTED_MEDIA}
+              className="hidden"
+              onChange={pickFile}
+            />
+            <Input
+              value={text}
+              onKeyDown={onComposerKey}
+              onBlur={() => setPickerOpen(false)}
+              onChange={(e) => {
+                setText(e.target.value);
+                setActiveIndex(0);
+              }}
+              placeholder={t(file ? "composer.caption" : "composer.placeholder")}
+              aria-label={t("composer.placeholder")}
+            />
+            <Button
+              type="submit"
+              disabled={(!text.trim() && !file) || send.isPending}
+              aria-label={t("composer.send")}
+            >
+              <Send className="size-4" />
+            </Button>
+          </div>
         </form>
       ) : (
         <p className="border-t p-3 text-center text-sm text-muted-foreground">
