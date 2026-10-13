@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, Search, Send, Zap } from "lucide-react";
+import { ArrowLeft, FileText, Paperclip, Search, Send, X, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,13 +10,17 @@ import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { ticketKeys } from "@/shared/api/query-keys";
 import {
+  ACCEPTED_MEDIA,
+  MAX_MEDIA_BYTES,
   messagesQuery,
+  sendMediaMessage,
   sendMessage,
   ticketsContract,
   ticketsQuery,
   updateTicketStatus,
 } from "../api";
 import type { Ticket, TicketStatus } from "../types";
+import { MessageMedia, isImage } from "../components/MessageMedia";
 import { quickMessagesQuery } from "@/modules/quick-messages/api";
 import {
   QuickMessagePicker,
@@ -204,19 +208,38 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
   });
+  const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const preview = file && file.type.startsWith("image/") ? URL.createObjectURL(file) : null;
+  useEffect(() => () => {
+    if (preview) URL.revokeObjectURL(preview);
+  }, [preview]);
+
   const send = useMutation({
-    mutationFn: (body: string) => sendMessage(ticket.id, body),
+    mutationFn: ({ body, media }: { body: string; media: File | null }) =>
+      media ? sendMediaMessage(ticket.id, media, body) : sendMessage(ticket.id, body),
     onSuccess: () => {
       setText("");
+      setFile(null);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
-    onError: () => toast.error(t("toast.sendError")),
+    onError: (_e, v) => toast.error(t(v.media ? "toast.fileError" : "toast.sendError")),
   });
+
+  const pickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] ?? null;
+    e.target.value = "";
+    if (f && f.size > MAX_MEDIA_BYTES) {
+      toast.error(t("toast.fileTooLarge"));
+      return;
+    }
+    setFile(f);
+  };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const body = text.trim();
-    if (body && !send.isPending) send.mutate(body);
+    if ((body || file) && !send.isPending) send.mutate({ body, media: file });
   };
 
   return (
@@ -275,7 +298,10 @@ function Conversation({
                         : "rounded-bl-sm bg-card",
                     )}
                   >
-                    <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                    <MessageMedia message={m} />
+                    {!(m.mediaUrl && !isImage(m)) && m.body && (
+                      <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                    )}
                     <p
                       className={cn(
                         "mt-1 text-right text-[10px]",
