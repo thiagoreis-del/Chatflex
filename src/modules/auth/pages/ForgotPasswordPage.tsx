@@ -38,7 +38,7 @@ export function ForgotPasswordPage() {
           {t("auth:forgot.success")}
         </p>
       ) : (
-        <form onSubmit={onSubmit} noValidate className="space-y-4">
+        <form method="post" onSubmit={onSubmit} noValidate className="space-y-4">
           <FormField
             label={t("auth:login.email")}
             type="email"
