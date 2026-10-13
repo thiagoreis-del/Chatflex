@@ -24,6 +24,7 @@ import { Route as AppContatosRouteImport } from './routes/app.contatos'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppFilasRouteImport } from './routes/app.filas'
 import { Route as AppPlataformaRouteImport } from './routes/app.plataforma'
+import { Route as AppRespostasRapidasRouteImport } from './routes/app.respostas-rapidas'
 import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
 import { Route as AppPlataformaIndexRouteImport } from './routes/app.plataforma.index'
 import { Route as AppPlataformaAssinaturasRouteImport } from './routes/app.plataforma.assinaturas'
@@ -112,6 +113,11 @@ const AppPlataformaRoute = AppPlataformaRouteImport.update({
   path: '/plataforma',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRespostasRapidasRoute = AppRespostasRapidasRouteImport.update({
+  id: '/respostas-rapidas',
+  path: '/respostas-rapidas',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppUsuariosRoute = AppUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
+  '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
   '/app/usuarios': typeof AppUsuariosRoute
   '/app/': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
@@ -222,6 +229,7 @@ export interface FileRoutesByTo {
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
+  '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
   '/app/usuarios': typeof AppUsuariosRoute
   '/app': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
@@ -252,6 +260,7 @@ export interface FileRoutesById {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
+  '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
   '/app/usuarios': typeof AppUsuariosRoute
   '/app/': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/filas'
     | '/app/plataforma'
+    | '/app/respostas-rapidas'
     | '/app/usuarios'
     | '/app/'
     | '/app/plataforma/assinaturas'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/app/contatos'
     | '/app/dashboard'
     | '/app/filas'
+    | '/app/respostas-rapidas'
     | '/app/usuarios'
     | '/app'
     | '/app/plataforma/assinaturas'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/filas'
     | '/app/plataforma'
+    | '/app/respostas-rapidas'
     | '/app/usuarios'
     | '/app/'
     | '/app/plataforma/assinaturas'
@@ -472,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPlataformaRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/respostas-rapidas': {
+      id: '/app/respostas-rapidas'
+      path: '/respostas-rapidas'
+      fullPath: '/app/respostas-rapidas'
+      preLoaderRoute: typeof AppRespostasRapidasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/usuarios': {
       id: '/app/usuarios'
       path: '/usuarios'
@@ -600,6 +619,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppFilasRoute: typeof AppFilasRoute
   AppPlataformaRoute: typeof AppPlataformaRouteWithChildren
+  AppRespostasRapidasRoute: typeof AppRespostasRapidasRoute
   AppUsuariosRoute: typeof AppUsuariosRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -611,6 +631,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppFilasRoute: AppFilasRoute,
   AppPlataformaRoute: AppPlataformaRouteWithChildren,
+  AppRespostasRapidasRoute: AppRespostasRapidasRoute,
   AppUsuariosRoute: AppUsuariosRoute,
   AppIndexRoute: AppIndexRoute,
 }
