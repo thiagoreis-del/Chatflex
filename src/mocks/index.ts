@@ -15,6 +15,7 @@ import { whatsappMock } from "./whatsapp";
 import { contactsMock } from "./contacts";
 import { teamMock } from "./team";
 import { ticketsMock } from "./tickets";
+import { quickMessagesMock } from "./quick-messages";
 
 export const DEMO_SUPERADMIN_EMAIL = "superadmin@exemplo.test";
 
@@ -86,6 +87,10 @@ export async function mockRequest<T>(path: string, opts: RequestOptions): Promis
   if (path.startsWith("/tickets") || path.startsWith("/messages")) {
     if (!currentUser || currentUser.role === "superadmin") throw new ApiError("forbidden", 403);
     return ticketsMock(path, opts) as T;
+  }
+  if (path.startsWith("/quick-messages")) {
+    if (!currentUser || currentUser.role === "superadmin") throw new ApiError("forbidden", 403);
+    return quickMessagesMock(path, opts) as T;
   }
   throw new ApiError("notFound", 404);
 }

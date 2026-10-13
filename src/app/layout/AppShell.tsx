@@ -18,6 +18,7 @@ import {
   Receipt,
   ScrollText,
   Gauge,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -140,6 +141,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             >
               <Users className="size-4" aria-hidden />
               {t("nav.modules.contacts")}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/app/respostas-rapidas"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
+              <Zap className="size-4" aria-hidden />
+              {t("nav.modules.quickMessages")}
             </Link>
           </li>
           {hasRole("company_admin") && (
