@@ -15,6 +15,11 @@ export const endpoints = {
   },
 } as const;
 
+/** Serviço público externo (Receita Federal via BrasilAPI). */
+export const externalEndpoints = {
+  cnpj: (cnpj: string) => `https://brasilapi.com.br/api/cnpj/v1/${cnpj}`,
+} as const;
+
 export interface ContractStatus {
   method: "GET" | "POST" | "PATCH";
   path: string;
