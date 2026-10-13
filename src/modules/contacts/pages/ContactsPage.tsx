@@ -186,7 +186,7 @@ function ContactFormDialog({
     tags: editing?.tags ?? [],
   });
   const [tagsText, setTagsText] = useState((editing?.tags ?? []).join(", "));
-  const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState({ name: false, number: false, email: false });
 
   const save = useMutation({
     mutationFn: () => (editing ? updateContact(editing.id, data) : createContact(data)),
