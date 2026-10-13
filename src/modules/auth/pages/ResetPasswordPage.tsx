@@ -55,7 +55,7 @@ export function ResetPasswordPage({ token }: { token?: string | undefined }) {
           {t("auth:reset.success")}
         </p>
       ) : (
-        <form onSubmit={onSubmit} noValidate className="space-y-4">
+        <form method="post" onSubmit={onSubmit} noValidate className="space-y-4">
           <FormField
             label={t("auth:reset.password")}
             type="password"

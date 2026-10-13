@@ -40,7 +40,7 @@ export function LoginPage({ redirectTo }: { redirectTo?: string | undefined }) {
 
   return (
     <AuthLayout title={t("auth:login.title")} subtitle={t("auth:login.subtitle")}>
-      <form onSubmit={onSubmit} noValidate className="space-y-4">
+      <form method="post" onSubmit={onSubmit} noValidate className="space-y-4">
         <FormField
           label={t("auth:login.email")}
           type="email"
