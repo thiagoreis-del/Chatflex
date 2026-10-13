@@ -31,6 +31,7 @@ import { UsageProgress } from "@/modules/platform-admin/components/UsageProgress
 import { PlanFeatureList } from "@/modules/plans/components/PlanFeatureList";
 import { planContracts, planQuery } from "@/modules/plans/api";
 import { billingContracts, invoicesQuery, subscriptionsQuery } from "@/modules/billing/api";
+import { env } from "@/shared/config/env";
 import { auditContract, auditQuery } from "@/modules/audit/api";
 import { AuditEventTable } from "@/modules/audit/components/AuditEventTable";
 import { companyContracts, companyQuery, companyUsageQuery } from "../api";
@@ -69,12 +70,14 @@ function UsagePanel({ companyId }: { companyId: string }) {
             used={u.connections.used}
             limit={u.connections.limit}
           />
-          <UsageProgress
-            label={t("usage.storage")}
-            used={u.storage.usedMb}
-            limit={u.storage.limitMb}
-            unit="mb"
-          />
+          {u.storage.limitMb > 0 && (
+            <UsageProgress
+              label={t("usage.storage")}
+              used={u.storage.usedMb}
+              limit={u.storage.limitMb}
+              unit="mb"
+            />
+          )}
           {u.updatedAt && (
             <p className="text-xs text-muted-foreground">
               {t("usage.updatedAt")} <DateDisplay value={u.updatedAt} withTime />
@@ -120,7 +123,7 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
   const plan = useQuery({ ...planQuery(q.data?.planId ?? ""), enabled: !!q.data?.planId });
   const subs = useQuery({
     ...subscriptionsQuery({ page: 1, pageSize: 10, companyId }),
-    enabled: tab === "subscription",
+    enabled: tab === "subscription" && env.useMocks,
   });
   const invoices = useQuery({
     ...invoicesQuery({ page: 1, pageSize: 20, companyId }),
@@ -229,36 +232,51 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
           </TabsContent>
 
           <TabsContent value="subscription" className="mt-0">
-            <QueryBoundary query={subs} contract={billingContracts.subscriptions}>
-              {(page) =>
-                page.data.length === 0 ? (
-                  <EmptyState title={t("companies.detail.noSubscription")} />
-                ) : (
-                  <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {page.data.slice(0, 1).map((s) => (
-                      <div key={s.id} className="contents">
-                        <Info label={t("subscriptions.columns.status")}>
-                          <SubscriptionStatusBadge status={s.status} />
-                        </Info>
-                        <Info label={t("subscriptions.columns.cycle")}>
-                          {t(`billingCycle.${s.billingCycle}`)}
-                        </Info>
-                        <Info label={t("subscriptions.columns.plan")}>
-                          {s.planName ?? s.planId}
-                        </Info>
-                        <Info label={t("subscriptions.columns.period")}>
-                          <DateDisplay value={s.currentPeriodStart} /> –{" "}
-                          <DateDisplay value={s.currentPeriodEnd} />
-                        </Info>
-                        <Info label={t("subscriptions.columns.nextCharge")}>
-                          <DateDisplay value={s.nextChargeAt ?? null} />
-                        </Info>
-                      </div>
-                    ))}
-                  </dl>
-                )
-              }
-            </QueryBoundary>
+            {!env.useMocks ? (
+              <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <Info label={t("subscriptions.columns.status")}>
+                  <CompanyStatusBadge status={c.status} />
+                </Info>
+                <Info label={t("subscriptions.columns.plan")}>
+                  {plan.data?.name ?? c.planName ?? c.planId}
+                </Info>
+                <Info label={t("subscriptions.columns.cycle")}>{t("billingCycle.monthly")}</Info>
+                <Info label={t("subscriptions.columns.nextCharge")}>
+                  <DateDisplay value={c.dueDate} />
+                </Info>
+              </dl>
+            ) : (
+              <QueryBoundary query={subs} contract={billingContracts.subscriptions}>
+                {(page) =>
+                  page.data.length === 0 ? (
+                    <EmptyState title={t("companies.detail.noSubscription")} />
+                  ) : (
+                    <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      {page.data.slice(0, 1).map((s) => (
+                        <div key={s.id} className="contents">
+                          <Info label={t("subscriptions.columns.status")}>
+                            <SubscriptionStatusBadge status={s.status} />
+                          </Info>
+                          <Info label={t("subscriptions.columns.cycle")}>
+                            {t(`billingCycle.${s.billingCycle}`)}
+                          </Info>
+                          <Info label={t("subscriptions.columns.plan")}>
+                            {s.planName ?? s.planId}
+                          </Info>
+                          <Info label={t("subscriptions.columns.period")}>
+                            <DateDisplay value={s.currentPeriodStart} /> –{" "}
+                            <DateDisplay value={s.currentPeriodEnd} />
+                          </Info>
+                          <Info label={t("subscriptions.columns.nextCharge")}>
+                            <DateDisplay value={s.nextChargeAt ?? null} />
+                          </Info>
+                        </div>
+                      ))}
+                    </dl>
+                  )
+                }
+              </QueryBoundary>
+            )}
           </TabsContent>
 
           <TabsContent value="limits" className="mt-0">

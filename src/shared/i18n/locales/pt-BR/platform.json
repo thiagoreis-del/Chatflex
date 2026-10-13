@@ -62,6 +62,7 @@
     "disabled": "Não incluído"
   },
   "usage": {
+    "limitOnly": "Limite do plano: {{limit}}",
     "users": "Usuários",
     "connections": "Conexões",
     "storage": "Armazenamento",
