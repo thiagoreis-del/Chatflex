@@ -8,6 +8,8 @@ import type { AuthenticatedUser, UserRole } from "@/shared/auth/types";
 export function hasRole(user: AuthenticatedUser | null, roles: UserRole | UserRole[]) {
   if (!user) return false;
   const list = Array.isArray(roles) ? roles : [roles];
+  // Superadmin tem acesso total a todas as telas.
+  if (user.role === "superadmin") return true;
   return list.includes(user.role);
 }
 
