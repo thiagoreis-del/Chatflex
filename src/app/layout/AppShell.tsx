@@ -217,6 +217,37 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
   );
 }
 
+function trialDaysLeft(due?: string | null) {
+  if (!due) return null;
+  return Math.ceil((new Date(due).getTime() - Date.now()) / 86400000);
+}
+
+function TrialNotice() {
+  const { t } = useTranslation();
+  const { user } = useSession();
+  if (!user || user.role === "superadmin") return null;
+  const left = trialDaysLeft(user.companyDueDate);
+  if (left === null || left < 0 || left > 15) return null;
+  return (
+    <div role="note" className="border-b bg-muted px-4 py-1 text-center text-xs text-muted-foreground">
+      {t("trial.notice", { count: left })}
+    </div>
+  );
+}
+
+function TrialBlocked({ onLogout }: { onLogout: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <div className="grid min-h-screen place-items-center p-6">
+      <div className="max-w-md space-y-4 rounded-xl border bg-card p-8 text-center shadow-sm">
+        <h1 className="text-xl font-bold">{t("trial.blockedTitle")}</h1>
+        <p className="text-sm text-muted-foreground">{t("trial.blockedText")}</p>
+        <Button variant="outline" onClick={onLogout}>{t("trial.logout")}</Button>
+      </div>
+    </div>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const { user } = useSession();
@@ -229,6 +260,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     await logout(router.options.context.queryClient);
     await navigate({ to: "/login", replace: true });
   };
+
+  const left = trialDaysLeft(user?.companyDueDate);
+  if (user && user.role !== "superadmin" && (user.companyActive === false || (left !== null && left < 0)))
+    return <TrialBlocked onLogout={() => void handleLogout()} />;
 
   const initials = (user?.name ?? "?")
     .split(" ")
@@ -246,6 +281,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {t("skipToContent")}
       </a>
       <DemoBanner />
+      <TrialNotice />
       <div className="flex flex-1">
         <aside className="hidden w-64 shrink-0 lg:block">
           <div className="sticky top-0 h-screen">

@@ -53,7 +53,7 @@ export function CompanyForm({
       phone: company?.phone ?? "",
       responsibleName: company?.responsibleName ?? "",
       planId: company?.planId ?? "",
-      trialDays: 0,
+      trialDays: 15,
       userLimit: company?.userLimit ?? 1,
       connectionLimit: company?.connectionLimit ?? 1,
       storageLimitMb: company?.storageLimitMb ?? 1024,

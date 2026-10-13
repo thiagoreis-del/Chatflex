@@ -63,7 +63,7 @@ export function PlanForm({
       userLimit: plan?.userLimit ?? 1,
       connectionLimit: plan?.connectionLimit ?? 1,
       storageLimitMb: plan?.storageLimitMb ?? 1024,
-      trialDays: plan?.trialDays ?? 0,
+      trialDays: plan?.trialDays ?? 15,
       active: plan?.active ?? true,
       features:
         plan?.features ??

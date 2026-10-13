@@ -98,5 +98,13 @@
     "email": "Informe um e-mail válido.",
     "phone": "Informe um telefone válido.",
     "document": "CPF ou CNPJ inválido."
+  },
+  "trial": {
+    "notice_one": "Período de teste: resta {{count}} dia.",
+    "notice_other": "Período de teste: restam {{count}} dias.",
+    "notice_zero": "Período de teste: termina hoje.",
+    "blockedTitle": "Acesso suspenso",
+    "blockedText": "O período de teste ou a assinatura da sua empresa terminou. Entre em contato com o administrador para ativar o acesso.",
+    "logout": "Sair"
   }
 }

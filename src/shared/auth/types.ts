@@ -11,6 +11,9 @@ export interface AuthenticatedUser {
   role: UserRole;
   companyId: string;
   permissions: string[];
+  /** Vencimento/teste da empresa (ZapPro: user.company.dueDate). */
+  companyDueDate?: string | null;
+  companyActive?: boolean;
 }
 
 /** POST /auth/login — backend ZapPro retorna `token`; `accessToken` aceito por compatibilidade. */

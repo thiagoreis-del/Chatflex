@@ -14,6 +14,7 @@ export function normalizeUser(raw: unknown): AuthenticatedUser {
     profile?: unknown;
     companyId?: unknown;
     permissions?: unknown;
+    company?: { dueDate?: string | null; status?: boolean | null } | null;
   };
   let role: UserRole;
   if (u.role === "superadmin" || u.role === "company_admin" || u.role === "agent") {
@@ -32,5 +33,7 @@ export function normalizeUser(raw: unknown): AuthenticatedUser {
     role,
     companyId: String(u.companyId ?? ""),
     permissions: Array.isArray(u.permissions) ? (u.permissions as string[]) : [],
+    companyDueDate: u.company?.dueDate ?? null,
+    companyActive: u.company?.status !== false,
   };
 }
