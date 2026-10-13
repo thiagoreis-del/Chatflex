@@ -15,6 +15,15 @@ export function UsageProgress({
   unit?: "mb";
 }) {
   const { t } = useTranslation("platform");
+  if (used < 0)
+    return (
+      <div className="flex items-baseline justify-between gap-2 text-sm">
+        <span className="font-medium">{label}</span>
+        <span className="tabular-nums text-muted-foreground">
+          {t("usage.limitOnly", { limit: formatNumber(limit) })}
+        </span>
+      </div>
+    );
   const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   const near = pct >= 85;
   const text =

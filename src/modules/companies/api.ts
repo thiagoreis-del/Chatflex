@@ -99,7 +99,24 @@ export const companyUsageQuery = (companyId: string) =>
     queryKey: companyKeys.usage(companyId),
     queryFn: ({ signal }) => {
       if (env.useMocks) return apiRequest<CompanyUsage>(ep.companyUsage(companyId), { signal });
-      return Promise.reject(new Error("Consumo da empresa ainda não disponível no servidor."));
+      // Backend atual não expõe consumo: usa os limites do plano da empresa.
+      return apiRequest<BackendCompany>(realPath(companyId), { signal }).then(async (c) => {
+        let users = c.plan?.users ?? 0;
+        let connections = c.plan?.connections ?? 0;
+        if ((!users || !connections) && c.planId) {
+          const p = await apiRequest<{ users?: number; connections?: number }>(
+            `/plans/${c.planId}`,
+            { signal },
+          ).catch(() => null);
+          users ||= p?.users ?? 0;
+          connections ||= p?.connections ?? 0;
+        }
+        return {
+          users: { used: -1, limit: users },
+          connections: { used: -1, limit: connections },
+          storage: { usedMb: -1, limitMb: 0 },
+        } satisfies CompanyUsage;
+      });
     },
     retry: false,
   });
