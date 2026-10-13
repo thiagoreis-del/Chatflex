@@ -30,11 +30,12 @@ import {
   messagesQuery,
   sendMediaMessage,
   sendMessage,
+  tagOptionsQuery,
   ticketsContract,
   ticketsQuery,
   updateTicketStatus,
 } from "../api";
-import type { Ticket, TicketStatus } from "../types";
+import type { Ticket, TicketStatus, TicketTag } from "../types";
 import { MessageMedia, isImage } from "../components/MessageMedia";
 import { quickMessagesQuery } from "@/modules/quick-messages/api";
 import {
@@ -204,14 +205,16 @@ function Conversation({
   const endRef = useRef<HTMLDivElement>(null);
   const [isPrivate, setIsPrivate] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
-  const [tagInput, setTagInput] = useState("");
   const [tagOpen, setTagOpen] = useState(false);
+  const tagOptions = useQuery({ ...tagOptionsQuery(), enabled: tagOpen });
+  const availableTags = (tagOptions.data ?? []).filter(
+    (o) => !(ticket.tags ?? []).some((x) => x.id === o.id),
+  );
   const tagMutation = useMutation({
-    mutationFn: ({ tag, remove }: { tag: string; remove?: boolean }) =>
-      remove ? removeTicketTag(ticket.id, tag) : addTicketTag(ticket.id, tag),
+    mutationFn: ({ tag, remove }: { tag: TicketTag; remove?: boolean }) =>
+      remove ? removeTicketTag(ticket, tag.id) : addTicketTag(ticket, tag),
     onSuccess: (tk) => {
       onChange(tk);
-      setTagInput("");
       setTagOpen(false);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
@@ -296,14 +299,19 @@ function Conversation({
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {(ticket.tags ?? []).map((tag) => (
               <span
-                key={tag}
+                key={tag.id}
                 className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[11px] font-medium text-accent-foreground"
               >
-                <Tag className="size-3" aria-hidden />
-                {tag}
+                <span
+                  className="size-2 rounded-full"
+                  style={{ backgroundColor: tag.color }}
+                  aria-hidden
+                />
+                {tag.name}
                 <button
                   type="button"
-                  aria-label={t("tags.remove", { tag })}
+                  aria-label={t("tags.remove", { tag: tag.name })}
+                  disabled={tagMutation.isPending}
                   onClick={() => tagMutation.mutate({ tag, remove: true })}
                   className="opacity-60 hover:opacity-100"
                 >
@@ -312,23 +320,38 @@ function Conversation({
               </span>
             ))}
             {tagOpen ? (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const tag = tagInput.trim();
-                  if (tag) tagMutation.mutate({ tag });
-                }}
-              >
-                <Input
-                  autoFocus
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onBlur={() => !tagInput && setTagOpen(false)}
-                  placeholder={t("tags.placeholder")}
-                  aria-label={t("tags.placeholder")}
-                  className="h-6 w-32 px-2 text-xs"
-                />
-              </form>
+              <div className="flex flex-wrap items-center gap-1">
+                {tagOptions.isLoading && (
+                  <span className="text-[11px] text-muted-foreground">{t("tags.loading")}</span>
+                )}
+                {!tagOptions.isLoading && availableTags.length === 0 && (
+                  <span className="text-[11px] text-muted-foreground">{t("tags.none")}</span>
+                )}
+                {availableTags.map((tag) => (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    disabled={tagMutation.isPending}
+                    onClick={() => tagMutation.mutate({ tag })}
+                    className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] hover:bg-accent"
+                  >
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: tag.color }}
+                      aria-hidden
+                    />
+                    {tag.name}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  aria-label={t("tags.cancel")}
+                  onClick={() => setTagOpen(false)}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
             ) : (
               <button
                 type="button"

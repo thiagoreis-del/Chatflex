@@ -52,7 +52,9 @@
   "privateBadge": "Nota interna · só a equipe vê",
   "tags": {
     "add": "Adicionar etiqueta",
-    "placeholder": "Nova etiqueta",
+    "loading": "Carregando…",
+    "none": "Nenhuma etiqueta disponível.",
+    "cancel": "Fechar etiquetas",
     "remove": "Remover etiqueta {{tag}}"
   },
   "transfer": {

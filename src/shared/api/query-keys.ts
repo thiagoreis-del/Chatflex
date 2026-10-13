@@ -73,6 +73,7 @@ export const ticketKeys = {
   all: ["company", "tickets"] as const,
   list: (filters: object) => ["company", "tickets", "list", filters] as const,
   messages: (id: number) => ["company", "tickets", "messages", id] as const,
+  tagOptions: ["company", "tickets", "tag-options"] as const,
 };
 
 /** Respostas rápidas pertencem à empresa da sessão; o backend filtra pelo token. */
