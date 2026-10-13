@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -34,7 +35,8 @@ import { billingContracts, invoicesQuery, subscriptionsQuery } from "@/modules/b
 import { env } from "@/shared/config/env";
 import { auditContract, auditQuery } from "@/modules/audit/api";
 import { AuditEventTable } from "@/modules/audit/components/AuditEventTable";
-import { companyContracts, companyQuery, companyUsageQuery } from "../api";
+import { companyConnectionsQuery, companyContracts, companyQuery, companyUsageQuery } from "../api";
+import type { WhatsAppStatus } from "@/modules/whatsapp/types";
 import { SensitiveActionDialog } from "../components/SensitiveActionDialog";
 import type { Company, CompanyAction } from "../types";
 
