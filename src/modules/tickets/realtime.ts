@@ -21,6 +21,11 @@ export function useFallbackInterval(ms = 5000): number | false {
 
 export function useTicketsRealtime(status: TicketStatus) {
   const qc = useQueryClient();
+  const socketStatus = useSocketStatus();
+  // Ao (re)conectar, recarrega tudo para recuperar eventos perdidos enquanto offline.
+  useEffect(() => {
+    if (socketStatus === "connected") void qc.invalidateQueries({ queryKey: ticketKeys.all });
+  }, [qc, socketStatus]);
   useEffect(() => {
     const leaveTickets = socketClient.joinRoom("joinTickets", "leaveTickets", status);
     const leaveNotif = socketClient.joinRoom("joinNotification", "leaveNotification");
