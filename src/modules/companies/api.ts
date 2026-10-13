@@ -154,7 +154,7 @@ export const companyConnectionsQuery = (companyId: string) =>
           status: w.status ?? "DISCONNECTED",
           isDefault: !!w.isDefault,
           number: w.number ?? null,
-          updatedAt: w.updatedAt,
+          ...(w.updatedAt && { updatedAt: w.updatedAt }),
         }));
     },
     retry: false,
