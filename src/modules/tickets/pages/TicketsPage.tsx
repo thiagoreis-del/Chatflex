@@ -126,9 +126,7 @@ export function TicketsPage() {
           />
         ) : (
           <div className="m-auto">
-            <EmptyState
-              icon={MessagesSquare}
-              title={t("selectTitle")}
+            <EmptyState title={t("selectTitle")}
               description={t("selectDescription")}
             />
           </div>
