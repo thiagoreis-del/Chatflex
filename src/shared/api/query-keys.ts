@@ -56,3 +56,14 @@ export const whatsappKeys = {
   list: () => ["company", "whatsapp", "list"] as const,
   detail: (id: number) => ["company", "whatsapp", "detail", id] as const,
 };
+
+/** Usuários e filas pertencem à empresa da sessão; o backend filtra pelo token. */
+export const userKeys = {
+  all: ["company", "users"] as const,
+  list: (filters: object) => ["company", "users", "list", filters] as const,
+};
+
+export const queueKeys = {
+  all: ["company", "queues"] as const,
+  list: () => ["company", "queues", "list"] as const,
+};

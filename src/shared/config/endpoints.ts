@@ -125,3 +125,28 @@ export const whatsappContracts = [
   { method: "PUT", path: "/whatsappsession/:id", confirmed: false },
   { method: "DELETE", path: "/whatsappsession/:id", confirmed: false },
 ] as const;
+
+/**
+ * Usuários (atendentes) e filas da empresa.
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ */
+export const userEndpoints = {
+  list: "/users",
+  detail: (id: number) => `/users/${id}`,
+} as const;
+
+export const queueEndpoints = {
+  list: "/queue",
+  detail: (id: number) => `/queue/${id}`,
+} as const;
+
+export const teamContracts = [
+  { method: "GET", path: "/users", confirmed: false },
+  { method: "POST", path: "/users", confirmed: false },
+  { method: "PUT", path: "/users/:id", confirmed: false },
+  { method: "DELETE", path: "/users/:id", confirmed: false },
+  { method: "GET", path: "/queue", confirmed: false },
+  { method: "POST", path: "/queue", confirmed: false },
+  { method: "PUT", path: "/queue/:id", confirmed: false },
+  { method: "DELETE", path: "/queue/:id", confirmed: false },
+] as const;

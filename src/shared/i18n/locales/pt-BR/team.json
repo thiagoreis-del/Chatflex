@@ -1,0 +1,57 @@
+{
+  "pending": "Contrato pendente: formato baseado no backend Whaticket/ZapPro, ainda não confirmado.",
+  "actions": { "edit": "Editar", "delete": "Excluir", "cancel": "Cancelar", "save": "Salvar" },
+  "toast": {
+    "saved": "Salvo com sucesso.",
+    "deleted": "Excluído com sucesso.",
+    "error": "Não foi possível concluir a operação.",
+    "conflict": "Já existe um usuário com este e-mail."
+  },
+  "users": {
+    "meta": { "title": "Usuários", "description": "Gerencie os atendentes da sua empresa." },
+    "title": "Usuários",
+    "description": "Atendentes e administradores com acesso à sua empresa.",
+    "new": "Novo usuário",
+    "edit": "Editar usuário",
+    "searchPlaceholder": "Buscar por nome ou e-mail",
+    "empty": "Nenhum usuário encontrado.",
+    "table": { "name": "Nome", "email": "E-mail", "profile": "Perfil", "queues": "Filas", "actions": "Ações" },
+    "profile": { "admin": "Administrador", "user": "Atendente" },
+    "form": {
+      "name": "Nome",
+      "email": "E-mail",
+      "password": "Senha",
+      "passwordHint": "Deixe em branco para manter a senha atual.",
+      "profile": "Perfil",
+      "queues": "Filas de atendimento",
+      "noQueues": "Nenhuma fila cadastrada.",
+      "nameRequired": "Informe o nome.",
+      "emailInvalid": "Informe um e-mail válido.",
+      "passwordMin": "A senha deve ter pelo menos 8 caracteres."
+    },
+    "confirmDelete": {
+      "title": "Excluir usuário?",
+      "description": "{{name}} perderá o acesso imediatamente."
+    }
+  },
+  "queues": {
+    "meta": { "title": "Filas", "description": "Organize o atendimento por setores." },
+    "title": "Filas",
+    "description": "Setores que recebem e distribuem os atendimentos.",
+    "new": "Nova fila",
+    "edit": "Editar fila",
+    "empty": "Nenhuma fila cadastrada.",
+    "table": { "name": "Nome", "greeting": "Mensagem de saudação", "actions": "Ações" },
+    "form": {
+      "name": "Nome",
+      "color": "Cor",
+      "greeting": "Mensagem de saudação",
+      "greetingHint": "Enviada ao cliente quando o atendimento entra nesta fila.",
+      "nameRequired": "Informe o nome."
+    },
+    "confirmDelete": {
+      "title": "Excluir fila?",
+      "description": "A fila {{name}} será removida dos usuários vinculados."
+    }
+  }
+}
