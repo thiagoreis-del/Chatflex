@@ -410,7 +410,7 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
             <UsagePanel companyId={companyId} />
           </TabsContent>
           <TabsContent value="users" className="mt-0">
-            <SummaryPanel companyId={companyId} kind="users" />
+            <UsersPanel companyId={companyId} />
           </TabsContent>
           <TabsContent value="connections" className="mt-0">
             <ConnectionsPanel companyId={companyId} />

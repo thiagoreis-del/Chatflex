@@ -124,7 +124,9 @@
       "manageConnections": "Gerenciar conexões (em breve)",
       "noSubscription": "Nenhuma assinatura encontrada para esta empresa.",
       "noConnections": "Esta empresa ainda não tem conexões de WhatsApp.",
-      "connectionColumns": { "name": "Nome", "number": "Número", "status": "Status", "default": "Padrão" }
+      "connectionColumns": { "name": "Nome", "number": "Número", "status": "Status", "default": "Padrão" },
+      "noUsers": "Esta empresa ainda não tem usuários cadastrados.",
+      "userColumns": { "name": "Nome", "email": "E-mail", "queues": "Filas" }
     },
     "form": {
       "cnpjLookup": "Buscar na Receita",
