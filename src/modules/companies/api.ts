@@ -128,6 +128,38 @@ export const companyUsageQuery = (companyId: string) =>
     retry: false,
   });
 
+interface BackendWhatsapp extends Partial<WhatsAppConnection> {
+  id: number;
+  name: string;
+  companyId?: number;
+  channel?: string;
+}
+
+/**
+ * CONFIRMADO no backend ZapPro/Whaticket: GET /whatsapp/all lista as conexões
+ * de TODAS as empresas (sem filtro no servidor). Uso exclusivo do superadmin:
+ * filtramos pela empresa no cliente.
+ */
+export const companyConnectionsQuery = (companyId: string) =>
+  queryOptions({
+    queryKey: [...companyKeys.usage(companyId), "connections"],
+    queryFn: async ({ signal }): Promise<WhatsAppConnection[]> => {
+      if (env.useMocks) return [];
+      const all = await apiRequest<BackendWhatsapp[]>("/whatsapp/all?session=0", { signal });
+      return all
+        .filter((w) => String(w.companyId) === companyId)
+        .map((w) => ({
+          id: w.id,
+          name: w.name,
+          status: w.status ?? "DISCONNECTED",
+          isDefault: !!w.isDefault,
+          number: w.number ?? null,
+          updatedAt: w.updatedAt,
+        }));
+    },
+    retry: false,
+  });
+
 export async function createCompany(body: CreateCompanyRequest) {
   if (env.useMocks) return apiRequest<Company>(ep.companies, { method: "POST", body });
   // O backend cria o primeiro administrador com o e-mail da empresa e senha padrão "mudar123".
