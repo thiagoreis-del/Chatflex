@@ -13,15 +13,17 @@ export interface AuthenticatedUser {
   permissions: string[];
 }
 
-/** CONTRATO PENDENTE: formato esperado de POST /auth/login. */
+/** POST /auth/login — backend ZapPro retorna `token`; `accessToken` aceito por compatibilidade. */
 export interface LoginResponse {
-  accessToken: string;
-  user: AuthenticatedUser;
+  accessToken?: string;
+  token?: string;
+  user: unknown;
 }
 
-/** CONTRATO PENDENTE: formato esperado de POST /auth/refresh_token. */
+/** POST /auth/refresh_token — idem. */
 export interface RefreshResponse {
-  accessToken: string;
+  accessToken?: string;
+  token?: string;
 }
 
 export type SessionStatus = "idle" | "loading" | "authenticated" | "unauthenticated";
