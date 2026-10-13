@@ -1,5 +1,5 @@
 {
-  "meta": { "title": "Conexões WhatsApp | {{appName}}", "description": "Gerencie as conexões WhatsApp da sua empresa." },
+  "meta": { "title": "Conexões WhatsApp", "description": "Gerencie as conexões WhatsApp da sua empresa." },
   "title": "Conexões WhatsApp",
   "description": "Conecte e acompanhe os números de WhatsApp usados no atendimento.",
   "pending": "Integração em tempo real pendente: o QR Code é atualizado a cada 3 segundos.",
