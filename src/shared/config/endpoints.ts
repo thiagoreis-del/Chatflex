@@ -159,11 +159,17 @@ export const ticketEndpoints = {
   list: "/tickets",
   detail: (id: number) => `/tickets/${id}`,
   messages: (id: number) => `/messages/${id}`,
+  transfer: (id: number) => `/tickets/${id}/transfer`,
+  tags: (id: number) => `/tickets/${id}/tags`,
+  tag: (id: number, tag: string) => `/tickets/${id}/tags/${encodeURIComponent(tag)}`,
 } as const;
 
 export const ticketContracts = [
   { method: "GET", path: "/tickets", confirmed: false },
   { method: "PUT", path: "/tickets/:id", confirmed: false },
+  { method: "PUT", path: "/tickets/:id/transfer", confirmed: false },
+  { method: "POST", path: "/tickets/:id/tags", confirmed: false },
+  { method: "DELETE", path: "/tickets/:id/tags/:tag", confirmed: false },
   { method: "GET", path: "/messages/:ticketId", confirmed: false },
   { method: "POST", path: "/messages/:ticketId", confirmed: false },
   /** Mesmo caminho, multipart/form-data: `medias` (arquivos) + `body` (legenda). */

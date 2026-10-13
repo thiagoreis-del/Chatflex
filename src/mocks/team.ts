@@ -5,14 +5,14 @@ import type { CompanyUser, CompanyUserInput } from "@/modules/users/types";
 import type { Paginated } from "@/shared/types/pagination";
 
 let queueSeq = 4;
-const queues: Queue[] = [
+export const queues: Queue[] = [
   { id: 1, name: "Comercial", color: "#2563EB", greetingMessage: "Olá! Em que podemos ajudar?" },
   { id: 2, name: "Suporte", color: "#16A34A", greetingMessage: "Bem-vindo ao suporte." },
   { id: 3, name: "Financeiro", color: "#F59E0B", greetingMessage: null },
 ];
 
 let userSeq = 5;
-const users: CompanyUser[] = [
+export const users: CompanyUser[] = [
   {
     id: 1,
     name: "Pessoa Demonstração",

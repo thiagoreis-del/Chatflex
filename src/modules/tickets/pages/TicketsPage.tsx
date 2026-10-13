@@ -2,15 +2,30 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, FileText, Paperclip, Search, Send, X, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRightLeft,
+  FileText,
+  Lock,
+  Paperclip,
+  Plus,
+  Search,
+  Send,
+  Tag,
+  X,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { ticketKeys } from "@/shared/api/query-keys";
+import { TransferTicketDialog } from "../components/TransferTicketDialog";
 import {
   ACCEPTED_MEDIA,
+  addTicketTag,
+  removeTicketTag,
   MAX_MEDIA_BYTES,
   messagesQuery,
   sendMediaMessage,
@@ -187,6 +202,21 @@ function Conversation({
     }
   };
   const endRef = useRef<HTMLDivElement>(null);
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [tagInput, setTagInput] = useState("");
+  const [tagOpen, setTagOpen] = useState(false);
+  const tagMutation = useMutation({
+    mutationFn: ({ tag, remove }: { tag: string; remove?: boolean }) =>
+      remove ? removeTicketTag(ticket.id, tag) : addTicketTag(ticket.id, tag),
+    onSuccess: (tk) => {
+      onChange(tk);
+      setTagInput("");
+      setTagOpen(false);
+      void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: () => toast.error(t("toast.tagError")),
+  });
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
@@ -223,7 +253,7 @@ function Conversation({
 
   const send = useMutation({
     mutationFn: ({ body, media }: { body: string; media: File | null }) =>
-      media ? sendMediaMessage(ticket.id, media, body) : sendMessage(ticket.id, body),
+      media ? sendMediaMessage(ticket.id, media, body) : sendMessage(ticket.id, body, isPrivate),
     onSuccess: () => {
       setText("");
       setFile(null);
@@ -263,7 +293,60 @@ function Conversation({
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{ticket.contact.name}</p>
           <p className="text-xs text-muted-foreground">+{ticket.contact.number}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-1">
+            {(ticket.tags ?? []).map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[11px] font-medium text-accent-foreground"
+              >
+                <Tag className="size-3" aria-hidden />
+                {tag}
+                <button
+                  type="button"
+                  aria-label={t("tags.remove", { tag })}
+                  onClick={() => tagMutation.mutate({ tag, remove: true })}
+                  className="opacity-60 hover:opacity-100"
+                >
+                  <X className="size-3" />
+                </button>
+              </span>
+            ))}
+            {tagOpen ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const tag = tagInput.trim();
+                  if (tag) tagMutation.mutate({ tag });
+                }}
+              >
+                <Input
+                  autoFocus
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onBlur={() => !tagInput && setTagOpen(false)}
+                  placeholder={t("tags.placeholder")}
+                  aria-label={t("tags.placeholder")}
+                  className="h-6 w-32 px-2 text-xs"
+                />
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setTagOpen(true)}
+                className="inline-flex items-center gap-0.5 rounded-full border border-dashed px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground"
+              >
+                <Plus className="size-3" aria-hidden />
+                {t("tags.add")}
+              </button>
+            )}
+          </div>
         </div>
+        {ticket.status !== "closed" && (
+          <Button size="sm" variant="ghost" onClick={() => setTransferOpen(true)}>
+            <ArrowRightLeft className="size-4" />
+            <span className="hidden sm:inline">{t("actions.transfer")}</span>
+          </Button>
+        )}
         {ticket.status === "pending" && (
           <Button size="sm" onClick={() => status.mutate("open")} disabled={status.isPending}>
             {t("actions.accept")}
@@ -290,6 +373,14 @@ function Conversation({
           </Button>
         )}
       </header>
+      {transferOpen && (
+        <TransferTicketDialog
+          ticket={ticket}
+          open={transferOpen}
+          onOpenChange={setTransferOpen}
+          onDone={onChange}
+        />
+      )}
       <div className="flex-1 space-y-2 overflow-y-auto bg-muted/30 p-4">
         <QueryBoundary query={messages} contract="GET /messages/:ticketId">
           {(list) => (
@@ -299,11 +390,19 @@ function Conversation({
                   <div
                     className={cn(
                       "max-w-[75%] rounded-2xl px-3 py-2 text-sm shadow-sm",
-                      m.fromMe
-                        ? "rounded-br-sm bg-primary text-primary-foreground"
-                        : "rounded-bl-sm bg-card",
+                      m.isPrivate
+                        ? "rounded-br-sm border border-dashed border-warning bg-warning/15 text-foreground"
+                        : m.fromMe
+                          ? "rounded-br-sm bg-primary text-primary-foreground"
+                          : "rounded-bl-sm bg-card",
                     )}
                   >
+                    {m.isPrivate && (
+                      <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        <Lock className="size-3" aria-hidden />
+                        {t("privateBadge")}
+                      </p>
+                    )}
                     <MessageMedia message={m} />
                     {!(m.mediaUrl && !isImage(m)) && m.body && (
                       <p className="whitespace-pre-wrap break-words">{m.body}</p>
@@ -311,7 +410,9 @@ function Conversation({
                     <p
                       className={cn(
                         "mt-1 text-right text-[10px]",
-                        m.fromMe ? "text-primary-foreground/70" : "text-muted-foreground",
+                        m.fromMe && !m.isPrivate
+                          ? "text-primary-foreground/70"
+                          : "text-muted-foreground",
                       )}
                     >
                       {time(m.createdAt)}
@@ -370,8 +471,23 @@ function Conversation({
             </Button>
             <Button
               type="button"
+              variant={isPrivate ? "secondary" : "ghost"}
+              size="icon"
+              aria-label={t("composer.privateNote")}
+              aria-pressed={isPrivate}
+              title={t("composer.privateNote")}
+              onClick={() => {
+                setIsPrivate((v) => !v);
+                setFile(null);
+              }}
+            >
+              <Lock className="size-4" />
+            </Button>
+            <Button
+              type="button"
               variant="ghost"
               size="icon"
+              disabled={isPrivate}
               aria-label={t("composer.attach")}
               title={t("composer.attach")}
               onClick={() => fileRef.current?.click()}
@@ -393,7 +509,13 @@ function Conversation({
                 setText(e.target.value);
                 setActiveIndex(0);
               }}
-              placeholder={t(file ? "composer.caption" : "composer.placeholder")}
+              placeholder={t(
+                isPrivate
+                  ? "composer.privatePlaceholder"
+                  : file
+                    ? "composer.caption"
+                    : "composer.placeholder",
+              )}
               aria-label={t("composer.placeholder")}
             />
             <Button
