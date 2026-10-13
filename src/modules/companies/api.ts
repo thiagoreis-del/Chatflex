@@ -1,7 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { apiRequest } from "@/shared/api/client";
 import { companyKeys } from "@/shared/api/query-keys";
-import { sessionStore } from "@/shared/auth/session-store";
 import { env } from "@/shared/config/env";
 import { platformEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import type { Paginated } from "@/shared/types/pagination";
@@ -80,9 +79,12 @@ export const companiesQuery = (filters: CompanyFilters) =>
         { signal },
       );
       let data = res.companies.map(fromBackendCompany);
-      // Oculta a empresa do próprio superadmin: a lista mostra apenas clientes.
-      const ownCompanyId = sessionStore.get().user?.companyId;
-      if (ownCompanyId) data = data.filter((c) => c.id !== ownCompanyId);
+      // Oculta a empresa dona da plataforma (Notasflex): a lista mostra apenas clientes.
+      data = data.filter(
+        (c) =>
+          !c.legalName.toLowerCase().includes("notasflex") &&
+          !c.tradeName.toLowerCase().includes("notasflex"),
+      );
       if (filters.status) data = data.filter((c) => c.status === filters.status);
       if (filters.planId) data = data.filter((c) => c.planId === filters.planId);
       return { data, page: filters.page, pageSize: 20, total: res.count };
