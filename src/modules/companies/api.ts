@@ -115,7 +115,7 @@ export const companyUsageQuery = (companyId: string) =>
           users: { used: -1, limit: users },
           connections: { used: -1, limit: connections },
           storage: { usedMb: -1, limitMb: 0 },
-        } satisfies CompanyUsage;
+        } as CompanyUsage;
       });
     },
     retry: false,
