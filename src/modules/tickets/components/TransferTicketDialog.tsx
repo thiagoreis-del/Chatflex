@@ -56,7 +56,7 @@ export function TransferTicketDialog({
       transferTicket(ticket.id, {
         queueId: Number(queueId),
         userId: userId === ANY ? null : Number(userId),
-        note: note.trim() || undefined,
+        ...(note.trim() ? { note: note.trim() } : {}),
       }),
     onSuccess: (tk) => {
       toast.success(t("toast.transferred"));

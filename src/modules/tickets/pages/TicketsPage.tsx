@@ -2,7 +2,19 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRightLeft, FileText, Lock, Paperclip, Plus, Search, Send, Tag, X, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRightLeft,
+  FileText,
+  Lock,
+  Paperclip,
+  Plus,
+  Search,
+  Send,
+  Tag,
+  X,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -497,7 +509,13 @@ function Conversation({
                 setText(e.target.value);
                 setActiveIndex(0);
               }}
-              placeholder={t(isPrivate ? "composer.privatePlaceholder" : file ? "composer.caption" : "composer.placeholder")}
+              placeholder={t(
+                isPrivate
+                  ? "composer.privatePlaceholder"
+                  : file
+                    ? "composer.caption"
+                    : "composer.placeholder",
+              )}
               aria-label={t("composer.placeholder")}
             />
             <Button
