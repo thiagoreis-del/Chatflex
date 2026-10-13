@@ -5,6 +5,6 @@ import { pageMeta } from "@/shared/config/meta";
 
 export const Route = createFileRoute("/app/conexoes")({
   head: () => pageMeta("whatsapp:meta.title", "whatsapp:meta.description", { noindex: true }),
-  beforeLoad: () => requireRole(["company_admin"]),
+  beforeLoad: () => requireRole(["company_admin", "superadmin"]),
   component: ConnectionsPage,
 });
