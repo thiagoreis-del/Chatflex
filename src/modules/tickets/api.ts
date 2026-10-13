@@ -38,8 +38,7 @@ export const messagesQuery = (ticketId: number) =>
     queryKey: ticketKeys.messages(ticketId),
     queryFn: async ({ signal }) =>
       (await apiRequest<MessagesResponse>(ep.messages(ticketId), { signal }))?.messages ?? [],
-    // Socket desativado: atualização periódica até o adaptador Socket.io ser ligado.
-    refetchInterval: 5000,
+    // Polling de fallback é definido na tela conforme o status do Socket.
   });
 
 export const tagOptionsQuery = () =>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useFallbackInterval, useMessagesRealtime, useTicketsRealtime } from "../realtime";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -51,7 +52,9 @@ export function TicketsPage() {
   const [status, setStatus] = useState<TicketStatus>("pending");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Ticket | null>(null);
-  const query = useQuery(ticketsQuery({ status, search }));
+  const fallback = useFallbackInterval();
+  useTicketsRealtime(status);
+  const query = useQuery({ ...ticketsQuery({ status, search }), refetchInterval: fallback });
 
   return (
     <div className="flex h-[calc(100vh-8rem)] min-h-[480px] overflow-hidden rounded-xl border bg-card shadow-sm">
@@ -171,7 +174,9 @@ function Conversation({
   const { t } = useTranslation("tickets");
   const { t: tq } = useTranslation("quickMessages");
   const qc = useQueryClient();
-  const messages = useQuery(messagesQuery(ticket.id));
+  const msgFallback = useFallbackInterval();
+  useMessagesRealtime(ticket.id);
+  const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
   const [text, setText] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
