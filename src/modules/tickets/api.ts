@@ -25,3 +25,15 @@ export const updateTicketStatus = (id: number, status: TicketStatus) =>
 
 export const sendMessage = (ticketId: number, body: string) =>
   apiRequest<Message>(ep.messages(ticketId), { method: "POST", body: { body } });
+
+/** Contrato observado: multipart com campo `medias` (multer array) e `body` como legenda. */
+export const sendMediaMessage = (ticketId: number, file: File, caption = "") => {
+  const form = new FormData();
+  form.append("medias", file);
+  form.append("body", caption);
+  return apiRequest<Message | undefined>(ep.messages(ticketId), { method: "POST", body: form });
+};
+
+export const MAX_MEDIA_BYTES = 16 * 1024 * 1024;
+export const ACCEPTED_MEDIA =
+  "image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip";

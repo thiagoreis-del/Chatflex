@@ -166,6 +166,8 @@ export const ticketContracts = [
   { method: "PUT", path: "/tickets/:id", confirmed: false },
   { method: "GET", path: "/messages/:ticketId", confirmed: false },
   { method: "POST", path: "/messages/:ticketId", confirmed: false },
+  /** Mesmo caminho, multipart/form-data: `medias` (arquivos) + `body` (legenda). */
+  { method: "POST", path: "/messages/:ticketId (multipart)", confirmed: false },
 ] as const;
 
 /**

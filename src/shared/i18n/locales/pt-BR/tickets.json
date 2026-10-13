@@ -19,12 +19,23 @@
   "composer": {
     "placeholder": "Digite uma mensagem…",
     "send": "Enviar",
-    "acceptFirst": "Aceite o atendimento para responder."
+    "acceptFirst": "Aceite o atendimento para responder.",
+    "attach": "Anexar imagem ou documento",
+    "caption": "Adicionar legenda (opcional)…",
+    "removeAttachment": "Remover anexo"
+  },
+  "media": {
+    "open": "Abrir",
+    "download": "Baixar arquivo",
+    "image": "Imagem enviada",
+    "close": "Fechar"
   },
   "toast": {
     "accepted": "Atendimento aceito.",
     "closed": "Atendimento finalizado.",
     "reopened": "Atendimento reaberto.",
-    "sendError": "Não foi possível enviar a mensagem."
+    "sendError": "Não foi possível enviar a mensagem.",
+    "fileTooLarge": "Arquivo muito grande. Limite de 16 MB.",
+    "fileError": "Não foi possível enviar o arquivo."
   }
 }
