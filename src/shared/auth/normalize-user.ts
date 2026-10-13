@@ -5,7 +5,16 @@ import type { AuthenticatedUser, UserRole } from "./types";
  * ids numéricos) para o formato interno. Apenas apresentação; o backend autoriza.
  */
 export function normalizeUser(raw: unknown): AuthenticatedUser {
-  const u = (raw ?? {}) as Record<string, unknown>;
+  const u = (raw ?? {}) as {
+    id?: unknown;
+    name?: unknown;
+    email?: unknown;
+    role?: unknown;
+    super?: unknown;
+    profile?: unknown;
+    companyId?: unknown;
+    permissions?: unknown;
+  };
   let role: UserRole;
   if (u.role === "superadmin" || u.role === "company_admin" || u.role === "agent") {
     role = u.role;
