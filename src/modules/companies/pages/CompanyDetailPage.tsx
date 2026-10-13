@@ -35,7 +35,13 @@ import { billingContracts, invoicesQuery, subscriptionsQuery } from "@/modules/b
 import { env } from "@/shared/config/env";
 import { auditContract, auditQuery } from "@/modules/audit/api";
 import { AuditEventTable } from "@/modules/audit/components/AuditEventTable";
-import { companyConnectionsQuery, companyContracts, companyQuery, companyUsageQuery } from "../api";
+import {
+  companyConnectionsQuery,
+  companyContracts,
+  companyQuery,
+  companyUsageQuery,
+  companyUsersQuery,
+} from "../api";
 import type { WhatsAppStatus } from "@/modules/whatsapp/types";
 import { SensitiveActionDialog } from "../components/SensitiveActionDialog";
 import type { Company, CompanyAction } from "../types";
@@ -91,31 +97,6 @@ function UsagePanel({ companyId }: { companyId: string }) {
   );
 }
 
-function SummaryPanel({ companyId, kind }: { companyId: string; kind: "users" | "connections" }) {
-  const { t } = useTranslation("platform");
-  const q = useQuery(companyUsageQuery(companyId));
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        {t(
-          kind === "users"
-            ? "companies.detail.usersSummary"
-            : "companies.detail.connectionsSummary",
-        )}
-      </p>
-      <QueryBoundary query={q} contract={companyContracts.usage}>
-        {(u) => (
-          <UsageProgress label={t(`usage.${kind}`)} used={u[kind].used} limit={u[kind].limit} />
-        )}
-      </QueryBoundary>
-      <Button variant="outline" disabled aria-disabled="true">
-        {t(
-          kind === "users" ? "companies.detail.manageUsers" : "companies.detail.manageConnections",
-        )}
-      </Button>
-    </div>
-  );
-}
 
 const connStatusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructive" | "outline"> = {
   CONNECTED: "default",
@@ -172,6 +153,57 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
                         ) : (
                           "—"
                         )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )
+        }
+      </QueryBoundary>
+    </div>
+  );
+}
+
+function UsersPanel({ companyId }: { companyId: string }) {
+  const { t } = useTranslation("platform");
+  const usage = useQuery(companyUsageQuery(companyId));
+  const users = useQuery(companyUsersQuery(companyId));
+  return (
+    <div className="space-y-4">
+      <QueryBoundary query={usage} contract={companyContracts.usage}>
+        {(u) =>
+          u.users.limit > 0 ? (
+            <UsageProgress
+              label={t("usage.users")}
+              used={users.data?.length ?? 0}
+              limit={u.users.limit}
+            />
+          ) : null
+        }
+      </QueryBoundary>
+      <QueryBoundary query={users} contract="GET /users/list">
+        {(list) =>
+          list.length === 0 ? (
+            <EmptyState title={t("platform:companies.detail.noUsers")} />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("platform:companies.detail.userColumns.name")}</TableHead>
+                    <TableHead>{t("platform:companies.detail.userColumns.email")}</TableHead>
+                    <TableHead>{t("platform:companies.detail.userColumns.queues")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {list.map((u) => (
+                    <TableRow key={u.id}>
+                      <TableCell className="font-medium">{u.name}</TableCell>
+                      <TableCell>{u.email}</TableCell>
+                      <TableCell>
+                        {u.queues.length === 0 ? "—" : u.queues.join(", ")}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -353,7 +385,7 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
             <UsagePanel companyId={companyId} />
           </TabsContent>
           <TabsContent value="users" className="mt-0">
-            <SummaryPanel companyId={companyId} kind="users" />
+            <UsersPanel companyId={companyId} />
           </TabsContent>
           <TabsContent value="connections" className="mt-0">
             <ConnectionsPanel companyId={companyId} />
