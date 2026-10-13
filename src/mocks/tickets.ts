@@ -146,7 +146,11 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
     if (method === "DELETE") ticket.tags = [];
     return { ok: true };
   }
-  if (parts[0] === "tickets" && method === "PUT" && (opts.body as { isTransfered?: boolean }).isTransfered) {
+  if (
+    parts[0] === "tickets" &&
+    method === "PUT" &&
+    (opts.body as { isTransfered?: boolean }).isTransfered
+  ) {
     const { queueId, userId, msgTransfer } = opts.body as {
       queueId: number;
       userId: number | null;
