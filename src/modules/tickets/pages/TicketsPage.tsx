@@ -497,7 +497,7 @@ function Conversation({
                 setText(e.target.value);
                 setActiveIndex(0);
               }}
-              placeholder={t(file ? "composer.caption" : "composer.placeholder")}
+              placeholder={t(isPrivate ? "composer.privatePlaceholder" : file ? "composer.caption" : "composer.placeholder")}
               aria-label={t("composer.placeholder")}
             />
             <Button
