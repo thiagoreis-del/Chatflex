@@ -66,7 +66,9 @@ const activeLink = {
 function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { t } = useTranslation();
   const { hasRole } = usePermissions();
-  const isSuperadmin = hasRole("superadmin");
+  const { user } = useSession();
+  const isSuperadmin = user?.role === "superadmin";
+  void hasRole;
   return (
     <nav aria-label={t("nav.main")} className="flex flex-1 flex-col gap-6 px-3">
       <ul className="space-y-1">
@@ -105,21 +107,10 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link
-                to="/app/conexoes"
-                onClick={onNavigate}
-                className={linkClass}
-                activeProps={activeLink}
-              >
-                <Smartphone className="size-4" aria-hidden />
-                {t("nav.modules.whatsapp")}
-              </Link>
-            </li>
           </ul>
         </div>
       )}
-      {!isSuperadmin && (
+      {(
         <ul className="space-y-1">
           <li>
             <Link
