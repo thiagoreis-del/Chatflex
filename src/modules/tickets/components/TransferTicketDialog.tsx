@@ -47,7 +47,7 @@ export function TransferTicketDialog({
   const [userId, setUserId] = useState<string>(ANY);
   const [note, setNote] = useState("");
 
-  const eligible = (users.data?.items ?? []).filter(
+  const eligible = (users.data?.data ?? []).filter(
     (u) => !queueId || u.queueIds.includes(Number(queueId)),
   );
 
