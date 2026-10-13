@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { apiRequest } from "@/shared/api/client";
 import { companyKeys } from "@/shared/api/query-keys";
+import { env } from "@/shared/config/env";
 import { platformEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import type { Paginated } from "@/shared/types/pagination";
 import type {
@@ -11,40 +12,137 @@ import type {
   CreateCompanyRequest,
 } from "./types";
 
+/**
+ * CONFIRMADO no código ZapPro/Whaticket: GET/POST /companies, GET/PUT /companies/:id.
+ * Com mocks ativos, mantém os caminhos de demonstração /platform/companies.
+ * Uso, limites por empresa e encerramento de teste NÃO existem no backend atual.
+ */
 export const companyContracts = {
-  list: "GET /platform/companies",
-  detail: "GET /platform/companies/:companyId",
-  usage: "GET /platform/companies/:companyId/usage",
+  list: "GET /companies",
+  detail: "GET /companies/:id",
+  usage: "indisponível no backend atual",
 };
+
+interface BackendCompany {
+  id: number;
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  document?: string | null;
+  status?: boolean | null;
+  planId?: number | null;
+  dueDate?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  plan?: { id: number; name: string; users?: number; connections?: number } | null;
+}
+
+function fromBackendCompany(c: BackendCompany): Company {
+  const overdue = !!c.dueDate && new Date(c.dueDate).getTime() < Date.now();
+  return {
+    id: String(c.id),
+    legalName: c.name,
+    tradeName: c.name,
+    document: c.document ?? "",
+    email: c.email ?? "",
+    phone: c.phone ?? "",
+    responsibleName: "",
+    status: c.status === false ? "suspended" : overdue ? "overdue" : "active",
+    planId: c.planId != null ? String(c.planId) : "",
+    trialEndsAt: null,
+    dueDate: c.dueDate ?? null,
+    userLimit: c.plan?.users ?? 0,
+    connectionLimit: c.plan?.connections ?? 0,
+    storageLimitMb: 0,
+    createdAt: c.createdAt ?? "",
+    updatedAt: c.updatedAt ?? "",
+    ...(c.plan?.name && { planName: c.plan.name }),
+  };
+}
+
+function addDays(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + Math.max(days, 0));
+  return d.toISOString().slice(0, 10);
+}
+
+const realPath = (id: string) => `/companies/${encodeURIComponent(id)}`;
 
 export const companiesQuery = (filters: CompanyFilters) =>
   queryOptions({
     queryKey: companyKeys.list(filters),
-    queryFn: ({ signal }) =>
-      apiRequest<Paginated<Company>>(withQuery(ep.companies, filters), { signal }),
+    queryFn: async ({ signal }): Promise<Paginated<Company>> => {
+      if (env.useMocks)
+        return apiRequest<Paginated<Company>>(withQuery(ep.companies, filters), { signal });
+      const res = await apiRequest<{ companies: BackendCompany[]; count: number }>(
+        withQuery("/companies", { searchParam: filters.search, pageNumber: filters.page }),
+        { signal },
+      );
+      let data = res.companies.map(fromBackendCompany);
+      if (filters.status) data = data.filter((c) => c.status === filters.status);
+      if (filters.planId) data = data.filter((c) => c.planId === filters.planId);
+      return { data, page: filters.page, pageSize: 20, total: res.count };
+    },
   });
 
 export const companyQuery = (companyId: string) =>
   queryOptions({
     queryKey: companyKeys.detail(companyId),
-    queryFn: ({ signal }) => apiRequest<Company>(ep.company(companyId), { signal }),
+    queryFn: async ({ signal }) => {
+      if (env.useMocks) return apiRequest<Company>(ep.company(companyId), { signal });
+      return fromBackendCompany(await apiRequest<BackendCompany>(realPath(companyId), { signal }));
+    },
   });
 
 export const companyUsageQuery = (companyId: string) =>
   queryOptions({
     queryKey: companyKeys.usage(companyId),
-    queryFn: ({ signal }) => apiRequest<CompanyUsage>(ep.companyUsage(companyId), { signal }),
+    queryFn: ({ signal }) => {
+      if (env.useMocks) return apiRequest<CompanyUsage>(ep.companyUsage(companyId), { signal });
+      return Promise.reject(new Error("Consumo da empresa ainda não disponível no servidor."));
+    },
+    retry: false,
   });
 
-export function createCompany(body: CreateCompanyRequest) {
-  return apiRequest<Company>(ep.companies, { method: "POST", body });
+export async function createCompany(body: CreateCompanyRequest) {
+  if (env.useMocks) return apiRequest<Company>(ep.companies, { method: "POST", body });
+  // O backend cria o primeiro administrador com o e-mail da empresa e senha padrão "mudar123".
+  const raw = await apiRequest<BackendCompany>("/companies", {
+    method: "POST",
+    body: {
+      name: body.tradeName || body.legalName,
+      email: body.firstAdmin.email || body.email,
+      phone: body.phone,
+      document: body.document,
+      status: true,
+      planId: body.planId ? Number(body.planId) : undefined,
+      dueDate: addDays(body.trialDays || 30),
+      recurrence: "MENSAL",
+      companyUserName: body.firstAdmin.name || body.responsibleName,
+    },
+  });
+  return fromBackendCompany(raw);
 }
 
-export function updateCompany(
+export async function updateCompany(
   companyId: string,
   body: Partial<CompanyInput> & { reason?: string; dueDate?: string },
 ) {
-  return apiRequest<Company>(ep.company(companyId), { method: "PATCH", body });
+  if (env.useMocks) return apiRequest<Company>(ep.company(companyId), { method: "PATCH", body });
+  const raw = await apiRequest<BackendCompany>(realPath(companyId), {
+    method: "PUT",
+    body: {
+      id: Number(companyId),
+      ...((body.tradeName || body.legalName) && { name: body.tradeName || body.legalName }),
+      ...(body.email !== undefined && { email: body.email }),
+      ...(body.phone !== undefined && { phone: body.phone }),
+      ...(body.document !== undefined && { document: body.document }),
+      ...(body.planId && { planId: Number(body.planId) }),
+      ...(body.dueDate && { dueDate: body.dueDate }),
+      ...(body.status && { status: body.status !== "suspended" && body.status !== "cancelled" }),
+    },
+  });
+  return fromBackendCompany(raw);
 }
 
 type StatusAction = "activate" | "suspend" | "reactivate" | "cancel" | "endTrial";
@@ -56,13 +154,28 @@ const statusPath: Record<StatusAction, (id: string) => string> = {
   endTrial: ep.companyEndTrial,
 };
 
-export function runCompanyStatusAction(companyId: string, action: StatusAction, reason: string) {
-  return apiRequest<Company>(statusPath[action](companyId), { method: "POST", body: { reason } });
+export async function runCompanyStatusAction(
+  companyId: string,
+  action: StatusAction,
+  reason: string,
+) {
+  if (env.useMocks)
+    return apiRequest<Company>(statusPath[action](companyId), { method: "POST", body: { reason } });
+  if (action === "endTrial") throw new Error("Ação não disponível no servidor atual.");
+  const active = action === "activate" || action === "reactivate";
+  const raw = await apiRequest<BackendCompany>(realPath(companyId), {
+    method: "PUT",
+    body: { id: Number(companyId), status: active },
+  });
+  return fromBackendCompany(raw);
 }
 
 export function updateCompanyLimits(
   companyId: string,
   body: { userLimit: number; connectionLimit: number; storageLimitMb: number; reason: string },
 ) {
-  return apiRequest<Company>(ep.companyLimits(companyId), { method: "PATCH", body });
+  if (env.useMocks) return apiRequest<Company>(ep.companyLimits(companyId), { method: "PATCH", body });
+  return Promise.reject(
+    new Error("No servidor atual os limites vêm do plano. Troque o plano da empresa."),
+  );
 }
