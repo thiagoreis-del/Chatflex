@@ -98,6 +98,23 @@ export const whatsappEndpoints = {
   session: (id: number) => `/whatsappsession/${id}`,
 } as const;
 
+/**
+ * Contatos da empresa.
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ */
+export const contactEndpoints = {
+  list: "/contacts",
+  detail: (id: number) => `/contacts/${id}`,
+} as const;
+
+export const contactContracts = [
+  { method: "GET", path: "/contacts", confirmed: false },
+  { method: "POST", path: "/contacts", confirmed: false },
+  { method: "GET", path: "/contacts/:id", confirmed: false },
+  { method: "PUT", path: "/contacts/:id", confirmed: false },
+  { method: "DELETE", path: "/contacts/:id", confirmed: false },
+] as const;
+
 export const whatsappContracts = [
   { method: "GET", path: "/whatsapp", confirmed: false },
   { method: "POST", path: "/whatsapp", confirmed: false },
