@@ -5,8 +5,22 @@ import type { WhatsAppConnection, WhatsAppInput } from "@/modules/whatsapp/types
 let seq = 3;
 const polls = new Map<number, number>();
 const db: WhatsAppConnection[] = [
-  { id: 1, name: "Comercial", status: "CONNECTED", number: "5511900000001", isDefault: true, greetingMessage: "Olá! Como podemos ajudar?" },
-  { id: 2, name: "Suporte", status: "DISCONNECTED", number: null, isDefault: false, greetingMessage: "" },
+  {
+    id: 1,
+    name: "Comercial",
+    status: "CONNECTED",
+    number: "5511900000001",
+    isDefault: true,
+    greetingMessage: "Olá! Como podemos ajudar?",
+  },
+  {
+    id: 2,
+    name: "Suporte",
+    status: "DISCONNECTED",
+    number: null,
+    isDefault: false,
+    greetingMessage: "",
+  },
 ];
 
 export function whatsappMock(path: string, opts: RequestOptions): unknown {
@@ -27,7 +41,8 @@ export function whatsappMock(path: string, opts: RequestOptions): unknown {
       if (item.status === "qrcode") {
         const n = (polls.get(item.id) ?? 0) + 1;
         polls.set(item.id, n);
-        if (n >= 4) Object.assign(item, { status: "CONNECTED", qrcode: null, number: "5511900000099" });
+        if (n >= 4)
+          Object.assign(item, { status: "CONNECTED", qrcode: null, number: "5511900000099" });
       }
       return item;
     }
@@ -38,7 +53,8 @@ export function whatsappMock(path: string, opts: RequestOptions): unknown {
     db.splice(db.indexOf(item), 1);
     return undefined;
   }
-  if (method === "DELETE") Object.assign(item, { status: "DISCONNECTED", qrcode: null, number: null });
+  if (method === "DELETE")
+    Object.assign(item, { status: "DISCONNECTED", qrcode: null, number: null });
   else {
     polls.set(item.id, 0);
     Object.assign(item, { status: "qrcode", qrcode: `demo-qr-${item.id}-${Date.now()}` });

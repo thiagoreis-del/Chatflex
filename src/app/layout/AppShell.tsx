@@ -112,7 +112,12 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
       {!isSuperadmin && (
         <ul className="space-y-1">
           <li>
-            <Link to="/app/conexoes" onClick={onNavigate} className={linkClass} activeProps={activeLink}>
+            <Link
+              to="/app/conexoes"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
               <Smartphone className="size-4" aria-hidden />
               {t("nav.modules.whatsapp")}
             </Link>

@@ -18,6 +18,7 @@ import { Route as IndisponivelRouteImport } from './routes/indisponivel'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppConexoesRouteImport } from './routes/app.conexoes'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppPlataformaRouteImport } from './routes/app.plataforma'
 import { Route as AppPlataformaIndexRouteImport } from './routes/app.plataforma.index'
@@ -75,6 +76,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConexoesRoute = AppConexoesRouteImport.update({
+  id: '/conexoes',
+  path: '/conexoes',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/indisponivel': typeof IndisponivelRoute
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/app/conexoes': typeof AppConexoesRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/': typeof AppIndexRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/indisponivel': typeof IndisponivelRoute
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/app/conexoes': typeof AppConexoesRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/indisponivel': typeof IndisponivelRoute
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/app/conexoes': typeof AppConexoesRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/': typeof AppIndexRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/indisponivel'
     | '/login'
     | '/redefinir-senha'
+    | '/app/conexoes'
     | '/app/dashboard'
     | '/app/plataforma'
     | '/app/'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/indisponivel'
     | '/login'
     | '/redefinir-senha'
+    | '/app/conexoes'
     | '/app/dashboard'
     | '/app'
     | '/app/plataforma/assinaturas'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/indisponivel'
     | '/login'
     | '/redefinir-senha'
+    | '/app/conexoes'
     | '/app/dashboard'
     | '/app/plataforma'
     | '/app/'
@@ -368,6 +380,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/conexoes': {
+      id: '/app/conexoes'
+      path: '/conexoes'
+      fullPath: '/app/conexoes'
+      preLoaderRoute: typeof AppConexoesRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/dashboard': {
@@ -499,12 +518,14 @@ const AppPlataformaRouteWithChildren = AppPlataformaRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppConexoesRoute: typeof AppConexoesRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppPlataformaRoute: typeof AppPlataformaRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppConexoesRoute: AppConexoesRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppPlataformaRoute: AppPlataformaRouteWithChildren,
   AppIndexRoute: AppIndexRoute,

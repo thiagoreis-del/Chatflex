@@ -19,7 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ConfirmDialog, EmptyState, LoadingState, PageHeader, QueryBoundary } from "@/shared/components";
+import {
+  ConfirmDialog,
+  EmptyState,
+  LoadingState,
+  PageHeader,
+  QueryBoundary,
+} from "@/shared/components";
 import { whatsappKeys } from "@/shared/api/query-keys";
 import {
   connectionQuery,
@@ -131,15 +137,29 @@ export function ConnectionsPage() {
                         {t("actions.showQr")}
                       </Button>
                     ) : (
-                      <Button size="sm" disabled={connect.isPending} onClick={() => connect.mutate(c.id)}>
+                      <Button
+                        size="sm"
+                        disabled={connect.isPending}
+                        onClick={() => connect.mutate(c.id)}
+                      >
                         <QrCode className="size-4" aria-hidden />
                         {t("actions.connect")}
                       </Button>
                     )}
-                    <Button size="icon" variant="ghost" aria-label={t("actions.edit")} onClick={() => setForm(c)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label={t("actions.edit")}
+                      onClick={() => setForm(c)}
+                    >
                       <Pencil className="size-4" aria-hidden />
                     </Button>
-                    <Button size="icon" variant="ghost" aria-label={t("actions.delete")} onClick={() => setToDelete(c)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label={t("actions.delete")}
+                      onClick={() => setToDelete(c)}
+                    >
                       <Trash2 className="size-4" aria-hidden />
                     </Button>
                   </CardFooter>
@@ -150,8 +170,18 @@ export function ConnectionsPage() {
         }
       </QueryBoundary>
 
-      {form && <ConnectionFormDialog value={form} onClose={() => setForm(null)} onSaved={invalidate} />}
-      {qrId !== null && <QrDialog id={qrId} onClose={() => { setQrId(null); void invalidate(); }} />}
+      {form && (
+        <ConnectionFormDialog value={form} onClose={() => setForm(null)} onSaved={invalidate} />
+      )}
+      {qrId !== null && (
+        <QrDialog
+          id={qrId}
+          onClose={() => {
+            setQrId(null);
+            void invalidate();
+          }}
+        />
+      )}
       <ConfirmDialog
         open={!!toDelete}
         onOpenChange={(o) => !o && setToDelete(null)}
