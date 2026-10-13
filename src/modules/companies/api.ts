@@ -4,6 +4,7 @@ import { companyKeys } from "@/shared/api/query-keys";
 import { env } from "@/shared/config/env";
 import { platformEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import type { Paginated } from "@/shared/types/pagination";
+import type { WhatsAppConnection } from "@/modules/whatsapp/types";
 import type {
   Company,
   CompanyFilters,
