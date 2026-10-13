@@ -175,7 +175,7 @@
       "suspend": "Todos os usuários da empresa perderão o acesso imediatamente até a reativação.",
       "reactivate": "A empresa volta a ter acesso conforme o plano contratado.",
       "cancel": "A assinatura será encerrada e a empresa perderá o acesso. Esta ação pode não ser reversível.",
-      "endTrial": "O período de teste termina agora e a cobrança do plano passa a valer.",
+      "endTrial": "O vencimento passa para ontem e o painel da empresa fica bloqueado até você reativá-la ou alterar o vencimento.",
       "changePlan": "Preço, limites e funcionalidades passam a seguir o novo plano.",
       "changeDueDate": "A próxima cobrança seguirá a nova data.",
       "extendLimits": "Os novos limites passam a valer imediatamente."

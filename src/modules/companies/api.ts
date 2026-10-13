@@ -116,7 +116,7 @@ export async function createCompany(body: CreateCompanyRequest) {
       document: body.document,
       status: true,
       planId: body.planId ? Number(body.planId) : undefined,
-      dueDate: addDays(body.trialDays || 30),
+      dueDate: addDays(body.trialDays ?? 15),
       recurrence: "MENSAL",
       companyUserName: body.firstAdmin.name || body.responsibleName,
     },
@@ -161,7 +161,16 @@ export async function runCompanyStatusAction(
 ) {
   if (env.useMocks)
     return apiRequest<Company>(statusPath[action](companyId), { method: "POST", body: { reason } });
-  if (action === "endTrial") throw new Error("Ação não disponível no servidor atual.");
+  if (action === "endTrial") {
+    // Encerrar teste = vencimento hoje; o painel da empresa fica bloqueado até nova ativação.
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    return fromBackendCompany(
+      await apiRequest<BackendCompany>(realPath(companyId), {
+        method: "PUT",
+        body: { id: Number(companyId), dueDate: yesterday },
+      }),
+    );
+  }
   const active = action === "activate" || action === "reactivate";
   const raw = await apiRequest<BackendCompany>(realPath(companyId), {
     method: "PUT",
