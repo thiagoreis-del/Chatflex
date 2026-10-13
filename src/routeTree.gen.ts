@@ -21,7 +21,9 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppConexoesRouteImport } from './routes/app.conexoes'
 import { Route as AppContatosRouteImport } from './routes/app.contatos'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
+import { Route as AppFilasRouteImport } from './routes/app.filas'
 import { Route as AppPlataformaRouteImport } from './routes/app.plataforma'
+import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
 import { Route as AppPlataformaIndexRouteImport } from './routes/app.plataforma.index'
 import { Route as AppPlataformaAssinaturasRouteImport } from './routes/app.plataforma.assinaturas'
 import { Route as AppPlataformaAuditoriaRouteImport } from './routes/app.plataforma.auditoria'
@@ -94,9 +96,19 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFilasRoute = AppFilasRouteImport.update({
+  id: '/filas',
+  path: '/filas',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPlataformaRoute = AppPlataformaRouteImport.update({
   id: '/plataforma',
   path: '/plataforma',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUsuariosRoute = AppUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPlataformaIndexRoute = AppPlataformaIndexRouteImport.update({
@@ -174,7 +186,9 @@ export interface FileRoutesByFullPath {
   '/app/conexoes': typeof AppConexoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/filas': typeof AppFilasRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
+  '/app/usuarios': typeof AppUsuariosRoute
   '/app/': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
   '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
@@ -199,6 +213,8 @@ export interface FileRoutesByTo {
   '/app/conexoes': typeof AppConexoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/filas': typeof AppFilasRoute
+  '/app/usuarios': typeof AppUsuariosRoute
   '/app': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
   '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
@@ -225,7 +241,9 @@ export interface FileRoutesById {
   '/app/conexoes': typeof AppConexoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/filas': typeof AppFilasRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
+  '/app/usuarios': typeof AppUsuariosRoute
   '/app/': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
   '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
@@ -253,7 +271,9 @@ export interface FileRouteTypes {
     | '/app/conexoes'
     | '/app/contatos'
     | '/app/dashboard'
+    | '/app/filas'
     | '/app/plataforma'
+    | '/app/usuarios'
     | '/app/'
     | '/app/plataforma/assinaturas'
     | '/app/plataforma/auditoria'
@@ -278,6 +298,8 @@ export interface FileRouteTypes {
     | '/app/conexoes'
     | '/app/contatos'
     | '/app/dashboard'
+    | '/app/filas'
+    | '/app/usuarios'
     | '/app'
     | '/app/plataforma/assinaturas'
     | '/app/plataforma/auditoria'
@@ -303,7 +325,9 @@ export interface FileRouteTypes {
     | '/app/conexoes'
     | '/app/contatos'
     | '/app/dashboard'
+    | '/app/filas'
     | '/app/plataforma'
+    | '/app/usuarios'
     | '/app/'
     | '/app/plataforma/assinaturas'
     | '/app/plataforma/auditoria'
@@ -415,11 +439,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/filas': {
+      id: '/app/filas'
+      path: '/filas'
+      fullPath: '/app/filas'
+      preLoaderRoute: typeof AppFilasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/plataforma': {
       id: '/app/plataforma'
       path: '/plataforma'
       fullPath: '/app/plataforma'
       preLoaderRoute: typeof AppPlataformaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/usuarios': {
+      id: '/app/usuarios'
+      path: '/usuarios'
+      fullPath: '/app/usuarios'
+      preLoaderRoute: typeof AppUsuariosRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/plataforma/': {
@@ -540,7 +578,9 @@ interface AppRouteChildren {
   AppConexoesRoute: typeof AppConexoesRoute
   AppContatosRoute: typeof AppContatosRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppFilasRoute: typeof AppFilasRoute
   AppPlataformaRoute: typeof AppPlataformaRouteWithChildren
+  AppUsuariosRoute: typeof AppUsuariosRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -548,7 +588,9 @@ const AppRouteChildren: AppRouteChildren = {
   AppConexoesRoute: AppConexoesRoute,
   AppContatosRoute: AppContatosRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppFilasRoute: AppFilasRoute,
   AppPlataformaRoute: AppPlataformaRouteWithChildren,
+  AppUsuariosRoute: AppUsuariosRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
