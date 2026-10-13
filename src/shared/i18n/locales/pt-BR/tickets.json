@@ -5,7 +5,11 @@
   },
   "title": "Atendimento",
   "search": "Buscar por nome ou número",
-  "tabs": { "pending": "Aguardando", "open": "Em atendimento", "closed": "Finalizados" },
+  "tabs": {
+    "pending": "Aguardando",
+    "open": "Em atendimento",
+    "closed": "Finalizados"
+  },
   "empty": "Nenhuma conversa nesta aba.",
   "selectTitle": "Selecione uma conversa",
   "selectDescription": "Escolha um atendimento na lista ao lado para ver as mensagens.",
@@ -14,7 +18,8 @@
     "accept": "Aceitar",
     "close": "Finalizar",
     "reopen": "Reabrir",
-    "back": "Voltar"
+    "back": "Voltar",
+    "transfer": "Transferir"
   },
   "composer": {
     "placeholder": "Digite uma mensagem…",
@@ -22,7 +27,10 @@
     "acceptFirst": "Aceite o atendimento para responder.",
     "attach": "Anexar imagem ou documento",
     "caption": "Adicionar legenda (opcional)…",
-    "removeAttachment": "Remover anexo"
+    "removeAttachment": "Remover anexo",
+    "privateNote": "Nota interna",
+    "privatePlaceholder": "Escreva uma nota visível só para a equipe…",
+    "privateOn": "Modo nota interna ativo"
   },
   "media": {
     "open": "Abrir",
@@ -36,6 +44,27 @@
     "reopened": "Atendimento reaberto.",
     "sendError": "Não foi possível enviar a mensagem.",
     "fileTooLarge": "Arquivo muito grande. Limite de 16 MB.",
-    "fileError": "Não foi possível enviar o arquivo."
+    "fileError": "Não foi possível enviar o arquivo.",
+    "transferred": "Atendimento transferido.",
+    "transferError": "Não foi possível transferir.",
+    "tagError": "Não foi possível atualizar a etiqueta."
+  },
+  "privateBadge": "Nota interna · só a equipe vê",
+  "tags": {
+    "add": "Adicionar etiqueta",
+    "placeholder": "Nova etiqueta",
+    "remove": "Remover etiqueta {{tag}}"
+  },
+  "transfer": {
+    "title": "Transferir atendimento",
+    "description": "Escolha a fila e, se quiser, um atendente específico.",
+    "queue": "Fila",
+    "queuePlaceholder": "Selecione a fila",
+    "user": "Atendente",
+    "anyUser": "Qualquer atendente da fila",
+    "note": "Nota interna (opcional)",
+    "notePlaceholder": "Contexto para quem vai receber…",
+    "submit": "Transferir",
+    "cancel": "Cancelar"
   }
 }

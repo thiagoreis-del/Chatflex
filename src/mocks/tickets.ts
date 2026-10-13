@@ -1,6 +1,7 @@
 import type { RequestOptions } from "@/shared/api/client";
 import { ApiError } from "@/shared/api/errors";
-import type { Message, Ticket, TicketStatus } from "@/modules/tickets/types";
+import type { Message, Ticket, TicketStatus, TransferInput } from "@/modules/tickets/types";
+import { queues as teamQueues, users as teamUsers } from "./team";
 
 const ago = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
 const vendas = { id: 1, name: "Vendas", color: "#2563eb" };
@@ -36,6 +37,7 @@ const tickets: Ticket[] = [
     contact: { id: 3, name: "Carla Mendes", number: "5511987650003" },
     queue: vendas,
     user: { id: 1, name: "Pessoa Demonstração" },
+    tags: ["VIP"],
   },
   {
     id: 4,
@@ -92,6 +94,14 @@ const messages: Message[] = [
     mediaUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
     mediaType: "application",
   },
+  {
+    id: "11",
+    ticketId: 4,
+    body: "Cliente com boleto vencido, verificar com financeiro.",
+    fromMe: true,
+    isPrivate: true,
+    createdAt: ago(39),
+  },
   { id: "8", ticketId: 5, body: "Obrigado pelo atendimento!", fromMe: false, createdAt: ago(300) },
 ];
 messages.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
@@ -118,6 +128,33 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
   const ticket = tickets.find((t) => t.id === id);
   if (!ticket) throw new ApiError("notFound", 404);
 
+  if (parts[0] === "tickets" && parts[2] === "transfer" && method === "PUT") {
+    const { queueId, userId, note } = opts.body as TransferInput;
+    const q = teamQueues.find((x) => x.id === queueId);
+    if (!q) throw new ApiError("validation", 422);
+    const u = userId ? teamUsers.find((x) => x.id === userId) : null;
+    ticket.queue = { id: q.id, name: q.name, color: q.color };
+    ticket.user = u ? { id: u.id, name: u.name } : null;
+    ticket.status = u ? "open" : "pending";
+    ticket.updatedAt = new Date().toISOString();
+    const text = `Transferido para ${q.name}${u ? ` · ${u.name}` : ""}${note ? ` — ${note}` : ""}`;
+    messages.push({
+      id: String(mseq++),
+      ticketId: id,
+      body: text,
+      fromMe: true,
+      isPrivate: true,
+      createdAt: ticket.updatedAt,
+    });
+    return ticket;
+  }
+  if (parts[0] === "tickets" && parts[2] === "tags") {
+    const tags = new Set(ticket.tags ?? []);
+    if (method === "POST") tags.add(String((opts.body as { tag: string }).tag).trim());
+    if (method === "DELETE" && parts[3]) tags.delete(decodeURIComponent(parts[3]));
+    ticket.tags = [...tags].filter(Boolean);
+    return ticket;
+  }
   if (parts[0] === "tickets" && method === "PUT") {
     const { status } = opts.body as { status: TicketStatus };
     ticket.status = status;
@@ -141,8 +178,9 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
         mediaType: file.type.startsWith("image/") ? "image" : "application",
       };
     } else {
-      const { body } = opts.body as { body: string };
+      const { body, isPrivate } = opts.body as { body: string; isPrivate?: boolean };
       msg = {
+        isPrivate: Boolean(isPrivate),
         id: String(mseq++),
         ticketId: id,
         body,
@@ -151,6 +189,7 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
       };
     }
     messages.push(msg);
+    if (msg.isPrivate) return msg;
     ticket.lastMessage = msg.mediaUrl ? `📎 ${msg.body}` : msg.body;
     ticket.updatedAt = msg.createdAt;
     return msg;

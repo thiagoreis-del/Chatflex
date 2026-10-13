@@ -15,6 +15,8 @@ export interface Ticket {
   contact: TicketContact;
   queue: { id: number; name: string; color: string } | null;
   user: { id: number; name: string } | null;
+  /** Etiquetas do ticket (CONTRATO PENDENTE). */
+  tags?: string[];
 }
 
 export interface Message {
@@ -27,9 +29,17 @@ export interface Message {
   mediaUrl?: string | null;
   /** Ex.: "image", "video", "audio", "application", "document". */
   mediaType?: string | null;
+  /** Nota interna: visível só para a equipe, não é enviada ao cliente. */
+  isPrivate?: boolean;
 }
 
 export interface TicketFilters {
   status: TicketStatus;
   search?: string;
+}
+
+export interface TransferInput {
+  queueId: number;
+  userId?: number | null;
+  note?: string;
 }
