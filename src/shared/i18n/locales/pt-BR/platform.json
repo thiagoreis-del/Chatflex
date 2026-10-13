@@ -124,6 +124,10 @@
       "noSubscription": "Nenhuma assinatura encontrada para esta empresa."
     },
     "form": {
+      "cnpjLookup": "Buscar na Receita",
+      "cnpjLookupOk": "Dados preenchidos a partir da Receita Federal.",
+      "cnpjLookupFail": "CNPJ não encontrado ou serviço indisponível.",
+      "cnpjLookupInvalid": "Informe um CNPJ com 14 dígitos.",
       "newMeta": "Nova empresa",
       "editMeta": "Editar empresa",
       "newTitle": "Nova empresa",

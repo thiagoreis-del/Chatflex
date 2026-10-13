@@ -1,4 +1,8 @@
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { Loader2, Search } from "lucide-react";
+import { toast } from "sonner";
+import { lookupCnpj } from "../cnpj-lookup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -58,9 +62,31 @@ export function CompanyForm({
       ...(mode === "create" ? { firstAdmin: { name: "", email: "", phone: "" } } : {}),
     },
   });
-  const { register, handleSubmit, control, formState, setValue } = form;
+  const { register, handleSubmit, control, formState, setValue, getValues } = form;
   const e = formState.errors;
   const msg = (m?: string) => (m ? t(`common:${m}`) : undefined);
+  const [lookingUp, setLookingUp] = useState(false);
+
+  const runCnpjLookup = async () => {
+    const digits = (getValues("document") ?? "").replace(/\D/g, "");
+    if (digits.length !== 14) {
+      toast.error(t("companies.form.cnpjLookupInvalid"));
+      return;
+    }
+    setLookingUp(true);
+    try {
+      const d = await lookupCnpj(digits);
+      const opts = { shouldValidate: true, shouldDirty: true };
+      (Object.keys(d) as (keyof typeof d)[]).forEach((k) => {
+        if (d[k]) setValue(k, d[k], opts);
+      });
+      toast.success(t("companies.form.cnpjLookupOk"));
+    } catch {
+      toast.error(t("companies.form.cnpjLookupFail"));
+    } finally {
+      setLookingUp(false);
+    }
+  };
 
   const applyPlanDefaults = (planId: string) => {
     const p = plans.data?.find((x) => x.id === planId);
@@ -93,7 +119,20 @@ export function CompanyForm({
           label={t("companies.detail.fields.document")}
           error={msg(e.document?.message)}
         >
-          {(a) => <Input {...a} inputMode="numeric" {...register("document")} />}
+          {(a) => (
+            <div className="flex gap-2">
+              <Input {...a} inputMode="numeric" {...register("document")} />
+              <Button
+                type="button"
+                variant="outline"
+                disabled={lookingUp}
+                onClick={runCnpjLookup}
+              >
+                {lookingUp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                <span className="hidden sm:inline">{t("companies.form.cnpjLookup")}</span>
+              </Button>
+            </div>
+          )}
         </Field>
         <Field
           id="responsibleName"
