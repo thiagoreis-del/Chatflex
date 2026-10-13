@@ -42,7 +42,6 @@ import { logout } from "@/shared/auth/auth-service";
 import { usePermissions } from "@/shared/permissions/permissions";
 
 const soonModules = [
-  { key: "tickets", icon: MessagesSquare },
   { key: "reports", icon: BarChart3 },
   { key: "settings", icon: Settings },
 ] as const;
@@ -110,6 +109,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
       )}
       {!isSuperadmin && (
         <ul className="space-y-1">
+          <li>
+            <Link
+              to="/app/atendimento"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
+              <MessagesSquare className="size-4" aria-hidden />
+              {t("nav.modules.tickets")}
+            </Link>
+          </li>
           <li>
             <Link
               to="/app/conexoes"

@@ -10,6 +10,7 @@ import platform from "./locales/pt-BR/platform.json";
 import whatsapp from "./locales/pt-BR/whatsapp.json";
 import contacts from "./locales/pt-BR/contacts.json";
 import team from "./locales/pt-BR/team.json";
+import tickets from "./locales/pt-BR/tickets.json";
 
 export const supportedLanguages = ["pt-BR"] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
@@ -19,8 +20,8 @@ if (!i18n.isInitialized) {
     lng: "pt-BR",
     fallbackLng: "pt-BR",
     defaultNS: "common",
-    ns: ["common", "auth", "dashboard", "errors", "landing", "platform", "whatsapp", "contacts", "team"],
-    resources: { "pt-BR": { common, auth, dashboard, errors, landing, platform, whatsapp, contacts, team } },
+    ns: ["common", "auth", "dashboard", "errors", "landing", "platform", "whatsapp", "contacts", "team", "tickets"],
+    resources: { "pt-BR": { common, auth, dashboard, errors, landing, platform, whatsapp, contacts, team, tickets } },
     interpolation: { escapeValue: false, defaultVariables: { appName: env.appName } },
   });
 }

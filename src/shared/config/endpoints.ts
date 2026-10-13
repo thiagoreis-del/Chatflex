@@ -150,3 +150,20 @@ export const teamContracts = [
   { method: "PUT", path: "/queue/:id", confirmed: false },
   { method: "DELETE", path: "/queue/:id", confirmed: false },
 ] as const;
+
+/**
+ * Atendimento (tickets e mensagens).
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ */
+export const ticketEndpoints = {
+  list: "/tickets",
+  detail: (id: number) => `/tickets/${id}`,
+  messages: (id: number) => `/messages/${id}`,
+} as const;
+
+export const ticketContracts = [
+  { method: "GET", path: "/tickets", confirmed: false },
+  { method: "PUT", path: "/tickets/:id", confirmed: false },
+  { method: "GET", path: "/messages/:ticketId", confirmed: false },
+  { method: "POST", path: "/messages/:ticketId", confirmed: false },
+] as const;
