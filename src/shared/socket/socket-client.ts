@@ -27,7 +27,7 @@ let socket: Socket | null = null;
 let companyId: string | null = null;
 let connecting = false;
 const listeners = new Map<string, Set<Handler>>();
-const rooms = new Map<string, { join: string; leave: string; arg?: string; count: number }>();
+const rooms = new Map<string, { join: string; leave: string; arg: string | undefined; count: number }>();
 
 function rejoinRooms() {
   if (!socket) return;

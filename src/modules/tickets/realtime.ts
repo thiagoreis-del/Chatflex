@@ -24,8 +24,7 @@ export function useTicketsRealtime(status: TicketStatus) {
   useEffect(() => {
     const leaveTickets = socketClient.joinRoom("joinTickets", "leaveTickets", status);
     const leaveNotif = socketClient.joinRoom("joinNotification", "leaveNotification");
-    const invalidate = () =>
-      void qc.invalidateQueries({ queryKey: [...ticketKeys.all, "list"] });
+    const invalidate = () => void qc.invalidateQueries({ queryKey: [...ticketKeys.all, "list"] });
     const offTicket = socketClient.onCompany("ticket", invalidate);
     const offMsg = socketClient.onCompany("appMessage", invalidate);
     const offContact = socketClient.onCompany("contact", invalidate);
