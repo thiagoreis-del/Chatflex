@@ -153,27 +153,30 @@ export const teamContracts = [
 
 /**
  * Atendimento (tickets e mensagens).
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ * CONFIRMADO no código do backend ZapPro 15.0.2 (rotas/controllers); validar em execução na VPS.
  */
 export const ticketEndpoints = {
   list: "/tickets",
   detail: (id: number) => `/tickets/${id}`,
   messages: (id: number) => `/messages/${id}`,
-  transfer: (id: number) => `/tickets/${id}/transfer`,
-  tags: (id: number) => `/tickets/${id}/tags`,
-  tag: (id: number, tag: string) => `/tickets/${id}/tags/${encodeURIComponent(tag)}`,
+  tagOptions: "/tags/list",
+  ticketTag: (id: number, tagId: number) => `/ticket-tags/${id}/${tagId}`,
+  ticketTags: (id: number) => `/ticket-tags/${id}`,
 } as const;
 
 export const ticketContracts = [
-  { method: "GET", path: "/tickets", confirmed: false },
-  { method: "PUT", path: "/tickets/:id", confirmed: false },
-  { method: "PUT", path: "/tickets/:id/transfer", confirmed: false },
-  { method: "POST", path: "/tickets/:id/tags", confirmed: false },
-  { method: "DELETE", path: "/tickets/:id/tags/:tag", confirmed: false },
-  { method: "GET", path: "/messages/:ticketId", confirmed: false },
-  { method: "POST", path: "/messages/:ticketId", confirmed: false },
+  { method: "GET", path: "/tickets", confirmed: true },
+  /** Também usado na transferência: { queueId, userId, status, msgTransfer, isTransfered }. */
+  { method: "PUT", path: "/tickets/:id", confirmed: true },
+  { method: "GET", path: "/tags/list", confirmed: true },
+  { method: "PUT", path: "/ticket-tags/:ticketId/:tagId", confirmed: true },
+  /** Remove TODAS as etiquetas do ticket. */
+  { method: "DELETE", path: "/ticket-tags/:ticketId", confirmed: true },
+  { method: "GET", path: "/messages/:ticketId", confirmed: true },
+  /** Nota interna: { body, isPrivate: "true" } (string). */
+  { method: "POST", path: "/messages/:ticketId", confirmed: true },
   /** Mesmo caminho, multipart/form-data: `medias` (arquivos) + `body` (legenda). */
-  { method: "POST", path: "/messages/:ticketId (multipart)", confirmed: false },
+  { method: "POST", path: "/messages/:ticketId (multipart)", confirmed: true },
 ] as const;
 
 /**
