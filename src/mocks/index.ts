@@ -84,7 +84,12 @@ export async function mockRequest<T>(path: string, opts: RequestOptions): Promis
     if (currentUser?.role !== "company_admin") throw new ApiError("forbidden", 403);
     return teamMock(path, opts) as T;
   }
-  if (path.startsWith("/tickets") || path.startsWith("/messages")) {
+  if (
+    path.startsWith("/tickets") ||
+    path.startsWith("/messages") ||
+    path.startsWith("/ticket-tags") ||
+    path.startsWith("/tags")
+  ) {
     if (!currentUser || currentUser.role === "superadmin") throw new ApiError("forbidden", 403);
     return ticketsMock(path, opts) as T;
   }

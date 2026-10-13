@@ -15,8 +15,13 @@ export interface Ticket {
   contact: TicketContact;
   queue: { id: number; name: string; color: string } | null;
   user: { id: number; name: string } | null;
-  /** Etiquetas do ticket (CONTRATO PENDENTE). */
-  tags?: string[];
+  tags?: TicketTag[];
+}
+
+export interface TicketTag {
+  id: number;
+  name: string;
+  color: string;
 }
 
 export interface Message {

@@ -1,11 +1,18 @@
 import type { RequestOptions } from "@/shared/api/client";
 import { ApiError } from "@/shared/api/errors";
-import type { Message, Ticket, TicketStatus, TransferInput } from "@/modules/tickets/types";
+import type { Message, Ticket, TicketStatus, TicketTag } from "@/modules/tickets/types";
 import { queues as teamQueues, users as teamUsers } from "./team";
 
 const ago = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
 const vendas = { id: 1, name: "Vendas", color: "#2563eb" };
 const suporte = { id: 2, name: "Suporte", color: "#16a34a" };
+
+const tagOptions: TicketTag[] = [
+  { id: 1, name: "VIP", color: "#f59e0b" },
+  { id: 2, name: "Orçamento", color: "#2563eb" },
+  { id: 3, name: "Financeiro", color: "#dc2626" },
+  { id: 4, name: "Pós-venda", color: "#16a34a" },
+];
 
 const tickets: Ticket[] = [
   {
@@ -37,7 +44,7 @@ const tickets: Ticket[] = [
     contact: { id: 3, name: "Carla Mendes", number: "5511987650003" },
     queue: vendas,
     user: { id: 1, name: "Pessoa Demonstração" },
-    tags: ["VIP"],
+    tags: [{ id: 1, name: "VIP", color: "#f59e0b" }],
   },
   {
     id: 4,
@@ -112,10 +119,11 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
   const parts = url.pathname.split("/").filter(Boolean);
   const id = Number(parts[1]);
 
+  if (parts[0] === "tags") return tagOptions;
   if (parts[0] === "tickets" && !parts[1]) {
     const status = url.searchParams.get("status") as TicketStatus | null;
     const search = (url.searchParams.get("search") ?? "").toLowerCase();
-    return tickets
+    const list = tickets
       .filter((t) => !status || t.status === status)
       .filter(
         (t) =>
@@ -124,12 +132,30 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
           t.contact.number.includes(search),
       )
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return { tickets: list, count: list.length, hasMore: false };
   }
   const ticket = tickets.find((t) => t.id === id);
   if (!ticket) throw new ApiError("notFound", 404);
 
-  if (parts[0] === "tickets" && parts[2] === "transfer" && method === "PUT") {
-    const { queueId, userId, note } = opts.body as TransferInput;
+  if (parts[0] === "ticket-tags") {
+    if (method === "PUT") {
+      const tag = tagOptions.find((x) => x.id === Number(parts[2]));
+      if (!tag) throw new ApiError("validation", 422);
+      ticket.tags = [...(ticket.tags ?? []).filter((x) => x.id !== tag.id), tag];
+    }
+    if (method === "DELETE") ticket.tags = [];
+    return { ok: true };
+  }
+  if (
+    parts[0] === "tickets" &&
+    method === "PUT" &&
+    (opts.body as { isTransfered?: boolean }).isTransfered
+  ) {
+    const { queueId, userId, msgTransfer } = opts.body as {
+      queueId: number;
+      userId: number | null;
+      msgTransfer?: string;
+    };
     const q = teamQueues.find((x) => x.id === queueId);
     if (!q) throw new ApiError("validation", 422);
     const u = userId ? teamUsers.find((x) => x.id === userId) : null;
@@ -137,7 +163,7 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
     ticket.user = u ? { id: u.id, name: u.name } : null;
     ticket.status = u ? "open" : "pending";
     ticket.updatedAt = new Date().toISOString();
-    const text = `Transferido para ${q.name}${u ? ` · ${u.name}` : ""}${note ? ` — ${note}` : ""}`;
+    const text = `Transferido para ${q.name}${u ? ` · ${u.name}` : ""}${msgTransfer ? ` — ${msgTransfer}` : ""}`;
     messages.push({
       id: String(mseq++),
       ticketId: id,
@@ -146,13 +172,6 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
       isPrivate: true,
       createdAt: ticket.updatedAt,
     });
-    return ticket;
-  }
-  if (parts[0] === "tickets" && parts[2] === "tags") {
-    const tags = new Set(ticket.tags ?? []);
-    if (method === "POST") tags.add(String((opts.body as { tag: string }).tag).trim());
-    if (method === "DELETE" && parts[3]) tags.delete(decodeURIComponent(parts[3]));
-    ticket.tags = [...tags].filter(Boolean);
     return ticket;
   }
   if (parts[0] === "tickets" && method === "PUT") {
@@ -178,9 +197,9 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
         mediaType: file.type.startsWith("image/") ? "image" : "application",
       };
     } else {
-      const { body, isPrivate } = opts.body as { body: string; isPrivate?: boolean };
+      const { body, isPrivate } = opts.body as { body: string; isPrivate?: string };
       msg = {
-        isPrivate: Boolean(isPrivate),
+        isPrivate: isPrivate === "true",
         id: String(mseq++),
         ticketId: id,
         body,
@@ -196,7 +215,8 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
   }
   if (parts[0] === "messages") {
     ticket.unreadMessages = 0;
-    return messages.filter((m) => m.ticketId === id);
+    const list = messages.filter((m) => m.ticketId === id);
+    return { messages: list, ticket, count: list.length, hasMore: false };
   }
   throw new ApiError("notFound", 404);
 }

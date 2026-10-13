@@ -2,46 +2,92 @@ import { queryOptions } from "@tanstack/react-query";
 import { apiRequest } from "@/shared/api/client";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
-import type { Message, Ticket, TicketFilters, TicketStatus, TransferInput } from "./types";
+import type {
+  Message,
+  Ticket,
+  TicketFilters,
+  TicketStatus,
+  TicketTag,
+  TransferInput,
+} from "./types";
 
 export const ticketsContract = "GET /tickets";
+
+/** Backend responde `{ tickets, count, hasMore }`. */
+interface TicketsResponse {
+  tickets: Ticket[];
+  count: number;
+  hasMore: boolean;
+}
+/** Backend responde `{ messages, ticket, count, hasMore }`. */
+interface MessagesResponse {
+  messages: Message[];
+  count: number;
+  hasMore: boolean;
+}
 
 export const ticketsQuery = (filters: TicketFilters) =>
   queryOptions({
     queryKey: ticketKeys.list(filters),
-    queryFn: ({ signal }) => apiRequest<Ticket[]>(withQuery(ep.list, filters), { signal }),
+    queryFn: async ({ signal }) =>
+      (await apiRequest<TicketsResponse>(withQuery(ep.list, filters), { signal }))?.tickets ?? [],
   });
 
 export const messagesQuery = (ticketId: number) =>
   queryOptions({
     queryKey: ticketKeys.messages(ticketId),
-    queryFn: ({ signal }) => apiRequest<Message[]>(ep.messages(ticketId), { signal }),
-    // Socket desativado: atualização periódica até o contrato de tempo real ser confirmado.
+    queryFn: async ({ signal }) =>
+      (await apiRequest<MessagesResponse>(ep.messages(ticketId), { signal }))?.messages ?? [],
+    // Socket desativado: atualização periódica até o adaptador Socket.io ser ligado.
     refetchInterval: 5000,
+  });
+
+export const tagOptionsQuery = () =>
+  queryOptions({
+    queryKey: ticketKeys.tagOptions,
+    queryFn: ({ signal }) => apiRequest<TicketTag[]>(ep.tagOptions, { signal }),
+    staleTime: 60_000,
   });
 
 export const updateTicketStatus = (id: number, status: TicketStatus) =>
   apiRequest<Ticket>(ep.detail(id), { method: "PUT", body: { status } });
 
+/** Nota interna: o backend compara `isPrivate === "true"` (string). */
 export const sendMessage = (ticketId: number, body: string, isPrivate = false) =>
   apiRequest<Message>(ep.messages(ticketId), {
     method: "POST",
-    body: isPrivate ? { body, isPrivate: true } : { body },
+    body: isPrivate ? { body, isPrivate: "true" } : { body },
   });
 
-/** CONTRATO PENDENTE: PUT /tickets/:id/transfer { queueId, userId?, note? }. */
+/** Transferência = update do ticket com `msgTransfer` e `isTransfered: true`. */
 export const transferTicket = (ticketId: number, input: TransferInput) =>
-  apiRequest<Ticket>(ep.transfer(ticketId), { method: "PUT", body: input });
+  apiRequest<Ticket>(ep.detail(ticketId), {
+    method: "PUT",
+    body: {
+      queueId: input.queueId,
+      userId: input.userId ?? null,
+      status: input.userId ? "open" : "pending",
+      isTransfered: true,
+      ...(input.note ? { msgTransfer: input.note } : {}),
+    },
+  });
 
-/** CONTRATO PENDENTE: POST /tickets/:id/tags { tag }. */
-export const addTicketTag = (ticketId: number, tag: string) =>
-  apiRequest<Ticket>(ep.tags(ticketId), { method: "POST", body: { tag } });
+/** Vincula etiqueta e devolve o ticket com a lista local atualizada. */
+export async function addTicketTag(ticket: Ticket, tag: TicketTag): Promise<Ticket> {
+  await apiRequest(ep.ticketTag(ticket.id, tag.id), { method: "PUT" });
+  const others = (ticket.tags ?? []).filter((x) => x.id !== tag.id);
+  return { ...ticket, tags: [...others, tag] };
+}
 
-/** CONTRATO PENDENTE: DELETE /tickets/:id/tags/:tag. */
-export const removeTicketTag = (ticketId: number, tag: string) =>
-  apiRequest<Ticket>(ep.tag(ticketId, tag), { method: "DELETE" });
+/** O backend só remove TODAS; re-vinculamos as que devem ficar. */
+export async function removeTicketTag(ticket: Ticket, tagId: number): Promise<Ticket> {
+  const keep = (ticket.tags ?? []).filter((x) => x.id !== tagId);
+  await apiRequest(ep.ticketTags(ticket.id), { method: "DELETE" });
+  for (const tag of keep) await apiRequest(ep.ticketTag(ticket.id, tag.id), { method: "PUT" });
+  return { ...ticket, tags: keep };
+}
 
-/** Contrato observado: multipart com campo `medias` (multer array) e `body` como legenda. */
+/** Contrato confirmado: multipart com campo `medias` (multer array) e `body` como legenda. */
 export const sendMediaMessage = (ticketId: number, file: File, caption = "") => {
   const form = new FormData();
   form.append("medias", file);
