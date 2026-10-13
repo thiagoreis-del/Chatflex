@@ -4,6 +4,7 @@ import { companyKeys } from "@/shared/api/query-keys";
 import { env } from "@/shared/config/env";
 import { platformEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import type { Paginated } from "@/shared/types/pagination";
+import type { WhatsAppConnection } from "@/modules/whatsapp/types";
 import type {
   Company,
   CompanyFilters,
@@ -123,6 +124,38 @@ export const companyUsageQuery = (companyId: string) =>
           storage: { usedMb: -1, limitMb: 0 },
         } as CompanyUsage;
       });
+    },
+    retry: false,
+  });
+
+interface BackendWhatsapp extends Partial<WhatsAppConnection> {
+  id: number;
+  name: string;
+  companyId?: number;
+  channel?: string;
+}
+
+/**
+ * CONFIRMADO no backend ZapPro/Whaticket: GET /whatsapp/all lista as conexões
+ * de TODAS as empresas (sem filtro no servidor). Uso exclusivo do superadmin:
+ * filtramos pela empresa no cliente.
+ */
+export const companyConnectionsQuery = (companyId: string) =>
+  queryOptions({
+    queryKey: [...companyKeys.usage(companyId), "connections"],
+    queryFn: async ({ signal }): Promise<WhatsAppConnection[]> => {
+      if (env.useMocks) return [];
+      const all = await apiRequest<BackendWhatsapp[]>("/whatsapp/all?session=0", { signal });
+      return all
+        .filter((w) => String(w.companyId) === companyId)
+        .map((w) => ({
+          id: w.id,
+          name: w.name,
+          status: w.status ?? "DISCONNECTED",
+          isDefault: !!w.isDefault,
+          number: w.number ?? null,
+          ...(w.updatedAt && { updatedAt: w.updatedAt }),
+        }));
     },
     retry: false,
   });

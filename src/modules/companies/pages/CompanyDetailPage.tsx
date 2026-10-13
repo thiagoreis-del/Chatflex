@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -34,7 +35,8 @@ import { billingContracts, invoicesQuery, subscriptionsQuery } from "@/modules/b
 import { env } from "@/shared/config/env";
 import { auditContract, auditQuery } from "@/modules/audit/api";
 import { AuditEventTable } from "@/modules/audit/components/AuditEventTable";
-import { companyContracts, companyQuery, companyUsageQuery } from "../api";
+import { companyConnectionsQuery, companyContracts, companyQuery, companyUsageQuery } from "../api";
+import type { WhatsAppStatus } from "@/modules/whatsapp/types";
 import { SensitiveActionDialog } from "../components/SensitiveActionDialog";
 import type { Company, CompanyAction } from "../types";
 
@@ -111,6 +113,74 @@ function SummaryPanel({ companyId, kind }: { companyId: string; kind: "users" | 
           kind === "users" ? "companies.detail.manageUsers" : "companies.detail.manageConnections",
         )}
       </Button>
+    </div>
+  );
+}
+
+const connStatusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructive" | "outline"> = {
+  CONNECTED: "default",
+  DISCONNECTED: "destructive",
+  qrcode: "secondary",
+  OPENING: "secondary",
+  PAIRING: "secondary",
+  TIMEOUT: "outline",
+};
+
+function ConnectionsPanel({ companyId }: { companyId: string }) {
+  const { t } = useTranslation(["platform", "whatsapp"]);
+  const usage = useQuery(companyUsageQuery(companyId));
+  const conns = useQuery(companyConnectionsQuery(companyId));
+  return (
+    <div className="space-y-4">
+      <QueryBoundary query={usage} contract={companyContracts.usage}>
+        {(u) => (
+          <UsageProgress
+            label={t("platform:usage.connections")}
+            used={u.connections.used}
+            limit={u.connections.limit}
+          />
+        )}
+      </QueryBoundary>
+      <QueryBoundary query={conns} contract="GET /whatsapp/all">
+        {(list) =>
+          list.length === 0 ? (
+            <EmptyState title={t("platform:companies.detail.noConnections")} />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("platform:companies.detail.connectionColumns.name")}</TableHead>
+                    <TableHead>{t("platform:companies.detail.connectionColumns.number")}</TableHead>
+                    <TableHead>{t("platform:companies.detail.connectionColumns.status")}</TableHead>
+                    <TableHead>{t("platform:companies.detail.connectionColumns.default")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {list.map((w) => (
+                    <TableRow key={w.id}>
+                      <TableCell className="font-medium">{w.name}</TableCell>
+                      <TableCell>{w.number ?? t("whatsapp:noNumber")}</TableCell>
+                      <TableCell>
+                        <Badge variant={connStatusVariant[w.status]}>
+                          {t(`whatsapp:status.${w.status}`)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {w.isDefault ? (
+                          <Badge variant="secondary">{t("whatsapp:default")}</Badge>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )
+        }
+      </QueryBoundary>
     </div>
   );
 }
@@ -286,7 +356,7 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
             <SummaryPanel companyId={companyId} kind="users" />
           </TabsContent>
           <TabsContent value="connections" className="mt-0">
-            <SummaryPanel companyId={companyId} kind="connections" />
+            <ConnectionsPanel companyId={companyId} />
           </TabsContent>
 
           <TabsContent value="features" className="mt-0">
