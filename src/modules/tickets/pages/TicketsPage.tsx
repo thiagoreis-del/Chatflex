@@ -131,9 +131,7 @@ export function TicketsPage() {
           />
         ) : (
           <div className="m-auto">
-            <EmptyState title={t("selectTitle")}
-              description={t("selectDescription")}
-            />
+            <EmptyState title={t("selectTitle")} description={t("selectDescription")} />
           </div>
         )}
       </section>

@@ -205,7 +205,11 @@ function QuickMessageFormDialog({
                 onChange={(e) => setData({ ...data, shortcode: e.target.value })}
               />
             </div>
-            <p className={errors.shortcode ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>
+            <p
+              className={
+                errors.shortcode ? "text-xs text-destructive" : "text-xs text-muted-foreground"
+              }
+            >
               {errors.shortcode ? t("form.shortcodeInvalid") : t("form.shortcodeHint")}
             </p>
           </div>
