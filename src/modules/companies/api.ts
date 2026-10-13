@@ -1,7 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { apiRequest } from "@/shared/api/client";
 import { companyKeys } from "@/shared/api/query-keys";
-import { sessionStore } from "@/shared/auth/session-store";
 import { env } from "@/shared/config/env";
 import { platformEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import type { Paginated } from "@/shared/types/pagination";
