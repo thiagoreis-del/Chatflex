@@ -33,8 +33,10 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
     return mockRequest<T>(path, opts);
   }
 
+  const isForm = typeof FormData !== "undefined" && opts.body instanceof FormData;
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (opts.body !== undefined) headers["Content-Type"] = "application/json";
+  // FormData: o navegador define multipart/form-data com boundary.
+  if (opts.body !== undefined && !isForm) headers["Content-Type"] = "application/json";
   const token = tokenStore.get();
   if (token && !opts.anonymous) headers["Authorization"] = `Bearer ${token}`;
 
@@ -43,7 +45,12 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
     response = await fetch(`${env.apiUrl}${path}`, {
       method: opts.method ?? "GET",
       headers,
-      body: opts.body !== undefined ? JSON.stringify(opts.body) : null,
+      body:
+        opts.body === undefined
+          ? null
+          : isForm
+            ? (opts.body as FormData)
+            : JSON.stringify(opts.body),
       credentials: "include",
       signal: opts.signal ?? null,
     });

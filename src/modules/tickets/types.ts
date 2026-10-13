@@ -23,6 +23,10 @@ export interface Message {
   body: string;
   fromMe: boolean;
   createdAt: string;
+  /** URL absoluta do arquivo (backend monta `/public/company{id}/arquivo`). */
+  mediaUrl?: string | null;
+  /** Ex.: "image", "video", "audio", "application", "document". */
+  mediaType?: string | null;
 }
 
 export interface TicketFilters {

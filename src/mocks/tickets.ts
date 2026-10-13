@@ -73,9 +73,28 @@ const messages: Message[] = [
     createdAt: ago(27),
   },
   { id: "6", ticketId: 3, body: "Perfeito, vou aguardar", fromMe: false, createdAt: ago(25) },
+  {
+    id: "9",
+    ticketId: 3,
+    body: "Esse é o modelo?",
+    fromMe: false,
+    createdAt: ago(29),
+    mediaUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600",
+    mediaType: "image",
+  },
   { id: "7", ticketId: 4, body: "Consegue me enviar o boleto?", fromMe: false, createdAt: ago(40) },
+  {
+    id: "10",
+    ticketId: 4,
+    body: "boleto-exemplo.pdf",
+    fromMe: true,
+    createdAt: ago(38),
+    mediaUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    mediaType: "application",
+  },
   { id: "8", ticketId: 5, body: "Obrigado pelo atendimento!", fromMe: false, createdAt: ago(300) },
 ];
+messages.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
 export function ticketsMock(path: string, opts: RequestOptions): unknown {
   const method = opts.method ?? "GET";
@@ -107,16 +126,32 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
     return ticket;
   }
   if (parts[0] === "messages" && method === "POST") {
-    const { body } = opts.body as { body: string };
-    const msg: Message = {
-      id: String(mseq++),
-      ticketId: id,
-      body,
-      fromMe: true,
-      createdAt: new Date().toISOString(),
-    };
+    let msg: Message;
+    if (opts.body instanceof FormData) {
+      const file = opts.body.get("medias") as File;
+      const caption = String(opts.body.get("body") ?? "");
+      msg = {
+        id: String(mseq++),
+        ticketId: id,
+        body: caption || file.name,
+        fromMe: true,
+        createdAt: new Date().toISOString(),
+        // Demo: URL local do navegador; some ao recarregar.
+        mediaUrl: URL.createObjectURL(file),
+        mediaType: file.type.startsWith("image/") ? "image" : "application",
+      };
+    } else {
+      const { body } = opts.body as { body: string };
+      msg = {
+        id: String(mseq++),
+        ticketId: id,
+        body,
+        fromMe: true,
+        createdAt: new Date().toISOString(),
+      };
+    }
     messages.push(msg);
-    ticket.lastMessage = body;
+    ticket.lastMessage = msg.mediaUrl ? `📎 ${msg.body}` : msg.body;
     ticket.updatedAt = msg.createdAt;
     return msg;
   }
