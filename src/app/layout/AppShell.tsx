@@ -44,7 +44,6 @@ const soonModules = [
   { key: "tickets", icon: MessagesSquare },
   { key: "contacts", icon: Users },
   { key: "queues", icon: ListOrdered },
-  { key: "whatsapp", icon: Smartphone },
   { key: "reports", icon: BarChart3 },
   { key: "settings", icon: Settings },
 ] as const;
@@ -109,6 +108,21 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             ))}
           </ul>
         </div>
+      )}
+      {!isSuperadmin && (
+        <ul className="space-y-1">
+          <li>
+            <Link
+              to="/app/conexoes"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
+              <Smartphone className="size-4" aria-hidden />
+              {t("nav.modules.whatsapp")}
+            </Link>
+          </li>
+        </ul>
       )}
       {!isSuperadmin && (
         <div>

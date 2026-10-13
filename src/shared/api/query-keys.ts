@@ -43,3 +43,10 @@ export const auditKeys = {
   all: ["platform", "audit"] as const,
   list: (filters: object) => ["platform", "audit", "list", filters] as const,
 };
+
+/** Conexões pertencem à empresa da sessão; o backend filtra pelo token. */
+export const whatsappKeys = {
+  all: ["company", "whatsapp"] as const,
+  list: () => ["company", "whatsapp", "list"] as const,
+  detail: (id: number) => ["company", "whatsapp", "detail", id] as const,
+};

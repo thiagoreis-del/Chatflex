@@ -87,3 +87,24 @@ export function withQuery(path: string, params: object): string {
   const s = qs.toString();
   return s ? `${path}?${s}` : path;
 }
+
+/**
+ * Conexões WhatsApp (empresa).
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ */
+export const whatsappEndpoints = {
+  list: "/whatsapp",
+  detail: (id: number) => `/whatsapp/${id}`,
+  session: (id: number) => `/whatsappsession/${id}`,
+} as const;
+
+export const whatsappContracts = [
+  { method: "GET", path: "/whatsapp", confirmed: false },
+  { method: "POST", path: "/whatsapp", confirmed: false },
+  { method: "GET", path: "/whatsapp/:id", confirmed: false },
+  { method: "PUT", path: "/whatsapp/:id", confirmed: false },
+  { method: "DELETE", path: "/whatsapp/:id", confirmed: false },
+  { method: "POST", path: "/whatsappsession/:id", confirmed: false },
+  { method: "PUT", path: "/whatsappsession/:id", confirmed: false },
+  { method: "DELETE", path: "/whatsappsession/:id", confirmed: false },
+] as const;

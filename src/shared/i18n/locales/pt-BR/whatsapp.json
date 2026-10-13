@@ -1,0 +1,32 @@
+{
+  "meta": { "title": "Conexões WhatsApp", "description": "Gerencie as conexões WhatsApp da sua empresa." },
+  "title": "Conexões WhatsApp",
+  "description": "Conecte e acompanhe os números de WhatsApp usados no atendimento.",
+  "pending": "Integração em tempo real pendente: o QR Code é atualizado a cada 3 segundos.",
+  "new": "Nova conexão",
+  "edit": "Editar conexão",
+  "empty": "Nenhuma conexão cadastrada ainda.",
+  "default": "Padrão",
+  "noNumber": "Sem número vinculado",
+  "status": {
+    "CONNECTED": "Conectado", "DISCONNECTED": "Desconectado", "qrcode": "Aguardando leitura",
+    "OPENING": "Iniciando", "PAIRING": "Pareando", "TIMEOUT": "Tempo esgotado"
+  },
+  "actions": {
+    "connect": "Conectar", "showQr": "Ver QR Code", "newQr": "Novo QR Code",
+    "disconnect": "Desconectar", "edit": "Editar", "delete": "Excluir", "save": "Salvar", "cancel": "Cancelar"
+  },
+  "form": {
+    "name": "Nome da conexão", "nameRequired": "Informe um nome.",
+    "greeting": "Mensagem de saudação", "isDefault": "Usar como conexão padrão"
+  },
+  "qr": {
+    "title": "Leia o QR Code",
+    "steps": "No celular, abra o WhatsApp → Aparelhos conectados → Conectar um aparelho e aponte a câmera.",
+    "waiting": "Gerando QR Code…",
+    "connected": "Conexão estabelecida!"
+  },
+  "confirmDelete": { "title": "Excluir conexão?", "description": "A conexão “{{name}}” será removida." },
+  "confirmDisconnect": { "title": "Desconectar?", "description": "O número deixará de receber mensagens até ser reconectado." },
+  "toast": { "saved": "Conexão salva.", "deleted": "Conexão excluída.", "disconnected": "Conexão desconectada.", "error": "Não foi possível concluir a ação." }
+}
