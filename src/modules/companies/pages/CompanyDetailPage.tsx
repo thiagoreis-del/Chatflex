@@ -97,31 +97,6 @@ function UsagePanel({ companyId }: { companyId: string }) {
   );
 }
 
-function SummaryPanel({ companyId, kind }: { companyId: string; kind: "users" | "connections" }) {
-  const { t } = useTranslation("platform");
-  const q = useQuery(companyUsageQuery(companyId));
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        {t(
-          kind === "users"
-            ? "companies.detail.usersSummary"
-            : "companies.detail.connectionsSummary",
-        )}
-      </p>
-      <QueryBoundary query={q} contract={companyContracts.usage}>
-        {(u) => (
-          <UsageProgress label={t(`usage.${kind}`)} used={u[kind].used} limit={u[kind].limit} />
-        )}
-      </QueryBoundary>
-      <Button variant="outline" disabled aria-disabled="true">
-        {t(
-          kind === "users" ? "companies.detail.manageUsers" : "companies.detail.manageConnections",
-        )}
-      </Button>
-    </div>
-  );
-}
 
 const connStatusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructive" | "outline"> = {
   CONNECTED: "default",
