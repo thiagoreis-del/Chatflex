@@ -79,6 +79,9 @@ export const companiesQuery = (filters: CompanyFilters) =>
         { signal },
       );
       let data = res.companies.map(fromBackendCompany);
+      // Oculta a empresa do próprio superadmin: a lista mostra apenas clientes.
+      const ownCompanyId = sessionStore.get().user?.companyId;
+      if (ownCompanyId) data = data.filter((c) => c.id !== ownCompanyId);
       if (filters.status) data = data.filter((c) => c.status === filters.status);
       if (filters.planId) data = data.filter((c) => c.planId === filters.planId);
       return { data, page: filters.page, pageSize: 20, total: res.count };
