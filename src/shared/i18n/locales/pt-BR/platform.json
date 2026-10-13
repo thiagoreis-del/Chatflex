@@ -122,7 +122,9 @@
       "connectionsSummary": "Resumo de conexões da empresa. A gestão de conexões chegará em uma etapa futura.",
       "manageUsers": "Gerenciar usuários (em breve)",
       "manageConnections": "Gerenciar conexões (em breve)",
-      "noSubscription": "Nenhuma assinatura encontrada para esta empresa."
+      "noSubscription": "Nenhuma assinatura encontrada para esta empresa.",
+      "noConnections": "Esta empresa ainda não tem conexões de WhatsApp.",
+      "connectionColumns": { "name": "Nome", "number": "Número", "status": "Status", "default": "Padrão" }
     },
     "form": {
       "cnpjLookup": "Buscar na Receita",
