@@ -19,6 +19,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppConexoesRouteImport } from './routes/app.conexoes'
+import { Route as AppContatosRouteImport } from './routes/app.contatos'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppPlataformaRouteImport } from './routes/app.plataforma'
 import { Route as AppPlataformaIndexRouteImport } from './routes/app.plataforma.index'
@@ -81,6 +82,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppConexoesRoute = AppConexoesRouteImport.update({
   id: '/conexoes',
   path: '/conexoes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContatosRoute = AppContatosRouteImport.update({
+  id: '/contatos',
+  path: '/contatos',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/conexoes': typeof AppConexoesRoute
+  '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/': typeof AppIndexRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/conexoes': typeof AppConexoesRoute
+  '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/conexoes': typeof AppConexoesRoute
+  '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/': typeof AppIndexRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redefinir-senha'
     | '/app/conexoes'
+    | '/app/contatos'
     | '/app/dashboard'
     | '/app/plataforma'
     | '/app/'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redefinir-senha'
     | '/app/conexoes'
+    | '/app/contatos'
     | '/app/dashboard'
     | '/app'
     | '/app/plataforma/assinaturas'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redefinir-senha'
     | '/app/conexoes'
+    | '/app/contatos'
     | '/app/dashboard'
     | '/app/plataforma'
     | '/app/'
@@ -387,6 +399,13 @@ declare module '@tanstack/react-router' {
       path: '/conexoes'
       fullPath: '/app/conexoes'
       preLoaderRoute: typeof AppConexoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/contatos': {
+      id: '/app/contatos'
+      path: '/contatos'
+      fullPath: '/app/contatos'
+      preLoaderRoute: typeof AppContatosRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/dashboard': {
@@ -519,6 +538,7 @@ const AppPlataformaRouteWithChildren = AppPlataformaRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppConexoesRoute: typeof AppConexoesRoute
+  AppContatosRoute: typeof AppContatosRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppPlataformaRoute: typeof AppPlataformaRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
@@ -526,6 +546,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppConexoesRoute: AppConexoesRoute,
+  AppContatosRoute: AppContatosRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppPlataformaRoute: AppPlataformaRouteWithChildren,
   AppIndexRoute: AppIndexRoute,

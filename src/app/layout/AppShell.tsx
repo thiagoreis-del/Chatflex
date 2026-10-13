@@ -42,7 +42,6 @@ import { usePermissions } from "@/shared/permissions/permissions";
 
 const soonModules = [
   { key: "tickets", icon: MessagesSquare },
-  { key: "contacts", icon: Users },
   { key: "queues", icon: ListOrdered },
   { key: "reports", icon: BarChart3 },
   { key: "settings", icon: Settings },
@@ -120,6 +119,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             >
               <Smartphone className="size-4" aria-hidden />
               {t("nav.modules.whatsapp")}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/app/contatos"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
+              <Users className="size-4" aria-hidden />
+              {t("nav.modules.contacts")}
             </Link>
           </li>
         </ul>

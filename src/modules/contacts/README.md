@@ -1,3 +1,3 @@
 # contacts
 
-Módulo reservado para fases futuras. Não implementado na Fase 1.
+Contatos da empresa (lista paginada com busca, criação, edição, exclusão e etiquetas). Contratos em `contactEndpoints` — PENDENTES de confirmação (formato baseado no backend Whaticket/ZapPro).

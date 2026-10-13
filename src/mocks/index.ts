@@ -12,6 +12,7 @@ import { endpoints } from "@/shared/config/endpoints";
 import type { AuthenticatedUser } from "@/shared/auth/types";
 import { platformMock } from "./platform";
 import { whatsappMock } from "./whatsapp";
+import { contactsMock } from "./contacts";
 
 export const DEMO_SUPERADMIN_EMAIL = "superadmin@exemplo.test";
 
@@ -71,6 +72,10 @@ export async function mockRequest<T>(path: string, opts: RequestOptions): Promis
   if (path.startsWith("/whatsapp")) {
     if (!currentUser || currentUser.role === "superadmin") throw new ApiError("forbidden", 403);
     return whatsappMock(path, opts) as T;
+  }
+  if (path.startsWith("/contacts")) {
+    if (!currentUser || currentUser.role === "superadmin") throw new ApiError("forbidden", 403);
+    return contactsMock(path, opts) as T;
   }
   throw new ApiError("notFound", 404);
 }
