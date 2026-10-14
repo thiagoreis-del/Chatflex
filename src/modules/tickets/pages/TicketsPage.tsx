@@ -107,11 +107,11 @@ export function TicketsPage() {
                         )}
                       >
                         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                          {tk.contact.name.charAt(0)}
+                          {(tk.contact.name || "#").charAt(0)}
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="truncate font-medium">{tk.contact.name}</span>
+                            <span className="truncate font-medium">{tk.contact.name || `+${tk.contact.number}`}</span>
                             <span className="shrink-0 text-xs text-muted-foreground">
                               {time(tk.updatedAt)}
                             </span>
@@ -126,14 +126,19 @@ export function TicketsPage() {
                               </span>
                             )}
                           </div>
-                          <span
-                            className="mt-1 inline-block rounded px-1.5 text-[11px] font-medium text-primary-foreground"
-                            style={{
-                              backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
-                            }}
-                          >
-                            {tk.queue?.name ?? t("noQueue")}
-                          </span>
+                          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+                            <span
+                              className="inline-block rounded px-1.5 text-[11px] font-medium text-primary-foreground"
+                              style={{
+                                backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
+                              }}
+                            >
+                              {tk.queue?.name ?? t("noQueue")}
+                            </span>
+                            <span className="truncate text-[11px] text-muted-foreground">
+                              👤 {tk.user?.name ?? t("noAttendant")}
+                            </span>
+                          </div>
                         </div>
                       </button>
                     </li>
@@ -299,8 +304,13 @@ function Conversation({
           <ArrowLeft className="size-4" />
         </Button>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{ticket.contact.name}</p>
-          <p className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</p>
+          <p className="truncate font-semibold">{ticket.contact.name || `+${ticket.contact.number}`}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            +{ticket.contact.number} ·{" "}
+            <span className="font-medium text-foreground">
+              {t("attendant")}: {ticket.user?.name ?? t("noAttendant")}
+            </span>
+          </p>
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {(ticket.tags ?? []).map((tag) => (
               <span
