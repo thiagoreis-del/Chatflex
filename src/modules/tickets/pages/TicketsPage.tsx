@@ -49,6 +49,9 @@ import {
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
+/** Remove a assinatura `*Nome:*\n` enviada ao cliente — o painel já mostra o atendente. */
+const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
+
 export function TicketsPage() {
   const { t } = useTranslation("tickets");
   const [status, setStatus] = useState<TicketStatus>("pending");
@@ -275,9 +278,20 @@ function Conversation({
         const tk = await assignTicket(ticket.id, myId);
         onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
       }
+      // Assinatura obrigatória: o cliente vê o nome do atendente no WhatsApp.
+      // Notas internas nunca são assinadas (não vão ao cliente).
+      const myName = session.user?.name?.trim();
+      const signed =
+        !isPrivate && myName
+          ? body
+            ? `*${myName}:*\n${body}`
+            : media
+              ? `*${myName}:*`
+              : body
+          : body;
       return media
-        ? sendMediaMessage(ticket.id, media, body)
-        : sendMessage(ticket.id, body, isPrivate);
+        ? sendMediaMessage(ticket.id, media, signed)
+        : sendMessage(ticket.id, signed, isPrivate);
     },
     onSuccess: () => {
       setText("");
@@ -470,7 +484,9 @@ function Conversation({
                       )}
                     <MessageMedia message={m} />
                     {!(m.mediaUrl && !isImage(m)) && m.body && (
-                      <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{m.body}</p>
+                      <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                        {m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body}
+                      </p>
                     )}
                     <p
                       className={cn(
