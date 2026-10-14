@@ -14,6 +14,8 @@
   "selectTitle": "Selecione uma conversa",
   "selectDescription": "Escolha um atendimento na lista ao lado para ver as mensagens.",
   "noQueue": "Sem fila",
+  "attendant": "Atendente",
+  "noAttendant": "Sem atendente",
   "actions": {
     "accept": "Aceitar",
     "close": "Finalizar",
