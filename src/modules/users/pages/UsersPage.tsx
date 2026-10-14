@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Info, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Copy, Info, KeyRound, Lock, MessageCircle, Pencil, Plus, Search, Trash2, Unlock, Wand2 } from "lucide-react";
+import { env } from "@/shared/config/env";
+import { accessMessage, generatePassword, whatsappLink, type AccessData } from "../access";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -41,7 +43,15 @@ import { ApiError } from "@/shared/api/errors";
 import { userKeys } from "@/shared/api/query-keys";
 import { queuesQuery } from "@/modules/queues/api";
 import type { Queue } from "@/modules/queues/types";
-import { createUser, deleteUser, updateUser, usersContract, usersQuery } from "../api";
+import {
+  createUser,
+  deleteUser,
+  resetUserPassword,
+  setUserBlocked,
+  updateUser,
+  usersContract,
+  usersQuery,
+} from "../api";
 import type { CompanyUser, CompanyUserInput, UserProfile } from "../types";
 
 export function UsersPage() {
@@ -54,6 +64,29 @@ export function UsersPage() {
   const queueMap = new Map((queues.data ?? []).map((q) => [q.id, q]));
   const [form, setForm] = useState<CompanyUser | "new" | null>(null);
   const [toDelete, setToDelete] = useState<CompanyUser | null>(null);
+  const [toReset, setToReset] = useState<CompanyUser | null>(null);
+  const [toBlock, setToBlock] = useState<CompanyUser | null>(null);
+  const [access, setAccess] = useState<AccessData | null>(null);
+  const block = useMutation({
+    mutationFn: (v: { u: CompanyUser; blocked: boolean }) => setUserBlocked(v.u, v.blocked),
+    onSuccess: (_r, v) => {
+      toast.success(t(v.blocked ? "toast.blocked" : "toast.unblocked"));
+      void invalidate();
+    },
+    onError: () => toast.error(t("toast.error")),
+  });
+  const reset = useMutation({
+    mutationFn: async (u: CompanyUser) => {
+      const password = generatePassword();
+      await resetUserPassword(u, password);
+      return { company: env.appName, email: u.email, password };
+    },
+    onSuccess: (a) => {
+      toast.success(t("toast.reset"));
+      setAccess(a);
+    },
+    onError: () => toast.error(t("toast.error")),
+  });
 
   const invalidate = () => qc.invalidateQueries({ queryKey: userKeys.all });
   const remove = useMutation({
@@ -109,7 +142,8 @@ export function UsersPage() {
                     <TableHead>{t("users.table.email")}</TableHead>
                     <TableHead>{t("users.table.profile")}</TableHead>
                     <TableHead>{t("users.table.queues")}</TableHead>
-                    <TableHead className="w-24 text-right">{t("users.table.actions")}</TableHead>
+                    <TableHead>{t("users.table.status")}</TableHead>
+                    <TableHead className="w-44 text-right">{t("users.table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -130,7 +164,36 @@ export function UsersPage() {
                           })}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell>
+                        <Badge variant={u.blocked ? "destructive" : "outline"}>
+                          {t(u.blocked ? "users.status.blocked" : "users.status.active")}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-right">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label={t("actions.resetPassword")}
+                          title={t("actions.resetPassword")}
+                          onClick={() => setToReset(u)}
+                        >
+                          <KeyRound className="size-4" aria-hidden />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label={t(u.blocked ? "actions.unblock" : "actions.block")}
+                          title={t(u.blocked ? "actions.unblock" : "actions.block")}
+                          onClick={() =>
+                            u.blocked ? block.mutate({ u, blocked: false }) : setToBlock(u)
+                          }
+                        >
+                          {u.blocked ? (
+                            <Unlock className="size-4" aria-hidden />
+                          ) : (
+                            <Lock className="size-4" aria-hidden />
+                          )}
+                        </Button>
                         <Button
                           size="icon"
                           variant="ghost"
@@ -168,8 +231,26 @@ export function UsersPage() {
           queues={queues.data ?? []}
           onClose={() => setForm(null)}
           onSaved={invalidate}
+          onAccess={setAccess}
         />
       )}
+      {access && <AccessDialog access={access} onClose={() => setAccess(null)} />}
+      <ConfirmDialog
+        open={!!toReset}
+        onOpenChange={(o) => !o && setToReset(null)}
+        title={t("users.confirmReset.title")}
+        description={t("users.confirmReset.description", { name: toReset?.name })}
+        confirmLabel={t("actions.resetPassword")}
+        onConfirm={() => toReset && reset.mutate(toReset)}
+      />
+      <ConfirmDialog
+        open={!!toBlock}
+        onOpenChange={(o) => !o && setToBlock(null)}
+        title={t("users.confirmBlock.title")}
+        description={t("users.confirmBlock.description", { name: toBlock?.name })}
+        confirmLabel={t("actions.block")}
+        onConfirm={() => toBlock && block.mutate({ u: toBlock, blocked: true })}
+      />
       <ConfirmDialog
         open={!!toDelete}
         onOpenChange={(o) => !o && setToDelete(null)}
@@ -179,6 +260,39 @@ export function UsersPage() {
         onConfirm={() => toDelete && remove.mutate(toDelete.id)}
       />
     </div>
+  );
+}
+
+export async function copyAccess(a: AccessData, okMsg: string) {
+  await navigator.clipboard.writeText(accessMessage(a));
+  toast.success(okMsg);
+}
+
+function AccessDialog({ access, onClose }: { access: AccessData; onClose: () => void }) {
+  const { t } = useTranslation("team");
+  const text = accessMessage(access);
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("users.access.title")}</DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">{t("users.access.description")}</p>
+        <pre className="whitespace-pre-wrap rounded-lg border bg-muted/40 p-3 text-sm">{text}</pre>
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button variant="outline" onClick={() => void copyAccess(access, t("toast.copied"))}>
+            <Copy className="size-4" aria-hidden />
+            {t("actions.copy")}
+          </Button>
+          <Button asChild>
+            <a href={whatsappLink(text)} target="_blank" rel="noreferrer">
+              <MessageCircle className="size-4" aria-hidden />
+              {t("actions.whatsapp")}
+            </a>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -196,12 +310,15 @@ function UserFormDialog({
   queues,
   onClose,
   onSaved,
+  onAccess,
 }: {
   value: CompanyUser | "new";
   queues: Queue[];
   onClose: () => void;
   onSaved: () => unknown;
+  onAccess: (a: AccessData) => void;
 }) {
+  const [after, setAfter] = useState<"none" | "copy" | "whatsapp">("none");
   const { t } = useTranslation("team");
   const editing = value !== "new" ? value : null;
   const [data, setData] = useState<CompanyUserInput>({
@@ -209,7 +326,8 @@ function UserFormDialog({
     email: editing?.email ?? "",
     profile: editing?.profile ?? "user",
     queueIds: editing?.queueIds ?? [],
-    password: "",
+    blocked: editing?.blocked ?? false,
+    password: editing ? "" : generatePassword(),
   });
   const [errors, setErrors] = useState({ name: false, email: false, password: false });
 
@@ -219,10 +337,15 @@ function UserFormDialog({
       if (!body.password) delete body.password;
       return editing ? updateUser(editing.id, body) : createUser(body);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success(t("toast.saved"));
       void onSaved();
+      const a = { company: env.appName, email: data.email, password: data.password ?? "" };
+      if (a.password && after === "copy") await copyAccess(a, t("toast.copied")).catch(() => {});
+      if (a.password && after === "whatsapp")
+        window.open(whatsappLink(accessMessage(a)), "_blank", "noopener");
       onClose();
+      if (a.password) onAccess(a);
     },
     onError: (err) =>
       toast.error(
@@ -283,14 +406,27 @@ function UserFormDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="u-password">{t("users.form.password")}</Label>
-              <Input
-                id="u-password"
-                type="password"
-                autoComplete="new-password"
-                value={data.password}
-                aria-invalid={errors.password}
-                onChange={(e) => setData({ ...data, password: e.target.value })}
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="u-password"
+                  type="text"
+                  autoComplete="new-password"
+                  value={data.password}
+                  aria-invalid={errors.password}
+                  onChange={(e) => setData({ ...data, password: e.target.value })}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0"
+                  aria-label={t("users.form.generate")}
+                  title={t("users.form.generate")}
+                  onClick={() => setData({ ...data, password: generatePassword() })}
+                >
+                  <Wand2 className="size-4" aria-hidden />
+                </Button>
+              </div>
               {errors.password ? (
                 <p className="text-xs text-destructive">{t("users.form.passwordMin")}</p>
               ) : (
@@ -310,6 +446,7 @@ function UserFormDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="user">{t("users.profile.user")}</SelectItem>
+                  <SelectItem value="supervisor">{t("users.profile.supervisor")}</SelectItem>
                   <SelectItem value="admin">{t("users.profile.admin")}</SelectItem>
                 </SelectContent>
               </Select>
@@ -338,12 +475,31 @@ function UserFormDialog({
               </div>
             )}
           </fieldset>
-          <DialogFooter>
+          <label className="flex items-center gap-2 text-sm">
+            <Checkbox
+              checked={!!data.blocked}
+              onCheckedChange={(c) => setData({ ...data, blocked: c === true })}
+            />
+            {t("users.form.status")}
+          </label>
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
               {t("actions.cancel")}
             </Button>
-            <Button type="submit" disabled={save.isPending}>
-              {t("actions.save")}
+            {data.password ? (
+              <>
+                <Button type="submit" variant="outline" disabled={save.isPending} onClick={() => setAfter("copy")}>
+                  <Copy className="size-4" aria-hidden />
+                  {t("users.form.saveCopy")}
+                </Button>
+                <Button type="submit" variant="outline" disabled={save.isPending} onClick={() => setAfter("whatsapp")}>
+                  <MessageCircle className="size-4" aria-hidden />
+                  {t("users.form.saveWhatsapp")}
+                </Button>
+              </>
+            ) : null}
+            <Button type="submit" disabled={save.isPending} onClick={() => setAfter("none")}>
+              {t("users.form.save")}
             </Button>
           </DialogFooter>
         </form>
