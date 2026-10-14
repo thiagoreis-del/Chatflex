@@ -184,16 +184,19 @@ export const companyUsersQuery = (companyId: string) =>
     queryKey: [...companyKeys.usage(companyId), "users"],
     queryFn: async ({ signal }): Promise<CompanyMember[]> => {
       if (env.useMocks) return [];
-      const all = await apiRequest<BackendSimpleUser[]>(
-        `/users/list?companyId=${encodeURIComponent(companyId)}`,
-        { signal },
-      );
-      return all.map((u) => ({
-        id: String(u.id),
-        name: u.name,
-        email: u.email,
-        queues: (u.queues ?? []).map((q) => q.name),
-      }));
+      const res = await apiRequest<
+        (BackendSimpleUser & { companyId?: number })[] | { users?: (BackendSimpleUser & { companyId?: number })[] }
+      >(`/users/list?companyId=${encodeURIComponent(companyId)}`, { signal });
+      const all = Array.isArray(res) ? res : (res?.users ?? []);
+      return all
+        // Defesa extra: se o backend devolver companyId, descarta registros de outra empresa.
+        .filter((u) => u.companyId == null || String(u.companyId) === companyId)
+        .map((u) => ({
+          id: String(u.id),
+          name: u.name,
+          email: u.email,
+          queues: (u.queues ?? []).map((q) => q.name),
+        }));
     },
     retry: false,
   });
