@@ -115,11 +115,19 @@ export function refreshAccessToken(): Promise<boolean> {
   return refreshPromise;
 }
 
+/** O backend responde 403 (não 401) quando o access token expira. */
+function isExpiredToken(error: ApiError): boolean {
+  if (error.kind === "unauthorized") return true;
+  if (error.kind !== "forbidden") return false;
+  const message = error.body?.message ?? "";
+  return /invalid token|token/i.test(message);
+}
+
 export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   try {
     return await rawRequest<T>(path, opts);
   } catch (error) {
-    if (error instanceof ApiError && error.kind === "unauthorized" && !opts.skipRefresh) {
+    if (error instanceof ApiError && isExpiredToken(error) && !opts.skipRefresh) {
       const renewed = await refreshAccessToken().catch(() => false);
       if (renewed) return rawRequest<T>(path, opts);
       unauthorizedHandler?.();
