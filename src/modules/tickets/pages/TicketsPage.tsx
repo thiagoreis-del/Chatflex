@@ -275,9 +275,13 @@ function Conversation({
         const tk = await assignTicket(ticket.id, myId);
         onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
       }
+      // Assinatura obrigatória: o cliente vê o nome do atendente no WhatsApp.
+      // Notas internas nunca são assinadas (não vão ao cliente).
+      const myName = session.user?.name?.trim();
+      const signed = !isPrivate && myName && body ? `*${myName}:*\n${body}` : body;
       return media
-        ? sendMediaMessage(ticket.id, media, body)
-        : sendMessage(ticket.id, body, isPrivate);
+        ? sendMediaMessage(ticket.id, media, signed)
+        : sendMessage(ticket.id, signed, isPrivate);
     },
     onSuccess: () => {
       setText("");
