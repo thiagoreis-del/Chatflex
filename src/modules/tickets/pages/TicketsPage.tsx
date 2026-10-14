@@ -22,10 +22,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { ticketKeys } from "@/shared/api/query-keys";
+import { useSession } from "@/shared/auth/session-store";
 import { TransferTicketDialog } from "../components/TransferTicketDialog";
 import {
   ACCEPTED_MEDIA,
   addTicketTag,
+  assignTicket,
   removeTicketTag,
   MAX_MEDIA_BYTES,
   messagesQuery,
@@ -179,6 +181,8 @@ function Conversation({
   const { t } = useTranslation("tickets");
   const { t: tq } = useTranslation("quickMessages");
   const qc = useQueryClient();
+  const session = useSession();
+  const myId = Number(session.user?.id) || null;
   const msgFallback = useFallbackInterval();
   useMessagesRealtime(ticket.id);
   const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
@@ -236,7 +240,7 @@ function Conversation({
   }, [messages.data?.length]);
 
   const status = useMutation({
-    mutationFn: (s: TicketStatus) => updateTicketStatus(ticket.id, s),
+    mutationFn: (s: TicketStatus) => updateTicketStatus(ticket.id, s, myId),
     onSuccess: (tk, s) => {
       toast.success(
         t(
@@ -265,8 +269,13 @@ function Conversation({
   );
 
   const send = useMutation({
-    mutationFn: ({ body, media }: { body: string; media: File | null }) =>
-      media ? sendMediaMessage(ticket.id, media, body) : sendMessage(ticket.id, body, isPrivate),
+    mutationFn: async ({ body, media }: { body: string; media: File | null }) => {
+      // Conversa aberta sem responsável: o atendente logado assume antes de responder.
+      if (!ticket.user && myId) onChange(await assignTicket(ticket.id, myId));
+      return media
+        ? sendMediaMessage(ticket.id, media, body)
+        : sendMessage(ticket.id, body, isPrivate);
+    },
     onSuccess: () => {
       setText("");
       setFile(null);
