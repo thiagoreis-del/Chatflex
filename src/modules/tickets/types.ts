@@ -36,6 +36,8 @@ export interface Message {
   mediaType?: string | null;
   /** Nota interna: visível só para a equipe, não é enviada ao cliente. */
   isPrivate?: boolean;
+  /** Backend inclui o ticket com o atendente responsável (`ticket.user`). */
+  ticket?: { user?: { id: number; name: string } | null } | null;
 }
 
 export interface TicketFilters {

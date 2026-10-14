@@ -443,6 +443,19 @@ function Conversation({
                         {t("privateBadge")}
                       </p>
                     )}
+                    {(m.fromMe || m.isPrivate) &&
+                      (m.ticket?.user?.name ?? ticket.user?.name) && (
+                        <p
+                          className={cn(
+                            "mb-1 truncate text-xs font-semibold",
+                            m.fromMe && !m.isPrivate
+                              ? "text-primary-foreground/80"
+                              : "text-foreground/80",
+                          )}
+                        >
+                          {m.ticket?.user?.name ?? ticket.user?.name}
+                        </p>
+                      )}
                     <MessageMedia message={m} />
                     {!(m.mediaUrl && !isImage(m)) && m.body && (
                       <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{m.body}</p>
