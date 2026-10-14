@@ -49,6 +49,9 @@ import {
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
+/** Remove a assinatura `*Nome:*\n` enviada ao cliente — o painel já mostra o atendente. */
+const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
+
 export function TicketsPage() {
   const { t } = useTranslation("tickets");
   const [status, setStatus] = useState<TicketStatus>("pending");
