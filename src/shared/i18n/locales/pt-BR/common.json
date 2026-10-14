@@ -59,13 +59,18 @@
       "quickMessages": "Respostas rápidas"
     },
     "platform": {
-      "section": "Plataforma",
+      "section": "Administração da plataforma",
       "overview": "Visão da plataforma",
       "companies": "Empresas",
       "plans": "Planos",
       "subscriptions": "Assinaturas",
       "invoices": "Faturas",
       "audit": "Auditoria"
+    },
+    "operation": {
+      "section": "Operação da empresa",
+      "platformAccount": "Conta atual: {{company}}",
+      "currentCompany": "Empresa atual: {{company}}"
     }
   },
   "profile": {

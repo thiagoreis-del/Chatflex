@@ -26,11 +26,81 @@ interface MessagesResponse {
   hasMore: boolean;
 }
 
+export interface AttendantMetric {
+  id: number;
+  name: string;
+  closedToday: number;
+}
+
+export interface OperationalDashboard {
+  pending: number;
+  open: number;
+  closedToday: number;
+  attendants: AttendantMetric[];
+  firstResponseMinutes: number | null;
+  attendantsPartial: boolean;
+}
+
 export const ticketsQuery = (filters: TicketFilters) =>
   queryOptions({
     queryKey: ticketKeys.list(filters),
     queryFn: async ({ signal }) =>
       (await apiRequest<TicketsResponse>(withQuery(ep.list, filters), { signal }))?.tickets ?? [],
+  });
+
+/**
+ * Resumo operacional usando contratos já disponíveis no backend.
+ * O total por status vem de `count`. A distribuição por atendente usa os
+ * tickets fechados devolvidos na página; `attendantsPartial` informa paginação.
+ * O tempo de primeira resposta permanece nulo até o servidor expor a métrica.
+ */
+export const operationalDashboardQuery = () =>
+  queryOptions({
+    queryKey: ticketKeys.operationalDashboard(),
+    queryFn: async ({ signal }): Promise<OperationalDashboard> => {
+      const date = new Date().toLocaleDateString("en-CA");
+      const get = (status: TicketStatus, extra: Record<string, unknown> = {}) =>
+        apiRequest<TicketsResponse>(withQuery(ep.list, { status, ...extra }), { signal });
+      const [pending, open, closed] = await Promise.all([
+        get("pending"),
+        get("open"),
+        get("closed", { date }),
+      ]);
+      const byAttendant = new Map<number, AttendantMetric>();
+      const firstResponseTimes: number[] = [];
+      for (const ticket of closed.tickets ?? []) {
+        if (ticket.createdAt && ticket.firstResponseAt) {
+          const minutes =
+            (new Date(ticket.firstResponseAt).getTime() - new Date(ticket.createdAt).getTime()) /
+            60_000;
+          if (Number.isFinite(minutes) && minutes >= 0) firstResponseTimes.push(minutes);
+        }
+        if (!ticket.user) continue;
+        const current = byAttendant.get(ticket.user.id);
+        if (current) current.closedToday += 1;
+        else
+          byAttendant.set(ticket.user.id, {
+            id: ticket.user.id,
+            name: ticket.user.name,
+            closedToday: 1,
+          });
+      }
+      return {
+        pending: pending.count ?? pending.tickets.length,
+        open: open.count ?? open.tickets.length,
+        closedToday: closed.count ?? closed.tickets.length,
+        attendants: [...byAttendant.values()].sort((a, b) => b.closedToday - a.closedToday),
+        firstResponseMinutes: firstResponseTimes.length
+          ? Math.round(
+              firstResponseTimes.reduce((total, value) => total + value, 0) /
+                firstResponseTimes.length,
+            )
+          : null,
+        attendantsPartial: !!closed.hasMore,
+      };
+    },
+    staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 
 export const messagesQuery = (ticketId: number) =>

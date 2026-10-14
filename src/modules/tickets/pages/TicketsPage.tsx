@@ -57,6 +57,7 @@ export function TicketsPage() {
   const { t } = useTranslation("tickets");
   const [status, setStatus] = useState<TicketStatus>("pending");
   const [search, setSearch] = useState("");
+  const [connectionId, setConnectionId] = useState("all");
   const [selected, setSelected] = useState<Ticket | null>(null);
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
@@ -102,15 +103,43 @@ export function TicketsPage() {
               ))}
             </TabsList>
           </Tabs>
+          {(query.data ?? []).some((ticket) => ticket.whatsapp) && (
+            <label className="block space-y-1 text-xs font-medium text-muted-foreground">
+              <span>{t("connectionFilter")}</span>
+              <select
+                value={connectionId}
+                onChange={(event) => setConnectionId(event.target.value)}
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm text-foreground"
+              >
+                <option value="all">{t("allConnections")}</option>
+                {Array.from(
+                  new Map(
+                    (query.data ?? [])
+                      .filter((ticket) => ticket.whatsapp)
+                      .map((ticket) => [ticket.whatsapp!.id, ticket.whatsapp!]),
+                  ).values(),
+                ).map((connection) => (
+                  <option key={connection.id} value={String(connection.id)}>
+                    {connection.name}
+                    {connection.number ? ` · +${connection.number}` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <QueryBoundary query={query} contract={ticketsContract}>
-            {(list) =>
-              list.length === 0 ? (
+            {(list) => {
+              const visible =
+                connectionId === "all"
+                  ? list
+                  : list.filter((ticket) => String(ticket.whatsapp?.id) === connectionId);
+              return visible.length === 0 ? (
                 <p className="p-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
               ) : (
                 <ul>
-                  {list.map((tk) => (
+                  {visible.map((tk) => (
                     <li key={tk.id}>
                       <button
                         type="button"
@@ -143,6 +172,9 @@ export function TicketsPage() {
                             )}
                           </div>
                           <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+                            <span className="inline-flex max-w-full items-center rounded bg-emerald-100 px-1.5 text-[11px] font-medium text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
+                              WhatsApp: {tk.whatsapp?.name ?? t("unknownOrigin")}
+                            </span>
                             <span
                               className="inline-block rounded px-1.5 text-[11px] font-medium text-primary-foreground"
                               style={{
@@ -160,8 +192,8 @@ export function TicketsPage() {
                     </li>
                   ))}
                 </ul>
-              )
-            }
+              );
+            }}
           </QueryBoundary>
         </div>
       </aside>
@@ -371,6 +403,10 @@ function Conversation({
             <span className="font-medium text-foreground">
               {t("attendant")}: {ticket.user?.name ?? t("noAttendant")}
             </span>
+          </p>
+          <p className="mt-0.5 truncate text-xs font-medium text-emerald-700 dark:text-emerald-300">
+            {t("origin")}: {ticket.whatsapp?.name ?? t("unknownOrigin")}
+            {ticket.whatsapp?.number ? ` · +${ticket.whatsapp.number}` : ""}
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {(ticket.tags ?? []).map((tag) => (

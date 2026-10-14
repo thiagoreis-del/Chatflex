@@ -74,7 +74,7 @@
   "companies": {
     "meta": "Empresas",
     "title": "Empresas",
-    "subtitle": "Clientes da plataforma, seus planos e situação.",
+    "subtitle": "Cadastre uma empresa e centralize aqui a equipe, os WhatsApps, o plano e o acompanhamento operacional.",
     "new": "Nova empresa",
     "searchPlaceholder": "Buscar por nome, documento ou e-mail",
     "searchLabel": "Buscar empresas",
@@ -91,6 +91,7 @@
       "connections": "Conexões",
       "actions": "Ações"
     },
+    "manage": "Gerenciar",
     "detail": {
       "meta": "Detalhes da empresa",
       "tabs": {
@@ -118,13 +119,30 @@
         "internalNotes": "Observações internas"
       },
       "actionsTitle": "Ações administrativas",
+      "management": {
+        "title": "Gestão da empresa",
+        "description": "Consulte a estrutura operacional da {{company}} sem misturar com a conta da plataforma.",
+        "team": "Equipe de atendimento",
+        "teamDescription": "Veja os funcionários e as filas às quais cada pessoa pertence.",
+        "connections": "WhatsApps e QR Codes",
+        "connectionsDescription": "Veja os números vinculados, sua identificação e o estado da conexão.",
+        "service": "Acompanhar atendimentos",
+        "serviceDescription": "Requer acesso delegado da empresa no servidor para abrir as conversas com segurança.",
+        "accessTitle": "Acesso operacional por empresa ainda depende do servidor",
+        "accessDescription": "A consulta de usuários e conexões já identifica esta empresa. Para cadastrar, gerar QR Code ou abrir seus atendimentos, o backend deve emitir uma sessão delegada e registrar a ação do superadministrador em auditoria."
+      },
       "usersSummary": "Resumo de usuários da empresa. A gestão de usuários chegará em uma etapa futura.",
       "connectionsSummary": "Resumo de conexões da empresa. A gestão de conexões chegará em uma etapa futura.",
       "manageUsers": "Gerenciar usuários (em breve)",
       "manageConnections": "Gerenciar conexões (em breve)",
       "noSubscription": "Nenhuma assinatura encontrada para esta empresa.",
       "noConnections": "Esta empresa ainda não tem conexões de WhatsApp.",
-      "connectionColumns": { "name": "Nome", "number": "Número", "status": "Status", "default": "Padrão" },
+      "connectionColumns": {
+        "name": "Nome",
+        "number": "Número",
+        "status": "Status",
+        "default": "Padrão"
+      },
       "noUsers": "Esta empresa ainda não tem usuários cadastrados.",
       "userColumns": { "name": "Nome", "email": "E-mail", "queues": "Filas" }
     },

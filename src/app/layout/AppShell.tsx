@@ -110,7 +110,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
           </ul>
         </div>
       )}
-      {(
+      <div>
+        <div className="mb-2 px-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            {t("nav.operation.section")}
+          </p>
+          <p className="mt-1 truncate text-[11px] text-sidebar-foreground/65">
+            {isSuperadmin
+              ? t("nav.operation.platformAccount", { company: user?.companyId })
+              : t("nav.operation.currentCompany", { company: user?.companyId })}
+          </p>
+        </div>
         <ul className="space-y-1">
           <li>
             <Link
@@ -183,7 +193,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             </>
           )}
         </ul>
-      )}
+      </div>
       {!isSuperadmin && (
         <div>
           <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
@@ -231,7 +241,10 @@ function TrialNotice() {
   const left = trialDaysLeft(user.companyDueDate);
   if (left === null || left < 0 || left > 15) return null;
   return (
-    <div role="note" className="border-b bg-muted px-4 py-1 text-center text-xs text-muted-foreground">
+    <div
+      role="note"
+      className="border-b bg-muted px-4 py-1 text-center text-xs text-muted-foreground"
+    >
       {t("trial.notice", { count: left })}
     </div>
   );
@@ -244,7 +257,9 @@ function TrialBlocked({ onLogout }: { onLogout: () => void }) {
       <div className="max-w-md space-y-4 rounded-xl border bg-card p-8 text-center shadow-sm">
         <h1 className="text-xl font-bold">{t("trial.blockedTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("trial.blockedText")}</p>
-        <Button variant="outline" onClick={onLogout}>{t("trial.logout")}</Button>
+        <Button variant="outline" onClick={onLogout}>
+          {t("trial.logout")}
+        </Button>
       </div>
     </div>
   );
@@ -264,7 +279,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   const left = trialDaysLeft(user?.companyDueDate);
-  if (user && user.role !== "superadmin" && (user.companyActive === false || (left !== null && left < 0)))
+  if (
+    user &&
+    user.role !== "superadmin" &&
+    (user.companyActive === false || (left !== null && left < 0))
+  )
     return <TrialBlocked onLogout={() => void handleLogout()} />;
 
   const initials = (user?.name ?? "?")
@@ -356,7 +375,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main id="conteudo" className="app-main min-h-0 min-w-0 flex-1 overflow-y-auto px-3 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
+          <main
+            id="conteudo"
+            className="app-main min-h-0 min-w-0 flex-1 overflow-y-auto px-3 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8"
+          >
             {children}
           </main>
         </div>

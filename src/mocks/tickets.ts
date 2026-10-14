@@ -24,6 +24,7 @@ const tickets: Ticket[] = [
     contact: { id: 1, name: "Ana Souza", number: "5511987650001" },
     queue: vendas,
     user: null,
+    whatsapp: { id: 1, name: "Comercial", number: "5511999990001" },
   },
   {
     id: 2,
@@ -34,6 +35,7 @@ const tickets: Ticket[] = [
     contact: { id: 2, name: "Bruno Lima", number: "5511987650002" },
     queue: suporte,
     user: null,
+    whatsapp: { id: 2, name: "Suporte", number: "5511999990002" },
   },
   {
     id: 3,
@@ -44,6 +46,7 @@ const tickets: Ticket[] = [
     contact: { id: 3, name: "Carla Mendes", number: "5511987650003" },
     queue: vendas,
     user: { id: 1, name: "Pessoa Demonstração" },
+    whatsapp: { id: 1, name: "Comercial", number: "5511999990001" },
     tags: [{ id: 1, name: "VIP", color: "#f59e0b" }],
   },
   {
@@ -55,16 +58,20 @@ const tickets: Ticket[] = [
     contact: { id: 5, name: "Elisa Prado", number: "5511987650005" },
     queue: suporte,
     user: { id: 1, name: "Pessoa Demonstração" },
+    whatsapp: { id: 2, name: "Suporte", number: "5511999990002" },
   },
   {
     id: 5,
     status: "closed",
     lastMessage: "Obrigado pelo atendimento!",
+    createdAt: ago(360),
+    firstResponseAt: ago(355),
     updatedAt: ago(300),
     unreadMessages: 0,
     contact: { id: 7, name: "Gabriela Reis", number: "5511987650007" },
     queue: vendas,
     user: { id: 1, name: "Pessoa Demonstração" },
+    whatsapp: { id: 1, name: "Comercial", number: "5511999990001" },
   },
 ];
 
