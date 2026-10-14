@@ -103,6 +103,30 @@ export const operationalDashboardQuery = () =>
     refetchInterval: 60_000,
   });
 
+/** Grupos: tickets ativos (aberto + aguardando) cujo contato é grupo. */
+export const groupTicketsQuery = (search?: string) =>
+  queryOptions({
+    queryKey: [...ticketKeys.list({ status: "open", search }), "groups"],
+    queryFn: async ({ signal }) => {
+      const get = (status: TicketStatus) =>
+        apiRequest<TicketsResponse>(withQuery(ep.list, { status, search }), { signal });
+      const [o, p] = await Promise.all([get("open"), get("pending")]);
+      return [...(o?.tickets ?? []), ...(p?.tickets ?? [])]
+        .filter((t) => t.contact?.isGroup)
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    },
+  });
+
+/** Encerra vários tickets em lotes de 5 para não sobrecarregar o servidor. */
+export async function closeTicketsBulk(ids: number[]) {
+  let failed = 0;
+  for (let i = 0; i < ids.length; i += 5) {
+    const r = await Promise.allSettled(ids.slice(i, i + 5).map((id) => updateTicketStatus(id, "closed")));
+    failed += r.filter((x) => x.status === "rejected").length;
+  }
+  return { closed: ids.length - failed, failed };
+}
+
 export const messagesQuery = (ticketId: number) =>
   queryOptions({
     queryKey: ticketKeys.messages(ticketId),

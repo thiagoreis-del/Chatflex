@@ -10,8 +10,9 @@
   "origin": "Recebido em",
   "unknownOrigin": "Origem não informada",
   "tabs": {
+    "open": "Atendendo",
     "pending": "Aguardando",
-    "open": "Em atendimento",
+    "groups": "Grupos",
     "closed": "Finalizados"
   },
   "empty": "Nenhuma conversa nesta aba.",
@@ -106,5 +107,13 @@
     "cancel": "Cancelar"
   },
   "conversationSearch": "Buscar nesta conversa",
-  "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa."
+  "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa.",
+  "closeAll": {
+    "button": "Encerrar todos",
+    "title": "Encerrar todas as conversas desta aba?",
+    "description": "{{count}} conversa(s) serão finalizadas. Esta ação não pode ser desfeita.",
+    "confirm": "Encerrar todas",
+    "done": "{{count}} conversa(s) encerrada(s).",
+    "partial": "{{count}} conversa(s) não puderam ser encerradas."
+  }
 }

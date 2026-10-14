@@ -4,6 +4,8 @@ export interface TicketContact {
   id: number;
   name: string;
   number: string;
+  /** Backend marca contatos de grupo do WhatsApp. */
+  isGroup?: boolean;
 }
 
 export interface Ticket {
@@ -44,6 +46,8 @@ export interface Message {
   /** Backend inclui o ticket com o atendente responsável (`ticket.user`). */
   ticket?: { user?: { id: number; name: string } | null } | null;
 }
+
+export type TicketTab = "open" | "pending" | "groups" | "closed";
 
 export interface TicketFilters {
   status: TicketStatus;
