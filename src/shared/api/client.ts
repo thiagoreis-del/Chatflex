@@ -119,8 +119,9 @@ export function refreshAccessToken(): Promise<boolean> {
 function isExpiredToken(error: ApiError): boolean {
   if (error.kind === "unauthorized") return true;
   if (error.kind !== "forbidden") return false;
-  const message = error.body?.message ?? "";
-  return /invalid token|token/i.test(message);
+  const body = error.body as { message?: string; error?: string } | undefined;
+  const message = `${body?.message ?? ""} ${body?.error ?? ""}`;
+  return /token|session|jwt/i.test(message);
 }
 
 export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Promise<T> {
