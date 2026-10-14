@@ -174,4 +174,4 @@ export const sendMediaMessage = (ticketId: number, file: File, caption = "") => 
 
 export const MAX_MEDIA_BYTES = 16 * 1024 * 1024;
 export const ACCEPTED_MEDIA =
-  "image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip";
+  "image/*,audio/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip";
