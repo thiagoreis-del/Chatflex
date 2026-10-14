@@ -204,7 +204,13 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
         createdAt: new Date().toISOString(),
         // Demo: URL local do navegador; some ao recarregar.
         mediaUrl: URL.createObjectURL(file),
-        mediaType: file.type.startsWith("image/") ? "image" : "application",
+        mediaType: file.type.startsWith("image/")
+          ? "image"
+          : file.type.startsWith("audio/")
+            ? "audio"
+            : file.type.startsWith("video/")
+              ? "video"
+              : "application",
       };
     } else {
       const { body, isPrivate } = opts.body as { body: string; isPrivate?: string };

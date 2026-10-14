@@ -9,6 +9,7 @@ import {
   FileText,
   Lock,
   Paperclip,
+  Pencil,
   Plus,
   Search,
   Smile,
@@ -41,6 +42,8 @@ import {
 } from "../api";
 import type { Message, Ticket, TicketStatus, TicketTag } from "../types";
 import { MessageMedia, isImage } from "../components/MessageMedia";
+import { AudioRecorder } from "../components/AudioRecorder";
+import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { quickMessagesQuery } from "@/modules/quick-messages/api";
 import {
   QuickMessagePicker,
@@ -314,16 +317,22 @@ function Conversation({
     },
   });
   const [file, setFile] = useState<File | null>(null);
+  const [imageEditorOpen, setImageEditorOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const preview = useMemo(
     () => (file && file.type.startsWith("image/") ? URL.createObjectURL(file) : null),
     [file],
   );
+  const audioPreview = useMemo(
+    () => (file && file.type.startsWith("audio/") ? URL.createObjectURL(file) : null),
+    [file],
+  );
   useEffect(
     () => () => {
       if (preview) URL.revokeObjectURL(preview);
+      if (audioPreview) URL.revokeObjectURL(audioPreview);
     },
-    [preview],
+    [audioPreview, preview],
   );
 
   const send = useMutation({
@@ -333,11 +342,13 @@ function Conversation({
         const tk = await assignTicket(ticket.id, myId);
         onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
       }
-      // Assinatura obrigatória: o cliente vê o nome do atendente no WhatsApp.
+      // Mensagens de texto e anexos recebem assinatura do atendente.
+      // Áudio não recebe legenda porque mensagens de voz podem rejeitar caption.
       // Notas internas nunca são assinadas (não vão ao cliente).
       const myName = session.user?.name?.trim();
+      const isAudio = media?.type.startsWith("audio/");
       const signed =
-        !isPrivate && myName
+        !isPrivate && myName && !isAudio
           ? body
             ? `*${myName}:*\n${body}`
             : media
@@ -366,14 +377,18 @@ function Conversation({
     onError: (_e, v) => toast.error(t(v.media ? "toast.fileError" : "toast.sendError")),
   });
 
-  const pickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] ?? null;
-    e.target.value = "";
+  const selectFile = (f: File | null) => {
     if (f && f.size > MAX_MEDIA_BYTES) {
       toast.error(t("toast.fileTooLarge"));
       return;
     }
     setFile(f);
+  };
+
+  const pickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] ?? null;
+    e.target.value = "";
+    selectFile(f);
   };
 
   const submit = (e: React.FormEvent) => {
@@ -649,6 +664,8 @@ function Conversation({
             <div className="mb-2 flex items-center gap-3 rounded-lg border bg-muted/40 p-2">
               {preview ? (
                 <img src={preview} alt={file.name} className="size-14 rounded object-cover" />
+              ) : audioPreview ? (
+                <audio controls preload="metadata" src={audioPreview} className="max-w-52" />
               ) : (
                 <FileText className="size-8 text-muted-foreground" aria-hidden />
               )}
@@ -658,6 +675,18 @@ function Conversation({
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
+              {preview && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-label={t("composer.editImage")}
+                  onClick={() => setImageEditorOpen(true)}
+                >
+                  <Pencil className="size-4" />
+                  <span className="hidden sm:inline">{t("composer.editImage")}</span>
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="ghost"
@@ -669,7 +698,33 @@ function Conversation({
               </Button>
             </div>
           )}
-          <div className="grid grid-cols-[auto_auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
+          {file?.type.startsWith("image/") && (
+            <ImageEditorDialog
+              file={file}
+              open={imageEditorOpen}
+              onOpenChange={setImageEditorOpen}
+              onSave={selectFile}
+              labels={{
+                title: t("imageEditor.title"),
+                rotate: t("imageEditor.rotate"),
+                draw: t("imageEditor.draw"),
+                rectangle: t("imageEditor.rectangle"),
+                blur: t("imageEditor.blur"),
+                text: t("imageEditor.text"),
+                emoji: t("imageEditor.emoji"),
+                color: t("imageEditor.color"),
+                undo: t("imageEditor.undo"),
+                redo: t("imageEditor.redo"),
+                textPrompt: t("imageEditor.textPrompt"),
+                emojiPrompt: t("imageEditor.emojiPrompt"),
+                canvas: t("imageEditor.canvas"),
+                loading: t("imageEditor.loading"),
+                cancel: t("imageEditor.cancel"),
+                apply: t("imageEditor.apply"),
+              }}
+            />
+          )}
+          <div className="grid grid-cols-[auto_auto_auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
             <Button
               type="button"
               variant="ghost"
@@ -730,6 +785,17 @@ function Conversation({
               accept={ACCEPTED_MEDIA}
               className="hidden"
               onChange={pickFile}
+            />
+            <AudioRecorder
+              disabled={isPrivate || send.isPending || !!file}
+              labels={{
+                start: t("audio.start"),
+                stop: t("audio.stop"),
+                cancel: t("audio.cancel"),
+                recording: t("audio.recording"),
+              }}
+              onReady={selectFile}
+              onError={() => toast.error(t("toast.microphoneError"))}
             />
             <textarea
               rows={2}
