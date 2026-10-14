@@ -14,7 +14,7 @@ import {
 export function FilterBar({ children, onClear }: { children: ReactNode; onClear?: () => void }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-wrap items-end gap-3 rounded-xl border bg-card p-4">
+    <div className="grid min-w-0 grid-cols-1 items-end gap-3 rounded-lg border bg-card p-3 sm:flex sm:flex-wrap sm:p-4">
       {children}
       {onClear && (
         <Button variant="ghost" size="sm" onClick={onClear}>
@@ -42,7 +42,7 @@ export function SelectFilter({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="min-w-40 space-y-1.5">
+    <div className="min-w-0 space-y-1.5 sm:min-w-40">
       <Label htmlFor={id}>{label}</Label>
       <Select value={value ?? ALL} onValueChange={(v) => onChange(v === ALL ? undefined : v)}>
         <SelectTrigger id={id}>
@@ -77,7 +77,7 @@ export function TextFilter({
   onChange: (value: string | undefined) => void;
 }) {
   return (
-    <div className="min-w-40 space-y-1.5">
+    <div className="min-w-0 space-y-1.5 sm:min-w-40">
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}

@@ -15,12 +15,12 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>
+    <header className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+      <div className="min-w-0 [overflow-wrap:anywhere]">
+        <h1 className="text-xl font-bold sm:text-3xl">{title}</h1>
         {description && <p className="mt-1 text-muted-foreground">{description}</p>}
       </div>
-      {actions && <div className="flex gap-2">{actions}</div>}
+      {actions && <div className="flex min-w-0 flex-wrap gap-2 sm:justify-end">{actions}</div>}
     </header>
   );
 }

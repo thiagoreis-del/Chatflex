@@ -110,12 +110,12 @@ export function ConnectionsPage() {
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {list.map((c) => (
                 <Card key={c.id}>
-                  <CardHeader className="flex-row items-start justify-between gap-2 space-y-0">
-                    <div className="flex items-center gap-3">
-                      <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 space-y-0">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                         <Smartphone className="size-5" aria-hidden />
                       </span>
-                      <div>
+                      <div className="min-w-0 [overflow-wrap:anywhere]">
                         <CardTitle className="text-base">{c.name}</CardTitle>
                         <p className="text-xs text-muted-foreground">{c.number ?? t("noNumber")}</p>
                       </div>
