@@ -7,8 +7,36 @@ import { tokenStore } from "./token-store";
 import type { AuthenticatedUser, LoginResponse } from "./types";
 import { normalizeUser } from "./normalize-user";
 
+const USER_KEY = "chatbotflex.user";
+
+function saveUser(user: AuthenticatedUser) {
+  try {
+    window.localStorage.setItem(USER_KEY, JSON.stringify(user));
+  } catch {
+    // Sem storage: segue só em memória.
+  }
+}
+
+function loadUser(): AuthenticatedUser | null {
+  try {
+    const raw = window.localStorage.getItem(USER_KEY);
+    return raw ? (JSON.parse(raw) as AuthenticatedUser) : null;
+  } catch {
+    return null;
+  }
+}
+
+function forgetUser() {
+  try {
+    window.localStorage.removeItem(USER_KEY);
+  } catch {
+    // Ignora falhas de storage.
+  }
+}
+
 setUnauthorizedHandler(() => {
   tokenStore.clear();
+  forgetUser();
   socketClient.disconnect();
   clearSession();
 });
@@ -29,6 +57,7 @@ export async function login(email: string, password: string) {
   if (!token) throw new Error("Token ausente na resposta de login");
   tokenStore.set(token);
   const user = normalizeUser(res.user);
+  saveUser(user);
   setSessionUser(user);
   socketClient.connect();
   return user;
@@ -56,7 +85,9 @@ export function ensureSession(): Promise<boolean> {
             return false;
           }
         }
-        const user = await fetchMe();
+        // O /auth/me do backend depende do cookie de renovação, que o navegador
+        // bloqueia entre domínios (responde 500). Usa o perfil salvo no login.
+        const user = loadUser() ?? (await fetchMe());
         setSessionUser(user);
         socketClient.connect();
         return true;
@@ -80,6 +111,7 @@ export async function logout(queryClient: QueryClient) {
   }
   socketClient.disconnect();
   tokenStore.clear();
+  forgetUser();
   clearSession();
   queryClient.clear();
 }
