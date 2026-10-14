@@ -40,3 +40,17 @@ export const createUser = (body: CompanyUserInput) =>
 export const updateUser = (id: number, body: CompanyUserInput) =>
   apiRequest<CompanyUser>(ep.detail(id), { method: "PUT", body });
 export const deleteUser = (id: number) => apiRequest<void>(ep.detail(id), { method: "DELETE" });
+
+/** Bloqueio/desbloqueio: envia `blocked` no update (contrato pendente no backend). */
+export const setUserBlocked = (u: CompanyUser, blocked: boolean) =>
+  apiRequest<CompanyUser>(ep.detail(u.id), {
+    method: "PUT",
+    body: { name: u.name, email: u.email, profile: u.profile, queueIds: u.queueIds, blocked },
+  });
+
+/** Redefinição: grava nova senha temporária (o backend aplica o hash). */
+export const resetUserPassword = (u: CompanyUser, password: string) =>
+  apiRequest<CompanyUser>(ep.detail(u.id), {
+    method: "PUT",
+    body: { name: u.name, email: u.email, profile: u.profile, queueIds: u.queueIds, password },
+  });

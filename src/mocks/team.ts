@@ -26,7 +26,7 @@ export const users: CompanyUser[] = [
 ];
 
 const PAGE_SIZE = 8;
-const strip = ({ password: _p, ...rest }: CompanyUserInput) => rest;
+const strip = ({ password: _p, ...rest }: Partial<CompanyUserInput>) => rest;
 
 export function teamMock(path: string, opts: RequestOptions): unknown {
   const method = opts.method ?? "GET";
@@ -57,7 +57,7 @@ export function teamMock(path: string, opts: RequestOptions): unknown {
       const body = opts.body as CompanyUserInput;
       if (users.some((u) => u.email.toLowerCase() === body.email.toLowerCase()))
         throw new ApiError("conflict", 409);
-      const u: CompanyUser = { id: userSeq++, ...strip(body) };
+      const u = { id: userSeq++, ...strip(body) } as CompanyUser;
       users.push(u);
       return u;
     }
