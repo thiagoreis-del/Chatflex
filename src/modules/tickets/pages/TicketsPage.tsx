@@ -484,7 +484,9 @@ function Conversation({
                       )}
                     <MessageMedia message={m} />
                     {!(m.mediaUrl && !isImage(m)) && m.body && (
-                      <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{m.body}</p>
+                      <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                        {m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body}
+                      </p>
                     )}
                     <p
                       className={cn(
