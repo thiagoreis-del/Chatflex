@@ -271,7 +271,10 @@ function Conversation({
   const send = useMutation({
     mutationFn: async ({ body, media }: { body: string; media: File | null }) => {
       // Conversa aberta sem responsável: o atendente logado assume antes de responder.
-      if (!ticket.user && myId) onChange(await assignTicket(ticket.id, myId));
+      if (!ticket.user && myId) {
+        const tk = await assignTicket(ticket.id, myId);
+        onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
+      }
       return media
         ? sendMediaMessage(ticket.id, media, body)
         : sendMessage(ticket.id, body, isPrivate);
