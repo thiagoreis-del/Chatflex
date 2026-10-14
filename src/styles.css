@@ -252,8 +252,4 @@
   .chat-open form {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
-  .chat-messages .max-w-\[85\%\],
-  .chat-messages [class*="max-w-"] {
-    max-width: 85%;
-  }
 }
