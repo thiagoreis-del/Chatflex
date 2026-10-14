@@ -47,10 +47,14 @@ export function ensureSession(): Promise<boolean> {
     sessionStore.set({ status: "loading", user: null });
     bootstrapPromise = (async () => {
       try {
-        const renewed = await refreshAccessToken();
-        if (!renewed) {
-          clearSession();
-          return false;
+        // Se já existe token guardado (fallback de storage), tenta direto;
+        // um 401 em fetchMe aciona o refresh via cookie automaticamente.
+        if (!tokenStore.get()) {
+          const renewed = await refreshAccessToken();
+          if (!renewed) {
+            clearSession();
+            return false;
+          }
         }
         const user = await fetchMe();
         setSessionUser(user);
