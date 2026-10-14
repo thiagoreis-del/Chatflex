@@ -12,11 +12,27 @@ export interface UserFilters {
   page: number;
 }
 
+interface BackendUsers extends Partial<Paginated<CompanyUser>> {
+  users?: (Omit<CompanyUser, "queueIds"> & { queueIds?: number[]; queues?: { id: number }[] })[];
+  count?: number;
+}
+
+/** Backend ZapPro/Whaticket: GET /users?searchParam&pageNumber → { users, count, hasMore }. */
 export const usersQuery = (filters: UserFilters) =>
   queryOptions({
     queryKey: userKeys.list(filters),
-    queryFn: ({ signal }) =>
-      apiRequest<Paginated<CompanyUser>>(withQuery(ep.list, filters), { signal }),
+    queryFn: async ({ signal }): Promise<Paginated<CompanyUser>> => {
+      const res = await apiRequest<BackendUsers>(
+        withQuery(ep.list, { ...filters, searchParam: filters.search, pageNumber: filters.page }),
+        { signal },
+      );
+      if (res.data) return res as Paginated<CompanyUser>;
+      const list = (res.users ?? []).map(({ queues, ...u }) => ({
+        ...u,
+        queueIds: u.queueIds ?? (queues ?? []).map((q) => q.id),
+      }));
+      return { data: list, page: filters.page, pageSize: 20, total: res.count ?? list.length };
+    },
   });
 
 export const createUser = (body: CompanyUserInput) =>
