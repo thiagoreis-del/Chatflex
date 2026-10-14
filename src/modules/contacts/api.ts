@@ -12,11 +12,37 @@ export interface ContactFilters {
   page: number;
 }
 
+interface BackendContacts {
+  contacts?: (Omit<Contact, "tags"> & { tags?: unknown[] })[];
+  count?: number;
+  data?: Contact[];
+  page?: number;
+  pageSize?: number;
+  total?: number;
+}
+
+/** Backend ZapPro/Whaticket: GET /contacts?searchParam&pageNumber → { contacts, count, hasMore }. */
 export const contactsQuery = (filters: ContactFilters) =>
   queryOptions({
     queryKey: contactKeys.list(filters),
-    queryFn: ({ signal }) =>
-      apiRequest<Paginated<Contact>>(withQuery(ep.list, filters), { signal }),
+    queryFn: async ({ signal }): Promise<Paginated<Contact>> => {
+      const res = await apiRequest<BackendContacts>(
+        withQuery(ep.list, {
+          ...filters,
+          searchParam: filters.search,
+          pageNumber: filters.page,
+        }),
+        { signal },
+      );
+      if (res.data) return res as Paginated<Contact>;
+      const list = (res.contacts ?? []).map((c) => ({
+        ...c,
+        tags: (c.tags ?? []).map((tag) =>
+          typeof tag === "string" ? tag : String((tag as { name?: string }).name ?? ""),
+        ),
+      })) as Contact[];
+      return { data: list, page: filters.page, pageSize: 20, total: res.count ?? list.length };
+    },
   });
 
 export const createContact = (body: ContactInput) =>
