@@ -38,9 +38,12 @@ import {
   tagOptionsQuery,
   ticketsContract,
   ticketsQuery,
+  groupTicketsQuery,
+  closeTicketsBulk,
   updateTicketStatus,
 } from "../api";
-import type { Message, Ticket, TicketStatus, TicketTag } from "../types";
+import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../types";
+import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { MessageMedia, isImage } from "../components/MessageMedia";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
@@ -58,7 +61,12 @@ const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
 
 export function TicketsPage() {
   const { t } = useTranslation("tickets");
-  const [status, setStatus] = useState<TicketStatus>("pending");
+  const [tab, setTab] = useState<TicketTab>("open");
+  const status: TicketStatus = tab === "groups" ? "open" : tab;
+  const session = useSession();
+  const qcl = useQueryClient();
+  const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
+  const [confirmClose, setConfirmClose] = useState(false);
   const [search, setSearch] = useState("");
   const [connectionId, setConnectionId] = useState("all");
   const [selected, setSelected] = useState<Ticket | null>(null);
@@ -69,9 +77,25 @@ export function TicketsPage() {
   }, [search]);
   const fallback = useFallbackInterval();
   useTicketsRealtime(status);
-  const query = useQuery({
-    ...ticketsQuery({ status, search: debouncedSearch }),
-    refetchInterval: fallback,
+  const listOpts =
+    tab === "groups"
+      ? groupTicketsQuery(debouncedSearch)
+      : {
+          ...ticketsQuery({ status, search: debouncedSearch }),
+          select: (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup),
+        };
+  const query = useQuery({ ...(listOpts as ReturnType<typeof groupTicketsQuery>), refetchInterval: fallback });
+  const closeable = (query.data ?? []).filter(
+    (x) => x.status !== "closed" && (connectionId === "all" || String(x.whatsapp?.id) === connectionId),
+  );
+  const bulkClose = useMutation({
+    mutationFn: () => closeTicketsBulk(closeable.map((x) => x.id)),
+    onSuccess: (r) => {
+      if (r.closed) toast.success(t("closeAll.done", { count: r.closed }));
+      if (r.failed) toast.error(t("closeAll.partial", { count: r.failed }));
+      setSelected(null);
+      qcl.invalidateQueries({ queryKey: ticketKeys.all });
+    },
   });
 
   return (
@@ -97,15 +121,37 @@ export function TicketsPage() {
               className="pl-8"
             />
           </div>
-          <Tabs value={status} onValueChange={(v) => setStatus(v as TicketStatus)}>
-            <TabsList className="grid w-full grid-cols-3">
-              {(["pending", "open", "closed"] as const).map((s) => (
+          <Tabs value={tab} onValueChange={(v) => setTab(v as TicketTab)}>
+            <TabsList className="grid w-full grid-cols-4">
+              {(["open", "pending", "groups", "closed"] as const).map((s) => (
                 <TabsTrigger key={s} value={s} className="text-xs">
                   {t(`tabs.${s}`)}
                 </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
+          {isAdmin && tab !== "closed" && closeable.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-destructive"
+              disabled={bulkClose.isPending}
+              onClick={() => setConfirmClose(true)}
+            >
+              {t("closeAll.button")} ({closeable.length})
+            </Button>
+          )}
+          <ConfirmDialog
+            open={confirmClose}
+            onOpenChange={setConfirmClose}
+            title={t("closeAll.title")}
+            description={t("closeAll.description", { count: closeable.length })}
+            confirmLabel={t("closeAll.confirm")}
+            onConfirm={() => {
+              setConfirmClose(false);
+              bulkClose.mutate();
+            }}
+          />
           {(query.data ?? []).some((ticket) => ticket.whatsapp) && (
             <label className="block space-y-1 text-xs font-medium text-muted-foreground">
               <span>{t("connectionFilter")}</span>

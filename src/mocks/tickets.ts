@@ -38,6 +38,17 @@ const tickets: Ticket[] = [
     whatsapp: { id: 2, name: "Suporte", number: "5511999990002" },
   },
   {
+    id: 6,
+    status: "open",
+    lastMessage: "Pessoal, reunião às 15h",
+    updatedAt: ago(8),
+    unreadMessages: 3,
+    contact: { id: 9, name: "Equipe Comercial", number: "120363000000000001", isGroup: true },
+    queue: vendas,
+    user: { id: 1, name: "Pessoa Demonstração" },
+    whatsapp: { id: 1, name: "Comercial", number: "5511999990001" },
+  },
+  {
     id: 3,
     status: "open",
     lastMessage: "Perfeito, vou aguardar",
