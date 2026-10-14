@@ -232,3 +232,28 @@
   background: #005c4b;
   color: #e9edef;
 }
+
+/* Celular: conversa em tela cheia, como no WhatsApp. */
+@media (max-width: 767px) {
+  .app-main:has(.tickets-workspace) {
+    padding: 0;
+  }
+  .tickets-workspace {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .tickets-workspace:has(.chat-open) {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    height: 100dvh;
+  }
+  .chat-open form {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+  .chat-messages .max-w-\[85\%\],
+  .chat-messages [class*="max-w-"] {
+    max-width: 85%;
+  }
+}

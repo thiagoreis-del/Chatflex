@@ -247,7 +247,10 @@ export function TicketsPage() {
         </div>
       </aside>
       <section
-        className={cn("flex min-h-0 min-w-0 flex-1 flex-col", !selected && "hidden md:flex")}
+        className={cn(
+          "flex min-h-0 min-w-0 flex-1 flex-col",
+          selected ? "chat-open" : "hidden md:flex",
+        )}
       >
         {selected ? (
           <Conversation
@@ -445,18 +448,21 @@ function Conversation({
 
   return (
     <>
-      <header className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-2 border-b px-3 py-2 md:grid-cols-[minmax(0,1fr)_auto] sm:px-4 sm:py-3">
+      <header className="flex shrink-0 items-start gap-1.5 border-b px-1.5 py-1.5 pt-[max(0.375rem,env(safe-area-inset-top))] sm:gap-2 sm:px-4 sm:py-3">
         <Button
           variant="ghost"
           size="icon"
-          className="shrink-0 md:hidden"
+          className="-mr-1 shrink-0 md:hidden"
           onClick={onBack}
           aria-label={t("actions.back")}
         >
           <ArrowLeft className="size-4" />
         </Button>
+        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary md:hidden">
+          {(ticket.contact.name || "#").charAt(0)}
+        </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">
+          <p className="truncate font-semibold leading-tight">
             {ticket.contact.name || `+${ticket.contact.number}`}
           </p>
           <p className="truncate text-xs text-muted-foreground">
@@ -465,11 +471,11 @@ function Conversation({
               {t("attendant")}: {ticket.user?.name ?? t("noAttendant")}
             </span>
           </p>
-          <p className="mt-0.5 truncate text-xs font-medium text-emerald-700 dark:text-emerald-300">
+          <p className="mt-0.5 hidden truncate text-xs font-medium text-emerald-700 sm:block dark:text-emerald-300">
             {t("origin")}: {ticket.whatsapp?.name ?? t("unknownOrigin")}
             {ticket.whatsapp?.number ? ` · +${ticket.whatsapp.number}` : ""}
           </p>
-          <div className="mt-1 flex flex-wrap items-center gap-1">
+          <div className="mt-1 flex items-center gap-1 overflow-x-auto pb-0.5 [scrollbar-width:none] sm:flex-wrap">
             {(ticket.tags ?? []).map((tag) => (
               <span
                 key={tag.id}
@@ -537,7 +543,7 @@ function Conversation({
             )}
           </div>
         </div>
-        <div className="col-span-2 flex shrink-0 items-center justify-end gap-2 md:col-span-1">
+        <div className="flex shrink-0 items-center justify-end gap-0.5 sm:gap-2">
           <Button
             type="button"
             variant="ghost"
