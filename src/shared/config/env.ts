@@ -11,8 +11,8 @@ function trimSlash(value: string): string {
 export const env = {
   apiUrl: trimSlash(import.meta.env.VITE_API_URL ?? "https://api.notasflex.com.br"),
   socketUrl: trimSlash(import.meta.env.VITE_SOCKET_URL ?? "https://api.notasflex.com.br"),
-  appName: import.meta.env.VITE_APP_NAME ?? "ChatFlex",
-  appUrl: trimSlash(import.meta.env.VITE_APP_URL ?? "https://chat.notasflex.com.br"),
+  appName: import.meta.env.VITE_APP_NAME ?? "ChatbotFlex",
+  appUrl: trimSlash(import.meta.env.VITE_APP_URL ?? "https://chatbotflex.com.br"),
   /** Mocks somente quando explicitamente "true". Nunca há fallback automático. */
   useMocks: import.meta.env.VITE_USE_MOCKS === "true",
 } as const;

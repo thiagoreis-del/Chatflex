@@ -95,7 +95,7 @@ export function withQuery(path: string, params: object): string {
 
 /**
  * Conexões WhatsApp (empresa).
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatbotFlex.
  */
 export const whatsappEndpoints = {
   list: "/whatsapp",
@@ -105,7 +105,7 @@ export const whatsappEndpoints = {
 
 /**
  * Contatos da empresa.
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatbotFlex.
  */
 export const contactEndpoints = {
   list: "/contacts",
@@ -133,7 +133,7 @@ export const whatsappContracts = [
 
 /**
  * Usuários (atendentes) e filas da empresa.
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatbotFlex.
  */
 export const userEndpoints = {
   list: "/users",
@@ -186,7 +186,7 @@ export const ticketContracts = [
 
 /**
  * Respostas rápidas.
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatFlex.
+ * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatbotFlex.
  */
 export const quickMessageEndpoints = {
   base: "/quick-messages",
