@@ -475,7 +475,7 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
             <UsagePanel companyId={companyId} />
           </TabsContent>
           <TabsContent value="users" className="mt-0">
-            <UsersPanel companyId={companyId} companyName={q.data?.name} />
+            <UsersPanel companyId={companyId} companyName={q.data?.tradeName || q.data?.legalName} />
           </TabsContent>
           <TabsContent value="connections" className="mt-0">
             <ConnectionsPanel companyId={companyId} />
