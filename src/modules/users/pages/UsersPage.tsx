@@ -268,7 +268,7 @@ export async function copyAccess(a: AccessData, okMsg: string) {
   toast.success(okMsg);
 }
 
-function AccessDialog({ access, onClose }: { access: AccessData; onClose: () => void }) {
+export function AccessDialog({ access, onClose }: { access: AccessData; onClose: () => void }) {
   const { t } = useTranslation("team");
   const text = accessMessage(access);
   return (
@@ -305,13 +305,17 @@ function QueueChip({ queue }: { queue: Queue }) {
   );
 }
 
-function UserFormDialog({
+export function UserFormDialog({
   value,
   queues,
   onClose,
   onSaved,
   onAccess,
+  companyId,
+  companyName,
 }: {
+  companyId?: number;
+  companyName?: string;
   value: CompanyUser | "new";
   queues: Queue[];
   onClose: () => void;
@@ -333,14 +337,14 @@ function UserFormDialog({
 
   const save = useMutation({
     mutationFn: () => {
-      const body = { ...data };
+      const body = { ...data, ...(companyId ? { companyId } : {}) };
       if (!body.password) delete body.password;
       return editing ? updateUser(editing.id, body) : createUser(body);
     },
     onSuccess: async () => {
       toast.success(t("toast.saved"));
       void onSaved();
-      const a = { company: env.appName, email: data.email, password: data.password ?? "" };
+      const a = { company: companyName ?? env.appName, email: data.email, password: data.password ?? "" };
       if (a.password && after === "copy") await copyAccess(a, t("toast.copied")).catch(() => {});
       if (a.password && after === "whatsapp")
         window.open(whatsappLink(accessMessage(a)), "_blank", "noopener");

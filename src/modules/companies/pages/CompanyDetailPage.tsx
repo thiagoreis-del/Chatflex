@@ -1,8 +1,13 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { UserFormDialog, AccessDialog } from "@/modules/users/pages/UsersPage";
+import type { AccessData } from "@/modules/users/access";
+import { queuesQuery } from "@/modules/queues/api";
+import { companyKeys } from "@/shared/api/query-keys";
 import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MessagesSquare, Pencil, ShieldAlert, Smartphone, Users } from "lucide-react";
+import { MessagesSquare, Pencil, Plus, ShieldAlert, Smartphone, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -170,12 +175,42 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
   );
 }
 
-function UsersPanel({ companyId }: { companyId: string }) {
+function UsersPanel({ companyId, companyName }: { companyId: string; companyName?: string }) {
   const { t } = useTranslation("platform");
+  const qc = useQueryClient();
   const usage = useQuery(companyUsageQuery(companyId));
   const users = useQuery(companyUsersQuery(companyId));
+  const queues = useQuery(queuesQuery());
+  const [creating, setCreating] = useState(false);
+  const [access, setAccess] = useState<AccessData | null>(null);
+  const limit = usage.data?.users.limit ?? 0;
+  const used = users.data?.length ?? 0;
+  const remaining = limit > 0 ? Math.max(0, limit - used) : null;
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-muted-foreground">
+          {remaining === null
+            ? t("companies.detail.usersNoLimit")
+            : t("companies.detail.usersRemaining", { count: remaining })}
+        </p>
+        <Button size="sm" disabled={remaining === 0} onClick={() => setCreating(true)}>
+          <Plus className="size-4" aria-hidden />
+          {t("companies.detail.newUser")}
+        </Button>
+      </div>
+      {creating && (
+        <UserFormDialog
+          value="new"
+          queues={queues.data ?? []}
+          companyId={Number(companyId)}
+          companyName={companyName}
+          onClose={() => setCreating(false)}
+          onSaved={() => qc.invalidateQueries({ queryKey: companyKeys.usage(companyId) })}
+          onAccess={setAccess}
+        />
+      )}
+      {access && <AccessDialog access={access} onClose={() => setAccess(null)} />}
       <QueryBoundary query={usage} contract={companyContracts.usage}>
         {(u) =>
           u.users.limit > 0 ? (
@@ -440,7 +475,7 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
             <UsagePanel companyId={companyId} />
           </TabsContent>
           <TabsContent value="users" className="mt-0">
-            <UsersPanel companyId={companyId} />
+            <UsersPanel companyId={companyId} companyName={q.data?.name} />
           </TabsContent>
           <TabsContent value="connections" className="mt-0">
             <ConnectionsPanel companyId={companyId} />
