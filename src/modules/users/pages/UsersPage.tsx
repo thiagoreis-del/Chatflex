@@ -314,8 +314,8 @@ export function UserFormDialog({
   companyId,
   companyName,
 }: {
-  companyId?: number;
-  companyName?: string;
+  companyId?: number | undefined;
+  companyName?: string | undefined;
   value: CompanyUser | "new";
   queues: Queue[];
   onClose: () => void;

@@ -175,7 +175,7 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
   );
 }
 
-function UsersPanel({ companyId, companyName }: { companyId: string; companyName?: string }) {
+function UsersPanel({ companyId, companyName }: { companyId: string; companyName?: string | undefined }) {
   const { t } = useTranslation("platform");
   const qc = useQueryClient();
   const usage = useQuery(companyUsageQuery(companyId));
