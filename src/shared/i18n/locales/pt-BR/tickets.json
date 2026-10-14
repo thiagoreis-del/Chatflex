@@ -27,18 +27,22 @@
     "placeholder": "Digite uma mensagem…",
     "send": "Enviar",
     "acceptFirst": "Aceite o atendimento para responder.",
-    "attach": "Anexar imagem ou documento",
+    "attach": "Anexar imagem, áudio, vídeo ou documento",
     "caption": "Adicionar legenda (opcional)…",
     "removeAttachment": "Remover anexo",
     "privateNote": "Nota interna",
     "privatePlaceholder": "Escreva uma nota visível só para a equipe…",
-    "privateOn": "Modo nota interna ativo"
+    "privateOn": "Modo nota interna ativo",
+    "emoji": "Escolher emoji",
+    "insertEmoji": "Inserir {{emoji}}"
   },
   "media": {
     "open": "Abrir",
     "download": "Baixar arquivo",
     "image": "Imagem enviada",
-    "close": "Fechar"
+    "close": "Fechar",
+    "audio": "Áudio recebido",
+    "video": "Vídeo recebido"
   },
   "toast": {
     "accepted": "Atendimento aceito.",
@@ -70,5 +74,7 @@
     "notePlaceholder": "Contexto para quem vai receber…",
     "submit": "Transferir",
     "cancel": "Cancelar"
-  }
+  },
+  "conversationSearch": "Buscar nesta conversa",
+  "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa."
 }

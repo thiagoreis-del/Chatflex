@@ -11,6 +11,7 @@ import {
   Paperclip,
   Plus,
   Search,
+  Smile,
   Send,
   Tag,
   X,
@@ -38,7 +39,7 @@ import {
   ticketsQuery,
   updateTicketStatus,
 } from "../api";
-import type { Ticket, TicketStatus, TicketTag } from "../types";
+import type { Message, Ticket, TicketStatus, TicketTag } from "../types";
 import { MessageMedia, isImage } from "../components/MessageMedia";
 import { quickMessagesQuery } from "@/modules/quick-messages/api";
 import {
@@ -57,9 +58,17 @@ export function TicketsPage() {
   const [status, setStatus] = useState<TicketStatus>("pending");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Ticket | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
   const fallback = useFallbackInterval();
   useTicketsRealtime(status);
-  const query = useQuery({ ...ticketsQuery({ status, search }), refetchInterval: fallback });
+  const query = useQuery({
+    ...ticketsQuery({ status, search: debouncedSearch }),
+    refetchInterval: fallback,
+  });
 
   return (
     <div className="tickets-workspace flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
@@ -116,7 +125,9 @@ export function TicketsPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="truncate font-medium">{tk.contact.name || `+${tk.contact.number}`}</span>
+                            <span className="truncate font-medium">
+                              {tk.contact.name || `+${tk.contact.number}`}
+                            </span>
                             <span className="shrink-0 text-xs text-muted-foreground">
                               {time(tk.updatedAt)}
                             </span>
@@ -154,7 +165,9 @@ export function TicketsPage() {
           </QueryBoundary>
         </div>
       </aside>
-      <section className={cn("flex min-h-0 min-w-0 flex-1 flex-col", !selected && "hidden md:flex")}>
+      <section
+        className={cn("flex min-h-0 min-w-0 flex-1 flex-col", !selected && "hidden md:flex")}
+      >
         {selected ? (
           <Conversation
             key={selected.id}
@@ -190,6 +203,9 @@ function Conversation({
   useMessagesRealtime(ticket.id);
   const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
   const [text, setText] = useState("");
+  const [conversationSearch, setConversationSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const quick = useQuery(quickMessagesQuery());
@@ -202,8 +218,14 @@ function Conversation({
     setPickerOpen(false);
     setActiveIndex(0);
   };
-  const onComposerKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!showPicker || pickerItems.length === 0) return;
+  const onComposerKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!showPicker || pickerItems.length === 0) {
+      if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+        e.preventDefault();
+        e.currentTarget.form?.requestSubmit();
+      }
+      return;
+    }
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setActiveIndex((i) => (i + 1) % pickerItems.length);
@@ -220,6 +242,7 @@ function Conversation({
     }
   };
   const endRef = useRef<HTMLDivElement>(null);
+  const followLatest = useRef(true);
   const [isPrivate, setIsPrivate] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [tagOpen, setTagOpen] = useState(false);
@@ -239,7 +262,7 @@ function Conversation({
   });
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end" });
+    if (followLatest.current) endRef.current?.scrollIntoView({ block: "end" });
   }, [messages.data?.length]);
 
   const status = useMutation({
@@ -293,7 +316,17 @@ function Conversation({
         ? sendMediaMessage(ticket.id, media, signed)
         : sendMessage(ticket.id, signed, isPrivate);
     },
-    onSuccess: () => {
+    onSuccess: (message) => {
+      followLatest.current = true;
+      if (message?.id) {
+        qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (previous = []) => {
+          const existing = previous.findIndex((item) => item.id === message.id);
+          if (existing < 0) return [...previous, message];
+          return previous.map((item, index) =>
+            index === existing ? { ...item, ...message } : item,
+          );
+        });
+      }
       setText("");
       setFile(null);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
@@ -330,7 +363,9 @@ function Conversation({
           <ArrowLeft className="size-4" />
         </Button>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{ticket.contact.name || `+${ticket.contact.number}`}</p>
+          <p className="truncate font-semibold">
+            {ticket.contact.name || `+${ticket.contact.number}`}
+          </p>
           <p className="truncate text-xs text-muted-foreground">
             +{ticket.contact.number} ·{" "}
             <span className="font-medium text-foreground">
@@ -406,39 +441,70 @@ function Conversation({
           </div>
         </div>
         <div className="col-span-2 flex shrink-0 items-center justify-end gap-2 md:col-span-1">
-        {ticket.status !== "closed" && (
-          <Button size="sm" variant="ghost" aria-label={t("actions.transfer")} title={t("actions.transfer")} onClick={() => setTransferOpen(true)}>
-            <ArrowRightLeft className="size-4" />
-            <span className="hidden sm:inline">{t("actions.transfer")}</span>
-          </Button>
-        )}
-        {ticket.status === "pending" && (
-          <Button size="sm" onClick={() => status.mutate("open")} disabled={status.isPending}>
-            {t("actions.accept")}
-          </Button>
-        )}
-        {ticket.status === "open" && (
           <Button
-            size="sm"
-            variant="outline"
-            onClick={() => status.mutate("closed")}
-            disabled={status.isPending}
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t("conversationSearch")}
+            aria-pressed={searchOpen}
+            onClick={() => {
+              setSearchOpen((value) => !value);
+              setConversationSearch("");
+            }}
           >
-            {t("actions.close")}
+            <Search className="size-4" />
           </Button>
-        )}
-        {ticket.status === "closed" && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => status.mutate("open")}
-            disabled={status.isPending}
-          >
-            {t("actions.reopen")}
-          </Button>
-        )}
+          {ticket.status !== "closed" && (
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-label={t("actions.transfer")}
+              title={t("actions.transfer")}
+              onClick={() => setTransferOpen(true)}
+            >
+              <ArrowRightLeft className="size-4" />
+              <span className="hidden sm:inline">{t("actions.transfer")}</span>
+            </Button>
+          )}
+          {ticket.status === "pending" && (
+            <Button size="sm" onClick={() => status.mutate("open")} disabled={status.isPending}>
+              {t("actions.accept")}
+            </Button>
+          )}
+          {ticket.status === "open" && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => status.mutate("closed")}
+              disabled={status.isPending}
+            >
+              {t("actions.close")}
+            </Button>
+          )}
+          {ticket.status === "closed" && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => status.mutate("open")}
+              disabled={status.isPending}
+            >
+              {t("actions.reopen")}
+            </Button>
+          )}
         </div>
       </header>
+      {searchOpen && (
+        <div className="shrink-0 border-b p-2">
+          <Input
+            autoFocus
+            value={conversationSearch}
+            onChange={(event) => setConversationSearch(event.target.value)}
+            placeholder={t("conversationSearch")}
+            aria-label={t("conversationSearch")}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">{t("searchLoadedOnly")}</p>
+        </div>
+      )}
       {transferOpen && (
         <TransferTicketDialog
           ticket={ticket}
@@ -447,60 +513,72 @@ function Conversation({
           onDone={onChange}
         />
       )}
-      <div className="min-h-0 min-w-0 flex-1 space-y-2 overflow-y-auto overscroll-contain bg-muted/30 p-3 sm:p-4">
+      <div
+        onScroll={(event) => {
+          const pane = event.currentTarget;
+          followLatest.current = pane.scrollHeight - pane.scrollTop - pane.clientHeight < 100;
+        }}
+        className="chat-messages min-h-0 min-w-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 sm:p-4"
+      >
         <QueryBoundary query={messages} contract="GET /messages/:ticketId">
           {(list) => (
             <>
-              {list.map((m) => (
-                <div key={m.id} className={cn("flex min-w-0", m.fromMe ? "justify-end" : "justify-start")}>
+              {list
+                .filter(
+                  (m) =>
+                    !conversationSearch ||
+                    m.body.toLocaleLowerCase().includes(conversationSearch.toLocaleLowerCase()),
+                )
+                .map((m) => (
                   <div
-                    className={cn(
-                      "min-w-0 max-w-[90%] rounded-lg px-3 py-2 text-sm shadow-sm sm:max-w-[75%]",
-                      m.isPrivate
-                        ? "rounded-br-sm border border-dashed border-warning bg-warning/15 text-foreground"
-                        : m.fromMe
-                          ? "rounded-br-sm bg-primary text-primary-foreground"
-                          : "rounded-bl-sm bg-card",
-                    )}
+                    key={m.id}
+                    className={cn("flex min-w-0", m.fromMe ? "justify-end" : "justify-start")}
                   >
-                    {m.isPrivate && (
-                      <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        <Lock className="size-3" aria-hidden />
-                        {t("privateBadge")}
-                      </p>
-                    )}
-                    {(m.fromMe || m.isPrivate) &&
-                      (m.ticket?.user?.name ?? ticket.user?.name) && (
+                    <div
+                      className={cn(
+                        "min-w-0 max-w-[90%] rounded-lg px-3 py-2 text-sm shadow-sm sm:max-w-[75%]",
+                        m.isPrivate
+                          ? "rounded-br-sm border border-dashed border-warning bg-warning/15 text-foreground"
+                          : m.fromMe
+                            ? "chat-outgoing rounded-br-sm"
+                            : "rounded-bl-sm bg-card",
+                      )}
+                    >
+                      {m.isPrivate && (
+                        <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          <Lock className="size-3" aria-hidden />
+                          {t("privateBadge")}
+                        </p>
+                      )}
+                      {(m.fromMe || m.isPrivate) && (m.ticket?.user?.name ?? ticket.user?.name) && (
                         <p
                           className={cn(
                             "mb-1 truncate text-xs font-semibold",
-                            m.fromMe && !m.isPrivate
-                              ? "text-primary-foreground/80"
-                              : "text-foreground/80",
+                            m.fromMe && !m.isPrivate ? "text-foreground/80" : "text-foreground/80",
                           )}
                         >
                           {m.ticket?.user?.name ?? ticket.user?.name}
                         </p>
                       )}
-                    <MessageMedia message={m} />
-                    {!(m.mediaUrl && !isImage(m)) && m.body && (
-                      <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
-                        {m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body}
-                      </p>
-                    )}
-                    <p
-                      className={cn(
-                        "mt-1 text-right text-[10px]",
-                        m.fromMe && !m.isPrivate
-                          ? "text-primary-foreground/70"
-                          : "text-muted-foreground",
+                      <MessageMedia message={m} />
+                      {!(m.mediaUrl && !isImage(m)) && m.body && (
+                        <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                          {m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body}
+                        </p>
                       )}
-                    >
-                      {time(m.createdAt)}
-                    </p>
+                      <p
+                        className={cn(
+                          "mt-1 text-right text-[10px]",
+                          m.fromMe && !m.isPrivate
+                            ? "text-muted-foreground"
+                            : "text-muted-foreground",
+                        )}
+                      >
+                        {time(m.createdAt)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
               <div ref={endRef} />
             </>
           )}
@@ -508,6 +586,29 @@ function Conversation({
       </div>
       {ticket.status === "open" ? (
         <form onSubmit={submit} className="relative min-w-0 shrink-0 border-t p-2 sm:p-3">
+          {emojiOpen && (
+            <div
+              className="mb-2 flex flex-wrap gap-1 rounded-lg border bg-card p-2"
+              role="group"
+              aria-label={t("composer.emoji")}
+            >
+              {["😀", "😊", "👍", "❤️", "🙏", "✅", "🎉", "👋"].map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  disabled={send.isPending}
+                  className="rounded p-2 text-xl hover:bg-muted"
+                  aria-label={t("composer.insertEmoji", { emoji })}
+                  onClick={() => {
+                    setText((current) => current + emoji);
+                    setEmojiOpen(false);
+                  }}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          )}
           {file && (
             <div className="mb-2 flex items-center gap-3 rounded-lg border bg-muted/40 p-2">
               {preview ? (
@@ -532,7 +633,17 @@ function Conversation({
               </Button>
             </div>
           )}
-          <div className="grid grid-cols-[auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
+          <div className="grid grid-cols-[auto_auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("composer.emoji")}
+              aria-pressed={emojiOpen}
+              onClick={() => setEmojiOpen((value) => !value)}
+            >
+              <Smile className="size-4" />
+            </Button>
             {showPicker && (
               <QuickMessagePicker
                 term={pickerTerm}
@@ -544,6 +655,7 @@ function Conversation({
               type="button"
               variant="ghost"
               size="icon"
+              disabled={send.isPending}
               aria-label={tq("picker.open")}
               title={tq("picker.hint")}
               onClick={() => setPickerOpen((o) => !o)}
@@ -552,6 +664,7 @@ function Conversation({
             </Button>
             <Button
               type="button"
+              disabled={send.isPending}
               variant={isPrivate ? "secondary" : "ghost"}
               size="icon"
               aria-label={t("composer.privateNote")}
@@ -568,7 +681,7 @@ function Conversation({
               type="button"
               variant="ghost"
               size="icon"
-              disabled={isPrivate}
+              disabled={isPrivate || send.isPending}
               aria-label={t("composer.attach")}
               title={t("composer.attach")}
               onClick={() => fileRef.current?.click()}
@@ -582,9 +695,11 @@ function Conversation({
               className="hidden"
               onChange={pickFile}
             />
-            <Input
+            <textarea
+              rows={2}
+              disabled={send.isPending}
               value={text}
-              className="min-w-0"
+              className="min-w-0 w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onKeyDown={onComposerKey}
               onBlur={() => setPickerOpen(false)}
               onChange={(e) => {
