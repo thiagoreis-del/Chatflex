@@ -175,10 +175,13 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
     return ticket;
   }
   if (parts[0] === "tickets" && method === "PUT") {
-    const { status } = opts.body as { status: TicketStatus };
+    const { status, userId } = opts.body as { status: TicketStatus; userId?: number };
     ticket.status = status;
     ticket.updatedAt = new Date().toISOString();
-    if (status === "open") ticket.user = { id: 1, name: "Pessoa Demonstração" };
+    if (status === "open" && userId) {
+      const u = teamUsers.find((x) => x.id === userId);
+      ticket.user = { id: userId, name: u?.name ?? "Pessoa Demonstração" };
+    }
     return ticket;
   }
   if (parts[0] === "messages" && method === "POST") {

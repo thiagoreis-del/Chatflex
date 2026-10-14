@@ -48,8 +48,16 @@ export const tagOptionsQuery = () =>
     staleTime: 60_000,
   });
 
-export const updateTicketStatus = (id: number, status: TicketStatus) =>
-  apiRequest<Ticket>(ep.detail(id), { method: "PUT", body: { status } });
+/** Ao aceitar/reabrir, o backend só define o atendente se `userId` for enviado. */
+export const updateTicketStatus = (id: number, status: TicketStatus, userId?: number | null) =>
+  apiRequest<Ticket>(ep.detail(id), {
+    method: "PUT",
+    body: status === "open" && userId ? { status, userId } : { status },
+  });
+
+/** Assume a conversa para o atendente logado (ticket aberto sem responsável). */
+export const assignTicket = (id: number, userId: number) =>
+  apiRequest<Ticket>(ep.detail(id), { method: "PUT", body: { status: "open", userId } });
 
 /** Nota interna: o backend compara `isPrivate === "true"` (string). */
 export const sendMessage = (ticketId: number, body: string, isPrivate = false) =>
