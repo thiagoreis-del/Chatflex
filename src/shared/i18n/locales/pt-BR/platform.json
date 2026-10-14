@@ -144,7 +144,14 @@
         "default": "Padrão"
       },
       "noUsers": "Esta empresa ainda não tem usuários cadastrados.",
-      "userColumns": { "name": "Nome", "email": "E-mail", "queues": "Filas" }
+      "userColumns": {
+        "name": "Nome",
+        "email": "E-mail",
+        "queues": "Filas"
+      },
+      "newUser": "Novo usuário",
+      "usersRemaining": "Ainda cabem {{count}} usuário(s) no plano.",
+      "usersNoLimit": "Plano sem limite de usuários definido."
     },
     "form": {
       "cnpjLookup": "Buscar na Receita",

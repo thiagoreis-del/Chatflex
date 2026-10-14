@@ -17,6 +17,8 @@ export interface CompanyUserInput {
   profile: UserProfile;
   queueIds: number[];
   blocked?: boolean;
+  /** Só superadmin: cria o usuário em outra empresa (backend valida `super`). */
+  companyId?: number;
   /** Obrigatória na criação; opcional na edição (vazia = manter). */
   password?: string;
 }
