@@ -53,6 +53,29 @@ export function MessageMedia({ message }: { message: Message }) {
     );
   }
 
+  if (message.mediaType === "audio") {
+    return (
+      <audio
+        controls
+        preload="none"
+        src={url}
+        aria-label={t("media.audio")}
+        className="max-w-full"
+      />
+    );
+  }
+  if (message.mediaType === "video") {
+    return (
+      <video
+        controls
+        preload="metadata"
+        src={url}
+        aria-label={t("media.video")}
+        className="max-h-64 max-w-full rounded-lg"
+      />
+    );
+  }
+
   const name = message.body || fileNameFromUrl(url);
   return (
     <a

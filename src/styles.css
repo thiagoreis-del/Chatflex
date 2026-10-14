@@ -99,9 +99,11 @@
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(0.33 0.09 266);
   --sidebar-ring: oklch(0.69 0.15 250);
-  --gradient-hero: radial-gradient(110% 90% at 90% 0%, oklch(0.69 0.15 250 / 0.22), transparent 55%),
+  --gradient-hero:
+    radial-gradient(110% 90% at 90% 0%, oklch(0.69 0.15 250 / 0.22), transparent 55%),
     radial-gradient(90% 80% at 0% 100%, oklch(0.56 0.19 259 / 0.12), transparent 60%);
-  --shadow-soft: 0 2px 8px -2px oklch(0.25 0.09 268 / 0.06), 0 12px 24px -4px oklch(0.25 0.09 268 / 0.08);
+  --shadow-soft:
+    0 2px 8px -2px oklch(0.25 0.09 268 / 0.06), 0 12px 24px -4px oklch(0.25 0.09 268 / 0.08);
   --shadow-brand: 0 12px 30px -14px oklch(0.56 0.19 259 / 0.35);
 }
 
@@ -139,7 +141,8 @@
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(1 0 0 / 9%);
   --sidebar-ring: oklch(0.69 0.15 250);
-  --gradient-hero: radial-gradient(110% 90% at 90% 0%, oklch(0.56 0.19 259 / 0.3), transparent 55%),
+  --gradient-hero:
+    radial-gradient(110% 90% at 90% 0%, oklch(0.56 0.19 259 / 0.3), transparent 55%),
     radial-gradient(90% 80% at 0% 100%, oklch(0.69 0.15 250 / 0.12), transparent 60%);
   --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.3), 0 12px 24px -8px oklch(0 0 0 / 0.5);
   --shadow-brand: 0 12px 30px -14px oklch(0.69 0.15 250 / 0.45);
@@ -200,4 +203,32 @@
   [role="dialog"] textarea {
     font-size: 16px;
   }
+}
+
+/* Atendimento inspirado no WhatsApp, respeitando o tema escuro. */
+.tickets-workspace {
+  border-radius: 12px;
+}
+.tickets-workspace > aside {
+  background: var(--card);
+}
+.tickets-workspace header {
+  background: var(--muted);
+}
+.chat-messages {
+  background-color: #efeae2;
+  background-image: radial-gradient(#d6d0c5 0.7px, transparent 0.7px);
+  background-size: 20px 20px;
+}
+.chat-outgoing {
+  background: #d9fdd3;
+  color: #182229;
+}
+.dark .chat-messages {
+  background-color: #0b141a;
+  background-image: radial-gradient(#1d2b33 0.7px, transparent 0.7px);
+}
+.dark .chat-outgoing {
+  background: #005c4b;
+  color: #e9edef;
 }
