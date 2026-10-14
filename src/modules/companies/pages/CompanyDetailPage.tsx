@@ -48,9 +48,9 @@ import type { Company, CompanyAction } from "../types";
 
 function Info({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div>
+    <div className="min-w-0">
       <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className="mt-1 break-words">{children}</dd>
+      <dd className="mt-1 [overflow-wrap:anywhere]">{children}</dd>
     </div>
   );
 }

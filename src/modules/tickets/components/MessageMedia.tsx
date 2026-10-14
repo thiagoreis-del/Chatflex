@@ -29,14 +29,14 @@ export function MessageMedia({ message }: { message: Message }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="mb-1 block overflow-hidden rounded-lg"
+          className="mb-1 block max-w-full overflow-hidden rounded-lg"
           aria-label={t("media.open")}
         >
           <img
             src={url}
             alt={message.body || t("media.image")}
             loading="lazy"
-            className="max-h-64 w-full max-w-xs object-cover"
+            className="max-h-64 w-full max-w-xs object-contain"
           />
         </button>
         <Dialog open={open} onOpenChange={setOpen}>

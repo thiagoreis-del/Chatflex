@@ -1,9 +1,11 @@
+import { pageMeta } from "@/shared/config/meta";
 import { createFileRoute } from "@tanstack/react-router";
 import { CompaniesListPage } from "@/modules/companies/pages/CompaniesListPage";
 import type { CompanyFilters } from "@/modules/companies/types";
 import { parseListSearch } from "@/shared/router/search";
 
 export const Route = createFileRoute("/app/plataforma/empresas/")({
+  head: () => pageMeta("platform:companies.meta", "platform:companies.subtitle", { noindex: true }),
   validateSearch: (raw: Record<string, unknown>) =>
     parseListSearch<CompanyFilters>(raw, ["search", "status", "planId"]),
   component: RouteComponent,

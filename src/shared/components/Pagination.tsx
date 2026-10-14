@@ -18,10 +18,10 @@ export function Pagination({
   return (
     <nav
       aria-label={t("pagination.label")}
-      className="flex items-center justify-between gap-2 pt-4 text-sm"
+      className="grid min-w-0 gap-3 pt-4 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
     >
-      <p className="text-muted-foreground">{t("pagination.summary", { page, pages, total })}</p>
-      <div className="flex gap-2">
+      <p className="min-w-0 text-muted-foreground">{t("pagination.summary", { page, pages, total })}</p>
+      <div className="flex shrink-0 justify-end gap-2">
         <Button
           variant="outline"
           size="sm"

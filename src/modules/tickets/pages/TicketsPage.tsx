@@ -57,10 +57,10 @@ export function TicketsPage() {
   const query = useQuery({ ...ticketsQuery({ status, search }), refetchInterval: fallback });
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] min-h-[480px] overflow-hidden rounded-xl border bg-card shadow-sm">
+    <div className="tickets-workspace flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
       <aside
         className={cn(
-          "flex w-full flex-col border-r md:w-80 md:shrink-0",
+          "flex min-h-0 min-w-0 w-full flex-col border-r md:w-72 md:shrink-0 xl:w-80",
           selected && "hidden md:flex",
         )}
       >
@@ -89,7 +89,7 @@ export function TicketsPage() {
             </TabsList>
           </Tabs>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           <QueryBoundary query={query} contract={ticketsContract}>
             {(list) =>
               list.length === 0 ? (
@@ -144,7 +144,7 @@ export function TicketsPage() {
           </QueryBoundary>
         </div>
       </aside>
-      <section className={cn("flex flex-1 flex-col", !selected && "hidden md:flex")}>
+      <section className={cn("flex min-h-0 min-w-0 flex-1 flex-col", !selected && "hidden md:flex")}>
         {selected ? (
           <Conversation
             key={selected.id}
@@ -288,11 +288,11 @@ function Conversation({
 
   return (
     <>
-      <header className="flex items-center gap-3 border-b px-4 py-3">
+      <header className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-2 border-b px-3 py-2 md:grid-cols-[minmax(0,1fr)_auto] sm:px-4 sm:py-3">
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
+          className="shrink-0 md:hidden"
           onClick={onBack}
           aria-label={t("actions.back")}
         >
@@ -300,7 +300,7 @@ function Conversation({
         </Button>
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{ticket.contact.name}</p>
-          <p className="text-xs text-muted-foreground">+{ticket.contact.number}</p>
+          <p className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</p>
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {(ticket.tags ?? []).map((tag) => (
               <span
@@ -369,8 +369,9 @@ function Conversation({
             )}
           </div>
         </div>
+        <div className="col-span-2 flex shrink-0 items-center justify-end gap-2 md:col-span-1">
         {ticket.status !== "closed" && (
-          <Button size="sm" variant="ghost" onClick={() => setTransferOpen(true)}>
+          <Button size="sm" variant="ghost" aria-label={t("actions.transfer")} title={t("actions.transfer")} onClick={() => setTransferOpen(true)}>
             <ArrowRightLeft className="size-4" />
             <span className="hidden sm:inline">{t("actions.transfer")}</span>
           </Button>
@@ -400,6 +401,7 @@ function Conversation({
             {t("actions.reopen")}
           </Button>
         )}
+        </div>
       </header>
       {transferOpen && (
         <TransferTicketDialog
@@ -409,15 +411,15 @@ function Conversation({
           onDone={onChange}
         />
       )}
-      <div className="flex-1 space-y-2 overflow-y-auto bg-muted/30 p-4">
+      <div className="min-h-0 min-w-0 flex-1 space-y-2 overflow-y-auto overscroll-contain bg-muted/30 p-3 sm:p-4">
         <QueryBoundary query={messages} contract="GET /messages/:ticketId">
           {(list) => (
             <>
               {list.map((m) => (
-                <div key={m.id} className={cn("flex", m.fromMe ? "justify-end" : "justify-start")}>
+                <div key={m.id} className={cn("flex min-w-0", m.fromMe ? "justify-end" : "justify-start")}>
                   <div
                     className={cn(
-                      "max-w-[75%] rounded-2xl px-3 py-2 text-sm shadow-sm",
+                      "min-w-0 max-w-[90%] rounded-lg px-3 py-2 text-sm shadow-sm sm:max-w-[75%]",
                       m.isPrivate
                         ? "rounded-br-sm border border-dashed border-warning bg-warning/15 text-foreground"
                         : m.fromMe
@@ -433,7 +435,7 @@ function Conversation({
                     )}
                     <MessageMedia message={m} />
                     {!(m.mediaUrl && !isImage(m)) && m.body && (
-                      <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                      <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{m.body}</p>
                     )}
                     <p
                       className={cn(
@@ -454,7 +456,7 @@ function Conversation({
         </QueryBoundary>
       </div>
       {ticket.status === "open" ? (
-        <form onSubmit={submit} className="relative border-t p-3">
+        <form onSubmit={submit} className="relative min-w-0 shrink-0 border-t p-2 sm:p-3">
           {file && (
             <div className="mb-2 flex items-center gap-3 rounded-lg border bg-muted/40 p-2">
               {preview ? (
@@ -479,7 +481,7 @@ function Conversation({
               </Button>
             </div>
           )}
-          <div className="flex gap-2">
+          <div className="grid grid-cols-[auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
             {showPicker && (
               <QuickMessagePicker
                 term={pickerTerm}
@@ -531,6 +533,7 @@ function Conversation({
             />
             <Input
               value={text}
+              className="min-w-0"
               onKeyDown={onComposerKey}
               onBlur={() => setPickerOpen(false)}
               onChange={(e) => {
@@ -556,7 +559,7 @@ function Conversation({
           </div>
         </form>
       ) : (
-        <p className="border-t p-3 text-center text-sm text-muted-foreground">
+        <p className="shrink-0 border-t p-3 text-center text-sm text-muted-foreground [overflow-wrap:anywhere]">
           {t("composer.acceptFirst")}
         </p>
       )}

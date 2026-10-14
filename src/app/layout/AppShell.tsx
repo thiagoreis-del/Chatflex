@@ -209,7 +209,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
 
 function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   return (
-    <div className="flex h-full flex-col gap-6 bg-sidebar py-5 text-sidebar-foreground">
+    <div className="flex h-full min-h-0 flex-col gap-6 overflow-y-auto bg-sidebar py-5 text-sidebar-foreground">
       <div className="flex items-center gap-2 px-6">
         <AppLogo />
         <AppName className="text-lg" />
@@ -275,7 +275,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     .toUpperCase();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="app-shell flex h-dvh min-h-0 flex-col overflow-hidden">
       <a
         href="#conteudo"
         className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-card focus:px-3 focus:py-2"
@@ -284,42 +284,42 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
       <DemoBanner />
       <TrialNotice />
-      <div className="flex flex-1">
+      <div className="flex min-h-0 flex-1">
         <aside className="hidden w-64 shrink-0 lg:block">
-          <div className="sticky top-0 h-screen">
+          <div className="h-full">
             <SidebarBody />
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b bg-background/85 px-4 backdrop-blur sm:px-6">
+          <header className="z-30 grid h-16 shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 border-b bg-background/85 px-2 backdrop-blur sm:flex sm:gap-2 sm:px-6">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden"
+                  className="size-8 shrink-0 sm:size-10 lg:hidden"
                   aria-label={t("actions.openMenu")}
                 >
                   <Menu className="size-5" aria-hidden />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 border-0 p-0">
+              <SheetContent side="left" className="w-72 max-w-[85vw] border-0 p-0">
                 <SheetTitle className="sr-only">{t("nav.main")}</SheetTitle>
                 <SidebarBody onNavigate={() => setMobileOpen(false)} />
               </SheetContent>
             </Sheet>
-            <div className="flex items-center gap-2 lg:hidden">
-              <AppLogo className="size-7" />
-              <AppName />
+            <div className="flex min-w-0 items-center gap-1.5 lg:hidden">
+              <AppLogo className="size-6 sm:size-7" />
+              <AppName className="truncate text-sm sm:text-base" />
             </div>
-            <div className="ml-auto flex items-center gap-1">
+            <div className="ml-auto flex shrink-0 items-center gap-0 sm:gap-1 [&>button]:size-8 sm:[&>button]:size-10">
               <LanguageSelector />
               <ThemeToggle />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="h-10 gap-2 px-2"
+                    className="h-8 gap-2 px-1 sm:h-10 sm:px-2"
                     aria-label={t("profile.menu")}
                   >
                     <span
@@ -356,7 +356,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main id="conteudo" className="flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+          <main id="conteudo" className="app-main min-h-0 min-w-0 flex-1 overflow-y-auto px-3 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
             {children}
           </main>
         </div>

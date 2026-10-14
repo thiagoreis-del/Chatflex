@@ -65,7 +65,7 @@ export function CompaniesListPage({
           setSearch({ search: undefined, status: undefined, planId: undefined, page: 1 });
         }}
       >
-        <div className="min-w-64 flex-1">
+        <div className="min-w-0 flex-1 sm:min-w-64">
           <TextFilter
             id="company-search"
             type="search"
