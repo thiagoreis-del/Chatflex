@@ -1,47 +1,104 @@
 {
   "pending": "Contrato pendente: formato baseado no backend Whaticket/ZapPro, ainda não confirmado.",
-  "actions": { "edit": "Editar", "delete": "Excluir", "cancel": "Cancelar", "save": "Salvar" },
+  "actions": {
+    "edit": "Editar",
+    "delete": "Excluir",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "resetPassword": "Redefinir senha",
+    "copy": "Copiar acesso",
+    "whatsapp": "Enviar pelo WhatsApp",
+    "close": "Fechar"
+  },
   "toast": {
     "saved": "Salvo com sucesso.",
     "deleted": "Excluído com sucesso.",
     "error": "Não foi possível concluir a operação.",
-    "conflict": "Já existe um usuário com este e-mail."
+    "conflict": "Já existe um usuário com este e-mail.",
+    "blocked": "Usuário bloqueado.",
+    "unblocked": "Usuário desbloqueado.",
+    "copied": "Dados de acesso copiados.",
+    "reset": "Senha redefinida."
   },
   "users": {
-    "meta": { "title": "Usuários", "description": "Gerencie os atendentes da sua empresa." },
+    "meta": {
+      "title": "Usuários",
+      "description": "Gerencie os atendentes da sua empresa."
+    },
     "title": "Usuários",
     "description": "Atendentes e administradores com acesso à sua empresa.",
     "new": "Novo usuário",
     "edit": "Editar usuário",
     "searchPlaceholder": "Buscar por nome ou e-mail",
     "empty": "Nenhum usuário encontrado.",
-    "table": { "name": "Nome", "email": "E-mail", "profile": "Perfil", "queues": "Filas", "actions": "Ações" },
-    "profile": { "admin": "Administrador", "user": "Atendente" },
+    "table": {
+      "name": "Nome",
+      "email": "E-mail",
+      "profile": "Perfil",
+      "queues": "Filas",
+      "actions": "Ações",
+      "status": "Status"
+    },
+    "profile": {
+      "admin": "Administrador",
+      "supervisor": "Supervisor",
+      "user": "Atendente"
+    },
     "form": {
       "name": "Nome",
       "email": "E-mail",
-      "password": "Senha",
+      "password": "Senha temporária",
       "passwordHint": "Deixe em branco para manter a senha atual.",
       "profile": "Perfil",
       "queues": "Filas de atendimento",
       "noQueues": "Nenhuma fila cadastrada.",
       "nameRequired": "Informe o nome.",
       "emailInvalid": "Informe um e-mail válido.",
-      "passwordMin": "A senha deve ter pelo menos 8 caracteres."
+      "passwordMin": "A senha deve ter pelo menos 8 caracteres.",
+      "generate": "Gerar senha",
+      "status": "Acesso bloqueado",
+      "saveCopy": "Salvar e copiar acesso",
+      "saveWhatsapp": "Salvar e enviar pelo WhatsApp",
+      "save": "Salvar usuário"
     },
     "confirmDelete": {
       "title": "Excluir usuário?",
       "description": "{{name}} perderá o acesso imediatamente."
+    },
+    "status": {
+      "active": "Ativo",
+      "blocked": "Bloqueado"
+    },
+    "access": {
+      "title": "Dados de acesso",
+      "description": "A senha temporária aparece só agora. Copie ou envie antes de fechar."
+    },
+    "confirmReset": {
+      "title": "Redefinir senha?",
+      "description": "Uma nova senha temporária será gerada para {{name}}."
+    },
+    "confirmBlock": {
+      "title": "Bloquear usuário?",
+      "description": "{{name}} não poderá mais entrar no sistema. O histórico de atendimentos será mantido."
     }
   },
   "queues": {
-    "meta": { "title": "Filas", "description": "Organize o atendimento por setores." },
+    "meta": {
+      "title": "Filas",
+      "description": "Organize o atendimento por setores."
+    },
     "title": "Filas",
     "description": "Setores que recebem e distribuem os atendimentos.",
     "new": "Nova fila",
     "edit": "Editar fila",
     "empty": "Nenhuma fila cadastrada.",
-    "table": { "name": "Nome", "greeting": "Mensagem de saudação", "actions": "Ações" },
+    "table": {
+      "name": "Nome",
+      "greeting": "Mensagem de saudação",
+      "actions": "Ações"
+    },
     "form": {
       "name": "Nome",
       "color": "Cor",
