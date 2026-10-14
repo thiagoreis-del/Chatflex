@@ -1,9 +1,11 @@
+import { pageMeta } from "@/shared/config/meta";
 import { createFileRoute } from "@tanstack/react-router";
 import { InvoicesPage } from "@/modules/billing/pages/InvoicesPage";
 import type { InvoiceFilters } from "@/modules/billing/types";
 import { parseListSearch } from "@/shared/router/search";
 
 export const Route = createFileRoute("/app/plataforma/faturas")({
+  head: () => pageMeta("platform:invoices.meta", "platform:invoices.subtitle", { noindex: true }),
   validateSearch: (raw: Record<string, unknown>) =>
     parseListSearch<InvoiceFilters>(raw, [
       "companyId",
