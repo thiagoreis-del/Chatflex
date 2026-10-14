@@ -278,7 +278,14 @@ function Conversation({
       // Assinatura obrigatória: o cliente vê o nome do atendente no WhatsApp.
       // Notas internas nunca são assinadas (não vão ao cliente).
       const myName = session.user?.name?.trim();
-      const signed = !isPrivate && myName && body ? `*${myName}:*\n${body}` : body;
+      const signed =
+        !isPrivate && myName
+          ? body
+            ? `*${myName}:*\n${body}`
+            : media
+              ? `*${myName}:*`
+              : body
+          : body;
       return media
         ? sendMediaMessage(ticket.id, media, signed)
         : sendMessage(ticket.id, signed, isPrivate);
