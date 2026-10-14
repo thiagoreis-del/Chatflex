@@ -1,7 +1,7 @@
 {
   "meta": "Painel",
   "greeting": "Olá, {{name}}",
-  "subtitle": "Esta é a base do seu ambiente no {{appName}}.",
+  "subtitle": "Acompanhe a operação da empresa e a situação dos atendimentos.",
   "api": {
     "title": "API",
     "unknown": "Verificando",
@@ -25,10 +25,24 @@
     "none": "Nenhuma permissão informada."
   },
   "indicators": {
-    "title": "Indicadores",
-    "description": "Os indicadores serão exibidos quando a integração estiver disponível.",
-    "open": "Atendimentos abertos",
+    "title": "Atendimentos de hoje",
+    "description": "Visão rápida da fila e dos atendimentos da empresa atual.",
+    "updatedEveryMinute": "Atualização a cada minuto",
+    "open": "Em atendimento agora",
     "waiting": "Aguardando na fila",
-    "closed": "Encerrados hoje"
+    "closed": "Encerrados hoje",
+    "firstResponse": "Tempo médio de 1ª resposta",
+    "firstResponsePending": "O servidor ainda precisa fornecer o horário da primeira resposta.",
+    "minutes_one": "{{count}} minuto",
+    "minutes_other": "{{count}} minutos",
+    "loadError": "Não foi possível carregar os indicadores de atendimento. Tente novamente em instantes."
+  },
+  "attendants": {
+    "title": "Desempenho por atendente",
+    "description": "Quantidade de atendimentos encerrados hoje por cada pessoa.",
+    "name": "Atendente",
+    "closedToday": "Encerrados hoje",
+    "empty": "Nenhum atendimento encerrado hoje com atendente identificado.",
+    "partial": "O servidor informou que há mais páginas. A divisão por atendente pode estar incompleta até existir um endpoint próprio de indicadores."
   }
 }

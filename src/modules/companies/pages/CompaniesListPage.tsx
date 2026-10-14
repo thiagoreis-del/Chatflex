@@ -159,7 +159,7 @@ export function CompaniesListPage({
                             to="/app/plataforma/empresas/$companyId"
                             params={{ companyId: c.id }}
                           >
-                            {t("common:actions.view")}
+                            {t("companies.manage")}
                           </Link>
                         </Button>
                         <Button asChild variant="ghost" size="sm">

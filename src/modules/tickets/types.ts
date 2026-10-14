@@ -10,11 +10,16 @@ export interface Ticket {
   id: number;
   status: TicketStatus;
   lastMessage: string;
+  createdAt?: string;
+  /** Preenchido pelo backend quando a primeira resposta humana é registrada. */
+  firstResponseAt?: string | null;
   updatedAt: string;
   unreadMessages: number;
   contact: TicketContact;
   queue: { id: number; name: string; color: string } | null;
   user: { id: number; name: string } | null;
+  /** Conexão que recebeu a conversa. O backend pode expor como `whatsapp`. */
+  whatsapp?: { id: number; name: string; number?: string | null } | null;
   tags?: TicketTag[];
 }
 

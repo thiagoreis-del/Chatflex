@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Pencil } from "lucide-react";
+import { MessagesSquare, Pencil, ShieldAlert, Smartphone, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -97,8 +97,10 @@ function UsagePanel({ companyId }: { companyId: string }) {
   );
 }
 
-
-const connStatusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructive" | "outline"> = {
+const connStatusVariant: Record<
+  WhatsAppStatus,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
   CONNECTED: "default",
   DISCONNECTED: "destructive",
   qrcode: "secondary",
@@ -134,7 +136,9 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
                     <TableHead>{t("platform:companies.detail.connectionColumns.name")}</TableHead>
                     <TableHead>{t("platform:companies.detail.connectionColumns.number")}</TableHead>
                     <TableHead>{t("platform:companies.detail.connectionColumns.status")}</TableHead>
-                    <TableHead>{t("platform:companies.detail.connectionColumns.default")}</TableHead>
+                    <TableHead>
+                      {t("platform:companies.detail.connectionColumns.default")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -202,9 +206,7 @@ function UsersPanel({ companyId }: { companyId: string }) {
                     <TableRow key={u.id}>
                       <TableCell className="font-medium">{u.name}</TableCell>
                       <TableCell>{u.email}</TableCell>
-                      <TableCell>
-                        {u.queues.length === 0 ? "—" : u.queues.join(", ")}
-                      </TableCell>
+                      <TableCell>{u.queues.length === 0 ? "—" : u.queues.join(", ")}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -248,10 +250,10 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
   const c = q.data;
   const tabs = [
     "overview",
-    "subscription",
-    "limits",
     "users",
     "connections",
+    "limits",
+    "subscription",
     "features",
     "invoices",
     "audit",
@@ -276,6 +278,59 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
           {plan.data?.name ?? c.planName ?? c.planId}
         </span>
       </div>
+
+      <section className="space-y-3" aria-labelledby="gestao-empresa">
+        <div>
+          <h2 id="gestao-empresa" className="text-lg font-semibold">
+            {t("companies.detail.management.title")}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {t("companies.detail.management.description", { company: c.tradeName })}
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          <button
+            type="button"
+            onClick={() => setTab("users")}
+            className="rounded-xl border bg-card p-4 text-left transition-colors hover:border-primary/50 hover:bg-muted/40"
+          >
+            <Users className="mb-3 size-5 text-primary" aria-hidden />
+            <span className="block font-semibold">{t("companies.detail.management.team")}</span>
+            <span className="mt-1 block text-sm text-muted-foreground">
+              {t("companies.detail.management.teamDescription")}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("connections")}
+            className="rounded-xl border bg-card p-4 text-left transition-colors hover:border-primary/50 hover:bg-muted/40"
+          >
+            <Smartphone className="mb-3 size-5 text-primary" aria-hidden />
+            <span className="block font-semibold">
+              {t("companies.detail.management.connections")}
+            </span>
+            <span className="mt-1 block text-sm text-muted-foreground">
+              {t("companies.detail.management.connectionsDescription")}
+            </span>
+          </button>
+          <div className="rounded-xl border border-dashed bg-muted/30 p-4">
+            <MessagesSquare className="mb-3 size-5 text-muted-foreground" aria-hidden />
+            <span className="block font-semibold">{t("companies.detail.management.service")}</span>
+            <span className="mt-1 block text-sm text-muted-foreground">
+              {t("companies.detail.management.serviceDescription")}
+            </span>
+          </div>
+        </div>
+        <div className="flex gap-3 rounded-xl border border-amber-300/60 bg-amber-50 p-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+          <ShieldAlert className="mt-0.5 size-5 shrink-0" aria-hidden />
+          <div>
+            <p className="font-medium">{t("companies.detail.management.accessTitle")}</p>
+            <p className="mt-1 text-sm opacity-80">
+              {t("companies.detail.management.accessDescription")}
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section className="rounded-xl border bg-card p-4" aria-labelledby="acoes">
         <h2 id="acoes" className="mb-3 text-sm font-semibold">

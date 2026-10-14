@@ -5,6 +5,10 @@
   },
   "title": "Atendimento",
   "search": "Buscar por nome ou número",
+  "connectionFilter": "WhatsApp de origem",
+  "allConnections": "Todos os WhatsApps",
+  "origin": "Recebido em",
+  "unknownOrigin": "Origem não informada",
   "tabs": {
     "pending": "Aguardando",
     "open": "Em atendimento",
