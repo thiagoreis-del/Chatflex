@@ -1,4 +1,4 @@
 # Ajuste das telas
-- [ ] Ajustar estrutura, cabeçalho e navegação para larguras pequenas.
-- [ ] Ajustar Atendimento, abas, tabelas e formulários.
-- [ ] Verificar telas no navegador em celular e computador.
+- [x] Ajustar estrutura, cabeçalho e navegação para larguras pequenas.
+- [x] Ajustar Atendimento, abas, tabelas e formulários.
+- [x] Verificar telas no navegador em celular e computador com demonstração isolada; conexão real preservada.
