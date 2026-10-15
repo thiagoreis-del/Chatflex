@@ -751,11 +751,21 @@ function Conversation({
                 .map((m) => (
                   <div
                     key={m.id}
-                    className={cn("flex min-w-0", m.fromMe ? "justify-end" : "justify-start")}
+                    id={`msg-${m.id}`}
+                    onContextMenu={(event) => {
+                      if (ticket.status !== "open" || m.isPrivate) return;
+                      event.preventDefault();
+                      setReplyTo(m);
+                    }}
+                    className={cn(
+                      "group flex min-w-0 items-center gap-1",
+                      m.fromMe ? "flex-row-reverse" : "flex-row",
+                    )}
                   >
                     <div
                       className={cn(
-                        "min-w-0 max-w-[90%] rounded-lg px-3 py-2 text-sm shadow-sm sm:max-w-[75%]",
+                        "min-w-0 max-w-[90%] rounded-lg px-3 py-2 text-sm shadow-sm transition-shadow sm:max-w-[75%]",
+                        highlightId === m.id && "ring-2 ring-primary",
                         m.isPrivate
                           ? "rounded-br-sm border border-dashed border-warning bg-warning/15 text-foreground"
                           : m.fromMe
@@ -770,14 +780,23 @@ function Conversation({
                         </p>
                       )}
                       {(m.fromMe || m.isPrivate) && (m.ticket?.user?.name ?? ticket.user?.name) && (
-                        <p
-                          className={cn(
-                            "mb-1 truncate text-xs font-semibold",
-                            m.fromMe && !m.isPrivate ? "text-foreground/80" : "text-foreground/80",
-                          )}
-                        >
+                        <p className="mb-1 truncate text-xs font-semibold text-foreground/80">
                           {m.ticket?.user?.name ?? ticket.user?.name}
                         </p>
+                      )}
+                      {m.quotedMsg && (
+                        <button
+                          type="button"
+                          onClick={() => m.quotedMsg?.id && jumpTo(String(m.quotedMsg.id))}
+                          className="mb-1 block w-full rounded border-l-4 border-primary bg-muted/60 px-2 py-1 text-left text-xs"
+                        >
+                          <span className="block font-semibold text-primary">
+                            {m.quotedMsg.fromMe ? t("reply.you") : ticket.contact.name}
+                          </span>
+                          <span className="line-clamp-2 text-muted-foreground">
+                            {quoteLabel(m.quotedMsg)}
+                          </span>
+                        </button>
                       )}
                       <MessageMedia message={m} />
                       {!(m.mediaUrl && !isImage(m)) && m.body && (
@@ -816,6 +835,25 @@ function Conversation({
             <p className="pointer-events-none absolute inset-x-0 -top-10 z-10 mx-auto w-fit rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground shadow">
               {t("composer.dropHere")}
             </p>
+          )}
+          {replyTo && (
+            <div className="mb-2 flex items-center gap-2 rounded-lg border-l-4 border-primary bg-muted/60 p-2 text-xs">
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-primary">
+                  {replyTo.fromMe ? t("reply.you") : ticket.contact.name}
+                </p>
+                <p className="truncate text-muted-foreground">{quoteLabel(replyTo)}</p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label={t("reply.cancel")}
+                onClick={() => setReplyTo(null)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
           )}
           {upload && (
             <div
