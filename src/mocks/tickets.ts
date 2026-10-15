@@ -224,7 +224,12 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
               : "application",
       };
     } else {
-      const { body, isPrivate } = opts.body as { body: string; isPrivate?: string };
+      const { body, isPrivate, quotedMsg } = opts.body as {
+        body: string;
+        isPrivate?: string;
+        quotedMsg?: { id: string };
+      };
+      const quoted = quotedMsg ? messages.find((m) => m.id === quotedMsg.id) : undefined;
       msg = {
         isPrivate: isPrivate === "true",
         id: String(mseq++),
@@ -232,6 +237,7 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
         body,
         fromMe: true,
         createdAt: new Date().toISOString(),
+        ...(quoted ? { quotedMsg: quoted } : {}),
       };
     }
     messages.push(msg);
