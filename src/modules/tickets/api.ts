@@ -210,10 +210,19 @@ export const assignTicket = (id: number, userId: number) =>
   apiRequest<Ticket>(ep.detail(id), { method: "PUT", body: { status: "open", userId } });
 
 /** Nota interna: o backend compara `isPrivate === "true"` (string). */
-export const sendMessage = (ticketId: number, body: string, isPrivate = false) =>
+export const sendMessage = (
+  ticketId: number,
+  body: string,
+  isPrivate = false,
+  quoted: Message | null = null,
+) =>
   apiRequest<Message>(ep.messages(ticketId), {
     method: "POST",
-    body: isPrivate ? { body, isPrivate: "true" } : { body },
+    body: isPrivate
+      ? { body, isPrivate: "true" }
+      : quoted
+        ? { body, quotedMsg: { id: quoted.id, body: quoted.body, fromMe: quoted.fromMe } }
+        : { body },
   });
 
 /** Transferência = update do ticket com `msgTransfer` e `isTransfered: true`. */

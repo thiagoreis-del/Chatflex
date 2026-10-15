@@ -47,6 +47,8 @@ export interface Message {
   isPrivate?: boolean;
   /** Backend inclui o ticket com o atendente responsável (`ticket.user`). */
   ticket?: { user?: { id: number; name: string } | null } | null;
+  /** Mensagem citada (resposta), devolvida pelo backend quando suportado. */
+  quotedMsg?: Partial<Message> | null;
 }
 
 export type TicketTab = "open" | "pending" | "groups" | "closed";
