@@ -429,7 +429,7 @@ function Conversation({
       }
       // Envia um arquivo por vez; legenda vai só no primeiro (como no WhatsApp).
       for (let i = 0; i < media.length; i++) {
-        const item = media[i];
+        const item = media[i]!;
         try {
           add(await sendMediaMessage(ticket.id, item, signFor(i === 0 ? body : "", item)));
         } catch (error) {
