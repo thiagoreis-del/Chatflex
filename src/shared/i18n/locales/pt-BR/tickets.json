@@ -150,6 +150,10 @@
     "saveDefault": "Salvar como padrão da empresa",
     "saved": "Padrão da empresa salvo.",
     "saveError": "Não foi possível salvar o padrão da empresa.",
-    "error": "Não foi possível finalizar o atendimento."
+    "error": "Não foi possível finalizar o atendimento.",
+    "settingsTitle": "Mensagem de agradecimento da empresa",
+    "settingsDescription": "Texto enviado ao cliente ao finalizar um atendimento. O atendente ainda pode editar antes de enviar.",
+    "settingsToggle": "Já vir ligada ao finalizar",
+    "save": "Salvar mensagem"
   }
 }

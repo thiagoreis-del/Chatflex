@@ -35,9 +35,13 @@ import {
 } from "../api";
 import { filterQuickMessages } from "../components/QuickMessagePicker";
 import type { QuickMessage, QuickMessageInput } from "../types";
+import { useSession } from "@/shared/auth/session-store";
+import { ClosingMessageCard } from "@/modules/settings/ClosingMessageCard";
 
 export function QuickMessagesPage() {
   const { t } = useTranslation("quickMessages");
+  const role = useSession().user?.role;
+  const isAdmin = role === "superadmin" || role === "company_admin";
   const qc = useQueryClient();
   const query = useQuery(quickMessagesQuery());
   const [search, setSearch] = useState("");
@@ -69,6 +73,7 @@ export function QuickMessagesPage() {
         <Info className="size-4 shrink-0" aria-hidden />
         {t("pending")}
       </p>
+      {isAdmin && <ClosingMessageCard />}
       <div className="relative max-w-sm">
         <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" aria-hidden />
         <Input
