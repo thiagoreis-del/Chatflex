@@ -28,9 +28,10 @@ export interface ImportRow {
  */
 export function parseContactsCsv(text: string, skipReasons: { invalidNumber: string; noName: string }): ImportRow[] {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  if (lines.length === 0) return [];
-  const sep = lines[0].includes(";") ? ";" : ",";
-  const first = lines[0].toLowerCase();
+  const firstLine = lines[0];
+  if (!firstLine) return [];
+  const sep = firstLine.includes(";") ? ";" : ",";
+  const first = firstLine.toLowerCase();
   const hasHeader = first.includes("nome") || first.includes("name") || first.includes("numero") || first.includes("número");
   const rows = hasHeader ? lines.slice(1) : lines;
 
