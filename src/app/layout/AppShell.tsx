@@ -41,6 +41,7 @@ import {
 import { useSession } from "@/shared/auth/session-store";
 import { logout } from "@/shared/auth/auth-service";
 import { usePermissions } from "@/shared/permissions/permissions";
+import { IncomingNotifications } from "@/modules/tickets/components/IncomingNotifications";
 
 const soonModules = [
   { key: "reports", icon: BarChart3 },
@@ -332,6 +333,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <AppName className="truncate text-sm sm:text-base" />
             </div>
             <div className="ml-auto flex shrink-0 items-center gap-0 sm:gap-1 [&>button]:size-8 sm:[&>button]:size-10">
+              <IncomingNotifications />
               <LanguageSelector />
               <ThemeToggle />
               <DropdownMenu>

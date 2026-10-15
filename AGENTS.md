@@ -18,3 +18,4 @@
 - Mocks are dynamically imported by the API client only when `VITE_USE_MOCKS=true`. Why: no silent fake data in production.
 - All visible text in `src/shared/i18n/locales/*`; app name via `{{appName}}` default variable. Why: i18n requirement.
 - Socket adapter stays disabled (`SOCKET_ENABLED`) until the backend contract is confirmed.
+- Incoming message alerts mount once per AppShell session, deduplicate Socket and paginated polling by message ID, and ignore history/outgoing/private messages; browser permission and audio unlocking require user gestures. Why: reliable alerts across modules without exposing customer message text on lock screens.
