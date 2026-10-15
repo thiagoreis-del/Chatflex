@@ -140,5 +140,16 @@
     "confirm": "Encerrar todas",
     "done": "{{count}} conversa(s) encerrada(s).",
     "partial": "{{count}} conversa(s) não puderam ser encerradas."
+  },
+  "closing": {
+    "title": "Finalizar atendimento",
+    "description": "Escolha se o cliente recebe uma mensagem de agradecimento.",
+    "toggle": "Enviar mensagem de agradecimento",
+    "message": "Mensagem de agradecimento",
+    "default": "Obrigado pelo contato! Seu atendimento foi finalizado. Se precisar, é só chamar.",
+    "saveDefault": "Salvar como padrão da empresa",
+    "saved": "Padrão da empresa salvo.",
+    "saveError": "Não foi possível salvar o padrão da empresa.",
+    "error": "Não foi possível finalizar o atendimento."
   }
 }

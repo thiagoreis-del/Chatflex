@@ -202,3 +202,11 @@ export const quickMessageContracts = [
   { method: "PUT", path: "/quick-messages/:id", confirmed: false },
   { method: "DELETE", path: "/quick-messages/:id", confirmed: false },
 ] as const;
+
+/**
+ * Configurações por empresa (empresa do token).
+ * CONTRATO PENDENTE: padrão Whaticket `GET/PUT /settings/:key`; confirmar no backend do ChatbotFlex.
+ */
+export const settingEndpoints = {
+  detail: (key: string) => `/settings/${encodeURIComponent(key)}`,
+} as const;
