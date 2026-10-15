@@ -33,10 +33,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { ticketKeys } from "@/shared/api/query-keys";
+import { ApiError } from "@/shared/api/errors";
 import { useSession } from "@/shared/auth/session-store";
 import { TransferTicketDialog } from "../components/TransferTicketDialog";
 import {
-  ACCEPTED_MEDIA,
   addTicketTag,
   assignTicket,
   removeTicketTag,
@@ -93,9 +93,13 @@ export function TicketsPage() {
           ...ticketsQuery({ status, search: debouncedSearch }),
           select: (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup && !x.isGroup),
         };
-  const query = useQuery({ ...(listOpts as ReturnType<typeof groupTicketsQuery>), refetchInterval: fallback });
+  const query = useQuery({
+    ...(listOpts as ReturnType<typeof groupTicketsQuery>),
+    refetchInterval: fallback,
+  });
   const closeable = (query.data ?? []).filter(
-    (x) => x.status !== "closed" && (connectionId === "all" || String(x.whatsapp?.id) === connectionId),
+    (x) =>
+      x.status !== "closed" && (connectionId === "all" || String(x.whatsapp?.id) === connectionId),
   );
   const bulkClose = useMutation({
     mutationFn: () => closeTicketsBulk(closeable.map((x) => x.id)),
@@ -378,6 +382,11 @@ function Conversation({
   const [active, setActive] = useState(0);
   const file = files[active] ?? null;
   const [imageEditorOpen, setImageEditorOpen] = useState(false);
+  const [upload, setUpload] = useState<{ index: number; total: number; percent: number } | null>(
+    null,
+  );
+  const uploadAbort = useRef<AbortController | null>(null);
+  const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -428,11 +437,21 @@ function Conversation({
         return;
       }
       // Envia um arquivo por vez; legenda vai só no primeiro (como no WhatsApp).
+      const controller = new AbortController();
+      uploadAbort.current = controller;
       for (let i = 0; i < media.length; i++) {
         const item = media[i]!;
+        setUpload({ index: i, total: media.length, percent: 0 });
         try {
-          add(await sendMediaMessage(ticket.id, item, signFor(i === 0 ? body : "", item)));
+          add(
+            await sendMediaMessage(ticket.id, item, signFor(i === 0 ? body : "", item), {
+              signal: controller.signal,
+              onProgress: (f) =>
+                setUpload({ index: i, total: media.length, percent: Math.round(f * 100) }),
+            }),
+          );
         } catch (error) {
+          setUpload(null);
           // Mantém os arquivos que faltaram para o atendente tentar de novo.
           setFiles(media.slice(i));
           setActive(0);
@@ -440,6 +459,7 @@ function Conversation({
           throw error;
         }
       }
+      setUpload(null);
     },
     onSuccess: () => {
       followLatest.current = true;
@@ -448,7 +468,16 @@ function Conversation({
       setActive(0);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
-    onError: (_e, v) => toast.error(t(v.media.length ? "toast.fileError" : "toast.sendError")),
+    onError: (e, v) => {
+      if (e instanceof ApiError && e.kind === "aborted") {
+        toast.info(t("toast.uploadCanceled"));
+        return;
+      }
+      const detail = e instanceof ApiError ? e.body?.message : undefined;
+      toast.error(t(v.media.length ? "toast.fileError" : "toast.sendError"), {
+        description: detail,
+      });
+    },
   });
 
   const addFiles = (list: File[]) => {
@@ -456,9 +485,62 @@ function Conversation({
     if (ok.length < list.length) toast.error(t("toast.fileTooLarge"));
     if (!ok.length) return;
     setFiles((current) => {
-      setActive(current.length);
+      setActive(Math.min(current.length, 9));
       return [...current, ...ok].slice(0, 10);
     });
+    // Imagem nova abre o editor direto, como no WhatsApp Web (GIF mantém a animação).
+    const first = ok[0]!;
+    if (first.type.startsWith("image/") && first.type !== "image/gif") setImageEditorOpen(true);
+  };
+  const named = (f: File, i: number) => {
+    if (f.name && f.name !== "image.png") return f;
+    const ext = f.type.split("/")[1]?.replace("jpeg", "jpg") || "bin";
+    const stamp = new Date().toISOString().replace(/\D/g, "").slice(0, 14);
+    return new File([f], `colado-${stamp}-${i + 1}.${ext}`, { type: f.type });
+  };
+  const filesFrom = (data: DataTransfer | null) => {
+    if (!data) return [];
+    const list = Array.from(data.files);
+    if (!list.length)
+      for (const item of Array.from(data.items ?? []))
+        if (item.kind === "file") {
+          const f = item.getAsFile();
+          if (f) list.push(f);
+        }
+    return list.map(named);
+  };
+  const canAttach = !isPrivate && !send.isPending;
+  const onPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const list = filesFrom(e.clipboardData);
+    if (!list.length) return; // texto comum: o navegador cola normalmente
+    e.preventDefault();
+    if (!canAttach) {
+      toast.error(t("toast.attachUnavailable"));
+      return;
+    }
+    addFiles(list);
+  };
+  const dropHandlers = {
+    onDragOver: (e: React.DragEvent) => {
+      if (!Array.from(e.dataTransfer.types).includes("Files")) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = canAttach ? "copy" : "none";
+      setDragging(true);
+    },
+    onDragLeave: (e: React.DragEvent) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragging(false);
+    },
+    onDrop: (e: React.DragEvent) => {
+      const list = filesFrom(e.dataTransfer);
+      setDragging(false);
+      if (!list.length) return;
+      e.preventDefault();
+      if (!canAttach) {
+        toast.error(t("toast.attachUnavailable"));
+        return;
+      }
+      addFiles(list);
+    },
   };
   const selectFile = (f: File | null) => f && addFiles([f]);
   const replaceActive = (f: File) =>
@@ -722,7 +804,49 @@ function Conversation({
         </QueryBoundary>
       </div>
       {ticket.status === "open" ? (
-        <form onSubmit={submit} className="relative min-w-0 shrink-0 border-t p-2 sm:p-3">
+        <form
+          onSubmit={submit}
+          {...dropHandlers}
+          className={cn(
+            "relative min-w-0 shrink-0 border-t p-2 sm:p-3",
+            dragging && "bg-primary/10 ring-2 ring-inset ring-primary",
+          )}
+        >
+          {dragging && (
+            <p className="pointer-events-none absolute inset-x-0 -top-10 z-10 mx-auto w-fit rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground shadow">
+              {t("composer.dropHere")}
+            </p>
+          )}
+          {upload && (
+            <div
+              className="mb-2 flex items-center gap-2 rounded-lg border bg-card p-2 text-xs"
+              role="status"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="mb-1 truncate">
+                  {t("composer.uploading", {
+                    current: upload.index + 1,
+                    total: upload.total,
+                    percent: upload.percent,
+                  })}
+                </p>
+                <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full bg-primary transition-[width]"
+                    style={{ width: `${upload.percent}%` }}
+                  />
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => uploadAbort.current?.abort()}
+              >
+                {t("composer.cancelUpload")}
+              </Button>
+            </div>
+          )}
           {emojiOpen && (
             <div
               className="mb-2 flex flex-wrap gap-1 rounded-lg border bg-card p-2"
@@ -755,7 +879,11 @@ function Conversation({
                     onClick={() => setImageEditorOpen(true)}
                     aria-label={t("composer.editImage")}
                   >
-                    <img src={preview} alt={file.name} className="h-24 max-w-40 rounded object-cover sm:h-32" />
+                    <img
+                      src={preview}
+                      alt={file.name}
+                      className="h-24 max-w-40 rounded object-cover sm:h-32"
+                    />
                   </button>
                 ) : videoPreview ? (
                   <video
@@ -842,15 +970,21 @@ function Conversation({
                 title: t("imageEditor.title"),
                 rotate: t("imageEditor.rotate"),
                 draw: t("imageEditor.draw"),
+                highlighter: t("imageEditor.highlighter"),
+                arrow: t("imageEditor.arrow"),
+                circle: t("imageEditor.circle"),
                 rectangle: t("imageEditor.rectangle"),
-                blur: t("imageEditor.blur"),
                 text: t("imageEditor.text"),
-                emoji: t("imageEditor.emoji"),
+                eraser: t("imageEditor.eraser"),
+                blur: t("imageEditor.blur"),
+                crop: t("imageEditor.crop"),
                 color: t("imageEditor.color"),
+                thickness: t("imageEditor.thickness"),
+                textSize: t("imageEditor.textSize"),
+                textPlaceholder: t("imageEditor.textPlaceholder"),
                 undo: t("imageEditor.undo"),
                 redo: t("imageEditor.redo"),
-                textPrompt: t("imageEditor.textPrompt"),
-                emojiPrompt: t("imageEditor.emojiPrompt"),
+                restore: t("imageEditor.restore"),
                 canvas: t("imageEditor.canvas"),
                 loading: t("imageEditor.loading"),
                 cancel: t("imageEditor.cancel"),
@@ -930,14 +1064,7 @@ function Conversation({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <input
-              ref={fileRef}
-              type="file"
-              multiple
-              accept={ACCEPTED_MEDIA}
-              className="hidden"
-              onChange={pickFile}
-            />
+            <input ref={fileRef} type="file" multiple className="hidden" onChange={pickFile} />
             <input
               ref={galleryRef}
               type="file"
@@ -971,6 +1098,7 @@ function Conversation({
               value={text}
               className="min-w-0 w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onKeyDown={onComposerKey}
+              onPaste={onPaste}
               onBlur={() => setPickerOpen(false)}
               onChange={(e) => {
                 setText(e.target.value);

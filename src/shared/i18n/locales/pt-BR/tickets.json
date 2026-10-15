@@ -44,7 +44,10 @@
     "attachGallery": "Fotos e vídeos",
     "attachCamera": "Câmera",
     "attachDocument": "Documento",
-    "addMore": "Adicionar mais arquivos"
+    "addMore": "Adicionar mais arquivos",
+    "dropHere": "Solte os arquivos para anexar",
+    "uploading": "Enviando arquivo {{current}} de {{total}} · {{percent}}%",
+    "cancelUpload": "Cancelar envio"
   },
   "audio": {
     "start": "Gravar áudio",
@@ -55,16 +58,22 @@
   "imageEditor": {
     "title": "Editar imagem antes de enviar",
     "rotate": "Girar imagem",
-    "draw": "Desenhar",
-    "rectangle": "Marcar com retângulo",
+    "draw": "Caneta",
+    "highlighter": "Marca-texto",
+    "arrow": "Seta",
+    "circle": "Círculo",
+    "rectangle": "Retângulo",
+    "text": "Texto (toque na imagem)",
+    "eraser": "Borracha (apaga só as marcações)",
     "blur": "Desfocar área",
-    "text": "Adicionar texto",
-    "emoji": "Adicionar emoji",
+    "crop": "Cortar (arraste a área)",
     "color": "Cor",
+    "thickness": "Espessura",
+    "textSize": "Tamanho do texto",
+    "textPlaceholder": "Digite e tecle Enter",
     "undo": "Desfazer",
     "redo": "Refazer",
-    "textPrompt": "Digite o texto que deseja inserir",
-    "emojiPrompt": "Digite ou cole um emoji",
+    "restore": "Restaurar original",
     "canvas": "Área de edição da imagem",
     "loading": "Carregando imagem…",
     "cancel": "Cancelar",
@@ -88,7 +97,9 @@
     "transferred": "Atendimento transferido.",
     "transferError": "Não foi possível transferir.",
     "tagError": "Não foi possível atualizar a etiqueta.",
-    "microphoneError": "Não foi possível acessar o microfone. Confira a permissão do navegador."
+    "microphoneError": "Não foi possível acessar o microfone. Confira a permissão do navegador.",
+    "uploadCanceled": "Envio cancelado. Os arquivos continuam anexados.",
+    "attachUnavailable": "Não é possível anexar arquivos em nota interna ou durante um envio."
   },
   "privateBadge": "Nota interna · só a equipe vê",
   "tags": {
