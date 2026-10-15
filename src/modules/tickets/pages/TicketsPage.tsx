@@ -487,6 +487,7 @@ function Conversation({
       setUpload(null);
     },
     onSuccess: () => {
+      setReplyTo(null);
       followLatest.current = true;
       setText("");
       setFiles([]);

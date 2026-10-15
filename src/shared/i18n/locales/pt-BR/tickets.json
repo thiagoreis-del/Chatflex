@@ -121,6 +121,16 @@
     "submit": "Transferir",
     "cancel": "Cancelar"
   },
+  "reply": {
+    "action": "Responder",
+    "cancel": "Cancelar resposta",
+    "you": "Você",
+    "image": "📷 Foto",
+    "video": "🎥 Vídeo",
+    "audio": "🎤 Áudio",
+    "document": "📄 Documento",
+    "notLoaded": "A mensagem original não está carregada nesta conversa."
+  },
   "conversationSearch": "Buscar nesta conversa",
   "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa.",
   "closeAll": {
