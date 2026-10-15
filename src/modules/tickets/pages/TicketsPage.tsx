@@ -33,10 +33,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { ticketKeys } from "@/shared/api/query-keys";
+import { ApiError } from "@/shared/api/errors";
 import { useSession } from "@/shared/auth/session-store";
 import { TransferTicketDialog } from "../components/TransferTicketDialog";
 import {
-  ACCEPTED_MEDIA,
   addTicketTag,
   assignTicket,
   removeTicketTag,
@@ -93,9 +93,13 @@ export function TicketsPage() {
           ...ticketsQuery({ status, search: debouncedSearch }),
           select: (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup && !x.isGroup),
         };
-  const query = useQuery({ ...(listOpts as ReturnType<typeof groupTicketsQuery>), refetchInterval: fallback });
+  const query = useQuery({
+    ...(listOpts as ReturnType<typeof groupTicketsQuery>),
+    refetchInterval: fallback,
+  });
   const closeable = (query.data ?? []).filter(
-    (x) => x.status !== "closed" && (connectionId === "all" || String(x.whatsapp?.id) === connectionId),
+    (x) =>
+      x.status !== "closed" && (connectionId === "all" || String(x.whatsapp?.id) === connectionId),
   );
   const bulkClose = useMutation({
     mutationFn: () => closeTicketsBulk(closeable.map((x) => x.id)),
@@ -465,7 +469,8 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
     onError: (e, v) => {
-      if (e instanceof ApiError && e.kind === "aborted") return toast.info(t("toast.uploadCanceled"));
+      if (e instanceof ApiError && e.kind === "aborted")
+        return toast.info(t("toast.uploadCanceled"));
       const detail = e instanceof ApiError ? e.body?.message : undefined;
       toast.error(t(v.media.length ? "toast.fileError" : "toast.sendError"), {
         description: detail,
@@ -508,8 +513,6 @@ function Conversation({
     if (!list.length) return; // texto comum: o navegador cola normalmente
     e.preventDefault();
     if (!canAttach) return toast.error(t("toast.attachUnavailable"));
-    const text = e.clipboardData.getData("text/plain");
-    if (text && !list.length) setText((v) => v + text);
     addFiles(list);
   };
   const dropHandlers = {
@@ -807,16 +810,31 @@ function Conversation({
             </p>
           )}
           {upload && (
-            <div className="mb-2 flex items-center gap-2 rounded-lg border bg-card p-2 text-xs" role="status">
+            <div
+              className="mb-2 flex items-center gap-2 rounded-lg border bg-card p-2 text-xs"
+              role="status"
+            >
               <div className="min-w-0 flex-1">
                 <p className="mb-1 truncate">
-                  {t("composer.uploading", { current: upload.index + 1, total: upload.total, percent: upload.percent })}
+                  {t("composer.uploading", {
+                    current: upload.index + 1,
+                    total: upload.total,
+                    percent: upload.percent,
+                  })}
                 </p>
                 <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-primary transition-[width]" style={{ width: `${upload.percent}%` }} />
+                  <div
+                    className="h-full bg-primary transition-[width]"
+                    style={{ width: `${upload.percent}%` }}
+                  />
                 </div>
               </div>
-              <Button type="button" variant="outline" size="sm" onClick={() => uploadAbort.current?.abort()}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => uploadAbort.current?.abort()}
+              >
                 {t("composer.cancelUpload")}
               </Button>
             </div>
@@ -853,7 +871,11 @@ function Conversation({
                     onClick={() => setImageEditorOpen(true)}
                     aria-label={t("composer.editImage")}
                   >
-                    <img src={preview} alt={file.name} className="h-24 max-w-40 rounded object-cover sm:h-32" />
+                    <img
+                      src={preview}
+                      alt={file.name}
+                      className="h-24 max-w-40 rounded object-cover sm:h-32"
+                    />
                   </button>
                 ) : videoPreview ? (
                   <video
@@ -1034,13 +1056,7 @@ function Conversation({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <input
-              ref={fileRef}
-              type="file"
-              multiple
-              className="hidden"
-              onChange={pickFile}
-            />
+            <input ref={fileRef} type="file" multiple className="hidden" onChange={pickFile} />
             <input
               ref={galleryRef}
               type="file"

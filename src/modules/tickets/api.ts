@@ -57,31 +57,43 @@ export const ticketsQuery = (filters: TicketFilters) =>
   queryOptions({
     queryKey: ticketKeys.list(filters),
     queryFn: async ({ signal }) =>
-      (await apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), ...filters }), { signal }))?.tickets ?? [],
+      (
+        await apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), ...filters }), {
+          signal,
+        })
+      )?.tickets ?? [],
   });
 
 /** Session-wide notification fallback, including pages beyond the visible list. */
-export const incomingTicketsQuery = (companyId: string) => queryOptions({
-  queryKey: [...ticketKeys.all, "incoming", companyId],
-  queryFn: async ({ signal }): Promise<Ticket[]> => {
-    const lists = await Promise.all(["pending", "open", "group"].map(async (status) => {
-      const tickets: Ticket[] = [];
-      let pageNumber = 1;
-      while (true) {
-        const result = await apiRequest<TicketsResponse>(withQuery(ep.list, {
-          ...scope(), status, pageNumber,
-        }), { signal });
-        tickets.push(...(result.tickets ?? []));
-        if (!result.hasMore || !result.tickets?.length) break;
-        pageNumber += 1;
-      }
-      return tickets;
-    }));
-    return [...new Map(lists.flat().map((ticket) => [ticket.id, ticket])).values()];
-  },
-  refetchInterval: 5000,
-  refetchIntervalInBackground: true,
-});
+export const incomingTicketsQuery = (companyId: string) =>
+  queryOptions({
+    queryKey: [...ticketKeys.all, "incoming", companyId],
+    queryFn: async ({ signal }): Promise<Ticket[]> => {
+      const lists = await Promise.all(
+        ["pending", "open", "group"].map(async (status) => {
+          const tickets: Ticket[] = [];
+          let pageNumber = 1;
+          while (true) {
+            const result = await apiRequest<TicketsResponse>(
+              withQuery(ep.list, {
+                ...scope(),
+                status,
+                pageNumber,
+              }),
+              { signal },
+            );
+            tickets.push(...(result.tickets ?? []));
+            if (!result.hasMore || !result.tickets?.length) break;
+            pageNumber += 1;
+          }
+          return tickets;
+        }),
+      );
+      return [...new Map(lists.flat().map((ticket) => [ticket.id, ticket])).values()];
+    },
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+  });
 
 /**
  * Resumo operacional usando contratos já disponíveis no backend.
@@ -95,7 +107,9 @@ export const operationalDashboardQuery = () =>
     queryFn: async ({ signal }): Promise<OperationalDashboard> => {
       const date = new Date().toLocaleDateString("en-CA");
       const get = (status: TicketStatus, extra: Record<string, unknown> = {}) =>
-        apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, ...extra }), { signal });
+        apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, ...extra }), {
+          signal,
+        });
       const [pending, open, closed] = await Promise.all([
         get("pending"),
         get("open"),
@@ -161,7 +175,9 @@ export const groupTicketsQuery = (search?: string) =>
 export async function closeTicketsBulk(ids: number[]) {
   let failed = 0;
   for (let i = 0; i < ids.length; i += 5) {
-    const r = await Promise.allSettled(ids.slice(i, i + 5).map((id) => updateTicketStatus(id, "closed")));
+    const r = await Promise.allSettled(
+      ids.slice(i, i + 5).map((id) => updateTicketStatus(id, "closed")),
+    );
     failed += r.filter((x) => x.status === "rejected").length;
   }
   return { closed: ids.length - failed, failed };

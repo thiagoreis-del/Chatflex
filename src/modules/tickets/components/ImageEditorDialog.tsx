@@ -15,19 +15,17 @@ import {
   Undo2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 type Tool =
-  | "draw"
-  | "highlighter"
-  | "arrow"
-  | "circle"
-  | "rectangle"
-  | "text"
-  | "eraser"
-  | "blur"
-  | "crop";
+  "draw" | "highlighter" | "arrow" | "circle" | "rectangle" | "text" | "eraser" | "blur" | "crop";
 type Point = { x: number; y: number };
 type Snapshot = { width: number; height: number; base: ImageData; marks: ImageData };
 
@@ -57,7 +55,16 @@ export interface ImageEditorLabels {
 }
 
 // Cores fixas da paleta de marcação (independentes do tema, como no WhatsApp).
-const SWATCHES = ["#ef4444", "#f59e0b", "#facc15", "#22c55e", "#3b82f6", "#a855f7", "#ffffff", "#000000"];
+const SWATCHES = [
+  "#ef4444",
+  "#f59e0b",
+  "#facc15",
+  "#22c55e",
+  "#3b82f6",
+  "#a855f7",
+  "#ffffff",
+  "#000000",
+];
 
 export function ImageEditorDialog({
   file,
@@ -86,9 +93,7 @@ export function ImageEditorDialog({
   const [textSize, setTextSize] = useState(48);
   const [ready, setReady] = useState(false);
   const [, force] = useState(0);
-  const [textBox, setTextBox] = useState<{ canvas: Point; css: Point; value: string } | null>(
-    null,
-  );
+  const [textBox, setTextBox] = useState<{ canvas: Point; css: Point; value: string } | null>(null);
 
   const ctxs = () => {
     const base = baseRef.current;
@@ -264,8 +269,14 @@ export function ImageEditorDialog({
       m.stroke();
       m.beginPath();
       m.moveTo(b.x, b.y);
-      m.lineTo(b.x - head * Math.cos(angle - Math.PI / 7), b.y - head * Math.sin(angle - Math.PI / 7));
-      m.lineTo(b.x - head * Math.cos(angle + Math.PI / 7), b.y - head * Math.sin(angle + Math.PI / 7));
+      m.lineTo(
+        b.x - head * Math.cos(angle - Math.PI / 7),
+        b.y - head * Math.sin(angle - Math.PI / 7),
+      );
+      m.lineTo(
+        b.x - head * Math.cos(angle + Math.PI / 7),
+        b.y - head * Math.sin(angle + Math.PI / 7),
+      );
       m.closePath();
       m.fill();
     }
@@ -325,7 +336,11 @@ export function ImageEditorDialog({
     if (tool === "text") {
       if (textBox) return commitText();
       const wrap = wrapRef.current!.getBoundingClientRect();
-      setTextBox({ canvas: p, css: { x: e.clientX - wrap.left, y: e.clientY - wrap.top }, value: "" });
+      setTextBox({
+        canvas: p,
+        css: { x: e.clientX - wrap.left, y: e.clientY - wrap.top },
+        value: "",
+      });
       return;
     }
     c.marks.setPointerCapture(e.pointerId);
@@ -567,7 +582,12 @@ export function ImageEditorDialog({
                 }}
                 onBlur={commitText}
                 className="absolute min-w-32 resize-none rounded border border-primary bg-background/80 px-1 font-bold outline-none"
-                style={{ left: textBox.css.x, top: textBox.css.y, color, fontSize: Math.max(14, textSize / 2.5) }}
+                style={{
+                  left: textBox.css.x,
+                  top: textBox.css.y,
+                  color,
+                  fontSize: Math.max(14, textSize / 2.5),
+                }}
               />
             )}
             {!ready && (

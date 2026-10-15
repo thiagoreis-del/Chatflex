@@ -9,9 +9,13 @@ export class IncomingMessageTracker {
   accept(message: Message): boolean {
     const createdAt = Date.parse(message.createdAt);
     if (
-      !message.id || message.fromMe !== false || message.isPrivate ||
-      !Number.isFinite(createdAt) || createdAt <= this.startedAt
-    ) return false;
+      !message.id ||
+      message.fromMe !== false ||
+      message.isPrivate ||
+      !Number.isFinite(createdAt) ||
+      createdAt <= this.startedAt
+    )
+      return false;
     const key = `${message.ticketId}:${message.id}`;
     if (this.seen.has(key)) return false;
     this.seen.add(key);
