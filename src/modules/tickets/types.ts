@@ -23,6 +23,8 @@ export interface Ticket {
   /** Conexão que recebeu a conversa. O backend pode expor como `whatsapp`. */
   whatsapp?: { id: number; name: string; number?: string | null } | null;
   tags?: TicketTag[];
+  /** ZapPro marca grupo no próprio ticket. */
+  isGroup?: boolean;
 }
 
 export interface TicketTag {

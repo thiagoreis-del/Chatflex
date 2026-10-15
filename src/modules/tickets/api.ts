@@ -128,7 +128,7 @@ export const groupTicketsQuery = (search?: string) =>
       const [g, o, p] = await Promise.all([get("group"), get("open"), get("pending")]);
       const seen = new Set<number>();
       return [...(g?.tickets ?? []), ...(o?.tickets ?? []), ...(p?.tickets ?? [])]
-        .filter((t) => (t.status as string) === "group" || t.contact?.isGroup || (t as { isGroup?: boolean }).isGroup)
+        .filter((t) => (t.status as string) === "group" || t.contact?.isGroup || t.isGroup)
         .filter((t) => (seen.has(t.id) ? false : (seen.add(t.id), true)))
         .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     },
