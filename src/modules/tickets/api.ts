@@ -49,7 +49,7 @@ export interface OperationalDashboard {
 function scope(): Record<string, string> {
   const user = sessionStore.get().user;
   const out: Record<string, string> = { queueIds: JSON.stringify(user?.queueIds ?? []) };
-  if (user && user.role !== "agent") out.showAll = "true";
+  if (user && user.role !== "agent") out["showAll"] = "true";
   return out;
 }
 
