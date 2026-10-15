@@ -14,6 +14,8 @@ export interface AuthenticatedUser {
   /** Vencimento/teste da empresa (ZapPro: user.company.dueDate). */
   companyDueDate?: string | null;
   companyActive?: boolean;
+  /** Filas do usuário; o backend só lista tickets das filas enviadas em `queueIds`. */
+  queueIds?: number[];
 }
 
 /** POST /auth/login — backend ZapPro retorna `token`; `accessToken` aceito por compatibilidade. */

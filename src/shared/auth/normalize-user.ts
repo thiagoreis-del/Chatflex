@@ -14,6 +14,7 @@ export function normalizeUser(raw: unknown): AuthenticatedUser {
     profile?: unknown;
     companyId?: unknown;
     permissions?: unknown;
+    queues?: { id?: unknown }[] | null;
     company?: { dueDate?: string | null; status?: boolean | null } | null;
   };
   let role: UserRole;
@@ -35,5 +36,8 @@ export function normalizeUser(raw: unknown): AuthenticatedUser {
     permissions: Array.isArray(u.permissions) ? (u.permissions as string[]) : [],
     companyDueDate: u.company?.dueDate ?? null,
     companyActive: u.company?.status !== false,
+    queueIds: Array.isArray(u.queues)
+      ? u.queues.map((q) => Number(q?.id)).filter((n) => Number.isFinite(n))
+      : [],
   };
 }

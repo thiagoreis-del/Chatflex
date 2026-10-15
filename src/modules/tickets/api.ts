@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { apiRequest } from "@/shared/api/client";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
+import { sessionStore } from "@/shared/auth/session-store";
 import type {
   Message,
   Ticket,
@@ -41,11 +42,22 @@ export interface OperationalDashboard {
   attendantsPartial: boolean;
 }
 
+/**
+ * O backend (ListTicketsService) filtra por `queueIds`; sem esse parâmetro,
+ * conversas com fila não aparecem em Aguardando. Admins usam `showAll=true`.
+ */
+function scope(): Record<string, string> {
+  const user = sessionStore.get().user;
+  const out: Record<string, string> = { queueIds: JSON.stringify(user?.queueIds ?? []) };
+  if (user && user.role !== "agent") out.showAll = "true";
+  return out;
+}
+
 export const ticketsQuery = (filters: TicketFilters) =>
   queryOptions({
     queryKey: ticketKeys.list(filters),
     queryFn: async ({ signal }) =>
-      (await apiRequest<TicketsResponse>(withQuery(ep.list, filters), { signal }))?.tickets ?? [],
+      (await apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), ...filters }), { signal }))?.tickets ?? [],
   });
 
 /**
@@ -60,7 +72,7 @@ export const operationalDashboardQuery = () =>
     queryFn: async ({ signal }): Promise<OperationalDashboard> => {
       const date = new Date().toLocaleDateString("en-CA");
       const get = (status: TicketStatus, extra: Record<string, unknown> = {}) =>
-        apiRequest<TicketsResponse>(withQuery(ep.list, { status, ...extra }), { signal });
+        apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, ...extra }), { signal });
       const [pending, open, closed] = await Promise.all([
         get("pending"),
         get("open"),
@@ -108,11 +120,16 @@ export const groupTicketsQuery = (search?: string) =>
   queryOptions({
     queryKey: [...ticketKeys.list({ status: "open", search }), "groups"],
     queryFn: async ({ signal }) => {
-      const get = (status: TicketStatus) =>
-        apiRequest<TicketsResponse>(withQuery(ep.list, { status, search }), { signal });
-      const [o, p] = await Promise.all([get("open"), get("pending")]);
-      return [...(o?.tickets ?? []), ...(p?.tickets ?? [])]
-        .filter((t) => t.contact?.isGroup)
+      const get = (status: string) =>
+        apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, search }), {
+          signal,
+        }).catch(() => ({ tickets: [] as Ticket[] }));
+      // ZapPro guarda grupos com status "group"; também aceitamos aberto/aguardando marcados.
+      const [g, o, p] = await Promise.all([get("group"), get("open"), get("pending")]);
+      const seen = new Set<number>();
+      return [...(g?.tickets ?? []), ...(o?.tickets ?? []), ...(p?.tickets ?? [])]
+        .filter((t) => (t.status as string) === "group" || t.contact?.isGroup || (t as { isGroup?: boolean }).isGroup)
+        .filter((t) => (seen.has(t.id) ? false : (seen.add(t.id), true)))
         .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     },
   });
