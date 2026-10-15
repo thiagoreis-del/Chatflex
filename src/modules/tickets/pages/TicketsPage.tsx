@@ -13,6 +13,7 @@ import {
   Paperclip,
   Pencil,
   Plus,
+  Reply,
   Search,
   Smile,
   Send,
@@ -300,6 +301,28 @@ function Conversation({
   useMessagesRealtime(ticket.id);
   const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
   const [text, setText] = useState("");
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  useEffect(() => setReplyTo(null), [ticket.id]);
+  const jumpTo = (id: string) => {
+    const el = document.getElementById(`msg-${id}`);
+    if (!el) {
+      toast.info(t("reply.notLoaded"));
+      return;
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlightId(id);
+    window.setTimeout(() => setHighlightId((cur) => (cur === id ? null : cur)), 1800);
+  };
+  const quoteLabel = (m: Partial<Message>) => {
+    const body = m.fromMe && m.body ? stripSignature(m.body) : m.body;
+    if (body && !(m.mediaUrl && !m.mediaType?.startsWith("image"))) return body;
+    const kind = m.mediaType?.split("/")[0];
+    if (kind === "image") return t("reply.image");
+    if (kind === "video") return t("reply.video");
+    if (kind === "audio") return t("reply.audio");
+    return body || t("reply.document");
+  };
   const [conversationSearch, setConversationSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -433,7 +456,9 @@ function Conversation({
         });
       };
       if (!media.length) {
-        add(await sendMessage(ticket.id, signFor(body, null), isPrivate));
+        add(
+          await sendMessage(ticket.id, signFor(body, null), isPrivate, isPrivate ? null : replyTo),
+        );
         return;
       }
       // Envia um arquivo por vez; legenda vai só no primeiro (como no WhatsApp).
@@ -815,6 +840,17 @@ function Conversation({
                         {time(m.createdAt)}
                       </p>
                     </div>
+                    {ticket.status === "open" && !m.isPrivate && (
+                      <button
+                        type="button"
+                        aria-label={t("reply.action")}
+                        title={t("reply.action")}
+                        onClick={() => setReplyTo(m)}
+                        className="shrink-0 rounded-full p-1.5 text-muted-foreground opacity-60 hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
+                      >
+                        <Reply className="size-4" />
+                      </button>
+                    )}
                   </div>
                 ))}
               <div ref={endRef} />
