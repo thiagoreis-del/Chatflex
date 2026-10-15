@@ -62,7 +62,9 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
     throw new ApiError("network", 0);
   }
 
-  apiStatusStore.set(response.status >= 500 ? "offline" : "online");
+  // Qualquer resposta HTTP prova que a API está no ar; "offline" só em falha de rede.
+  // (Ex.: /auth/me responde 500 por cookie bloqueado e não deve marcar a API como fora.)
+  apiStatusStore.set("online");
 
   const text = await response.text();
   let data: unknown = undefined;
