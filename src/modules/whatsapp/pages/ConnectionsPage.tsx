@@ -27,6 +27,7 @@ import {
   QueryBoundary,
 } from "@/shared/components";
 import { whatsappKeys } from "@/shared/api/query-keys";
+import { isApiError } from "@/shared/api/errors";
 import {
   connectionQuery,
   connectionsQuery,
@@ -46,8 +47,18 @@ const statusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructi
   qrcode: "secondary",
   OPENING: "secondary",
   PAIRING: "secondary",
+  PENDING: "secondary",
   TIMEOUT: "outline",
 };
+
+/** O backend devolve `{ error }` (AppError) ou `{ message }`; mostra o texto real ao usuário. */
+function serverMessage(error: unknown): string | undefined {
+  if (!isApiError(error)) return undefined;
+  const body = error.body as { error?: unknown; message?: unknown } | undefined;
+  const text = typeof body?.error === "string" ? body.error : body?.message;
+  if (typeof text !== "string" || !text.trim() || text.startsWith("ERR_")) return undefined;
+  return text;
+}
 
 export function ConnectionsPage() {
   const { t } = useTranslation("whatsapp");
@@ -59,7 +70,8 @@ export function ConnectionsPage() {
   const [toDisconnect, setToDisconnect] = useState<WhatsAppConnection | null>(null);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: whatsappKeys.all });
-  const onError = () => toast.error(t("toast.error"));
+  const onError = (error: unknown) =>
+    toast.error(t("toast.error"), { description: serverMessage(error) });
 
   const connect = useMutation({
     mutationFn: startSession,
@@ -123,7 +135,7 @@ export function ConnectionsPage() {
                     {c.isDefault && <Badge variant="outline">{t("default")}</Badge>}
                   </CardHeader>
                   <CardContent>
-                    <Badge variant={statusVariant[c.status]}>{t(`status.${c.status}`)}</Badge>
+                    <Badge variant={statusVariant[c.status]}>{t(`status.${c.status}`, { defaultValue: c.status })}</Badge>
                   </CardContent>
                   <CardFooter className="flex flex-wrap gap-2">
                     {c.status === "CONNECTED" ? (
@@ -171,7 +183,12 @@ export function ConnectionsPage() {
       </QueryBoundary>
 
       {form && (
-        <ConnectionFormDialog value={form} onClose={() => setForm(null)} onSaved={invalidate} />
+        <ConnectionFormDialog
+          value={form}
+          onClose={() => setForm(null)}
+          onSaved={invalidate}
+          onCreated={(created) => connect.mutate(created.id)}
+        />
       )}
       {qrId !== null && (
         <QrDialog
@@ -206,10 +223,12 @@ function ConnectionFormDialog({
   value,
   onClose,
   onSaved,
+  onCreated,
 }: {
   value: WhatsAppConnection | "new";
   onClose: () => void;
   onSaved: () => unknown;
+  onCreated?: (created: WhatsAppConnection) => void;
 }) {
   const { t } = useTranslation("whatsapp");
   const editing = value !== "new" ? value : null;
