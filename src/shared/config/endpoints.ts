@@ -100,6 +100,8 @@ export function withQuery(path: string, params: object): string {
 export const whatsappEndpoints = {
   list: "/whatsapp",
   detail: (id: number) => `/whatsapp/${id}`,
+  /** Sem o campo `session` (credenciais Baileys), que é pesado e sensível. */
+  status: (id: number) => `/whatsapp/${id}?session=0`,
   session: (id: number) => `/whatsappsession/${id}`,
 } as const;
 

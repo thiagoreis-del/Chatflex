@@ -33,7 +33,7 @@ export function whatsappMock(path: string, opts: RequestOptions): unknown {
     db.push(item);
     return item;
   }
-  const m = path.match(/^\/(whatsapp|whatsappsession)\/(\d+)$/);
+  const m = path.match(/^\/(whatsapp|whatsappsession)\/(\d+)(?:\?.*)?$/);
   const item = m ? db.find((c) => c.id === Number(m[2])) : undefined;
   if (!m || !item) throw new ApiError("notFound", 404);
   if (m[1] === "whatsapp") {

@@ -27,6 +27,7 @@ import {
   QueryBoundary,
 } from "@/shared/components";
 import { whatsappKeys } from "@/shared/api/query-keys";
+import { isApiError } from "@/shared/api/errors";
 import {
   connectionQuery,
   connectionsQuery,
@@ -46,8 +47,18 @@ const statusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructi
   qrcode: "secondary",
   OPENING: "secondary",
   PAIRING: "secondary",
+  PENDING: "secondary",
   TIMEOUT: "outline",
 };
+
+/** O backend devolve `{ error }` (AppError) ou `{ message }`; mostra o texto real ao usuário. */
+function serverMessage(error: unknown): string | undefined {
+  if (!isApiError(error)) return undefined;
+  const body = error.body as { error?: unknown; message?: unknown } | undefined;
+  const text = typeof body?.error === "string" ? body.error : body?.message;
+  if (typeof text !== "string" || !text.trim() || text.startsWith("ERR_")) return undefined;
+  return text;
+}
 
 export function ConnectionsPage() {
   const { t } = useTranslation("whatsapp");
@@ -59,7 +70,8 @@ export function ConnectionsPage() {
   const [toDisconnect, setToDisconnect] = useState<WhatsAppConnection | null>(null);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: whatsappKeys.all });
-  const onError = () => toast.error(t("toast.error"));
+  const onError = (error: unknown) =>
+    toast.error(t("toast.error"), { description: serverMessage(error) });
 
   const connect = useMutation({
     mutationFn: startSession,
@@ -123,7 +135,7 @@ export function ConnectionsPage() {
                     {c.isDefault && <Badge variant="outline">{t("default")}</Badge>}
                   </CardHeader>
                   <CardContent>
-                    <Badge variant={statusVariant[c.status]}>{t(`status.${c.status}`)}</Badge>
+                    <Badge variant={statusVariant[c.status]}>{t(`status.${c.status}`, { defaultValue: c.status })}</Badge>
                   </CardContent>
                   <CardFooter className="flex flex-wrap gap-2">
                     {c.status === "CONNECTED" ? (
@@ -171,7 +183,12 @@ export function ConnectionsPage() {
       </QueryBoundary>
 
       {form && (
-        <ConnectionFormDialog value={form} onClose={() => setForm(null)} onSaved={invalidate} />
+        <ConnectionFormDialog
+          value={form}
+          onClose={() => setForm(null)}
+          onSaved={invalidate}
+          onCreated={(created) => connect.mutate(created.id)}
+        />
       )}
       {qrId !== null && (
         <QrDialog
@@ -206,10 +223,12 @@ function ConnectionFormDialog({
   value,
   onClose,
   onSaved,
+  onCreated,
 }: {
   value: WhatsAppConnection | "new";
   onClose: () => void;
   onSaved: () => unknown;
+  onCreated?: (created: WhatsAppConnection) => void;
 }) {
   const { t } = useTranslation("whatsapp");
   const editing = value !== "new" ? value : null;
@@ -221,12 +240,14 @@ function ConnectionFormDialog({
   const [error, setError] = useState(false);
   const save = useMutation({
     mutationFn: () => (editing ? updateConnection(editing.id, data) : createConnection(data)),
-    onSuccess: () => {
+    onSuccess: (saved) => {
       toast.success(t("toast.saved"));
       void onSaved();
       onClose();
+      // O backend não inicia a sessão ao criar: já gera o QR para a conexão nova.
+      if (!editing && saved && typeof saved.id === "number") onCreated?.(saved);
     },
-    onError: () => toast.error(t("toast.error")),
+    onError: (err) => toast.error(t("toast.error"), { description: serverMessage(err) }),
   });
 
   return (
@@ -288,9 +309,21 @@ function ConnectionFormDialog({
 
 function QrDialog({ id, onClose }: { id: number; onClose: () => void }) {
   const { t } = useTranslation("whatsapp");
+  const qc = useQueryClient();
   const [done, setDone] = useState(false);
-  const { data } = useQuery(connectionQuery(id, !done));
-  const renew = useMutation({ mutationFn: () => refreshQr(id) });
+  const [openedAt] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now());
+  const { data, error } = useQuery(connectionQuery(id, !done));
+  const renew = useMutation({
+    mutationFn: () => refreshQr(id),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: whatsappKeys.detail(id) }),
+    onError: (err) => toast.error(t("toast.error"), { description: serverMessage(err) }),
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (data?.status !== "CONNECTED") return;
@@ -299,6 +332,15 @@ function QrDialog({ id, onClose }: { id: number; onClose: () => void }) {
     return () => clearTimeout(timer);
   }, [data?.status, onClose]);
 
+  const qr = typeof data?.qrcode === "string" ? data.qrcode.trim() : "";
+  const waitedLong = now - openedAt > 45_000;
+  // Sessão caiu (QR expirou/timeout) ou o servidor não gerou QR a tempo.
+  const stalled =
+    !done &&
+    !qr &&
+    (data?.status === "DISCONNECTED" || data?.status === "TIMEOUT" || waitedLong) &&
+    !renew.isPending;
+
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-sm">
@@ -306,23 +348,41 @@ function QrDialog({ id, onClose }: { id: number; onClose: () => void }) {
           <DialogTitle>{t("qr.title")}</DialogTitle>
           <DialogDescription>{t("qr.steps")}</DialogDescription>
         </DialogHeader>
-        <div className="grid min-h-64 place-items-center">
+        <div className="grid min-h-64 place-items-center text-center">
           {done ? (
             <p className="flex items-center gap-2 font-medium text-primary">
               <CheckCircle2 className="size-5" aria-hidden />
               {t("qr.connected")}
             </p>
-          ) : data?.qrcode ? (
-            <div className="rounded-xl bg-card p-3 ring-1 ring-border">
-              <QRCodeSVG value={data.qrcode} size={224} aria-label={t("qr.title")} />
+          ) : qr ? (
+            <div className="rounded-xl bg-background p-3 ring-1 ring-border">
+              <QRCodeSVG
+                value={qr}
+                size={240}
+                level="L"
+                marginSize={2}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                aria-label={t("qr.title")}
+              />
             </div>
+          ) : error ? (
+            <p className="max-w-64 text-sm text-destructive">
+              {serverMessage(error) ?? t("qr.loadError")}
+            </p>
+          ) : stalled ? (
+            <p className="max-w-64 text-sm text-muted-foreground">{t("qr.expired")}</p>
           ) : (
             <LoadingState label={t("qr.waiting")} />
           )}
         </div>
         {!done && (
           <DialogFooter>
-            <Button variant="outline" disabled={renew.isPending} onClick={() => renew.mutate()}>
+            <Button
+              variant={stalled || error ? "default" : "outline"}
+              disabled={renew.isPending}
+              onClick={() => renew.mutate()}
+            >
               {t("actions.newQr")}
             </Button>
           </DialogFooter>
