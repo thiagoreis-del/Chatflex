@@ -40,7 +40,11 @@
     "privateOn": "Modo nota interna ativo",
     "emoji": "Escolher emoji",
     "insertEmoji": "Inserir {{emoji}}",
-    "editImage": "Editar imagem"
+    "editImage": "Editar imagem",
+    "attachGallery": "Fotos e vídeos",
+    "attachCamera": "Câmera",
+    "attachDocument": "Documento",
+    "addMore": "Adicionar mais arquivos"
   },
   "audio": {
     "start": "Gravar áudio",

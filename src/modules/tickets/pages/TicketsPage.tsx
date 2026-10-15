@@ -6,7 +6,9 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   ArrowRightLeft,
+  Camera,
   FileText,
+  Image as ImageIcon,
   Lock,
   Paperclip,
   Pencil,
@@ -15,10 +17,17 @@ import {
   Smile,
   Send,
   Tag,
+  Video,
   X,
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -365,27 +374,30 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
   });
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [active, setActive] = useState(0);
+  const file = files[active] ?? null;
   const [imageEditorOpen, setImageEditorOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const preview = useMemo(
-    () => (file && file.type.startsWith("image/") ? URL.createObjectURL(file) : null),
-    [file],
+  const galleryRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const urls = useMemo(
+    () =>
+      files.map((f) =>
+        f.type.startsWith("image/") || f.type.startsWith("video/") || f.type.startsWith("audio/")
+          ? URL.createObjectURL(f)
+          : null,
+      ),
+    [files],
   );
-  const audioPreview = useMemo(
-    () => (file && file.type.startsWith("audio/") ? URL.createObjectURL(file) : null),
-    [file],
-  );
-  useEffect(
-    () => () => {
-      if (preview) URL.revokeObjectURL(preview);
-      if (audioPreview) URL.revokeObjectURL(audioPreview);
-    },
-    [audioPreview, preview],
-  );
+  useEffect(() => () => urls.forEach((u) => u && URL.revokeObjectURL(u)), [urls]);
+  const thumbs = files.map((f, i) => (f.type.startsWith("image/") ? urls[i] : null));
+  const preview = file?.type.startsWith("image/") ? urls[active] : null;
+  const videoPreview = file?.type.startsWith("video/") ? urls[active] : null;
+  const audioPreview = file?.type.startsWith("audio/") ? urls[active] : null;
 
   const send = useMutation({
-    mutationFn: async ({ body, media }: { body: string; media: File | null }) => {
+    mutationFn: async ({ body, media }: { body: string; media: File[] }) => {
       // Conversa aberta sem responsável: o atendente logado assume antes de responder.
       if (!ticket.user && myId) {
         const tk = await assignTicket(ticket.id, myId);
@@ -395,22 +407,14 @@ function Conversation({
       // Áudio não recebe legenda porque mensagens de voz podem rejeitar caption.
       // Notas internas nunca são assinadas (não vão ao cliente).
       const myName = session.user?.name?.trim();
-      const isAudio = media?.type.startsWith("audio/");
-      const signed =
-        !isPrivate && myName && !isAudio
-          ? body
-            ? `*${myName}:*\n${body}`
-            : media
-              ? `*${myName}:*`
-              : body
-          : body;
-      return media
-        ? sendMediaMessage(ticket.id, media, signed)
-        : sendMessage(ticket.id, signed, isPrivate);
-    },
-    onSuccess: (message) => {
-      followLatest.current = true;
-      if (message?.id) {
+      const signFor = (text: string, item: File | null) => {
+        const isAudio = item?.type.startsWith("audio/");
+        if (isPrivate || !myName || isAudio) return text;
+        if (text) return `*${myName}:*\n${text}`;
+        return item ? `*${myName}:*` : text;
+      };
+      const add = (message: Message | undefined) => {
+        if (!message?.id) return;
         qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (previous = []) => {
           const existing = previous.findIndex((item) => item.id === message.id);
           if (existing < 0) return [...previous, message];
@@ -418,32 +422,62 @@ function Conversation({
             index === existing ? { ...item, ...message } : item,
           );
         });
+      };
+      if (!media.length) {
+        add(await sendMessage(ticket.id, signFor(body, null), isPrivate));
+        return;
       }
+      // Envia um arquivo por vez; legenda vai só no primeiro (como no WhatsApp).
+      for (let i = 0; i < media.length; i++) {
+        const item = media[i];
+        try {
+          add(await sendMediaMessage(ticket.id, item, signFor(i === 0 ? body : "", item)));
+        } catch (error) {
+          // Mantém os arquivos que faltaram para o atendente tentar de novo.
+          setFiles(media.slice(i));
+          setActive(0);
+          if (i > 0) setText("");
+          throw error;
+        }
+      }
+    },
+    onSuccess: () => {
+      followLatest.current = true;
       setText("");
-      setFile(null);
+      setFiles([]);
+      setActive(0);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
-    onError: (_e, v) => toast.error(t(v.media ? "toast.fileError" : "toast.sendError")),
+    onError: (_e, v) => toast.error(t(v.media.length ? "toast.fileError" : "toast.sendError")),
   });
 
-  const selectFile = (f: File | null) => {
-    if (f && f.size > MAX_MEDIA_BYTES) {
-      toast.error(t("toast.fileTooLarge"));
-      return;
-    }
-    setFile(f);
+  const addFiles = (list: File[]) => {
+    const ok = list.filter((f) => f.size <= MAX_MEDIA_BYTES);
+    if (ok.length < list.length) toast.error(t("toast.fileTooLarge"));
+    if (!ok.length) return;
+    setFiles((current) => {
+      setActive(current.length);
+      return [...current, ...ok].slice(0, 10);
+    });
+  };
+  const selectFile = (f: File | null) => f && addFiles([f]);
+  const replaceActive = (f: File) =>
+    setFiles((current) => current.map((item, i) => (i === active ? f : item)));
+  const removeFile = (index: number) => {
+    setFiles((current) => current.filter((_, i) => i !== index));
+    setActive((a) => Math.max(0, a >= index ? a - 1 : a));
   };
 
   const pickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] ?? null;
+    const list = Array.from(e.target.files ?? []);
     e.target.value = "";
-    selectFile(f);
+    addFiles(list);
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const body = text.trim();
-    if ((body || file) && !send.isPending) send.mutate({ body, media: file });
+    if ((body || files.length) && !send.isPending) send.mutate({ body, media: files });
   };
 
   return (
