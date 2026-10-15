@@ -14,9 +14,12 @@ interface AppMessagePayload {
   message?: Message & { ticketId?: number };
 }
 
-/** Intervalo de polling: só quando o Socket não está conectado. */
-export function useFallbackInterval(ms = 5000): number | false {
-  return useSocketStatus() === "connected" ? false : ms;
+/**
+ * Intervalo de polling: rápido sem Socket; mais lento com Socket conectado,
+ * como rede de segurança caso o servidor não envie eventos para esta sala.
+ */
+export function useFallbackInterval(ms = 5000): number {
+  return useSocketStatus() === "connected" ? ms * 2 : ms;
 }
 
 export function useTicketsRealtime(status: TicketStatus) {
