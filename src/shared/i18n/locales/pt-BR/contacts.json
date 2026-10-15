@@ -5,15 +5,30 @@
   "pending": "Contrato de integração pendente de confirmação com o backend.",
   "new": "Novo contato",
   "edit": "Editar contato",
+  "import": "Importar",
   "empty": "Nenhum contato encontrado.",
   "searchPlaceholder": "Buscar por nome, número ou e-mail…",
   "table": { "name": "Nome", "number": "Número", "email": "E-mail", "tags": "Etiquetas", "actions": "Ações" },
   "actions": { "edit": "Editar", "delete": "Excluir", "save": "Salvar", "cancel": "Cancelar" },
   "form": {
     "name": "Nome", "nameRequired": "Informe um nome.",
-    "number": "Número (WhatsApp)", "numberRequired": "Informe o número com DDD.",
+    "number": "Número (WhatsApp)", "numberRequired": "Informe o número com DDD.", "numberInvalid": "Número inválido. Use DDD, ex.: 11 98765-4321.",
     "email": "E-mail", "emailInvalid": "Informe um e-mail válido.",
-    "tags": "Etiquetas", "tagsHint": "Separe por vírgulas. Ex.: cliente, vip"
+    "tags": "Etiquetas", "tagsHint": "Separe por vírgulas. Ex.: cliente, vip",
+    "duplicate": "Já existe um contato com este número: {{name}}."
+  },
+  "importDialog": {
+    "title": "Importar contatos",
+    "description": "Envie um arquivo CSV ou de texto com uma linha por contato: nome;numero;email;etiquetas. Etiquetas separadas por |.",
+    "file": "Arquivo CSV ou TXT",
+    "example": "Exemplo: Ana Souza;11987654321;ana@exemplo.com;cliente|vip",
+    "preview": "{{valid}} contatos válidos, {{skipped}} ignorados.",
+    "skipNoName": "sem nome",
+    "skipInvalidNumber": "número inválido",
+    "start": "Importar {{count}} contatos",
+    "progress": "Importando {{done}} de {{total}}…",
+    "done": "Importação concluída: {{ok}} criados, {{failed}} com erro.",
+    "empty": "Nenhum contato válido no arquivo."
   },
   "confirmDelete": { "title": "Excluir contato?", "description": "O contato “{{name}}” será removido." },
   "toast": { "saved": "Contato salvo.", "deleted": "Contato excluído.", "error": "Não foi possível concluir a ação." }
