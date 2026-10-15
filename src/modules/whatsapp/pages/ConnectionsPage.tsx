@@ -309,9 +309,21 @@ function ConnectionFormDialog({
 
 function QrDialog({ id, onClose }: { id: number; onClose: () => void }) {
   const { t } = useTranslation("whatsapp");
+  const qc = useQueryClient();
   const [done, setDone] = useState(false);
-  const { data } = useQuery(connectionQuery(id, !done));
-  const renew = useMutation({ mutationFn: () => refreshQr(id) });
+  const [openedAt] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now());
+  const { data, error } = useQuery(connectionQuery(id, !done));
+  const renew = useMutation({
+    mutationFn: () => refreshQr(id),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: whatsappKeys.detail(id) }),
+    onError: (err) => toast.error(t("toast.error"), { description: serverMessage(err) }),
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (data?.status !== "CONNECTED") return;
@@ -320,6 +332,15 @@ function QrDialog({ id, onClose }: { id: number; onClose: () => void }) {
     return () => clearTimeout(timer);
   }, [data?.status, onClose]);
 
+  const qr = typeof data?.qrcode === "string" ? data.qrcode.trim() : "";
+  const waitedLong = now - openedAt > 45_000;
+  // Sessão caiu (QR expirou/timeout) ou o servidor não gerou QR a tempo.
+  const stalled =
+    !done &&
+    !qr &&
+    (data?.status === "DISCONNECTED" || data?.status === "TIMEOUT" || waitedLong) &&
+    !renew.isPending;
+
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-sm">
@@ -327,23 +348,41 @@ function QrDialog({ id, onClose }: { id: number; onClose: () => void }) {
           <DialogTitle>{t("qr.title")}</DialogTitle>
           <DialogDescription>{t("qr.steps")}</DialogDescription>
         </DialogHeader>
-        <div className="grid min-h-64 place-items-center">
+        <div className="grid min-h-64 place-items-center text-center">
           {done ? (
             <p className="flex items-center gap-2 font-medium text-primary">
               <CheckCircle2 className="size-5" aria-hidden />
               {t("qr.connected")}
             </p>
-          ) : data?.qrcode ? (
-            <div className="rounded-xl bg-card p-3 ring-1 ring-border">
-              <QRCodeSVG value={data.qrcode} size={224} aria-label={t("qr.title")} />
+          ) : qr ? (
+            <div className="rounded-xl bg-background p-3 ring-1 ring-border">
+              <QRCodeSVG
+                value={qr}
+                size={240}
+                level="L"
+                marginSize={2}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                aria-label={t("qr.title")}
+              />
             </div>
+          ) : error ? (
+            <p className="max-w-64 text-sm text-destructive">
+              {serverMessage(error) ?? t("qr.loadError")}
+            </p>
+          ) : stalled ? (
+            <p className="max-w-64 text-sm text-muted-foreground">{t("qr.expired")}</p>
           ) : (
             <LoadingState label={t("qr.waiting")} />
           )}
         </div>
         {!done && (
           <DialogFooter>
-            <Button variant="outline" disabled={renew.isPending} onClick={() => renew.mutate()}>
+            <Button
+              variant={stalled || error ? "default" : "outline"}
+              disabled={renew.isPending}
+              onClick={() => renew.mutate()}
+            >
               {t("actions.newQr")}
             </Button>
           </DialogFooter>

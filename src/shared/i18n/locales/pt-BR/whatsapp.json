@@ -10,7 +10,7 @@
   "noNumber": "Sem número vinculado",
   "status": {
     "CONNECTED": "Conectado", "DISCONNECTED": "Desconectado", "qrcode": "Aguardando leitura",
-    "OPENING": "Iniciando", "PAIRING": "Pareando", "TIMEOUT": "Tempo esgotado"
+    "OPENING": "Iniciando", "PAIRING": "Pareando", "PENDING": "Sincronizando", "TIMEOUT": "Tempo esgotado"
   },
   "actions": {
     "connect": "Conectar", "showQr": "Ver QR Code", "newQr": "Novo QR Code",
@@ -23,7 +23,9 @@
   "qr": {
     "title": "Leia o QR Code",
     "steps": "No celular, abra o WhatsApp → Aparelhos conectados → Conectar um aparelho e aponte a câmera.",
-    "waiting": "Gerando QR Code…",
+    "waiting": "Gerando QR Code… pode levar até 30 segundos.",
+    "expired": "O QR Code expirou ou não foi gerado. Toque em “Novo QR Code” para tentar de novo.",
+    "loadError": "Não foi possível consultar a conexão. Tente gerar um novo QR Code.",
     "connected": "Conexão estabelecida!"
   },
   "confirmDelete": { "title": "Excluir conexão?", "description": "A conexão “{{name}}” será removida." },
