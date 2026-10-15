@@ -240,12 +240,14 @@ function ConnectionFormDialog({
   const [error, setError] = useState(false);
   const save = useMutation({
     mutationFn: () => (editing ? updateConnection(editing.id, data) : createConnection(data)),
-    onSuccess: () => {
+    onSuccess: (saved) => {
       toast.success(t("toast.saved"));
       void onSaved();
       onClose();
+      // O backend não inicia a sessão ao criar: já gera o QR para a conexão nova.
+      if (!editing && saved && typeof saved.id === "number") onCreated?.(saved);
     },
-    onError: () => toast.error(t("toast.error")),
+    onError: (err) => toast.error(t("toast.error"), { description: serverMessage(err) }),
   });
 
   return (
