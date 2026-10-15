@@ -111,6 +111,7 @@ const connStatusVariant: Record<
   qrcode: "secondary",
   OPENING: "secondary",
   PAIRING: "secondary",
+  PENDING: "secondary",
   TIMEOUT: "outline",
 };
 
