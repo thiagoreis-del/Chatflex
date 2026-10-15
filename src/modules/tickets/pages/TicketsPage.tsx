@@ -57,6 +57,7 @@ import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { MessageMedia, isImage } from "../components/MessageMedia";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
+import { CloseTicketDialog } from "../components/CloseTicketDialog";
 import { quickMessagesQuery } from "@/modules/quick-messages/api";
 import {
   QuickMessagePicker,
@@ -385,6 +386,23 @@ function Conversation({
     if (followLatest.current) endRef.current?.scrollIntoView({ block: "end" });
   }, [messages.data?.length]);
 
+  const [closeOpen, setCloseOpen] = useState(false);
+  const closeWithMessage = useMutation({
+    mutationFn: async (msg: string | null) => {
+      if (msg) {
+        const name = session.user?.name?.trim();
+        await sendMessage(ticket.id, name ? `*${name}:*\n${msg}` : msg);
+      }
+      return updateTicketStatus(ticket.id, "closed", myId);
+    },
+    onSuccess: (tk) => {
+      toast.success(t("toast.closed"));
+      setCloseOpen(false);
+      onChange(tk);
+      void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: () => toast.error(t("closing.error")),
+  });
   const status = useMutation({
     mutationFn: (s: TicketStatus) => updateTicketStatus(ticket.id, s, myId),
     onSuccess: (tk, s) => {
@@ -720,12 +738,18 @@ function Conversation({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => status.mutate("closed")}
-              disabled={status.isPending}
+              onClick={() => setCloseOpen(true)}
+              disabled={status.isPending || closeWithMessage.isPending}
             >
               {t("actions.close")}
             </Button>
           )}
+          <CloseTicketDialog
+            open={closeOpen}
+            onOpenChange={setCloseOpen}
+            pending={closeWithMessage.isPending}
+            onConfirm={(msg) => closeWithMessage.mutate(msg)}
+          />
           {ticket.status === "closed" && (
             <Button
               size="sm"
