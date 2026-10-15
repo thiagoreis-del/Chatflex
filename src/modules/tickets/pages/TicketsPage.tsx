@@ -82,7 +82,7 @@ export function TicketsPage() {
       ? groupTicketsQuery(debouncedSearch)
       : {
           ...ticketsQuery({ status, search: debouncedSearch }),
-          select: (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup),
+          select: (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup && !x.isGroup),
         };
   const query = useQuery({ ...(listOpts as ReturnType<typeof groupTicketsQuery>), refetchInterval: fallback });
   const closeable = (query.data ?? []).filter(
