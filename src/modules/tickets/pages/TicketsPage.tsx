@@ -469,8 +469,10 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
     onError: (e, v) => {
-      if (e instanceof ApiError && e.kind === "aborted")
-        return toast.info(t("toast.uploadCanceled"));
+      if (e instanceof ApiError && e.kind === "aborted") {
+        toast.info(t("toast.uploadCanceled"));
+        return;
+      }
       const detail = e instanceof ApiError ? e.body?.message : undefined;
       toast.error(t(v.media.length ? "toast.fileError" : "toast.sendError"), {
         description: detail,
