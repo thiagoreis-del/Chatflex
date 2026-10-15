@@ -40,6 +40,7 @@ const demoSuperadmin: AuthenticatedUser = {
 // Sessão mock em memória: recarregar a página encerra (igual ao comportamento real sem cookie).
 let currentUser: AuthenticatedUser | null = null;
 
+const mockSettings: Record<string, string> = {};
 const wait = (ms = 350) => new Promise((r) => setTimeout(r, ms));
 
 export async function mockRequest<T>(path: string, opts: RequestOptions): Promise<T> {
@@ -92,6 +93,14 @@ export async function mockRequest<T>(path: string, opts: RequestOptions): Promis
   ) {
     if (!currentUser || currentUser.role === "superadmin") throw new ApiError("forbidden", 403);
     return ticketsMock(path, opts) as T;
+  }
+  if (path.startsWith("/settings/")) {
+    const key = path.slice(10);
+    if (opts.method === "PUT") {
+      mockSettings[key] = (opts.body as { value: string }).value;
+      return { key, value: mockSettings[key] } as T;
+    }
+    return { key, value: mockSettings[key] ?? "" } as T;
   }
   if (path.startsWith("/quick-messages")) {
     if (!currentUser || currentUser.role === "superadmin") throw new ApiError("forbidden", 403);
