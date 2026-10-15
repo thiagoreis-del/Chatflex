@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { apiRequest } from "@/shared/api/client";
+import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import { sessionStore } from "@/shared/auth/session-store";
@@ -229,13 +229,18 @@ export async function removeTicketTag(ticket: Ticket, tagId: number): Promise<Ti
 }
 
 /** Contrato confirmado: multipart com campo `medias` (multer array) e `body` como legenda. */
-export const sendMediaMessage = (ticketId: number, file: File, caption = "") => {
+export const sendMediaMessage = (
+  ticketId: number,
+  file: File,
+  caption = "",
+  opts: UploadOptions = {},
+) => {
   const form = new FormData();
   form.append("medias", file);
   form.append("body", caption);
-  return apiRequest<Message | undefined>(ep.messages(ticketId), { method: "POST", body: form });
+  return apiUpload<Message | undefined>(ep.messages(ticketId), form, opts);
 };
 
 export const MAX_MEDIA_BYTES = 16 * 1024 * 1024;
 export const ACCEPTED_MEDIA =
-  "image/*,audio/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip";
+  "image/*,audio/*,video/*,application/pdf,.jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.csv,.ods,.ppt,.pptx,.zip,.rar,.7z,.mp3,.wav,.ogg,.m4a,.mp4,.mov,.webm,.xml,.json";

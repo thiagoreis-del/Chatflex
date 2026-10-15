@@ -138,3 +138,69 @@ export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Pr
     throw error;
   }
 }
+
+export interface UploadOptions {
+  method?: "POST" | "PUT";
+  signal?: AbortSignal;
+  /** Fração enviada, de 0 a 1. */
+  onProgress?: (fraction: number) => void;
+}
+
+function rawUpload<T>(path: string, form: FormData, opts: UploadOptions): Promise<T> {
+  if (env.useMocks) {
+    return (async () => {
+      for (let i = 1; i <= 5; i++) {
+        if (opts.signal?.aborted) throw new ApiError("aborted", 0);
+        await new Promise((r) => setTimeout(r, 120));
+        opts.onProgress?.(i / 5);
+      }
+      const { mockRequest } = await import("@/mocks");
+      return mockRequest<T>(path, { method: opts.method ?? "POST", body: form });
+    })();
+  }
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(opts.method ?? "POST", `${env.apiUrl}${path}`);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Accept", "application/json");
+    const token = tokenStore.get();
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) opts.onProgress?.(e.loaded / e.total);
+    };
+    const onAbort = () => xhr.abort();
+    opts.signal?.addEventListener("abort", onAbort, { once: true });
+    xhr.onabort = () => reject(new ApiError("aborted", 0));
+    xhr.onerror = () => {
+      apiStatusStore.set("offline");
+      reject(new ApiError("network", 0));
+    };
+    xhr.onload = () => {
+      opts.signal?.removeEventListener("abort", onAbort);
+      apiStatusStore.set("online");
+      let data: unknown;
+      try {
+        data = xhr.responseText ? JSON.parse(xhr.responseText) : undefined;
+      } catch {
+        data = undefined;
+      }
+      if (xhr.status >= 200 && xhr.status < 300) resolve(data as T);
+      else reject(new ApiError(kindFromStatus(xhr.status), xhr.status, data as ApiErrorBody));
+    };
+    xhr.send(form);
+  });
+}
+
+/** Envio multipart com progresso e cancelamento; renova o token uma vez se expirado. */
+export async function apiUpload<T>(path: string, form: FormData, opts: UploadOptions = {}) {
+  try {
+    return await rawUpload<T>(path, form, opts);
+  } catch (error) {
+    if (error instanceof ApiError && isExpiredToken(error)) {
+      const renewed = await refreshAccessToken().catch(() => false);
+      if (renewed) return rawUpload<T>(path, form, opts);
+      unauthorizedHandler?.();
+    }
+    throw error;
+  }
+}
