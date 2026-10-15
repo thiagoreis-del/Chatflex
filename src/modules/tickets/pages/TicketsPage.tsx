@@ -713,41 +713,89 @@ function Conversation({
             </div>
           )}
           {file && (
-            <div className="mb-2 flex items-center gap-3 rounded-lg border bg-muted/40 p-2">
-              {preview ? (
-                <img src={preview} alt={file.name} className="size-14 rounded object-cover" />
-              ) : audioPreview ? (
-                <audio controls preload="metadata" src={audioPreview} className="max-w-52" />
-              ) : (
-                <FileText className="size-8 text-muted-foreground" aria-hidden />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{file.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                </p>
-              </div>
-              {preview && (
+            <div className="mb-2 rounded-lg border bg-muted/40 p-2">
+              <div className="flex items-center gap-3">
+                {preview ? (
+                  <button
+                    type="button"
+                    onClick={() => setImageEditorOpen(true)}
+                    aria-label={t("composer.editImage")}
+                  >
+                    <img src={preview} alt={file.name} className="h-24 max-w-40 rounded object-cover sm:h-32" />
+                  </button>
+                ) : videoPreview ? (
+                  <video
+                    src={videoPreview}
+                    controls
+                    preload="metadata"
+                    className="h-24 max-w-48 rounded bg-foreground sm:h-32"
+                  />
+                ) : audioPreview ? (
+                  <audio controls preload="metadata" src={audioPreview} className="max-w-52" />
+                ) : (
+                  <FileText className="size-8 text-muted-foreground" aria-hidden />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                    {files.length > 1 && ` · ${active + 1}/${files.length}`}
+                  </p>
+                </div>
+                {preview && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    aria-label={t("composer.editImage")}
+                    onClick={() => setImageEditorOpen(true)}
+                  >
+                    <Pencil className="size-4" />
+                    <span className="hidden sm:inline">{t("composer.editImage")}</span>
+                  </Button>
+                )}
                 <Button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  aria-label={t("composer.editImage")}
-                  onClick={() => setImageEditorOpen(true)}
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("composer.removeAttachment")}
+                  onClick={() => removeFile(active)}
                 >
-                  <Pencil className="size-4" />
-                  <span className="hidden sm:inline">{t("composer.editImage")}</span>
+                  <X className="size-4" />
                 </Button>
-              )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label={t("composer.removeAttachment")}
-                onClick={() => setFile(null)}
-              >
-                <X className="size-4" />
-              </Button>
+              </div>
+              <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+                {files.map((f, index) => (
+                  <button
+                    key={`${f.name}-${f.size}-${index}`}
+                    type="button"
+                    onClick={() => setActive(index)}
+                    aria-label={f.name}
+                    aria-pressed={index === active}
+                    className={cn(
+                      "flex size-12 shrink-0 items-center justify-center overflow-hidden rounded border-2 bg-background",
+                      index === active ? "border-primary" : "border-transparent",
+                    )}
+                  >
+                    {thumbs[index] ? (
+                      <img src={thumbs[index]!} alt="" className="size-full object-cover" />
+                    ) : f.type.startsWith("video/") ? (
+                      <Video className="size-5 text-muted-foreground" />
+                    ) : (
+                      <FileText className="size-5 text-muted-foreground" />
+                    )}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => galleryRef.current?.click()}
+                  aria-label={t("composer.addMore")}
+                  title={t("composer.addMore")}
+                  className="flex size-12 shrink-0 items-center justify-center rounded border-2 border-dashed text-muted-foreground hover:bg-muted"
+                >
+                  <Plus className="size-5" />
+                </button>
+              </div>
             </div>
           )}
           {file?.type.startsWith("image/") && (
@@ -755,7 +803,7 @@ function Conversation({
               file={file}
               open={imageEditorOpen}
               onOpenChange={setImageEditorOpen}
-              onSave={selectFile}
+              onSave={replaceActive}
               labels={{
                 title: t("imageEditor.title"),
                 rotate: t("imageEditor.rotate"),
@@ -815,31 +863,65 @@ function Conversation({
               title={t("composer.privateNote")}
               onClick={() => {
                 setIsPrivate((v) => !v);
-                setFile(null);
+                setFiles([]);
               }}
             >
               <Lock className="size-4" />
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              disabled={isPrivate || send.isPending}
-              aria-label={t("composer.attach")}
-              title={t("composer.attach")}
-              onClick={() => fileRef.current?.click()}
-            >
-              <Paperclip className="size-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={isPrivate || send.isPending}
+                  aria-label={t("composer.attach")}
+                  title={t("composer.attach")}
+                >
+                  <Paperclip className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" side="top">
+                <DropdownMenuItem onSelect={() => galleryRef.current?.click()}>
+                  <ImageIcon className="size-4 text-primary" />
+                  {t("composer.attachGallery")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => cameraRef.current?.click()}>
+                  <Camera className="size-4 text-primary" />
+                  {t("composer.attachCamera")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => fileRef.current?.click()}>
+                  <FileText className="size-4 text-primary" />
+                  {t("composer.attachDocument")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <input
               ref={fileRef}
               type="file"
+              multiple
               accept={ACCEPTED_MEDIA}
               className="hidden"
               onChange={pickFile}
             />
+            <input
+              ref={galleryRef}
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              className="hidden"
+              onChange={pickFile}
+            />
+            <input
+              ref={cameraRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={pickFile}
+            />
             <AudioRecorder
-              disabled={isPrivate || send.isPending || !!file}
+              disabled={isPrivate || send.isPending || files.length > 0}
               labels={{
                 start: t("audio.start"),
                 stop: t("audio.stop"),
