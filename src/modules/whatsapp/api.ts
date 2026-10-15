@@ -16,8 +16,10 @@ export const connectionsQuery = () =>
 export const connectionQuery = (id: number, poll: boolean) =>
   queryOptions({
     queryKey: whatsappKeys.detail(id),
-    queryFn: ({ signal }) => apiRequest<WhatsAppConnection>(ep.detail(id), { signal }),
-    refetchInterval: poll ? 3000 : false,
+    queryFn: ({ signal }) => apiRequest<WhatsAppConnection>(ep.status(id), { signal }),
+    refetchInterval: poll ? 2500 : false,
+    refetchIntervalInBackground: true,
+    staleTime: 0,
   });
 
 export const createConnection = (body: WhatsAppInput) =>

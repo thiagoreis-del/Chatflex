@@ -1,6 +1,6 @@
 /** CONTRATO PENDENTE: formato baseado no backend Whaticket/ZapPro (Baileys); confirmar. */
 export type WhatsAppStatus =
-  "CONNECTED" | "DISCONNECTED" | "qrcode" | "OPENING" | "PAIRING" | "TIMEOUT";
+  "CONNECTED" | "DISCONNECTED" | "qrcode" | "OPENING" | "PAIRING" | "PENDING" | "TIMEOUT";
 
 export interface WhatsAppConnection {
   id: number;
