@@ -60,6 +60,29 @@ export const ticketsQuery = (filters: TicketFilters) =>
       (await apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), ...filters }), { signal }))?.tickets ?? [],
   });
 
+/** Session-wide notification fallback, including pages beyond the visible list. */
+export const incomingTicketsQuery = (companyId: string) => queryOptions({
+  queryKey: [...ticketKeys.all, "incoming", companyId],
+  queryFn: async ({ signal }): Promise<Ticket[]> => {
+    const lists = await Promise.all(["pending", "open", "group"].map(async (status) => {
+      const tickets: Ticket[] = [];
+      let pageNumber = 1;
+      while (true) {
+        const result = await apiRequest<TicketsResponse>(withQuery(ep.list, {
+          ...scope(), status, pageNumber,
+        }), { signal });
+        tickets.push(...(result.tickets ?? []));
+        if (!result.hasMore || !result.tickets?.length) break;
+        pageNumber += 1;
+      }
+      return tickets;
+    }));
+    return [...new Map(lists.flat().map((ticket) => [ticket.id, ticket])).values()];
+  },
+  refetchInterval: 5000,
+  refetchIntervalInBackground: true,
+});
+
 /**
  * Resumo operacional usando contratos já disponíveis no backend.
  * O total por status vem de `count`. A distribuição por atendente usa os

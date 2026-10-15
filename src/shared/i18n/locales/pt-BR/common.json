@@ -1,6 +1,19 @@
 {
   "appName": "{{appName}}",
   "logoAlt": "Logotipo do {{appName}}",
+  "notifications": {
+    "menu": "Notificações de mensagens",
+    "sound": "Aviso sonoro",
+    "desktop": "Notificações do navegador",
+    "newMessage": "Nova mensagem de {{contact}}",
+    "customer": "cliente",
+    "received": "Você recebeu uma nova mensagem no Atendimento.",
+    "view": "Ver atendimentos",
+    "test": "Testar aviso",
+    "testDone": "Aviso de mensagem testado.",
+    "unsupported": "Este navegador não permite notificações aqui. Os avisos na tela continuam ativos.",
+    "denied": "Notificações não autorizadas. Confira a permissão nas configurações do navegador."
+  },
   "skipToContent": "Pular para o conteúdo",
   "demoBanner": "Ambiente de demonstração — dados fictícios",
   "actions": {
