@@ -512,7 +512,10 @@ function Conversation({
     const list = filesFrom(e.clipboardData);
     if (!list.length) return; // texto comum: o navegador cola normalmente
     e.preventDefault();
-    if (!canAttach) return toast.error(t("toast.attachUnavailable"));
+    if (!canAttach) {
+      toast.error(t("toast.attachUnavailable"));
+      return;
+    }
     addFiles(list);
   };
   const dropHandlers = {
@@ -530,7 +533,10 @@ function Conversation({
       setDragging(false);
       if (!list.length) return;
       e.preventDefault();
-      if (!canAttach) return toast.error(t("toast.attachUnavailable"));
+      if (!canAttach) {
+        toast.error(t("toast.attachUnavailable"));
+        return;
+      }
       addFiles(list);
     },
   };
