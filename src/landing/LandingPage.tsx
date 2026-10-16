@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ListOrdered, Users, History, ShieldCheck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppLogo, AppName, DemoBanner, ThemeToggle } from "@/shared/components";
+import { PublicPlans } from "./PublicPlans";
 
 const benefits = [
   { key: "queues", icon: ListOrdered },
@@ -89,6 +90,7 @@ export function LandingPage() {
             ))}
           </ul>
         </section>
+        <PublicPlans />
       </main>
 
       <footer className="border-t">
