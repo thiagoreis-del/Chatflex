@@ -9,7 +9,17 @@ export const quickMessagesContract = "GET /quick-messages/list";
 export const quickMessagesQuery = () =>
   queryOptions({
     queryKey: quickMessageKeys.list(),
-    queryFn: ({ signal }) => apiRequest<QuickMessage[]>(ep.list, { signal }),
+    queryFn: async ({ signal }) => {
+      const all: QuickMessage[] = [];
+      for (let page = 1; page <= 50; page++) {
+        const res = await apiRequest<unknown>(`${ep.base}?searchParam=&pageNumber=${page}`, { signal });
+        if (Array.isArray(res)) return res as QuickMessage[];
+        const r = (res ?? {}) as { records?: QuickMessage[]; hasMore?: boolean };
+        all.push(...(r.records ?? []));
+        if (!r.hasMore) break;
+      }
+      return all;
+    },
     staleTime: 60_000,
   });
 
