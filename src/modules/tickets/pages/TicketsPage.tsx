@@ -72,7 +72,7 @@ import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDial
 import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
 import { contactKeys } from "@/shared/api/query-keys";
-import { MessageMedia, isImage } from "../components/MessageMedia";
+import { MessageMedia } from "../components/MessageMedia";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
