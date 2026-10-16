@@ -104,14 +104,14 @@ const TAB_ICONS: Record<TicketTab, typeof Inbox> = {
   closed: Inbox,
 };
 const TAB_ACTIVE_CLASSES: Record<TicketTab, string> = {
-  open: "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30",
-  pending: "bg-warning text-warning-foreground shadow-md ring-2 ring-warning/30",
+  open: "bg-success text-success-foreground shadow-md ring-2 ring-success/30",
+  pending: "bg-destructive text-destructive-foreground shadow-md ring-2 ring-destructive/30",
   groups: "bg-groups text-groups-foreground shadow-md ring-2 ring-groups/30",
   closed: "bg-muted-foreground/20 text-foreground shadow-md ring-2 ring-muted-foreground/20",
 };
 const TAB_IDLE_CLASSES: Record<TicketTab, string> = {
-  open: "bg-primary/10 text-primary hover:bg-primary/15",
-  pending: "bg-warning/15 text-warning-foreground hover:bg-warning/25 dark:text-warning",
+  open: "bg-success/10 text-success hover:bg-success/20",
+  pending: "bg-destructive/10 text-destructive hover:bg-destructive/20",
   groups: "bg-groups/10 text-groups hover:bg-groups/15",
   closed: "bg-muted/60 text-muted-foreground hover:bg-muted",
 };
