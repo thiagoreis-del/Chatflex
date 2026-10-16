@@ -45,6 +45,7 @@ import { toast } from "sonner";
 import { usePermissions } from "@/shared/permissions/permissions";
 import { can } from "@/shared/permissions/catalog";
 import { IncomingNotifications } from "@/modules/tickets/components/IncomingNotifications";
+import { AdminAlerts } from "@/modules/tickets/components/AdminAlerts";
 import { SlaWatcher } from "@/modules/sla/components/SlaWatcher";
 
 const soonModules = [{ key: "reports", icon: BarChart3 }] as const;
@@ -404,6 +405,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <div className="ml-auto flex shrink-0 items-center gap-0 sm:gap-1 [&>button]:size-8 sm:[&>button]:size-10">
               <IncomingNotifications />
+              <AdminAlerts />
               <SlaWatcher />
               <LanguageSelector />
               <ThemeToggle />
