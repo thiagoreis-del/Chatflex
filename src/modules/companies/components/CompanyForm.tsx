@@ -98,7 +98,19 @@ export function CompanyForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+    <form
+      onSubmit={handleSubmit(onSubmit, () => {
+        toast.error(t("companies.form.invalid"));
+        // Campos como o seletor de plano não recebem foco; rola até o primeiro erro visível.
+        requestAnimationFrame(() =>
+          document
+            .querySelector('[aria-invalid="true"], [role="alert"]')
+            ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+        );
+      })}
+      noValidate
+      className="space-y-6"
+    >
       <FormSection title={t("companies.form.sections.company")}>
         <Field
           id="legalName"

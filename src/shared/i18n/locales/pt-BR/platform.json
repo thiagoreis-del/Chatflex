@@ -193,7 +193,8 @@
       "created": "Empresa criada. O convite de primeiro acesso será enviado pelo servidor.",
       "updated": "Empresa atualizada.",
       "reasonLabel": "Motivo da alteração",
-      "conflict": "Os dados foram alterados por outra pessoa. Recarregue a página antes de salvar."
+      "conflict": "Os dados foram alterados por outra pessoa. Recarregue a página antes de salvar.",
+      "invalid": "Há campos para corrigir. Veja as mensagens em vermelho acima."
     }
   },
   "actions": {
