@@ -116,8 +116,11 @@ function Sparkline({ samples, pick, level }: { samples: MetricsSample[]; pick: (
 
 export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard | undefined }) {
   const { t } = useTranslation("platform");
+  const { t: tc } = useTranslation("common");
   const q = useQuery(serverHealthQuery());
   const health = q.data ?? null;
+  const connectivity = useConnectivity();
+  const socketStatus = useSocketStatus();
 
   const online = dashboard?.connectionsOnline ?? 0;
   const companies = dashboard?.companies.active ?? 0;
