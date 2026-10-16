@@ -408,15 +408,6 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
             </span>
           </div>
         </div>
-        <div className="flex gap-3 rounded-xl border border-amber-300/60 bg-amber-50 p-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
-          <ShieldAlert className="mt-0.5 size-5 shrink-0" aria-hidden />
-          <div>
-            <p className="font-medium">{t("companies.detail.management.accessTitle")}</p>
-            <p className="mt-1 text-sm opacity-80">
-              {t("companies.detail.management.accessDescription")}
-            </p>
-          </div>
-        </div>
       </section>
 
       <section className="rounded-xl border bg-card p-4" aria-labelledby="acoes">
