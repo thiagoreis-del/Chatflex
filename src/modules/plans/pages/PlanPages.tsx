@@ -235,6 +235,14 @@ export function PlansListPage() {
           )
         }
       </QueryBoundary>
+      <ConfirmDialog
+        open={toDelete !== null}
+        onOpenChange={(o) => !o && setToDelete(null)}
+        title={t("plans.deleteTitle")}
+        description={t("plans.deleteDescription")}
+        confirmLabel={t("plans.delete")}
+        onConfirm={() => toDelete && remove.mutate(toDelete)}
+      />
     </div>
   );
 }

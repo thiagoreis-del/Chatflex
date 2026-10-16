@@ -59,7 +59,10 @@
     "externalApi": "API externa",
     "automations": "Automações",
     "enabled": "Habilitado",
-    "disabled": "Não incluído"
+    "disabled": "Não incluído",
+    "whatsapp": "WhatsApp",
+    "facebook": "Facebook",
+    "instagram": "Instagram"
   },
   "usage": {
     "limitOnly": "Limite do plano: {{limit}}",
@@ -242,7 +245,8 @@
       "annual": "Anual",
       "limits": "Limites",
       "trial": "Teste",
-      "status": "Situação"
+      "status": "Situação",
+      "actions": "Ações"
     },
     "active": "Ativo",
     "inactive": "Inativo",
@@ -270,8 +274,21 @@
       "submitCreate": "Criar plano",
       "submitEdit": "Salvar plano",
       "created": "Plano criado.",
-      "updated": "Plano atualizado."
-    }
+      "updated": "Plano atualizado.",
+      "queueLimit": "Setores (filas)"
+    },
+    "copyName": "{{name}} (cópia)",
+    "duplicate": "Duplicar plano",
+    "delete": "Excluir plano",
+    "deleted": "Plano excluído.",
+    "deleteError": "Não foi possível excluir. Planos com empresas vinculadas não podem ser excluídos; desative-o.",
+    "deleteTitle": "Excluir este plano?",
+    "deleteDescription": "Empresas que usam o plano não são afetadas se a exclusão for recusada pelo servidor. Prefira desativar planos em uso.",
+    "seed": "Criar planos sugeridos",
+    "seeded_one": "{{count}} plano criado.",
+    "seeded_other": "{{count}} planos criados.",
+    "queuesShort_one": "{{count}} setor",
+    "queuesShort_other": "{{count}} setores"
   },
   "subscriptions": {
     "meta": "Assinaturas",
