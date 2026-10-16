@@ -302,7 +302,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       router.options.context.queryClient.clear();
       await navigate({ to: "/app/plataforma" });
     } catch {
-      if (sessionStore.get().user?.role === "superadmin") {
+      if (user?.role === "superadmin") {
         // O acesso original da plataforma foi restaurado localmente.
         router.options.context.queryClient.clear();
         await navigate({ to: "/app/plataforma" });
