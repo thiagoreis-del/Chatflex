@@ -4,12 +4,22 @@ import { useTranslation } from "react-i18next";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCents } from "@/shared/format/format";
-import { plansQuery } from "@/modules/plans/api";
+import { apiRequest } from "@/shared/api/client";
+import { env } from "@/shared/config/env";
+import { fromBackendPlan } from "@/modules/plans/api";
 import { defaultPublicPlans, toPublicPlans } from "@/modules/plans/commercial";
 
 export function PublicPlans() {
   const { t } = useTranslation("landing");
-  const { data } = useQuery({ ...plansQuery(), retry: false });
+  const { data } = useQuery({
+    queryKey: ["public-plans"],
+    enabled: !env.useMocks,
+    retry: false,
+    staleTime: 300_000,
+    // Lista pública (sem login); se o servidor não expor, usa os planos padrão.
+    queryFn: async () =>
+      (await apiRequest<Parameters<typeof fromBackendPlan>[0][]>("/plans/list", { anonymous: true, skipRefresh: true })).map(fromBackendPlan),
+  });
   const plans = data ? toPublicPlans(data) : defaultPublicPlans;
   const items = ["unlimitedTickets", "unlimitedUsers", "unlimitedQueues", "support"] as const;
 
