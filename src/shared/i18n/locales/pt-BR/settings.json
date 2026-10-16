@@ -5,7 +5,15 @@
   "save": "Salvar configurações",
   "saving": "Salvando…",
   "saved": "Configurações salvas.",
-  "days": { "sun": "Domingo", "mon": "Segunda", "tue": "Terça", "wed": "Quarta", "thu": "Quinta", "fri": "Sexta", "sat": "Sábado" },
+  "days": {
+    "sun": "Domingo",
+    "mon": "Segunda",
+    "tue": "Terça",
+    "wed": "Quarta",
+    "thu": "Quinta",
+    "fri": "Sexta",
+    "sat": "Sábado"
+  },
   "hours": {
     "title": "Horário de atendimento",
     "description": "Defina os dias e horários em que a empresa atende (horário de Brasília).",
@@ -27,5 +35,50 @@
     "placeholder": "Ex.: Olá! Nosso atendimento é de segunda a sexta, das 8h às 18h. Responderemos assim que possível.",
     "required": "Escreva a mensagem ou desative a opção.",
     "backendNote": "Vale para todas as conexões de WhatsApp da empresa. O servidor envia a mensagem automaticamente quando um cliente escreve fora do horário (exceto em grupos e conversas já em atendimento)."
+  },
+  "sla": {
+    "title": "SLA e alertas",
+    "description": "Opcional para cada empresa. Avisa quando um cliente fica sem resposta.",
+    "enabled": "Ativar monitoramento de SLA",
+    "disabledInfo": "Desativado: sem cronômetros, alertas, destaques ou violações. O atendimento continua normalmente.",
+    "warningMinutes": "Primeiro alerta (min)",
+    "urgentMinutes": "Alerta urgente (min)",
+    "violatedMinutes": "SLA violado (min)",
+    "sound": "Alertas sonoros",
+    "desktop": "Notificações no navegador",
+    "supervisorAlerts": "Alertar supervisores sobre violações",
+    "highlight": "Destacar atendimentos críticos",
+    "onlyBusinessHours": "Monitorar só no horário de atendimento",
+    "tone": "Tom da notificação",
+    "tones": {
+      "classic": "Clássico",
+      "double": "Duplo",
+      "urgent": "Urgente",
+      "soft": "Suave"
+    },
+    "test": "Testar",
+    "volume": "Volume",
+    "supervisors": "Supervisores que recebem as violações",
+    "noSupervisors": "Nenhum administrador ou supervisor cadastrado.",
+    "holidays": "Dias e feriados sem monitoramento",
+    "addHoliday": "Adicionar",
+    "removeHoliday": "Remover data",
+    "backendNote": "Por enquanto os alertas funcionam com o painel aberto. Para monitorar com o navegador fechado, o servidor precisa do serviço de SLA.",
+    "orderError": "Os tempos devem ser crescentes: primeiro alerta < urgente < violado.",
+    "save": "Salvar SLA",
+    "saved": "Configuração de SLA salva.",
+    "filter": "SLA",
+    "filterAll": "Todos",
+    "states": {
+      "monitoring": "No prazo",
+      "warning": "Alerta",
+      "urgent": "Urgente",
+      "violated": "Violado"
+    },
+    "alert": {
+      "warning": "{{name}} está aguardando resposta.",
+      "urgent": "Urgente: {{name}} está sem resposta.",
+      "violated": "SLA violado: {{name}} continua sem resposta."
+    }
   }
 }

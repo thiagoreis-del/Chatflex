@@ -13,6 +13,7 @@ import { LoadingState, PageHeader, QueryError } from "@/shared/components";
 import { notifyError } from "@/shared/errors/handle-error";
 import { useSession } from "@/shared/auth/session-store";
 import { ClosingMessageCard } from "../ClosingMessageCard";
+import { SlaSettingsCard } from "@/modules/sla/components/SlaSettingsCard";
 import {
   businessHoursQuery,
   defaultBusinessHours,
@@ -178,6 +179,8 @@ export function SettingsPage() {
           </div>
         </>
       ) : null}
+
+      <SlaSettingsCard />
 
       <ClosingMessageCard />
     </div>
