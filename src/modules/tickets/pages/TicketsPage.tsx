@@ -271,7 +271,7 @@ export function TicketsPage() {
               {(["open", "pending", "groups", "closed"] as const).map((s) => {
                 const c = s === tab ? query.data?.length : counts[s];
                 return (
-                  <TabsTrigger key={s} value={s} className="gap-1 px-1 text-[11px] sm:text-xs">
+                  <TabsTrigger key={s} value={s} className="min-w-0 gap-1 px-1 text-[11px] sm:text-xs">
                     <span className="truncate">{t(`tabs.${s}`)}</span>
                     {c !== undefined && s !== "closed" && c > 0 && (
                       <span

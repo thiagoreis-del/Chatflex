@@ -29,10 +29,10 @@ function InfoCard({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border bg-card p-5 shadow-soft">
+    <section className="min-w-0 rounded-2xl border bg-card p-4 shadow-soft sm:p-5">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <span aria-hidden>{icon}</span>
-        <h2 className="font-sans text-sm font-medium tracking-normal">{title}</h2>
+        <h2 className="min-w-0 truncate font-sans text-sm font-medium tracking-normal">{title}</h2>
       </div>
       <div className="mt-3 text-lg font-semibold">{children}</div>
     </section>
@@ -72,10 +72,10 @@ export function DashboardPage() {
   const firstName = user.name.split(" ")[0];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="mx-auto max-w-6xl min-w-0 space-y-6 sm:space-y-8">
       <PageHeader title={t("greeting", { name: firstName })} description={t("subtitle")} />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <InfoCard icon={<Activity className="size-4" />} title={t("api.title")}>
           <span className="flex items-center gap-2">
             <StatusDot
@@ -106,7 +106,7 @@ export function DashboardPage() {
         </InfoCard>
       </div>
 
-      <section className="rounded-2xl border bg-card p-5 shadow-soft">
+      <section className="min-w-0 rounded-2xl border bg-card p-4 shadow-soft sm:p-5">
         <div className="flex items-center gap-2">
           <ShieldCheck className="size-5 text-primary" aria-hidden />
           <h2 className="text-lg font-semibold">{t("permissions.title")}</h2>
@@ -116,7 +116,7 @@ export function DashboardPage() {
           <ul className="mt-4 flex flex-wrap gap-2">
             {user.permissions.map((p) => (
               <li key={p}>
-                <Badge variant="secondary" className="font-mono">
+                <Badge variant="secondary" className="max-w-full break-all font-mono">
                   {p}
                 </Badge>
               </li>

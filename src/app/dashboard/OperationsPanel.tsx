@@ -11,12 +11,12 @@ import { operationalDashboardQuery } from "@/modules/tickets/api";
 
 function Metric({ icon, title, value, hint }: { icon: ReactNode; title: string; value: ReactNode; hint?: string | undefined }) {
   return (
-    <section className="rounded-2xl border bg-card p-5 shadow-soft">
+    <section className="min-w-0 rounded-2xl border bg-card p-4 shadow-soft sm:p-5">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <span aria-hidden>{icon}</span>
-        <h3 className="font-sans text-sm font-medium tracking-normal">{title}</h3>
+        <h3 className="min-w-0 truncate font-sans text-sm font-medium tracking-normal">{title}</h3>
       </div>
-      <div className="mt-3 text-2xl font-semibold tabular-nums">{value}</div>
+      <div className="mt-3 text-xl font-semibold tabular-nums sm:text-2xl">{value}</div>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </section>
   );
@@ -64,7 +64,7 @@ export function OperationsPanel() {
           </div>
           <Badge variant="outline">{t("indicators.updatedEveryMinute")}</Badge>
         </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
           <Metric icon={<Inbox className="size-4" />} title={t("indicators.waiting")} value={num(d?.pending)} />
           <Metric icon={<MessagesSquare className="size-4" />} title={t("indicators.open")} value={num(d?.open)} />
           <Metric icon={<CheckCircle2 className="size-4" />} title={t("indicators.closed")} value={num(d?.closedToday)} />
@@ -84,7 +84,7 @@ export function OperationsPanel() {
         )}
       </section>
 
-      <section className="rounded-2xl border bg-card p-5 shadow-soft">
+      <section className="min-w-0 rounded-2xl border bg-card p-4 shadow-soft sm:p-5">
         <h2 className="text-lg font-semibold">{t("hourly.title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("hourly.description")}</p>
         <ChartContainer config={config} className="mt-4 aspect-auto h-64 w-full">
@@ -101,7 +101,7 @@ export function OperationsPanel() {
       </section>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <section className="rounded-2xl border bg-card p-5 shadow-soft">
+        <section className="min-w-0 rounded-2xl border bg-card p-4 shadow-soft sm:p-5">
           <div className="flex items-center gap-2">
             <Users className="size-5 text-primary" aria-hidden />
             <h2 className="text-lg font-semibold">{t("attendants.title")}</h2>
@@ -112,23 +112,23 @@ export function OperationsPanel() {
               {q.isPending ? t("common:states.loading") : t("attendants.empty")}
             </p>
           ) : (
-            <div className="mt-4 overflow-x-auto rounded-xl border">
-              <table className="w-full text-sm">
+            <div className="mt-4 overflow-hidden rounded-xl border">
+              <table className="w-full table-fixed text-xs sm:text-sm">
                 <thead className="bg-muted/60 text-left text-muted-foreground">
                   <tr>
-                    <th className="px-3 py-2 font-medium">{t("attendants.name")}</th>
-                    <th className="px-3 py-2 text-right font-medium">{t("attendants.open")}</th>
-                    <th className="px-3 py-2 text-right font-medium">{t("attendants.closedToday")}</th>
-                    <th className="px-3 py-2 text-right font-medium">{t("attendants.tma")}</th>
+                    <th className="w-[40%] px-2 py-2 font-medium sm:px-3">{t("attendants.name")}</th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("attendants.open")}</th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("attendants.closedToday")}</th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("attendants.tma")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {d.attendants.map((a) => (
                     <tr key={a.id} className="border-t">
-                      <td className="px-3 py-2 font-medium">{a.name}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{a.open}</td>
-                      <td className="px-3 py-2 text-right font-semibold tabular-nums">{a.closedToday}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{a.avgHandleMinutes == null ? "—" : `${a.avgHandleMinutes} min`}</td>
+                      <td className="break-words px-2 py-2 font-medium sm:px-3">{a.name}</td>
+                      <td className="px-2 py-2 text-right sm:px-3 tabular-nums">{a.open}</td>
+                      <td className="px-2 py-2 text-right sm:px-3 font-semibold tabular-nums">{a.closedToday}</td>
+                      <td className="px-2 py-2 text-right sm:px-3 tabular-nums">{a.avgHandleMinutes == null ? "—" : `${a.avgHandleMinutes} min`}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -137,7 +137,7 @@ export function OperationsPanel() {
           )}
         </section>
 
-        <section className="rounded-2xl border bg-card p-5 shadow-soft">
+        <section className="min-w-0 rounded-2xl border bg-card p-4 shadow-soft sm:p-5">
           <div className="flex items-center gap-2">
             <Layers className="size-5 text-primary" aria-hidden />
             <h2 className="text-lg font-semibold">{t("queues.title")}</h2>
@@ -147,26 +147,26 @@ export function OperationsPanel() {
               {q.isPending ? t("common:states.loading") : t("queues.empty")}
             </p>
           ) : (
-            <div className="mt-4 overflow-x-auto rounded-xl border">
-              <table className="w-full text-sm">
+            <div className="mt-4 overflow-hidden rounded-xl border">
+              <table className="w-full table-fixed text-xs sm:text-sm">
                 <thead className="bg-muted/60 text-left text-muted-foreground">
                   <tr>
-                    <th className="px-3 py-2 font-medium">{t("queues.name")}</th>
-                    <th className="px-3 py-2 text-right font-medium">{t("queues.waiting")}</th>
-                    <th className="px-3 py-2 text-right font-medium">{t("queues.closedToday")}</th>
-                    <th className="px-3 py-2 text-right font-medium">{t("queues.tme")}</th>
+                    <th className="w-[40%] px-2 py-2 font-medium sm:px-3">{t("queues.name")}</th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("queues.waiting")}</th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("queues.closedToday")}</th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("queues.tme")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {d.queues.map((x) => (
                     <tr key={x.id} className="border-t">
-                      <td className="px-3 py-2 font-medium">
+                      <td className="break-words px-2 py-2 font-medium sm:px-3">
                         <span className="mr-2 inline-block size-2.5 rounded-full" style={{ backgroundColor: x.color }} aria-hidden />
                         {x.name}
                       </td>
-                      <td className="px-3 py-2 text-right tabular-nums">{x.waiting}</td>
-                      <td className="px-3 py-2 text-right font-semibold tabular-nums">{x.closedToday}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{x.waitMinutes == null ? "—" : `${x.waitMinutes} min`}</td>
+                      <td className="px-2 py-2 text-right sm:px-3 tabular-nums">{x.waiting}</td>
+                      <td className="px-2 py-2 text-right sm:px-3 font-semibold tabular-nums">{x.closedToday}</td>
+                      <td className="px-2 py-2 text-right sm:px-3 tabular-nums">{x.waitMinutes == null ? "—" : `${x.waitMinutes} min`}</td>
                     </tr>
                   ))}
                 </tbody>
