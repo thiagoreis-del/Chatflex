@@ -17,6 +17,7 @@ import { useApiStatus } from "@/shared/api/api-status";
 import { useSocketStatus } from "@/shared/socket/socket-client";
 import { cn } from "@/lib/utils";
 import { OperationsPanel } from "./OperationsPanel";
+import { SlaReportPanel } from "./SlaReportPanel";
 
 function InfoCard({
   icon,
@@ -127,6 +128,7 @@ export function DashboardPage() {
       </section>
 
       <OperationsPanel />
+      <SlaReportPanel />
     </div>
   );
 }
