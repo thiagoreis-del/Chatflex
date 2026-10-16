@@ -69,6 +69,7 @@ const plans: Plan[] = [
     connectionLimit: 10,
     storageLimitMb: 51200,
     trialDays: 14,
+    queueLimit: 50,
     features: allFeatures,
     active: true,
   },

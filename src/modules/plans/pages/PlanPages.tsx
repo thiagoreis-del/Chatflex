@@ -2,7 +2,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Check, Minus, Plus } from "lucide-react";
+import { Check, Copy, Minus, Plus, Sparkles, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -18,24 +20,81 @@ import { companyKeys, planKeys } from "@/shared/api/query-keys";
 import { errorMessageKey } from "@/shared/errors/handle-error";
 import { CompanyStatusBadge } from "@/modules/platform-admin/components/badges";
 import { companiesQuery, companyContracts } from "@/modules/companies/api";
-import { createPlan, planContracts, planQuery, plansQuery, updatePlan } from "../api";
+import { createPlan, deletePlan, suggestedPlans, planContracts, planQuery, plansQuery, updatePlan } from "../api";
 import { PlanForm } from "../components/PlanForm";
 import { planFeatureKeys } from "../types";
 
 export function PlansListPage() {
   const { t } = useTranslation(["platform", "common"]);
   const q = useQuery(plansQuery());
+  const qc = useQueryClient();
+  const [toDelete, setToDelete] = useState<string | null>(null);
+  const refresh = () => qc.invalidateQueries({ queryKey: planKeys.lists() });
+  const onErr = (e: unknown) => toast.error(t(errorMessageKey(e)));
+  const toggle = useMutation({
+    mutationFn: (p: { id: string; active: boolean }) => updatePlan(p.id, { active: p.active }),
+    onSuccess: refresh,
+    onError: onErr,
+  });
+  const duplicate = useMutation({
+    mutationFn: (p: Parameters<typeof createPlan>[0]) =>
+      createPlan({ ...p, name: t("plans.copyName", { name: p.name }) }),
+    onSuccess: async () => {
+      toast.success(t("plans.form.created"));
+      await refresh();
+    },
+    onError: onErr,
+  });
+  const remove = useMutation({
+    mutationFn: deletePlan,
+    onSuccess: async () => {
+      toast.success(t("plans.deleted"));
+      setToDelete(null);
+      await refresh();
+    },
+    onError: (e) => {
+      setToDelete(null);
+      toast.error(t("plans.deleteError"));
+      console.warn(e);
+    },
+  });
+  const seed = useMutation({
+    mutationFn: async (existing: string[]) => {
+      const names = new Set(existing.map((n) => n.toUpperCase()));
+      let created = 0;
+      for (const p of suggestedPlans) {
+        if (names.has(p.name)) continue;
+        await createPlan(p);
+        created++;
+      }
+      return created;
+    },
+    onSuccess: async (n) => {
+      toast.success(t("plans.seeded", { count: n }));
+      await refresh();
+    },
+    onError: onErr,
+  });
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
         title={t("plans.title")}
         description={t("plans.subtitle")}
         actions={
+          <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            disabled={seed.isPending || !q.data}
+            onClick={() => seed.mutate((q.data ?? []).map((p) => p.name))}
+          >
+            <Sparkles className="size-4" aria-hidden /> {t("plans.seed")}
+          </Button>
           <Button asChild>
             <Link to="/app/plataforma/planos/novo">
               <Plus className="size-4" aria-hidden /> {t("plans.new")}
             </Link>
           </Button>
+          </div>
         }
       />
       <QueryBoundary query={q} contract={planContracts.list}>
@@ -54,6 +113,7 @@ export function PlansListPage() {
                       <TableHead>{t("plans.columns.limits")}</TableHead>
                       <TableHead>{t("plans.columns.trial")}</TableHead>
                       <TableHead>{t("plans.columns.status")}</TableHead>
+                      <TableHead className="text-right">{t("plans.columns.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -83,12 +143,46 @@ export function PlansListPage() {
                             connections: p.connectionLimit,
                             storage: p.storageLimitMb,
                           })}
+                          <span className="block text-xs text-muted-foreground">
+                            {t("plans.queuesShort", { count: p.queueLimit })}
+                          </span>
                         </TableCell>
                         <TableCell>{t("plans.trialDays", { count: p.trialDays })}</TableCell>
                         <TableCell>
-                          <Badge variant={p.active ? "default" : "outline"}>
-                            {p.active ? t("plans.active") : t("plans.inactive")}
-                          </Badge>
+                          <button
+                            type="button"
+                            disabled={toggle.isPending}
+                            onClick={() => toggle.mutate({ id: p.id, active: !p.active })}
+                            title={p.active ? t("plans.deactivate") : t("plans.activate")}
+                          >
+                            <Badge variant={p.active ? "default" : "outline"}>
+                              {p.active ? t("plans.active") : t("plans.inactive")}
+                            </Badge>
+                          </button>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-right">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={t("plans.duplicate")}
+                            title={t("plans.duplicate")}
+                            disabled={duplicate.isPending}
+                            onClick={() => {
+                              const { id: _id, ...rest } = p;
+                              duplicate.mutate(rest);
+                            }}
+                          >
+                            <Copy className="size-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={t("plans.delete")}
+                            title={t("plans.delete")}
+                            onClick={() => setToDelete(p.id)}
+                          >
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
