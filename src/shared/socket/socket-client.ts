@@ -87,7 +87,10 @@ export const socketClient = {
     if (SOCKET_ENABLED) socketStatusStore.set("disconnected");
   },
   /** Assina um evento escopado pela empresa: `company-{id}-{name}`. */
-  onCompany(name: "ticket" | "appMessage" | "contact", handler: Handler) {
+  onCompany(
+    name: "ticket" | "appMessage" | "contact" | "whatsapp" | "whatsappSession",
+    handler: Handler,
+  ) {
     const cid = companyId ?? sessionStore.get().user?.companyId;
     if (!cid) return () => {};
     const event = `company-${cid}-${name}`;
