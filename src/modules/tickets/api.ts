@@ -31,6 +31,17 @@ export interface AttendantMetric {
   id: number;
   name: string;
   closedToday: number;
+  open: number;
+  avgHandleMinutes: number | null;
+}
+
+export interface QueueMetric {
+  id: number;
+  name: string;
+  color: string;
+  closedToday: number;
+  waiting: number;
+  waitMinutes: number | null;
 }
 
 export interface OperationalDashboard {
@@ -38,7 +49,13 @@ export interface OperationalDashboard {
   open: number;
   closedToday: number;
   attendants: AttendantMetric[];
+  queues: QueueMetric[];
+  hourly: { hour: number; created: number; closed: number }[];
   firstResponseMinutes: number | null;
+  /** TME: espera atual dos tickets aguardando (ou 1ª resposta dos encerrados). */
+  waitMinutes: number | null;
+  /** TMA: do início do atendimento ao encerramento, nos encerrados de hoje. */
+  handleMinutes: number | null;
   attendantsPartial: boolean;
 }
 
@@ -115,41 +132,88 @@ export const operationalDashboardQuery = () =>
         get("open"),
         get("closed", { date }),
       ]);
-      const byAttendant = new Map<number, AttendantMetric>();
+      const now = Date.now();
+      const minutes = (from?: string | null, to?: string | number | null) => {
+        if (!from || to == null) return null;
+        const v = (new Date(to).getTime() - new Date(from).getTime()) / 60_000;
+        return Number.isFinite(v) && v >= 0 && v < 60 * 24 * 7 ? v : null;
+      };
+      const avg = (list: number[]) =>
+        list.length ? Math.round(list.reduce((a, b) => a + b, 0) / list.length) : null;
+      const hourly = Array.from({ length: 24 }, (_, hour) => ({ hour, created: 0, closed: 0 }));
+      const today = new Date().toDateString();
+      for (const tk of [...(pending.tickets ?? []), ...(open.tickets ?? []), ...(closed.tickets ?? [])]) {
+        const d = tk.createdAt ? new Date(tk.createdAt) : null;
+        if (d && d.toDateString() === today) hourly[d.getHours()]!.created += 1;
+      }
+      const byAttendant = new Map<number, AttendantMetric & { handle: number[] }>();
+      const byQueue = new Map<number, QueueMetric & { wait: number[] }>();
       const firstResponseTimes: number[] = [];
+      const handleTimes: number[] = [];
       for (const ticket of closed.tickets ?? []) {
-        if (ticket.createdAt && ticket.firstResponseAt) {
-          const minutes =
-            (new Date(ticket.firstResponseAt).getTime() - new Date(ticket.createdAt).getTime()) /
-            60_000;
-          if (Number.isFinite(minutes) && minutes >= 0) firstResponseTimes.push(minutes);
+        const closedAt = new Date(ticket.updatedAt);
+        if (closedAt.toDateString() === today) hourly[closedAt.getHours()]!.closed += 1;
+        const fr = minutes(ticket.createdAt, ticket.firstResponseAt);
+        if (fr != null) firstResponseTimes.push(fr);
+        const handle = minutes(ticket.firstResponseAt ?? ticket.createdAt, ticket.updatedAt);
+        if (handle != null) handleTimes.push(handle);
+        if (ticket.queue) {
+          const q = byQueue.get(ticket.queue.id) ?? {
+            id: ticket.queue.id, name: ticket.queue.name, color: ticket.queue.color,
+            closedToday: 0, waiting: 0, waitMinutes: null, wait: [],
+          };
+          q.closedToday += 1;
+          byQueue.set(q.id, q);
         }
         if (!ticket.user) continue;
-        const current = byAttendant.get(ticket.user.id);
-        if (current) current.closedToday += 1;
-        else
-          byAttendant.set(ticket.user.id, {
-            id: ticket.user.id,
-            name: ticket.user.name,
-            closedToday: 1,
-          });
+        const a = byAttendant.get(ticket.user.id) ?? {
+          id: ticket.user.id, name: ticket.user.name, closedToday: 0, open: 0, avgHandleMinutes: null, handle: [],
+        };
+        a.closedToday += 1;
+        if (handle != null) a.handle.push(handle);
+        byAttendant.set(a.id, a);
+      }
+      for (const ticket of open.tickets ?? []) {
+        if (!ticket.user) continue;
+        const a = byAttendant.get(ticket.user.id) ?? {
+          id: ticket.user.id, name: ticket.user.name, closedToday: 0, open: 0, avgHandleMinutes: null, handle: [],
+        };
+        a.open += 1;
+        byAttendant.set(a.id, a);
+      }
+      // TME: quem está aguardando agora, desde a abertura do ticket.
+      const waitNow: number[] = [];
+      for (const ticket of pending.tickets ?? []) {
+        const w = minutes(ticket.createdAt ?? ticket.updatedAt, now);
+        if (w != null) waitNow.push(w);
+        if (!ticket.queue) continue;
+        const q = byQueue.get(ticket.queue.id) ?? {
+          id: ticket.queue.id, name: ticket.queue.name, color: ticket.queue.color,
+          closedToday: 0, waiting: 0, waitMinutes: null, wait: [],
+        };
+        q.waiting += 1;
+        if (w != null) q.wait.push(w);
+        byQueue.set(q.id, q);
       }
       return {
         pending: pending.count ?? pending.tickets.length,
         open: open.count ?? open.tickets.length,
         closedToday: closed.count ?? closed.tickets.length,
-        attendants: [...byAttendant.values()].sort((a, b) => b.closedToday - a.closedToday),
-        firstResponseMinutes: firstResponseTimes.length
-          ? Math.round(
-              firstResponseTimes.reduce((total, value) => total + value, 0) /
-                firstResponseTimes.length,
-            )
-          : null,
-        attendantsPartial: !!closed.hasMore,
+        attendants: [...byAttendant.values()]
+          .map(({ handle, ...a }) => ({ ...a, avgHandleMinutes: avg(handle) }))
+          .sort((a, b) => b.closedToday - a.closedToday || b.open - a.open),
+        queues: [...byQueue.values()]
+          .map(({ wait, ...q }) => ({ ...q, waitMinutes: avg(wait) }))
+          .sort((a, b) => b.closedToday + b.waiting - (a.closedToday + a.waiting)),
+        hourly,
+        firstResponseMinutes: avg(firstResponseTimes),
+        waitMinutes: avg(waitNow.length ? waitNow : firstResponseTimes),
+        handleMinutes: avg(handleTimes),
+        attendantsPartial: !!(closed.hasMore || pending.hasMore || open.hasMore),
       };
     },
-    staleTime: 30_000,
-    refetchInterval: 60_000,
+    staleTime: 15_000,
+    refetchInterval: 30_000,
   });
 
 /** Grupos: tickets ativos (aberto + aguardando) cujo contato é grupo. */
