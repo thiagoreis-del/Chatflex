@@ -5,8 +5,17 @@ import { apiRequest } from "@/shared/api/client";
 export const VPS_LIMITS = {
   cpuPercent: 80,
   memoryPercent: 85,
+  /** Atenção a partir de 80%, crítico a partir de 90%. */
+  diskWarningPercent: 80,
   diskPercent: 90,
   activeConnections: 40,
+} as const;
+
+/** Capacidade contratada da VPS (referência exibida no painel). */
+export const VPS_CAPACITY = {
+  cpuCores: 4,
+  memoryGb: 8,
+  diskGb: 100,
 } as const;
 
 /**
