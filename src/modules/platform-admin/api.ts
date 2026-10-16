@@ -47,9 +47,7 @@ async function aggregateDashboard(signal: AbortSignal): Promise<PlatformDashboar
     apiRequest<unknown>("/whatsapp/all?session=0", { signal }).catch(() => []),
     apiRequest<unknown>("/invoices/all", { signal }).catch(() => []),
   ]);
-  const companies = arr<RawCompany>(companiesRaw, "companies").filter(
-    (c) => !String(c.name ?? "").toLowerCase().includes("notasflex"),
-  );
+  const companies = arr<RawCompany>(companiesRaw, "companies");
   const ids = new Set(companies.map((c) => c.id));
   const plans = new Map(arr<RawPlan>(plansRaw, "plans").map((p) => [p.id, p]));
   const now = Date.now();
