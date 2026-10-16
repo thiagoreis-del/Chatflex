@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Activity, Cpu, Database, HardDrive, MemoryStick, Server, Smartphone } from "lucide-react";
+import { Activity, Cpu, Database, Globe, HardDrive, MemoryStick, Radio, Server, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useConnectivity } from "@/shared/connectivity/connectivity";
+import { useSocketStatus } from "@/shared/socket/socket-client";
 import {
   VPS_CAPACITY,
   VPS_LIMITS,
@@ -90,6 +92,33 @@ function ServiceBadge({ status }: { status: string | null | undefined }) {
   );
 }
 
+function ConnectivityBadge({
+  state,
+  onlineLabel,
+  offlineLabel,
+  unknownLabel,
+}: {
+  state: "unknown" | "online" | "offline";
+  onlineLabel: string;
+  offlineLabel: string;
+  unknownLabel: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+        state === "online"
+          ? "bg-success/15 text-success"
+          : state === "offline"
+            ? "bg-destructive/15 text-destructive"
+            : "bg-muted text-muted-foreground",
+      )}
+    >
+      {state === "online" ? onlineLabel : state === "offline" ? offlineLabel : unknownLabel}
+    </span>
+  );
+}
+
 /** Mini-gráfico do histórico real coletado nesta sessão do painel. */
 function Sparkline({ samples, pick, level }: { samples: MetricsSample[]; pick: (s: MetricsSample) => number | null; level: HealthLevel }) {
   const { t } = useTranslation("platform");
@@ -114,8 +143,11 @@ function Sparkline({ samples, pick, level }: { samples: MetricsSample[]; pick: (
 
 export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard | undefined }) {
   const { t } = useTranslation("platform");
+  const { t: tc } = useTranslation("common");
   const q = useQuery(serverHealthQuery());
   const health = q.data ?? null;
+  const connectivity = useConnectivity();
+  const socketStatus = useSocketStatus();
 
   const online = dashboard?.connectionsOnline ?? 0;
   const companies = dashboard?.companies.active ?? 0;
@@ -299,6 +331,81 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
           </p>
         </div>
       )}
+
+      <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
+        <p className="flex items-center gap-2 font-medium text-muted-foreground">
+          <Radio className="size-4" aria-hidden />
+          {tc("connectivity.title")}
+        </p>
+        <ul className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+          <li className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <Globe className="size-3.5 text-muted-foreground" aria-hidden />
+              {tc("connectivity.internet")}
+            </span>
+            <ConnectivityBadge
+              state={connectivity.internet}
+              onlineLabel={tc("connectivity.online")}
+              offlineLabel={tc("connectivity.offline")}
+              unknownLabel={tc("connectivity.unknown")}
+            />
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <Server className="size-3.5 text-muted-foreground" aria-hidden />
+              {tc("connectivity.api")}
+            </span>
+            <ConnectivityBadge
+              state={connectivity.api}
+              onlineLabel={tc("connectivity.online")}
+              offlineLabel={tc("connectivity.offline")}
+              unknownLabel={tc("connectivity.unknown")}
+            />
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <Radio className="size-3.5 text-muted-foreground" aria-hidden />
+              {tc("connectivity.socket")}
+            </span>
+            <span
+              className={cn(
+                "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                socketStatus === "connected"
+                  ? "bg-success/15 text-success"
+                  : socketStatus === "reconnecting" || socketStatus === "connecting"
+                    ? "bg-warning/15 text-warning-foreground dark:text-warning"
+                    : "bg-muted text-muted-foreground",
+              )}
+            >
+              {tc(`connectivity.${socketStatus === "connected" ? "connected" : socketStatus === "reconnecting" || socketStatus === "connecting" ? "reconnecting" : socketStatus === "disabled" ? "disabled" : "disconnected"}`)}
+            </span>
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <Smartphone className="size-3.5 text-muted-foreground" aria-hidden />
+              {tc("connectivity.whatsapp")}
+            </span>
+            <span
+              className={cn(
+                "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                online > 0 ? "bg-success/15 text-success" : "bg-muted text-muted-foreground",
+              )}
+            >
+              {online > 0
+                ? tc("connectivity.connected")
+                : tc("connectivity.disconnected")}
+            </span>
+          </li>
+        </ul>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {tc("connectivity.socketNote")}
+          {connectivity.lastCheckedAt
+            ? ` · ${tc("connectivity.lastChecked", {
+                time: new Date(connectivity.lastCheckedAt).toLocaleTimeString("pt-BR"),
+              })}`
+            : ""}
+        </p>
+      </div>
 
       <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
         <p className="flex items-center gap-2 font-medium text-muted-foreground">
