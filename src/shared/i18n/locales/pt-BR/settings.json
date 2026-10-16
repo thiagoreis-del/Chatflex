@@ -26,6 +26,6 @@
     "enabled": "Enviar mensagem fora do expediente",
     "placeholder": "Ex.: Olá! Nosso atendimento é de segunda a sexta, das 8h às 18h. Responderemos assim que possível.",
     "required": "Escreva a mensagem ou desative a opção.",
-    "backendNote": "O envio automático depende do servidor ler esta configuração."
+    "backendNote": "Vale para todas as conexões de WhatsApp da empresa. O servidor envia a mensagem automaticamente quando um cliente escreve fora do horário (exceto em grupos e conversas já em atendimento)."
   }
 }

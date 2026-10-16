@@ -35,7 +35,7 @@ export function SettingsPage() {
   }, [q.data, form]);
 
   const save = useMutation({
-    mutationFn: saveBusinessHours,
+    mutationFn: (s: BusinessHoursSetting) => saveBusinessHours(companyId, s),
     onSuccess: () => {
       toast.success(t("saved"));
       void qc.invalidateQueries({ queryKey: ["settings", companyId] });
