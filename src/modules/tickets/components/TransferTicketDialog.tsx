@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ticketKeys } from "@/shared/api/query-keys";
-import { queuesQuery } from "@/modules/queues/api";
 import { usersQuery } from "@/modules/users/api";
 import { transferTicket } from "../api";
 import type { Ticket } from "../types";
@@ -41,13 +40,11 @@ export function TransferTicketDialog({
 }) {
   const { t } = useTranslation("tickets");
   const qc = useQueryClient();
-  const queues = useQuery({ ...queuesQuery(), enabled: open });
   const users = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: open });
-  const [queueId, setQueueId] = useState<string>(ticket.queue ? String(ticket.queue.id) : "");
+  const [queueId] = useState<string>(ticket.queue ? String(ticket.queue.id) : "");
   const [userId, setUserId] = useState<string>(ANY);
   const [note, setNote] = useState("");
   const [mode, setMode] = useState<"forward" | "refuse">("forward");
-  const [reason, setReason] = useState("");
   const refusing = mode === "refuse";
 
   const eligible = (users.data?.data ?? []).filter(
@@ -56,13 +53,17 @@ export function TransferTicketDialog({
 
   const mutation = useMutation({
     mutationFn: () => {
-      const text = refusing
-        ? `${t("transfer.refusedPrefix")}: ${reason.trim()}${note.trim() ? `\n${note.trim()}` : ""}`
-        : note.trim();
+      // Recusar devolve o ticket à fila atual, sem atendente e sem preencher nada.
+      if (refusing) {
+        return transferTicket(ticket.id, {
+          ...(ticket.queue ? { queueId: ticket.queue.id } : {}),
+          userId: null,
+        });
+      }
       return transferTicket(ticket.id, {
         queueId: Number(queueId),
-        userId: refusing || userId === ANY ? null : Number(userId),
-        ...(text ? { note: text } : {}),
+        userId: userId === ANY ? null : Number(userId),
+        ...(note.trim() ? { note: note.trim() } : {}),
       });
     },
     onSuccess: (tk) => {
@@ -98,42 +99,6 @@ export function TransferTicketDialog({
               </button>
             ))}
           </div>
-          {refusing && (
-            <div className="space-y-2">
-              <Label htmlFor="refuse-reason">{t("transfer.reason")}</Label>
-              <Textarea
-                id="refuse-reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={t("transfer.reasonPlaceholder")}
-                rows={2}
-              />
-            </div>
-          )}
-          <div className="space-y-2">
-            <Label>{t("transfer.queue")}</Label>
-            <Select
-              value={queueId}
-              onValueChange={(v) => {
-                setQueueId(v);
-                setUserId(ANY);
-              }}
-            >
-              <SelectTrigger aria-label={t("transfer.queue")}>
-                <SelectValue placeholder={t("transfer.queuePlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {(queues.data ?? []).map((q) => (
-                  <SelectItem key={q.id} value={String(q.id)}>
-                    <span className="inline-flex items-center gap-2">
-                      <span className="size-2 rounded-full" style={{ backgroundColor: q.color }} />
-                      {q.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
           {!refusing && (
           <div className="space-y-2">
             <Label>{t("transfer.user")}</Label>
@@ -152,22 +117,24 @@ export function TransferTicketDialog({
             </Select>
           </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="transfer-note">{t("transfer.note")}</Label>
-            <Textarea
-              id="transfer-note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder={t("transfer.notePlaceholder")}
-              rows={3}
-            />
-          </div>
+          {!refusing && (
+            <div className="space-y-2">
+              <Label htmlFor="transfer-note">{t("transfer.note")}</Label>
+              <Textarea
+                id="transfer-note"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={t("transfer.notePlaceholder")}
+                rows={3}
+              />
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("transfer.cancel")}
           </Button>
-          <Button disabled={!queueId || mutation.isPending || (refusing && !reason.trim())} onClick={() => mutation.mutate()}>
+          <Button disabled={mutation.isPending || (!refusing && !queueId)} onClick={() => mutation.mutate()}>
             {t(refusing ? "transfer.refuseSubmit" : "transfer.submit")}
           </Button>
         </DialogFooter>
