@@ -52,6 +52,11 @@ import {
 } from "../api";
 import type { WhatsAppStatus } from "@/modules/whatsapp/types";
 import { SensitiveActionDialog } from "../components/SensitiveActionDialog";
+import {
+  CompanyQuickActions,
+  ConnectionRowActions,
+  MemberAccessButton,
+} from "../components/CompanyAdminActions";
 import type { Company, CompanyAction } from "../types";
 
 function Info({ label, children }: { label: string; children: ReactNode }) {
@@ -122,6 +127,8 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
   const { t } = useTranslation(["platform", "whatsapp"]);
   const usage = useQuery(companyUsageQuery(companyId));
   const conns = useQuery(companyConnectionsQuery(companyId));
+  const qcc = useQueryClient();
+  const refreshConns = () => void qcc.invalidateQueries({ queryKey: companyKeys.usage(companyId) });
   return (
     <div className="space-y-4">
       <QueryBoundary query={usage} contract={companyContracts.usage}>
@@ -148,6 +155,7 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
                     <TableHead>
                       {t("platform:companies.detail.connectionColumns.default")}
                     </TableHead>
+                    <TableHead className="text-right">{t("platform:companyAdmin.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -166,6 +174,9 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
                         ) : (
                           "—"
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <ConnectionRowActions connection={w} onChanged={refreshConns} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -244,6 +255,7 @@ function UsersPanel({
                     <TableHead>{t("platform:companies.detail.userColumns.name")}</TableHead>
                     <TableHead>{t("platform:companies.detail.userColumns.email")}</TableHead>
                     <TableHead>{t("platform:companies.detail.userColumns.queues")}</TableHead>
+                    <TableHead className="text-right">{t("platform:companyAdmin.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -252,6 +264,13 @@ function UsersPanel({
                       <TableCell className="font-medium">{u.name}</TableCell>
                       <TableCell>{u.email}</TableCell>
                       <TableCell>{u.queues.length === 0 ? "—" : u.queues.join(", ")}</TableCell>
+                      <TableCell className="text-right">
+                        <MemberAccessButton
+                          member={u}
+                          companyName={companyName ?? ""}
+                          onAccess={setAccess}
+                        />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -336,6 +355,7 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
                 <Pencil className="size-4" aria-hidden /> {t("common:actions.edit")}
               </Link>
             </Button>
+            <CompanyQuickActions company={c} />
           </div>
         }
       />
