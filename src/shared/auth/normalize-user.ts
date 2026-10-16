@@ -15,7 +15,8 @@ export function normalizeUser(raw: unknown): AuthenticatedUser {
     companyId?: unknown;
     permissions?: unknown;
     queues?: { id?: unknown }[] | null;
-    company?: { dueDate?: string | null; status?: boolean | null } | null;
+    company?: { dueDate?: string | null; status?: boolean | null; name?: string | null } | null;
+    impersonated?: unknown;
   };
   let role: UserRole;
   if (u.role === "superadmin" || u.role === "company_admin" || u.role === "agent") {
@@ -39,5 +40,7 @@ export function normalizeUser(raw: unknown): AuthenticatedUser {
     queueIds: Array.isArray(u.queues)
       ? u.queues.map((q) => Number(q?.id)).filter((n) => Number.isFinite(n))
       : [],
+    impersonated: u.impersonated === true,
+    ...(u.company?.name ? { companyName: String(u.company.name) } : {}),
   };
 }

@@ -133,3 +133,28 @@ export function resetPassword(token: string, password: string) {
     skipRefresh: true,
   });
 }
+
+/** Superadmin: troca o token pelo acesso delegado à empresa (auditado no servidor). */
+export async function enterCompany(companyId: string) {
+  const res = await apiRequest<LoginResponse>(`/companies/${encodeURIComponent(companyId)}/enter`, {
+    method: "POST",
+  });
+  await applyDelegatedSession(res);
+}
+
+/** Encerra o acesso delegado e restaura o ambiente da plataforma. */
+export async function exitCompany() {
+  const res = await apiRequest<LoginResponse>("/companies/exit", { method: "POST" });
+  await applyDelegatedSession(res);
+}
+
+async function applyDelegatedSession(res: LoginResponse) {
+  const token = res.accessToken ?? res.token;
+  if (!token) throw new Error("Token ausente na resposta");
+  socketClient.disconnect();
+  tokenStore.set(token);
+  const user = normalizeUser(res.user);
+  saveUser(user);
+  setSessionUser(user);
+  socketClient.connect();
+}
