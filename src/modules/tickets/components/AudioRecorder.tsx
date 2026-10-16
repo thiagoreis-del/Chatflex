@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Mic, Square, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { audioExtension, pickAudioMime } from "../audio-format";
 
 function formatDuration(seconds: number) {
   const minutes = Math.floor(seconds / 60);
   return `${String(minutes).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
+
+export type RecorderError = "permission" | "unsupported" | "recorder" | "empty";
 
 export function AudioRecorder({
   disabled,
@@ -14,9 +17,9 @@ export function AudioRecorder({
   onError,
 }: {
   disabled?: boolean;
-  labels: { start: string; stop: string; cancel: string; recording: string };
+  labels: { start: string; stop: string; cancel: string; recording: string; unsupported: string };
   onReady: (file: File) => void;
-  onError: () => void;
+  onError: (reason: RecorderError) => void;
 }) {
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -39,12 +42,23 @@ export function AudioRecorder({
 
   useEffect(() => () => release(), []);
 
+  const supported =
+    typeof navigator !== "undefined" &&
+    typeof MediaRecorder !== "undefined" &&
+    !!navigator.mediaDevices?.getUserMedia;
+
   const start = async () => {
+    if (!supported) return onError("unsupported");
+    const mimeType = pickAudioMime((m) => MediaRecorder.isTypeSupported(m));
+    let stream: MediaStream;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const preferred = "audio/webm;codecs=opus";
-      const mimeType = MediaRecorder.isTypeSupported(preferred) ? preferred : "audio/webm";
-      const recorder = new MediaRecorder(stream, { mimeType });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      release();
+      return onError("permission");
+    }
+    try {
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       streamRef.current = stream;
       recorderRef.current = recorder;
       chunksRef.current = [];
@@ -53,10 +67,17 @@ export function AudioRecorder({
       recorder.ondataavailable = (event) => {
         if (event.data.size) chunksRef.current.push(event.data);
       };
+      recorder.onerror = () => {
+        cancelledRef.current = true;
+        onError("recorder");
+      };
       recorder.onstop = () => {
-        if (!cancelledRef.current && chunksRef.current.length) {
-          const blob = new Blob(chunksRef.current, { type: recorder.mimeType });
-          onReady(new File([blob], `audio-${Date.now()}.webm`, { type: recorder.mimeType }));
+        if (!cancelledRef.current) {
+          const type = (recorder.mimeType || mimeType || "audio/webm").split(";")[0]!;
+          const blob = new Blob(chunksRef.current, { type });
+          // Gravações vazias (ou < 1 KB) não são enviadas.
+          if (blob.size < 1024) onError("empty");
+          else onReady(new File([blob], `audio-${Date.now()}.${audioExtension(type)}`, { type }));
         }
         chunksRef.current = [];
         setRecording(false);
@@ -65,8 +86,9 @@ export function AudioRecorder({
       recorder.start(250);
       setRecording(true);
     } catch {
+      stream.getTracks().forEach((track) => track.stop());
       release();
-      onError();
+      onError("recorder");
     }
   };
 
@@ -74,23 +96,22 @@ export function AudioRecorder({
   const cancel = () => {
     cancelledRef.current = true;
     if (recorderRef.current?.state === "recording") recorderRef.current.stop();
-    else release();
+    else {
+      release();
+      setRecording(false);
+    }
   };
 
   if (!recording) {
+    const label = supported ? labels.start : labels.unsupported;
     return (
       <Button
         type="button"
         variant="ghost"
         size="icon"
-        disabled={
-          disabled ||
-          typeof navigator === "undefined" ||
-          typeof MediaRecorder === "undefined" ||
-          !navigator.mediaDevices?.getUserMedia
-        }
-        aria-label={labels.start}
-        title={labels.start}
+        disabled={disabled}
+        aria-label={label}
+        title={label}
         onClick={() => void start()}
       >
         <Mic className="size-4" />

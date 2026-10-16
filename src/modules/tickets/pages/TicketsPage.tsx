@@ -567,8 +567,10 @@ function Conversation({
     },
   });
 
-  const addFiles = (list: File[]) => {
-    const ok = list.filter((f) => f.size <= MAX_MEDIA_BYTES);
+  const addFiles = (input: File[]) => {
+    const list = input.filter((f) => !isDangerousFile(f.name));
+    if (list.length < input.length) toast.error(t("toast.fileBlocked"));
+    const ok = list.filter((f) => f.size > 0 && f.size <= MAX_MEDIA_BYTES);
     if (ok.length < list.length) toast.error(t("toast.fileTooLarge"));
     if (!ok.length) return;
     setFiles((current) => {
@@ -1230,9 +1232,10 @@ function Conversation({
                 stop: t("audio.stop"),
                 cancel: t("audio.cancel"),
                 recording: t("audio.recording"),
+                unsupported: t("audio.unsupported"),
               }}
               onReady={selectFile}
-              onError={() => toast.error(t("toast.microphoneError"))}
+              onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
             <textarea
               rows={2}
