@@ -21,6 +21,21 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
+    // Arquivos de uma versão antiga (após nova publicação): recarrega uma vez para buscar a nova.
+    const msg = String((error as Error | undefined)?.message ?? "");
+    if (
+      /reading 'component'|Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(
+        msg,
+      )
+    ) {
+      const key = "chunk-reload-at";
+      const last = Number(sessionStorage.getItem(key) ?? 0);
+      if (Date.now() - last > 10_000) {
+        sessionStorage.setItem(key, String(Date.now()));
+        window.location.reload();
+        return;
+      }
+    }
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
