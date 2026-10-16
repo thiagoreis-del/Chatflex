@@ -21,6 +21,7 @@ import {
   Zap,
   DatabaseBackup,
   UsersRound,
+  ImagePlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
