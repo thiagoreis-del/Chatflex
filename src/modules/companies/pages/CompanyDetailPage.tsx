@@ -13,6 +13,7 @@ import { LogIn, MessagesSquare, Pencil, Plus, ShieldAlert, Smartphone, Users } f
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImpersonationLogTable } from "@/modules/audit/components/ImpersonationLogTable";
 import {
   Table,
   TableBody,
@@ -510,6 +511,9 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
               companyId={companyId}
               companyName={q.data?.tradeName || q.data?.legalName}
             />
+            <div className="mt-6">
+              <ImpersonationLogTable companyId={companyId} />
+            </div>
           </TabsContent>
           <TabsContent value="connections" className="mt-0">
             <ConnectionsPanel companyId={companyId} />
