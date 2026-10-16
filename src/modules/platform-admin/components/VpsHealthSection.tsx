@@ -227,6 +227,33 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
         />
       </div>
 
+      <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
+        <p className="flex items-center gap-2 font-medium text-muted-foreground">
+          <Smartphone className="size-4" aria-hidden />
+          {t("vps.whatsappTitle")}
+        </p>
+        <ul className="mt-2 grid gap-1.5 sm:grid-cols-3">
+          <li className="flex items-center justify-between gap-2">
+            <span>{t("vps.whatsappActive")}</span>
+            <span className="inline-flex rounded-full bg-success/15 px-2 py-0.5 text-xs font-semibold tabular-nums text-success">
+              {online}
+            </span>
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span>{t("vps.whatsappAwaitingQr")}</span>
+            <span className="inline-flex rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold tabular-nums text-warning-foreground dark:text-warning">
+              {dashboard?.connectionsAwaitingQr ?? 0}
+            </span>
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span>{t("vps.whatsappDisconnected")}</span>
+            <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+              {dashboard?.connectionsDisconnected ?? 0}
+            </span>
+          </li>
+        </ul>
+      </div>
+
       {health && (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
