@@ -34,9 +34,7 @@ describe("Pedidos em voo sobrevivem à troca de token", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     tokenStore.set("token-antigo");
-    const result = await apiRequest<{ ok: boolean }>("/tickets", {
-      headers: undefined,
-    } as never);
+    const result = await apiRequest<{ ok: boolean }>("/tickets");
     expect(result).toEqual({ ok: true });
     expect(calls).toBe(2);
     expect(unauthorized).not.toHaveBeenCalled();
