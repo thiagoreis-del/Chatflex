@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ticketKeys } from "@/shared/api/query-keys";
-import { queuesQuery } from "@/modules/queues/api";
 import { usersQuery } from "@/modules/users/api";
 import { transferTicket } from "../api";
 import type { Ticket } from "../types";
