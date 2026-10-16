@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { enterCompany } from "@/shared/auth/auth-service";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { LogIn, MessagesSquare, Pencil, Plus, ShieldAlert, Smartphone, Users } from "lucide-react";
+import { LogIn, MessagesSquare, Pencil, Plus, Smartphone, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
