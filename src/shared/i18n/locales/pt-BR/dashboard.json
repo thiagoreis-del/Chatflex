@@ -27,7 +27,7 @@
   "indicators": {
     "title": "Atendimentos de hoje",
     "description": "Visão rápida da fila e dos atendimentos da empresa atual.",
-    "updatedEveryMinute": "Atualização a cada minuto",
+    "updatedEveryMinute": "Atualização em tempo real",
     "open": "Em atendimento agora",
     "waiting": "Aguardando na fila",
     "closed": "Encerrados hoje",
@@ -35,14 +35,35 @@
     "firstResponsePending": "O servidor ainda precisa fornecer o horário da primeira resposta.",
     "minutes_one": "{{count}} minuto",
     "minutes_other": "{{count}} minutos",
-    "loadError": "Não foi possível carregar os indicadores de atendimento. Tente novamente em instantes."
+    "loadError": "Não foi possível carregar os indicadores de atendimento. Tente novamente em instantes.",
+    "tme": "TME — tempo médio de espera",
+    "tma": "TMA — tempo médio de atendimento",
+    "tmeHint": "Espera de quem está aguardando agora.",
+    "tmaHint": "Do início ao encerramento, hoje.",
+    "none": "Sem dados"
   },
   "attendants": {
     "title": "Desempenho por atendente",
-    "description": "Quantidade de atendimentos encerrados hoje por cada pessoa.",
+    "description": "Produtividade de hoje por pessoa.",
     "name": "Atendente",
     "closedToday": "Encerrados hoje",
     "empty": "Nenhum atendimento encerrado hoje com atendente identificado.",
-    "partial": "O servidor informou que há mais páginas. A divisão por atendente pode estar incompleta até existir um endpoint próprio de indicadores."
+    "partial": "O servidor informou que há mais páginas. A divisão por atendente pode estar incompleta até existir um endpoint próprio de indicadores.",
+    "open": "Em atendimento",
+    "tma": "TMA"
+  },
+  "hourly": {
+    "title": "Volume por horário",
+    "description": "Atendimentos abertos e encerrados hoje, hora a hora.",
+    "created": "Abertos",
+    "closed": "Encerrados"
+  },
+  "queues": {
+    "title": "Desempenho por fila",
+    "name": "Fila",
+    "waiting": "Aguardando",
+    "closedToday": "Encerrados hoje",
+    "tme": "TME",
+    "empty": "Nenhum atendimento com fila hoje."
   }
 }
