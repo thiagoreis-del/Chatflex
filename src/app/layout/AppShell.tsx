@@ -149,6 +149,19 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             </Link>
           </li>
           )}
+          {can(user, "module.connections") && (
+          <li>
+            <Link
+              to="/app/status"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
+              <ImagePlus className="size-4" aria-hidden />
+              {t("nav.modules.whatsappStatus")}
+            </Link>
+          </li>
+          )}
           <li>
             <Link
               to="/app/contatos"
