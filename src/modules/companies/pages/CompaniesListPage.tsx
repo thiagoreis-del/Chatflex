@@ -25,6 +25,7 @@ import { CompanyStatusBadge } from "@/modules/platform-admin/components/badges";
 import { FilterBar, SelectFilter, TextFilter } from "@/modules/platform-admin/components/FilterBar";
 import { plansQuery } from "@/modules/plans/api";
 import { CompanyQuickActions } from "../components/CompanyAdminActions";
+import { EnterCompanyButton } from "../components/EnterCompanyButton";
 import { companiesQuery, companyContracts } from "../api";
 import { companyStatuses, type CompanyFilters, type CompanyStatus } from "../types";
 
@@ -155,6 +156,7 @@ export function CompaniesListPage({
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        <EnterCompanyButton companyId={c.id} />
                         <Button asChild variant="ghost" size="sm">
                           <Link
                             to="/app/plataforma/empresas/$companyId"
