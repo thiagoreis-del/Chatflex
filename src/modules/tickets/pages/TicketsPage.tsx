@@ -602,7 +602,7 @@ function Conversation({
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const quick = useQuery(quickMessagesQuery());
+  const quick = useQuery(quickMessagesQuery(session.user?.companyId));
   const slashTerm = /^\/(\S*)$/.exec(text)?.[1];
   const showPicker = pickerOpen || slashTerm !== undefined;
   const pickerTerm = slashTerm ?? "";

@@ -41,9 +41,10 @@ import { ClosingMessageCard } from "@/modules/settings/ClosingMessageCard";
 export function QuickMessagesPage() {
   const { t } = useTranslation("quickMessages");
   const role = useSession().user?.role;
+  const companyId = useSession().user?.companyId;
   const isAdmin = role === "superadmin" || role === "company_admin";
   const qc = useQueryClient();
-  const query = useQuery(quickMessagesQuery());
+  const query = useQuery(quickMessagesQuery(companyId));
   const [search, setSearch] = useState("");
   const [form, setForm] = useState<QuickMessage | "new" | null>(null);
   const [toDelete, setToDelete] = useState<QuickMessage | null>(null);

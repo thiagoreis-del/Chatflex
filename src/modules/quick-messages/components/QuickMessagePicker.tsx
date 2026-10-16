@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/shared/auth/session-store";
 import { quickMessagesQuery } from "../api";
 import type { QuickMessage } from "../types";
 
@@ -22,7 +23,7 @@ export function QuickMessagePicker({
   onPick: (m: QuickMessage) => void;
 }) {
   const { t } = useTranslation("quickMessages");
-  const query = useQuery(quickMessagesQuery());
+  const query = useQuery(quickMessagesQuery(useSession().user?.companyId));
   const items = filterQuickMessages(query.data ?? [], term).slice(0, 8);
   return (
     <div
