@@ -9,37 +9,62 @@ export const VPS_LIMITS = {
   activeConnections: 40,
 } as const;
 
-/** CONTRATO PENDENTE: rota GET /server/health a instalar na VPS (docs/vps/server-health-route.js). */
-export interface ServerHealth {
-  hostname: string;
+/**
+ * Contrato real da VPS: GET /server-metrics (isAuth + isSuper).
+ * Resposta de ServerMetricsController.index.
+ */
+export interface ServerMetrics {
+  status: string;
+  serverTime: string;
   uptimeSeconds: number;
-  cpu: { cores: number; loadAvg1m: number; percent: number };
-  memory: { totalMB: number; usedMB: number; percent: number };
-  disk: { totalGB: number; usedGB: number; percent: number } | null;
-  pm2:
-    | {
-        name: string;
-        status: string;
-        restarts: number;
-        memoryMB: number;
-        cpuPercent: number;
-        uptimeSeconds: number | null;
-      }[]
-    | null;
+  processUptimeSeconds: number;
+  general: {
+    hostname: string;
+    platform: string;
+    release: string;
+    arch: string;
+    nodeVersion: string;
+    pid: number;
+  };
+  memory: {
+    /** Formatado pelo backend, ex.: "3.45 GB" */
+    total: string;
+    used: string;
+    free: string;
+    usedPercent: number;
+  };
+  cpu: {
+    model: string;
+    cores: number;
+    loadAverage1m: number;
+    loadAverage5m: number;
+    loadAverage15m: number;
+  };
+  /** Formato livre conforme o backend; exibido de forma defensiva. */
+  disk: { usedPercent?: number; total?: string; used?: string; free?: string } | null;
+  redis: { status?: string; usedMemory?: string } | null;
+  wuzapi: { status?: string } | null;
   collectedAt: string;
+  cacheTtlMs: number;
 }
 
-export const serverHealthContract = "GET /server/health (rota a instalar na VPS)";
+export const serverMetricsContract = "GET /server-metrics";
 
-/** Retorna null quando a rota ainda não existe na VPS — o painel cai para estimativas. */
+/** Percentual de CPU estimado a partir do load average de 1 min por núcleo. */
+export function cpuPercent(cpu: ServerMetrics["cpu"]): number {
+  if (!cpu.cores) return 0;
+  return Math.min(100, (cpu.loadAverage1m / cpu.cores) * 100);
+}
+
+/** Retorna null quando a rota não responde — o painel cai para estimativas. */
 export const serverHealthQuery = () =>
   queryOptions({
-    queryKey: ["platform", "server-health"],
+    queryKey: ["platform", "server-metrics"],
     refetchInterval: 30_000,
     retry: false,
     queryFn: async ({ signal }) => {
       try {
-        return await apiRequest<ServerHealth>("/server/health", { signal });
+        return await apiRequest<ServerMetrics>("/server-metrics", { signal });
       } catch {
         return null;
       }
