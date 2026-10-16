@@ -138,6 +138,8 @@ async function aggregateDashboard(signal: AbortSignal): Promise<PlatformDashboar
       .sort((a, b) => b.companies - a.companies),
     totalCompanies: companies.length,
     connectionsOnline: online,
+    connectionsAwaitingQr: awaitingQr,
+    connectionsDisconnected: disconnected,
     forecastRevenueInCents: forecast,
     dueSoon: dueSoon.sort(byDate("dueDate", 1)).slice(0, 6),
     overdueList: overdueList.sort(byDate("dueDate", 1)).slice(0, 6),
