@@ -14,7 +14,7 @@ import type {
 } from "./types";
 
 /**
- * CONFIRMADO no código ZapPro/Whaticket: GET/POST /companies, GET/PUT /companies/:id.
+ * CONFIRMADO: GET/POST /companies, GET/PUT /companies/:id.
  * Com mocks ativos, mantém os caminhos de demonstração /platform/companies.
  * Uso, limites por empresa e encerramento de teste NÃO existem no backend atual.
  */
@@ -130,7 +130,7 @@ interface BackendWhatsapp extends Partial<WhatsAppConnection> {
 }
 
 /**
- * CONFIRMADO no backend ZapPro/Whaticket: GET /whatsapp/all lista as conexões
+ * CONFIRMADO: GET /whatsapp/all lista as conexões
  * de TODAS as empresas (sem filtro no servidor). Uso exclusivo do superadmin:
  * filtramos pela empresa no cliente.
  */
@@ -169,7 +169,7 @@ export interface CompanyMember {
 }
 
 /**
- * CONFIRMADO no backend ZapPro/Whaticket: GET /users/list?companyId=X
+ * CONFIRMADO: GET /users/list?companyId=X
  * retorna os usuários da empresa informada (SimpleListService). Uso exclusivo
  * do superadmin para inspecionar empresas clientes.
  */
@@ -280,7 +280,7 @@ export function updateCompanyLimits(
   );
 }
 
-/** CONFIRMADO no backend ZapPro/Whaticket: DELETE /companies/:id (somente superadmin). */
+/** CONFIRMADO: DELETE /companies/:id (somente superadmin). */
 export function deleteCompany(companyId: string) {
   if (env.useMocks) return apiRequest<void>(ep.company(companyId), { method: "DELETE" });
   return apiRequest<void>(realPath(companyId), { method: "DELETE" });

@@ -98,7 +98,7 @@ export function withQuery(path: string, params: object): string {
 
 /**
  * Conexões WhatsApp (empresa).
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatbotFlex.
+ * CONTRATO PENDENTE: confirmar caminhos no backend do ChatbotFlex.
  */
 export const whatsappEndpoints = {
   list: "/whatsapp",
@@ -110,7 +110,7 @@ export const whatsappEndpoints = {
 
 /**
  * Contatos da empresa.
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatbotFlex.
+ * CONTRATO PENDENTE: confirmar caminhos no backend do ChatbotFlex.
  */
 export const contactEndpoints = {
   list: "/contacts",
@@ -138,7 +138,7 @@ export const whatsappContracts = [
 
 /**
  * Usuários (atendentes) e filas da empresa.
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatbotFlex.
+ * CONTRATO PENDENTE: confirmar caminhos no backend do ChatbotFlex.
  */
 export const userEndpoints = {
   list: "/users",
@@ -163,7 +163,7 @@ export const teamContracts = [
 
 /**
  * Atendimento (tickets e mensagens).
- * CONFIRMADO no código do backend ZapPro 15.0.2 (rotas/controllers); validar em execução na VPS.
+ * CONFIRMADO no código do backend (rotas/controllers); validar em execução na VPS.
  */
 export const ticketEndpoints = {
   list: "/tickets",
@@ -191,7 +191,7 @@ export const ticketContracts = [
 
 /**
  * Respostas rápidas.
- * CONTRATO PENDENTE: caminhos observados no backend ZapPro/Whaticket; confirmar no backend do ChatbotFlex.
+ * CONTRATO PENDENTE: confirmar caminhos no backend do ChatbotFlex.
  */
 export const quickMessageEndpoints = {
   base: "/quick-messages",
@@ -208,7 +208,7 @@ export const quickMessageContracts = [
 
 /**
  * Configurações por empresa (empresa do token).
- * CONTRATO PENDENTE: padrão Whaticket `GET/PUT /settings/:key`; confirmar no backend do ChatbotFlex.
+ * CONTRATO PENDENTE: padrão `GET/PUT /settings/:key`; confirmar no backend do ChatbotFlex.
  */
 /** SLA no servidor (contrato do guia PATCH-VPS-SLA). */
 export const slaEndpoints = {
@@ -231,7 +231,7 @@ export const backupEndpoints = {
 } as const;
 
 /**
- * Horário de atendimento (padrão ZapPro, confirmado no código do backend):
+ * Horário de atendimento (confirmado no código do backend):
  * - escala da empresa em Companies.schedules (PUT /companies/:id/schedules)
  * - modo em CompaniesSettings.scheduleType ("company" liga, "disabled" desliga)
  * - mensagem fora do expediente em Whatsapps.outOfHoursMessage (por conexão)

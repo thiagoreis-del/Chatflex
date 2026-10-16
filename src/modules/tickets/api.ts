@@ -243,7 +243,7 @@ export const groupTicketsQuery = (search?: string) =>
         apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, search }), {
           signal,
         }).catch(() => ({ tickets: [] as Ticket[] }));
-      // ZapPro guarda grupos com status "group"; também aceitamos aberto/aguardando marcados.
+      // O backend guarda grupos com status "group"; também aceitamos aberto/aguardando marcados.
       const [g, o, p] = await Promise.all([get("group"), get("open"), get("pending")]);
       const seen = new Set<number>();
       return [...(g?.tickets ?? []), ...(o?.tickets ?? []), ...(p?.tickets ?? [])]

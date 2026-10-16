@@ -1,4 +1,3 @@
-/** CONTRATO PENDENTE: formato baseado no backend Whaticket/ZapPro; confirmar. */
 export interface Contact {
   id: number;
   name: string;

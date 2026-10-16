@@ -1,4 +1,3 @@
-/** CONTRATO PENDENTE: formato baseado no backend Whaticket/ZapPro (QuickMessage); confirmar. */
 export interface QuickMessage {
   id: number;
   shortcode: string;

@@ -6,7 +6,7 @@ import { platformEndpoints as ep } from "@/shared/config/endpoints";
 import type { Plan, PlanInput } from "./types";
 
 /**
- * CONFIRMADO no código ZapPro/Whaticket: GET /plans/all, GET /plans/:id, POST /plans, PUT /plans/:id.
+ * CONFIRMADO: GET /plans/all, GET /plans/:id, POST /plans, PUT /plans/:id.
  * Com mocks ativos, mantém os caminhos de demonstração /platform/plans.
  */
 export const planContracts = { list: "GET /plans/all", detail: "GET /plans/:id" };
@@ -126,7 +126,7 @@ export async function updatePlan(planId: string, body: Partial<PlanInput>) {
   return fromBackendPlan(raw);
 }
 
-/** CONFIRMADO no ZapPro: DELETE /plans/:id. */
+/** CONFIRMADO: DELETE /plans/:id. */
 export async function deletePlan(planId: string) {
   return apiRequest<void>(
     env.useMocks ? ep.plan(planId) : `/plans/${encodeURIComponent(planId)}`,

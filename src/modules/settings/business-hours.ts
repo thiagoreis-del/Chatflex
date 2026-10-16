@@ -9,7 +9,7 @@ import {
 
 /**
  * Horário de atendimento e mensagem fora do expediente.
- * Usa as estruturas que o backend ZapPro já lê ao receber mensagens:
+ * Usa as estruturas que o backend já lê ao receber mensagens:
  * Companies.schedules + CompaniesSettings.scheduleType="company" + Whatsapps.outOfHoursMessage.
  * Com isso o próprio servidor envia a mensagem automática fora do horário.
  */

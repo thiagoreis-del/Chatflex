@@ -1,4 +1,3 @@
-/** CONTRATO PENDENTE: formato baseado no backend Whaticket/ZapPro; confirmar. */
 export type UserProfile = "admin" | "supervisor" | "user";
 
 export interface CompanyUser {
