@@ -24,6 +24,7 @@ import { formatNumber } from "@/shared/format/format";
 import { CompanyStatusBadge } from "@/modules/platform-admin/components/badges";
 import { FilterBar, SelectFilter, TextFilter } from "@/modules/platform-admin/components/FilterBar";
 import { plansQuery } from "@/modules/plans/api";
+import { CompanyQuickActions } from "../components/CompanyAdminActions";
 import { companiesQuery, companyContracts } from "../api";
 import { companyStatuses, type CompanyFilters, type CompanyStatus } from "../types";
 
@@ -170,6 +171,7 @@ export function CompaniesListPage({
                             {t("common:actions.edit")}
                           </Link>
                         </Button>
+                        <CompanyQuickActions company={c} compact />
                       </div>
                     </TableCell>
                   </TableRow>

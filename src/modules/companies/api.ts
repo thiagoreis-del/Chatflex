@@ -285,3 +285,17 @@ export function updateCompanyLimits(
     new Error("No servidor atual os limites vêm do plano. Troque o plano da empresa."),
   );
 }
+
+/** CONFIRMADO no backend ZapPro/Whaticket: DELETE /companies/:id (somente superadmin). */
+export function deleteCompany(companyId: string) {
+  if (env.useMocks) return apiRequest<void>(ep.company(companyId), { method: "DELETE" });
+  return apiRequest<void>(realPath(companyId), { method: "DELETE" });
+}
+
+/** Define nova senha temporária para um usuário da empresa (PUT /users/:id). */
+export function resetMemberPassword(member: { id: string; name: string; email: string }, password: string) {
+  return apiRequest<void>(`/users/${encodeURIComponent(member.id)}`, {
+    method: "PUT",
+    body: { name: member.name, email: member.email, password },
+  });
+}
