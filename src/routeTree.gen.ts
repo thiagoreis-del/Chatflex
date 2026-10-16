@@ -19,6 +19,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAtendimentoRouteImport } from './routes/app.atendimento'
+import { Route as AppChatInternoRouteImport } from './routes/app.chat-interno'
 import { Route as AppConexoesRouteImport } from './routes/app.conexoes'
 import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppContatosRouteImport } from './routes/app.contatos'
@@ -88,6 +89,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppAtendimentoRoute = AppAtendimentoRouteImport.update({
   id: '/atendimento',
   path: '/atendimento',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChatInternoRoute = AppChatInternoRouteImport.update({
+  id: '/chat-interno',
+  path: '/chat-interno',
   getParentRoute: () => AppRoute,
 } as any)
 const AppConexoesRoute = AppConexoesRouteImport.update({
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/atendimento': typeof AppAtendimentoRoute
+  '/app/chat-interno': typeof AppChatInternoRoute
   '/app/conexoes': typeof AppConexoesRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/atendimento': typeof AppAtendimentoRoute
+  '/app/chat-interno': typeof AppChatInternoRoute
   '/app/conexoes': typeof AppConexoesRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
@@ -271,6 +279,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/atendimento': typeof AppAtendimentoRoute
+  '/app/chat-interno': typeof AppChatInternoRoute
   '/app/conexoes': typeof AppConexoesRoute
   '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redefinir-senha'
     | '/app/atendimento'
+    | '/app/chat-interno'
     | '/app/conexoes'
     | '/app/configuracoes'
     | '/app/contatos'
@@ -336,6 +346,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redefinir-senha'
     | '/app/atendimento'
+    | '/app/chat-interno'
     | '/app/conexoes'
     | '/app/configuracoes'
     | '/app/contatos'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redefinir-senha'
     | '/app/atendimento'
+    | '/app/chat-interno'
     | '/app/conexoes'
     | '/app/configuracoes'
     | '/app/contatos'
@@ -471,6 +483,13 @@ declare module '@tanstack/react-router' {
       path: '/atendimento'
       fullPath: '/app/atendimento'
       preLoaderRoute: typeof AppAtendimentoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/chat-interno': {
+      id: '/app/chat-interno'
+      path: '/chat-interno'
+      fullPath: '/app/chat-interno'
+      preLoaderRoute: typeof AppChatInternoRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/conexoes': {
@@ -654,6 +673,7 @@ const AppPlataformaRouteWithChildren = AppPlataformaRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppAtendimentoRoute: typeof AppAtendimentoRoute
+  AppChatInternoRoute: typeof AppChatInternoRoute
   AppConexoesRoute: typeof AppConexoesRoute
   AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppContatosRoute: typeof AppContatosRoute
@@ -667,6 +687,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAtendimentoRoute: AppAtendimentoRoute,
+  AppChatInternoRoute: AppChatInternoRoute,
   AppConexoesRoute: AppConexoesRoute,
   AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppContatosRoute: AppContatosRoute,
