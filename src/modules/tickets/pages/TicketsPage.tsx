@@ -881,27 +881,39 @@ function Conversation({
   });
 
   // Reenvia mensagens de texto enfileiradas quando a conexão volta.
+  // Cada item tem id único e só sai da fila após confirmação do backend,
+  // e a mensagem confirmada entra no cache sem duplicar (checagem por id).
+  const apiState = useConnectivity().api;
   useEffect(() => {
+    let flushing = false;
     const flush = async () => {
-      const pending = listOutbox(companyId).filter((m) => m.ticketId === ticket.id);
-      for (const item of pending) {
-        try {
-          const message = await sendMessage(ticket.id, item.body, item.isPrivate, null);
-          removeFromOutbox(companyId, item.id);
-          if (message?.id) {
-            qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (previous = []) =>
-              previous.some((m) => m.id === message.id) ? previous : [...previous, message],
-            );
+      if (flushing) return; // evita reenvio duplo em eventos simultâneos
+      flushing = true;
+      try {
+        const pending = listOutbox(companyId).filter((m) => m.ticketId === ticket.id);
+        for (const item of pending) {
+          try {
+            const message = await sendMessage(ticket.id, item.body, item.isPrivate, null);
+            removeFromOutbox(companyId, item.id);
+            if (message?.id) {
+              qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (previous = []) =>
+                previous.some((m) => m.id === message.id) ? previous : [...previous, message],
+              );
+            }
+          } catch {
+            return; // ainda sem conexão: tenta de novo no próximo evento
           }
-        } catch {
-          return; // ainda sem conexão: tenta de novo no próximo evento
         }
+        if (pending.length) void qc.invalidateQueries({ queryKey: ticketKeys.all });
+      } finally {
+        flushing = false;
       }
-      if (pending.length) void qc.invalidateQueries({ queryKey: ticketKeys.all });
     };
     window.addEventListener("online", flush);
+    // Também dispara quando a sonda confirma que a API voltou.
+    if (apiState === "online") void flush();
     return () => window.removeEventListener("online", flush);
-  }, [companyId, ticket.id, qc]);
+  }, [companyId, ticket.id, qc, apiState]);
 
   const addFiles = (input: File[]) => {
     const list = input.filter((f) => !isDangerousFile(f.name));
