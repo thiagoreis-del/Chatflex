@@ -31,5 +31,19 @@
     "msg2": "Olá! Vou verificar agora para você.",
     "queue": "Fila: Suporte"
   },
+  "plans": {
+    "title": "Planos",
+    "subtitle": "Você paga só pela quantidade de WhatsApps conectados.",
+    "recommended": "Mais escolhido",
+    "perMonth": "/mês",
+    "connections_one": "{{count}} conexão WhatsApp",
+    "connections_other": "{{count}} conexões WhatsApp",
+    "unlimitedTickets": "Atendimentos ilimitados",
+    "unlimitedUsers": "Usuários ilimitados",
+    "unlimitedQueues": "Filas ilimitadas",
+    "support": "Suporte",
+    "start": "Começar agora",
+    "sales": "Falar com vendas"
+  },
   "footer": "© {{year}} {{appName}}"
 }

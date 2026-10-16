@@ -140,10 +140,16 @@ const noFeatures = {
   externalApi: false, automations: false,
 };
 
-/** Sugestões iniciais (editáveis depois de criadas; não são valores fixos do sistema). */
+/** Planos padrão por conexões WhatsApp (usuários/filas sem limite prático). Editáveis depois de criados. */
+const byConnections = (name: string, connections: number, monthlyPrice: number): PlanInput => ({
+  name, description: `${connections} conexão(ões) WhatsApp, atendimentos, usuários e filas ilimitados.`,
+  monthlyPrice, annualPrice: null, userLimit: 9999, connectionLimit: connections, queueLimit: 9999,
+  storageLimitMb: 0, trialDays: 15, active: true,
+  features: { ...noFeatures, campaigns: true, automations: true, advancedReports: true },
+});
+
 export const suggestedPlans: PlanInput[] = [
-  { name: "START", description: "Chatbot básico, SLA, notificações e histórico.", monthlyPrice: 9990, annualPrice: null, userLimit: 2, connectionLimit: 1, queueLimit: 2, storageLimitMb: 0, trialDays: 15, active: true, features: { ...noFeatures } },
-  { name: "PROFISSIONAL", description: "Múltiplos setores, distribuição, retornos e relatórios.", monthlyPrice: 19990, annualPrice: null, userLimit: 5, connectionLimit: 2, queueLimit: 10, storageLimitMb: 0, trialDays: 15, active: true, features: { ...noFeatures, automations: true, campaigns: true } },
-  { name: "BUSINESS", description: "WhatsApp, Instagram e Facebook, automações e relatórios gerenciais.", monthlyPrice: 34990, annualPrice: null, userLimit: 10, connectionLimit: 3, queueLimit: 20, storageLimitMb: 0, trialDays: 15, active: true, features: { ...noFeatures, facebook: true, instagram: true, automations: true, campaigns: true, advancedReports: true, integrations: true } },
-  { name: "ENTERPRISE", description: "Preço personalizado, recursos e suporte diferenciados.", monthlyPrice: 0, annualPrice: null, userLimit: 20, connectionLimit: 5, queueLimit: 50, storageLimitMb: 0, trialDays: 15, active: true, features: { whatsapp: true, facebook: true, instagram: true, campaigns: true, internalChat: true, integrations: true, artificialIntelligence: true, advancedReports: true, externalApi: true, automations: true } },
+  byConnections("Plano 1 WhatsApp", 1, 9990),
+  byConnections("Plano 2 WhatsApps", 2, 15000),
+  byConnections("Plano 3 WhatsApps", 3, 20000),
 ];
