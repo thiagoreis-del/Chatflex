@@ -178,7 +178,13 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
   );
 }
 
-function UsersPanel({ companyId, companyName }: { companyId: string; companyName?: string | undefined }) {
+function UsersPanel({
+  companyId,
+  companyName,
+}: {
+  companyId: string;
+  companyName?: string | undefined;
+}) {
   const { t } = useTranslation("platform");
   const qc = useQueryClient();
   const usage = useQuery(companyUsageQuery(companyId));
@@ -319,16 +325,16 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
         description={c.legalName}
         actions={
           <div className="flex flex-wrap gap-2">
-          {!env.useMocks && (
-            <Button onClick={() => void handleEnter()} disabled={entering}>
-              <LogIn className="size-4" aria-hidden /> {t("companies.detail.enter")}
+            {!env.useMocks && (
+              <Button onClick={() => void handleEnter()} disabled={entering}>
+                <LogIn className="size-4" aria-hidden /> {t("companies.detail.enter")}
+              </Button>
+            )}
+            <Button asChild variant="outline">
+              <Link to="/app/plataforma/empresas/$companyId/editar" params={{ companyId }}>
+                <Pencil className="size-4" aria-hidden /> {t("common:actions.edit")}
+              </Link>
             </Button>
-          )}
-          <Button asChild variant="outline">
-            <Link to="/app/plataforma/empresas/$companyId/editar" params={{ companyId }}>
-              <Pencil className="size-4" aria-hidden /> {t("common:actions.edit")}
-            </Link>
-          </Button>
           </div>
         }
       />
@@ -500,7 +506,10 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
             <UsagePanel companyId={companyId} />
           </TabsContent>
           <TabsContent value="users" className="mt-0">
-            <UsersPanel companyId={companyId} companyName={q.data?.tradeName || q.data?.legalName} />
+            <UsersPanel
+              companyId={companyId}
+              companyName={q.data?.tradeName || q.data?.legalName}
+            />
           </TabsContent>
           <TabsContent value="connections" className="mt-0">
             <ConnectionsPanel companyId={companyId} />
