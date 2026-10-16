@@ -27,6 +27,7 @@ import {
   QueryBoundary,
 } from "@/shared/components";
 import { whatsappKeys } from "@/shared/api/query-keys";
+import { socketClient } from "@/shared/socket/socket-client";
 import { isApiError } from "@/shared/api/errors";
 import {
   connectionQuery,
@@ -51,6 +52,50 @@ const statusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructi
   TIMEOUT: "outline",
 };
 
+const statusDot: Record<WhatsAppStatus, string> = {
+  CONNECTED: "bg-primary",
+  DISCONNECTED: "bg-destructive",
+  qrcode: "bg-accent-foreground animate-pulse",
+  OPENING: "bg-accent-foreground animate-pulse",
+  PAIRING: "bg-accent-foreground animate-pulse",
+  PENDING: "bg-accent-foreground animate-pulse",
+  TIMEOUT: "bg-muted-foreground",
+};
+
+function formatNumber(n?: string | null): string | null {
+  if (!n) return null;
+  const d = n.replace(/\D/g, "");
+  const m = d.match(/^55(\d{2})(\d{4,5})(\d{4})$/);
+  return m ? `+55 (${m[1]}) ${m[2]}-${m[3]}` : n;
+}
+
+/** Eventos Socket `company-{id}-whatsapp(Session)` atualizam a lista e o QR na hora. */
+function useConnectionsRealtime() {
+  const qc = useQueryClient();
+  useEffect(() => {
+    socketClient.connect();
+    const apply = (payload: unknown) => {
+      const p = payload as { action?: string; session?: WhatsAppConnection; whatsapp?: WhatsAppConnection } | null;
+      const item = p?.session ?? p?.whatsapp;
+      if (item && typeof item.id === "number") {
+        qc.setQueryData<WhatsAppConnection>(whatsappKeys.detail(item.id), (old) =>
+          old ? { ...old, ...item } : item,
+        );
+        qc.setQueryData<WhatsAppConnection[]>(whatsappKeys.list(), (old) =>
+          old?.map((c) => (c.id === item.id ? { ...c, ...item } : c)),
+        );
+      }
+      void qc.invalidateQueries({ queryKey: whatsappKeys.list() });
+    };
+    const off1 = socketClient.onCompany("whatsappSession", apply);
+    const off2 = socketClient.onCompany("whatsapp", apply);
+    return () => {
+      off1();
+      off2();
+    };
+  }, [qc]);
+}
+
 /** O backend devolve `{ error }` (AppError) ou `{ message }`; mostra o texto real ao usuário. */
 function serverMessage(error: unknown): string | undefined {
   if (!isApiError(error)) return undefined;
@@ -63,7 +108,8 @@ function serverMessage(error: unknown): string | undefined {
 export function ConnectionsPage() {
   const { t } = useTranslation("whatsapp");
   const qc = useQueryClient();
-  const query = useQuery(connectionsQuery());
+  useConnectionsRealtime();
+  const query = useQuery({ ...connectionsQuery(), refetchInterval: 15_000 });
   const [form, setForm] = useState<WhatsAppConnection | "new" | null>(null);
   const [qrId, setQrId] = useState<number | null>(null);
   const [toDelete, setToDelete] = useState<WhatsAppConnection | null>(null);
@@ -129,13 +175,16 @@ export function ConnectionsPage() {
                       </span>
                       <div className="min-w-0 [overflow-wrap:anywhere]">
                         <CardTitle className="text-base">{c.name}</CardTitle>
-                        <p className="text-xs text-muted-foreground">{c.number ?? t("noNumber")}</p>
+                        <p className="text-xs text-muted-foreground">{formatNumber(c.number) ?? t("noNumber")}</p>
                       </div>
                     </div>
                     {c.isDefault && <Badge variant="outline">{t("default")}</Badge>}
                   </CardHeader>
                   <CardContent>
-                    <Badge variant={statusVariant[c.status]}>{t(`status.${c.status}`, { defaultValue: c.status })}</Badge>
+                    <Badge variant={statusVariant[c.status]} className="gap-1.5">
+                      <span className={`size-2 rounded-full ${statusDot[c.status] ?? "bg-muted-foreground"}`} aria-hidden />
+                      {t(`status.${c.status}`, { defaultValue: c.status })}
+                    </Badge>
                   </CardContent>
                   <CardFooter className="flex flex-wrap gap-2">
                     {c.status === "CONNECTED" ? (
@@ -155,7 +204,9 @@ export function ConnectionsPage() {
                         onClick={() => connect.mutate(c.id)}
                       >
                         <QrCode className="size-4" aria-hidden />
-                        {t("actions.connect")}
+                        {c.status === "DISCONNECTED" || c.status === "TIMEOUT"
+                          ? t("actions.reconnect")
+                          : t("actions.connect")}
                       </Button>
                     )}
                     <Button
