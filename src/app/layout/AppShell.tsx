@@ -150,7 +150,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             </Link>
           </li>
           )}
-          {can(user, "module.connections") && (
+          {can(user, "module.status") && (
           <li>
             <Link
               to="/app/status"
