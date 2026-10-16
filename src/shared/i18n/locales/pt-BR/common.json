@@ -138,6 +138,7 @@
     "companyMode": "Modo: Ambiente da empresa",
     "impersonating": "Acessando como superadministrador a empresa: {{company}}",
     "exit": "Voltar para a Plataforma",
-    "exitError": "Não foi possível voltar para a Plataforma."
+    "exitError": "Não foi possível voltar para a Plataforma.",
+    "exitRelogin": "Sessão da empresa encerrada. Entre novamente como superadministrador."
   }
 }
