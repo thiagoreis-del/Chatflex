@@ -183,6 +183,17 @@ export function TicketsPage() {
     setUnreadOnly(false);
     setSlaFilter("all");
   };
+  // Recusar direto da lista devolve o atendimento à fila atual, sem atendente.
+  const refuseFromList = useMutation({
+    mutationFn: (tk: Ticket) =>
+      transferTicket(tk.id, { ...(tk.queue ? { queueId: tk.queue.id } : {}), userId: null }),
+    onSuccess: (tk) => {
+      toast.success(t("toast.refused"));
+      if (selected?.id === tk.id) setSelected(tk);
+      void qcl.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: () => toast.error(t("toast.transferError")),
+  });
   const connections = Array.from(
     new Map(
       (query.data ?? []).filter((x) => x.whatsapp).map((x) => [x.whatsapp!.id, x.whatsapp!]),
