@@ -302,7 +302,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       router.options.context.queryClient.clear();
       await navigate({ to: "/app/plataforma" });
     } catch {
-      toast.error(t("context.exitError"));
+      // Servidor não reconheceu o superadmin original: encerra a sessão delegada
+      // com segurança e leva ao login, em vez de deixar o usuário preso.
+      toast.info(t("context.exitRelogin"));
+      await handleLogout();
     }
   };
 
