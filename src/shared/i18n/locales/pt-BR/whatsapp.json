@@ -2,7 +2,6 @@
   "meta": { "title": "Conexões WhatsApp", "description": "Gerencie as conexões WhatsApp da sua empresa." },
   "title": "Conexões WhatsApp",
   "description": "Conecte e acompanhe os números de WhatsApp usados no atendimento.",
-  "pending": "O status atualiza em tempo real; se a conexão cair, o QR Code é consultado a cada 3 segundos.",
   "new": "Nova conexão",
   "edit": "Editar conexão",
   "empty": "Nenhuma conexão cadastrada ainda.",

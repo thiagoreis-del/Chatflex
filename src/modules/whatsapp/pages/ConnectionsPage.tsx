@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
-import { CheckCircle2, Info, Pencil, Plus, QrCode, Smartphone, Trash2, Unplug } from "lucide-react";
+import { CheckCircle2, Pencil, Plus, QrCode, Smartphone, Trash2, Unplug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -156,10 +156,6 @@ export function ConnectionsPage() {
           </Button>
         }
       />
-      <p className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-        <Info className="size-4 shrink-0" aria-hidden />
-        {t("pending")}
-      </p>
       <QueryBoundary query={query} contract={whatsappContract}>
         {(list) =>
           list.length === 0 ? (
