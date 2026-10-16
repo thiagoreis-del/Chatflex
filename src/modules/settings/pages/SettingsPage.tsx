@@ -115,7 +115,9 @@ export function SettingsPage() {
                         onChange={(e) => updateDay(i, { end: e.target.value })}
                       />
                       {d.start >= d.end && (
-                        <span className="text-xs text-destructive">{t("hours.endBeforeStart")}</span>
+                        <span className="text-xs text-destructive">
+                          {t("hours.endBeforeStart")}
+                        </span>
                       )}
                     </div>
                   ) : (
@@ -132,13 +134,25 @@ export function SettingsPage() {
                     if (first)
                       setForm({
                         ...form,
-                        days: form.days.map((d) => (d.enabled ? { ...d, start: first.start, end: first.end } : d)),
+                        days: form.days.map((d) =>
+                          d.enabled ? { ...d, start: first.start, end: first.end } : d,
+                        ),
                       });
                   }}
                 >
                   {t("hours.copyFirst")}
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setForm({ ...defaultBusinessHours(), outOfHoursEnabled: form.outOfHoursEnabled, outOfHoursMessage: form.outOfHoursMessage })}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setForm({
+                      ...defaultBusinessHours(),
+                      outOfHoursEnabled: form.outOfHoursEnabled,
+                      outOfHoursMessage: form.outOfHoursMessage,
+                    })
+                  }
+                >
                   {t("hours.reset")}
                 </Button>
               </div>
@@ -167,7 +181,9 @@ export function SettingsPage() {
                 disabled={!form.outOfHoursEnabled}
                 onChange={(e) => setForm({ ...form, outOfHoursMessage: e.target.value })}
               />
-              {missingMessage && <p className="text-xs text-destructive">{t("outOfHours.required")}</p>}
+              {missingMessage && (
+                <p className="text-xs text-destructive">{t("outOfHours.required")}</p>
+              )}
               <p className="text-xs text-muted-foreground">{t("outOfHours.backendNote")}</p>
             </CardContent>
           </Card>

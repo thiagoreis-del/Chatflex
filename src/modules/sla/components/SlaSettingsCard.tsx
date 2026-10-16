@@ -198,7 +198,10 @@ export function SlaSettingsCard() {
           </div>
           <div className="flex flex-wrap gap-2">
             {form.holidays.map((d) => (
-              <span key={d} className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs">
+              <span
+                key={d}
+                className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs"
+              >
                 {new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR")}
                 <button
                   type="button"

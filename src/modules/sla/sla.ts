@@ -78,7 +78,11 @@ export const slaConfigQuery = (companyId: string) =>
   });
 
 export function validateSla(c: SlaConfig): string | null {
-  if (!(c.warningMinutes > 0 && c.warningMinutes < c.urgentMinutes && c.urgentMinutes < c.violatedMinutes))
+  if (!(
+    c.warningMinutes > 0 &&
+    c.warningMinutes < c.urgentMinutes &&
+    c.urgentMinutes < c.violatedMinutes
+  ))
     return "order";
   return null;
 }
@@ -87,7 +91,11 @@ export const saveSlaConfig = (previous: SlaConfig, next: SlaConfig) => {
   const value: SlaConfig = {
     ...next,
     // Ao reativar, só ciclos novos são monitorados.
-    enabledAt: next.enabled ? (previous.enabled ? previous.enabledAt : new Date().toISOString()) : null,
+    enabledAt: next.enabled
+      ? previous.enabled
+        ? previous.enabledAt
+        : new Date().toISOString()
+      : null,
   };
   return apiRequest<unknown>(settingEndpoints.detail(KEY), {
     method: "PUT",
@@ -125,7 +133,12 @@ export function computeSla(ticket: Ticket, c: SlaConfig, now = Date.now()): SlaI
         : min >= c.warningMinutes
           ? "warning"
           : "monitoring";
-  return { state, startedAt: start, elapsedMs, remainingMs: c.violatedMinutes * 60_000 - elapsedMs };
+  return {
+    state,
+    startedAt: start,
+    elapsedMs,
+    remainingMs: c.violatedMinutes * 60_000 - elapsedMs,
+  };
 }
 
 export function formatDuration(ms: number) {
@@ -147,8 +160,16 @@ export function playSlaTone(tone: SlaTone, volume: number) {
     void ctx.resume();
     const patterns: Record<SlaTone, [number, number, number][]> = {
       classic: [[880, 0, 0.25]],
-      double: [[880, 0, 0.15], [880, 0.22, 0.15]],
-      urgent: [[1200, 0, 0.12], [900, 0.15, 0.12], [1200, 0.3, 0.12], [900, 0.45, 0.12]],
+      double: [
+        [880, 0, 0.15],
+        [880, 0.22, 0.15],
+      ],
+      urgent: [
+        [1200, 0, 0.12],
+        [900, 0.15, 0.12],
+        [1200, 0.3, 0.12],
+        [900, 0.45, 0.12],
+      ],
       soft: [[520, 0, 0.5]],
     };
     const gainValue = Math.max(0, Math.min(1, volume / 100)) * 0.4;

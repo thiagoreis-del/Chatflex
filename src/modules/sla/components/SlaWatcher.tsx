@@ -17,7 +17,11 @@ export function SlaWatcher() {
   const companyId = String(user?.companyId ?? "");
   const config = useQuery({ ...slaConfigQuery(companyId), enabled: !!user });
   const enabled = !!user && !!config.data?.enabled;
-  const tickets = useQuery({ ...incomingTicketsQuery(companyId), enabled, refetchInterval: 30_000 });
+  const tickets = useQuery({
+    ...incomingTicketsQuery(companyId),
+    enabled,
+    refetchInterval: 30_000,
+  });
   const { t } = useTranslation("settings");
   const notified = useRef(new Set<string>());
 
@@ -40,7 +44,11 @@ export function SlaWatcher() {
         if (info.state === "violated") toast.error(text);
         else toast.warning(text);
         if (c.sound) playSlaTone(info.state === "warning" ? c.tone : "urgent", c.volume);
-        if (c.desktop && typeof Notification !== "undefined" && Notification.permission === "granted") {
+        if (
+          c.desktop &&
+          typeof Notification !== "undefined" &&
+          Notification.permission === "granted"
+        ) {
           // Sem o texto da mensagem do cliente (privacidade na tela de bloqueio).
           new Notification(t("sla.title"), { body: text, tag: key });
         }
@@ -52,11 +60,17 @@ export function SlaWatcher() {
   }, [enabled, config.data, tickets.data, user, t]);
 
   useEffect(() => {
-    if (enabled && config.data?.desktop && typeof Notification !== "undefined" && Notification.permission === "default") {
+    if (
+      enabled &&
+      config.data?.desktop &&
+      typeof Notification !== "undefined" &&
+      Notification.permission === "default"
+    ) {
       const ask = () => void Notification.requestPermission();
       window.addEventListener("pointerdown", ask, { once: true });
       return () => window.removeEventListener("pointerdown", ask);
     }
+    return undefined;
   }, [enabled, config.data?.desktop]);
 
   return null;

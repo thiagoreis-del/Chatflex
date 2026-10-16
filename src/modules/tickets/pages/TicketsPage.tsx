@@ -230,7 +230,9 @@ export function TicketsPage() {
                   : list.filter((ticket) => String(ticket.whatsapp?.id) === connectionId)
               ).filter(
                 (ticket) =>
-                  !slaOn || slaFilter === "all" || computeSla(ticket, sla!, now).state === slaFilter,
+                  !slaOn ||
+                  slaFilter === "all" ||
+                  computeSla(ticket, sla!, now).state === slaFilter,
               );
               return visible.length === 0 ? (
                 <p className="p-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
@@ -240,59 +242,60 @@ export function TicketsPage() {
                     const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
                     const hl = sla?.highlight ? slaInfo?.state : undefined;
                     return (
-                    <li key={tk.id}>
-                      <button
-                        type="button"
-                        onClick={() => setSelected(tk)}
-                        className={cn(
-                          "flex w-full gap-3 border-b px-3 py-3 text-left transition-colors hover:bg-muted/60",
-                          selected?.id === tk.id && "bg-muted",
-                          hl === "urgent" && "border-l-4 border-l-warning bg-warning/10",
-                          hl === "violated" && "border-l-4 border-l-destructive bg-destructive/10",
-                        )}
-                      >
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                          {(tk.contact.name || "#").charAt(0)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="truncate font-medium">
-                              {tk.contact.name || `+${tk.contact.number}`}
-                            </span>
-                            <span className="shrink-0 text-xs text-muted-foreground">
-                              {time(tk.updatedAt)}
-                            </span>
+                      <li key={tk.id}>
+                        <button
+                          type="button"
+                          onClick={() => setSelected(tk)}
+                          className={cn(
+                            "flex w-full gap-3 border-b px-3 py-3 text-left transition-colors hover:bg-muted/60",
+                            selected?.id === tk.id && "bg-muted",
+                            hl === "urgent" && "border-l-4 border-l-warning bg-warning/10",
+                            hl === "violated" &&
+                              "border-l-4 border-l-destructive bg-destructive/10",
+                          )}
+                        >
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                            {(tk.contact.name || "#").charAt(0)}
                           </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="truncate text-sm text-muted-foreground">
-                              {tk.lastMessage}
-                            </span>
-                            {tk.unreadMessages > 0 && (
-                              <span className="rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
-                                {tk.unreadMessages}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate font-medium">
+                                {tk.contact.name || `+${tk.contact.number}`}
                               </span>
-                            )}
+                              <span className="shrink-0 text-xs text-muted-foreground">
+                                {time(tk.updatedAt)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate text-sm text-muted-foreground">
+                                {tk.lastMessage}
+                              </span>
+                              {tk.unreadMessages > 0 && (
+                                <span className="rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
+                                  {tk.unreadMessages}
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+                              {slaInfo && <SlaBadge info={slaInfo} />}
+                              <span className="inline-flex max-w-full items-center rounded bg-emerald-100 px-1.5 text-[11px] font-medium text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
+                                WhatsApp: {tk.whatsapp?.name ?? t("unknownOrigin")}
+                              </span>
+                              <span
+                                className="inline-block rounded px-1.5 text-[11px] font-medium text-primary-foreground"
+                                style={{
+                                  backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
+                                }}
+                              >
+                                {tk.queue?.name ?? t("noQueue")}
+                              </span>
+                              <span className="truncate text-[11px] text-muted-foreground">
+                                👤 {tk.user?.name ?? t("noAttendant")}
+                              </span>
+                            </div>
                           </div>
-                          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
-                            {slaInfo && <SlaBadge info={slaInfo} />}
-                            <span className="inline-flex max-w-full items-center rounded bg-emerald-100 px-1.5 text-[11px] font-medium text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
-                              WhatsApp: {tk.whatsapp?.name ?? t("unknownOrigin")}
-                            </span>
-                            <span
-                              className="inline-block rounded px-1.5 text-[11px] font-medium text-primary-foreground"
-                              style={{
-                                backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
-                              }}
-                            >
-                              {tk.queue?.name ?? t("noQueue")}
-                            </span>
-                            <span className="truncate text-[11px] text-muted-foreground">
-                              👤 {tk.user?.name ?? t("noAttendant")}
-                            </span>
-                          </div>
-                        </div>
-                      </button>
-                    </li>
+                        </button>
+                      </li>
                     );
                   })}
                 </ul>
