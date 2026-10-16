@@ -4,8 +4,8 @@
 - [x] Verificar telas no navegador em celular e computador com demonstração isolada; conexão real preservada.
 
 # Salvamento de filas
-- [ ] Enviar os campos obrigatórios do servidor na criação sem apagar configurações existentes na edição.
-- [ ] Melhorar os avisos de erro e testar o contrato de criação e edição.
+- [x] Enviar os campos obrigatórios do servidor na criação sem apagar configurações existentes na edição.
+- [x] Melhorar os avisos de erro e testar o contrato de criação e edição.
 - [ ] Validar o salvamento na VPS: depende de uma sessão autenticada no backend externo.
 
 # Avisos de mensagens

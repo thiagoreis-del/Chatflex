@@ -41,8 +41,15 @@ describe("queue server contract", () => {
   });
 
   it("does not overwrite the queue if the detail cannot be read", async () => {
-    request.mockRejectedValue(new ApiError("forbidden", 403));
-    await expect(updateQueue(8, input)).rejects.toBeInstanceOf(ApiError);
+    const denied = new ApiError("forbidden", 403);
+    request.mockRejectedValueOnce(denied);
+    let caught: unknown;
+    try {
+      await updateQueue(8, input);
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBe(denied);
     expect(request).toHaveBeenCalledTimes(1);
   });
 
