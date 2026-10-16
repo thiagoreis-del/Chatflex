@@ -353,6 +353,14 @@
       "userId": "ID do usuário",
       "action": "Ação",
       "result": "Resultado"
+    },
+    "impersonation": {
+      "title": "Acessos às empresas",
+      "subtitle": "Entradas e saídas do superadministrador no ambiente das empresas.",
+      "search": "Buscar por usuário ou empresa",
+      "empty": "Nenhum acesso registrado.",
+      "enter": "Entrou",
+      "exit": "Saiu"
     }
   }
 }
