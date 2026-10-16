@@ -10,6 +10,7 @@ import { endpoints } from "@/shared/config/endpoints";
 import { tokenStore } from "@/shared/auth/token-store";
 import type { RefreshResponse } from "@/shared/auth/types";
 import { apiStatusStore } from "./api-status";
+import { markApiReachable } from "@/shared/connectivity/connectivity";
 import { ApiError, kindFromStatus, type ApiErrorBody } from "./errors";
 
 export interface RequestOptions {
@@ -65,6 +66,7 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
   // Qualquer resposta HTTP prova que a API está no ar; "offline" só em falha de rede.
   // (Ex.: /auth/me responde 500 por cookie bloqueado e não deve marcar a API como fora.)
   apiStatusStore.set("online");
+  markApiReachable();
 
   const text = await response.text();
   let data: unknown = undefined;
@@ -186,6 +188,7 @@ function rawUpload<T>(path: string, form: FormData, opts: UploadOptions): Promis
     xhr.onload = () => {
       opts.signal?.removeEventListener("abort", onAbort);
       apiStatusStore.set("online");
+      markApiReachable();
       let data: unknown;
       try {
         data = xhr.responseText ? JSON.parse(xhr.responseText) : undefined;
@@ -232,6 +235,7 @@ export async function apiDownload(path: string): Promise<{ blob: Blob; filename:
       throw new ApiError("network", 0);
     }
     apiStatusStore.set("online");
+    markApiReachable();
     if (!res.ok) {
       let data: unknown;
       try { data = await res.json(); } catch { data = undefined; }

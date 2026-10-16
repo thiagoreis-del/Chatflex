@@ -13,6 +13,7 @@ import { env } from "@/shared/config/env";
 import { tokenStore } from "@/shared/auth/token-store";
 import { sessionStore } from "@/shared/auth/session-store";
 import { createStore, useStore } from "@/shared/hooks/create-store";
+import { markApiReachable } from "@/shared/connectivity/connectivity";
 
 export const SOCKET_ENABLED = !env.useMocks;
 
@@ -56,6 +57,7 @@ async function open() {
   socket = s;
   s.on("connect", () => {
     socketStatusStore.set("connected");
+    markApiReachable();
     rejoinRooms();
   });
   s.on("disconnect", () => socketStatusStore.set("reconnecting"));
