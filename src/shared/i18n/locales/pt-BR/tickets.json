@@ -164,5 +164,22 @@
     "settingsDescription": "Texto enviado ao cliente ao finalizar um atendimento. O atendente ainda pode editar antes de enviar.",
     "settingsToggle": "Já vir ligada ao finalizar",
     "save": "Salvar mensagem"
+  },
+  "sidebar": {
+    "title": "Atendimentos",
+    "actions": "Ações",
+    "filters": "Filtros",
+    "clearFilters": "Limpar filtros",
+    "allAttendants": "Todos os atendentes",
+    "mine": "Meus atendimentos",
+    "unassigned": "Sem atendente",
+    "unreadOnly": "Não lidas",
+    "noResults": "Nenhum resultado para “{{q}}”.",
+    "noFiltered": "Nenhum atendimento com estes filtros.",
+    "clearSearch": "Limpar busca",
+    "waiting": "Aguardando há {{time}}",
+    "unread": "{{count}} não lidas",
+    "refresh": "Atualizar lista",
+    "priority": "Prioridade"
   }
 }
