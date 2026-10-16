@@ -133,7 +133,7 @@
         "connections": "WhatsApps e QR Codes",
         "connectionsDescription": "Veja os números vinculados, sua identificação e o estado da conexão.",
         "service": "Acompanhar atendimentos",
-        "serviceDescription": "Requer acesso delegado da empresa no servidor para abrir as conversas com segurança.",
+        "serviceDescription": "Requer acesso delegado da empresa no servidor para abrir as conversas com segurança."
       },
       "usersSummary": "Resumo de usuários da empresa. A gestão de usuários chegará em uma etapa futura.",
       "connectionsSummary": "Resumo de conexões da empresa. A gestão de conexões chegará em uma etapa futura.",
