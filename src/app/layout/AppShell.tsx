@@ -302,8 +302,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       router.options.context.queryClient.clear();
       await navigate({ to: "/app/plataforma" });
     } catch {
-      // Servidor não reconheceu o superadmin original: encerra a sessão delegada
-      // com segurança e leva ao login, em vez de deixar o usuário preso.
+      if (sessionStore.get().user?.role === "superadmin") {
+        // O acesso original da plataforma foi restaurado localmente.
+        router.options.context.queryClient.clear();
+        await navigate({ to: "/app/plataforma" });
+        return;
+      }
+      // Sem sessão da plataforma guardada (ex.: recarregou a página):
+      // encerra a sessão delegada com segurança e leva ao login.
       toast.info(t("context.exitRelogin"));
       await handleLogout();
     }
