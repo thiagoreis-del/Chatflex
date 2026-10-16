@@ -121,6 +121,20 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
   const companies = dashboard?.companies.active ?? 0;
   const connLevel = connectionLevel(online);
   const cpuPct = health ? cpuPercent(health.cpu) : 0;
+  const diskPct = health?.disk?.usedPercent ?? null;
+
+  // Histórico real: acumula as amostras coletadas a cada 30s nesta sessão.
+  const [history, setHistory] = useState<MetricsSample[]>([]);
+  const collectedAt = health?.collectedAt;
+  useEffect(() => {
+    if (!health || !collectedAt) return;
+    const at = new Date(collectedAt).getTime();
+    if (Number.isNaN(at)) return;
+    setHistory((h) =>
+      appendSample(h, { at, cpu: cpuPct, memory: health.memory.usedPercent, disk: diskPct }),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectedAt]);
 
   const alerts: string[] = [];
   if (health) {
@@ -128,9 +142,10 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
       alerts.push(t("vps.alertCpu", { limit: VPS_LIMITS.cpuPercent }));
     if (levelOf(health.memory.usedPercent, VPS_LIMITS.memoryPercent) === "danger")
       alerts.push(t("vps.alertMemory", { limit: VPS_LIMITS.memoryPercent }));
-    const diskPct = health.disk?.usedPercent;
-    if (diskPct != null && levelOf(diskPct, VPS_LIMITS.diskPercent) === "danger")
+    if (diskPct != null && diskPct >= VPS_LIMITS.diskPercent)
       alerts.push(t("vps.alertDisk", { limit: VPS_LIMITS.diskPercent }));
+    else if (diskPct != null && diskPct >= VPS_LIMITS.diskWarningPercent)
+      alerts.push(t("vps.alertDiskWarning", { limit: VPS_LIMITS.diskWarningPercent }));
     // Alerta somente em falha real confirmada: "não configurado" ou status
     // desconhecido nunca derrubam o painel (ex.: Wuzapi não utilizado).
     const down = [
