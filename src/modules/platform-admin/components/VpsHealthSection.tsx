@@ -90,6 +90,28 @@ function ServiceBadge({ status }: { status: string | null | undefined }) {
   );
 }
 
+/** Mini-gráfico do histórico real coletado nesta sessão do painel. */
+function Sparkline({ samples, pick, level }: { samples: MetricsSample[]; pick: (s: MetricsSample) => number | null; level: HealthLevel }) {
+  const { t } = useTranslation("platform");
+  const points = samples.map(pick).filter((v): v is number => v != null);
+  if (points.length < 2) {
+    return <p className="mt-2 text-xs text-muted-foreground">{t("vps.historyCollecting")}</p>;
+  }
+  const w = 100;
+  const h = 24;
+  const step = w / (points.length - 1);
+  const d = points
+    .map((v, i) => `${i === 0 ? "M" : "L"}${(i * step).toFixed(1)},${(h - (Math.min(100, v) / 100) * h).toFixed(1)}`)
+    .join(" ");
+  const stroke =
+    level === "danger" ? "var(--destructive)" : level === "warning" ? "var(--warning)" : "var(--success)";
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 h-6 w-full" preserveAspectRatio="none" aria-hidden>
+      <path d={d} fill="none" stroke={stroke} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
 export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard | undefined }) {
   const { t } = useTranslation("platform");
   const q = useQuery(serverHealthQuery());
