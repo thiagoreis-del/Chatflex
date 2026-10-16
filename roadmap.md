@@ -3,6 +3,11 @@
 - [x] Ajustar Atendimento, abas, tabelas e formulários.
 - [x] Verificar telas no navegador em celular e computador com demonstração isolada; conexão real preservada.
 
+# Salvamento de filas
+- [x] Enviar os campos obrigatórios do servidor na criação sem apagar configurações existentes na edição.
+- [x] Melhorar os avisos de erro e testar o contrato de criação e edição.
+- [ ] Validar o salvamento na VPS: depende de uma sessão autenticada no backend externo.
+
 # Avisos de mensagens
 - [x] Adicionar som, aviso na tela e permissão de notificação do navegador.
 - [x] Cobrir eventos em tempo real e consulta periódica sem alertar histórico nem repetir mensagens.

@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Queue writes use a whitelisted server payload; updates read the full queue before merging visible fields. Why: required router fields are sent without resetting hidden schedules, integrations or chatbot associations.
 - AppShell owns dynamic viewport height and main scrolling; wide tables/tabs scroll locally and the ticket workspace fills the remaining height with shrinkable panes. Why: every module fits mobile browsers without clipping actions or enlarging the page.
 - Folder layout follows the product context: `src/app`, `src/landing`, `src/modules/*`, `src/shared/*`, `src/mocks`; route files in `src/routes` stay thin and import pages. Why: keeps modules self-contained.
 - All HTTP goes through `src/shared/api/client.ts`; endpoint paths only in `src/shared/config/endpoints.ts`; env only via `src/shared/config/env.ts`. Why: single place for auth, refresh and errors.

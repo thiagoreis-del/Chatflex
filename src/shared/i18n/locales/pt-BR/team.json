@@ -106,7 +106,9 @@
       "greetingHint": "Enviada ao cliente quando o atendimento entra nesta fila.",
       "colorTaken": "Já existe uma fila com esta cor. Escolha outra.",
       "nameTaken": "Já existe uma fila com este nome.",
-      "nameRequired": "Informe o nome."
+      "nameRequired": "Informe um nome com pelo menos 2 caracteres.",
+      "colorInvalid": "Selecione uma cor válida.",
+      "limitReached": "O plano desta empresa já atingiu o limite de filas. Exclua uma fila que não usa ou altere o plano."
     },
     "confirmDelete": {
       "title": "Excluir fila?",
