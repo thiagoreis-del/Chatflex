@@ -885,8 +885,9 @@ function Conversation({
         toast.info(t("toast.uploadCanceled"));
         return;
       }
-      // Sem conexão e só texto: entra na fila e é reenviado ao reconectar.
-      if (!v.media.length && v.body.trim() && !navigator.onLine) {
+      // Falha real de rede e só texto: entra na fila e é reenviado ao reconectar
+      // (não depende de navigator.onLine, que dá falso negativo).
+      if (!v.media.length && v.body.trim() && e instanceof ApiError && e.kind === "network") {
         enqueueOutbox(companyId, { ticketId: ticket.id, body: v.body, isPrivate });
         setText("");
         clearDraft(companyId, ticket.id);
