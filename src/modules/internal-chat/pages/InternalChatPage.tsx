@@ -238,6 +238,7 @@ function InternalConversationView({
   });
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [membersOpen, setMembersOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -293,7 +294,27 @@ function InternalConversationView({
             {conversation.participants.map((p) => p.name).join(", ")}
           </p>
         </div>
+        {conversation.kind !== "direct" && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            aria-label={t("members.manage")}
+            title={t("members.manage")}
+            onClick={() => setMembersOpen(true)}
+          >
+            <Users className="size-4" />
+          </Button>
+        )}
       </header>
+      {membersOpen && (
+        <ManageMembersDialog
+          conversation={conversation}
+          open={membersOpen}
+          onOpenChange={setMembersOpen}
+          onChanged={onChanged}
+        />
+      )}
       <div className="chat-messages min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-6">
         <QueryBoundary query={messages}>
           {() => (
