@@ -20,6 +20,10 @@
   "selectDescription": "Escolha um atendimento na lista ao lado para ver as mensagens.",
   "noQueue": "Sem fila",
   "attendant": "Atendente",
+  "context": {
+    "company": "Empresa",
+    "queue": "Fila"
+  },
   "noAttendant": "Sem atendente",
   "actions": {
     "accept": "Aceitar",
