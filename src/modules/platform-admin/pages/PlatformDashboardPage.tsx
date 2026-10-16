@@ -95,6 +95,7 @@ export function PlatformDashboardPage() {
         <QueryError error={q.error} contract={dashboardContract} onRetry={() => void q.refetch()} />
       ) : (
         <>
+          <VpsHealthSection dashboard={d} />
           {section(
             t("dashboard.sections.companies"),
             <>
