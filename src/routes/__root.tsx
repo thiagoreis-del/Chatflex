@@ -16,6 +16,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { ErrorState } from "@/shared/components";
 import { NotFoundPage } from "@/app/pages/NotFoundPage";
 import { initTheme, themeBootScript } from "@/shared/theme/theme";
+import { registerAppServiceWorker } from "@/shared/pwa/register-sw";
+import { OfflineNotice } from "@/shared/pwa/OfflineNotice";
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
@@ -96,9 +98,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => initTheme(), []);
+  useEffect(() => {
+    initTheme();
+    void registerAppServiceWorker();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
+      <OfflineNotice />
       <Outlet />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
