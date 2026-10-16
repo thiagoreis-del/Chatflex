@@ -134,18 +134,87 @@ export function resetPassword(token: string, password: string) {
   });
 }
 
+/**
+ * Sessão original do superadmin na plataforma, guardada ao entrar em uma empresa.
+ * Usa sessionStorage (só a aba atual): se o servidor falhar ao encerrar o acesso
+ * delegado, o ambiente da plataforma é restaurado localmente sem deslogar.
+ */
+const PLATFORM_SESSION_KEY = "chatbotflex.platformSession";
+
+interface PlatformSession {
+  token: string;
+  user: AuthenticatedUser;
+}
+
+function savePlatformSession() {
+  if (loadPlatformSession()) return; // Já há um acesso delegado em andamento.
+  const token = tokenStore.get();
+  const user = loadUser();
+  if (!token || !user) return;
+  try {
+    window.sessionStorage.setItem(
+      PLATFORM_SESSION_KEY,
+      JSON.stringify({ token, user } satisfies PlatformSession),
+    );
+  } catch {
+    // Sem storage: sai pelo fallback do AppShell (desloga) se o servidor falhar.
+  }
+}
+
+function loadPlatformSession(): PlatformSession | null {
+  try {
+    const raw = window.sessionStorage.getItem(PLATFORM_SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PlatformSession;
+    return parsed.token && parsed.user ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function forgetPlatformSession() {
+  try {
+    window.sessionStorage.removeItem(PLATFORM_SESSION_KEY);
+  } catch {
+    // Ignora falhas de storage.
+  }
+}
+
 /** Superadmin: troca o token pelo acesso delegado à empresa (auditado no servidor). */
 export async function enterCompany(companyId: string) {
+  savePlatformSession();
   const res = await apiRequest<LoginResponse>(endpoints.auth.enterCompany(companyId), {
     method: "POST",
   });
   await applyDelegatedSession(res);
 }
 
-/** Encerra o acesso delegado e restaura o ambiente da plataforma. */
+/**
+ * Encerra o acesso delegado e restaura o ambiente da plataforma.
+ * Se o servidor não conseguir restaurar a sessão original, recupera a sessão
+ * do superadmin guardada localmente — sem deslogar o usuário.
+ */
 export async function exitCompany() {
-  const res = await apiRequest<LoginResponse>(endpoints.auth.exitCompany, { method: "POST" });
-  await applyDelegatedSession(res);
+  try {
+    const res = await apiRequest<LoginResponse>(endpoints.auth.exitCompany, { method: "POST" });
+    forgetPlatformSession();
+    await applyDelegatedSession(res);
+  } catch (error) {
+    await restorePlatformSession();
+    throw error;
+  }
+}
+
+/** Restaura a sessão original da plataforma guardada ao entrar na empresa. */
+export async function restorePlatformSession() {
+  const saved = loadPlatformSession();
+  if (!saved) throw new Error("Sessão da plataforma não disponível");
+  forgetPlatformSession();
+  socketClient.disconnect();
+  tokenStore.set(saved.token);
+  saveUser(saved.user);
+  setSessionUser(saved.user);
+  socketClient.connect();
 }
 
 async function applyDelegatedSession(res: LoginResponse) {

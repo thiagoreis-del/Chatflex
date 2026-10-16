@@ -90,6 +90,7 @@ let refreshPromise: Promise<boolean> | null = null;
  */
 export function refreshAccessToken(): Promise<boolean> {
   if (!refreshPromise) {
+    const genAtStart = tokenStore.generation();
     refreshPromise = (async () => {
       try {
         const res = await rawRequest<RefreshResponse>(endpoints.auth.refresh, {
@@ -98,13 +99,14 @@ export function refreshAccessToken(): Promise<boolean> {
         });
         const token = res?.accessToken ?? res?.token;
         if (!token) {
-          tokenStore.clear();
+          if (tokenStore.generation() === genAtStart) tokenStore.clear();
           return false;
         }
         tokenStore.set(token);
         return true;
       } catch (error) {
-        tokenStore.clear();
+        // Não apaga um token mais novo instalado por outra troca de sessão.
+        if (tokenStore.generation() === genAtStart) tokenStore.clear();
         if (error instanceof ApiError && (error.kind === "network" || error.kind === "server")) {
           throw error;
         }
@@ -127,10 +129,16 @@ function isExpiredToken(error: ApiError): boolean {
 }
 
 export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Promise<T> {
+  const gen = tokenStore.generation();
   try {
     return await rawRequest<T>(path, opts);
   } catch (error) {
     if (error instanceof ApiError && isExpiredToken(error) && !opts.skipRefresh) {
+      if (tokenStore.generation() !== gen) {
+        // Token já trocado (entrada/saída de empresa): refaz com o token atual
+        // em vez de deslogar por uma falha do token antigo.
+        return rawRequest<T>(path, opts);
+      }
       const renewed = await refreshAccessToken().catch(() => false);
       if (renewed) return rawRequest<T>(path, opts);
       unauthorizedHandler?.();
@@ -193,10 +201,12 @@ function rawUpload<T>(path: string, form: FormData, opts: UploadOptions): Promis
 
 /** Envio multipart com progresso e cancelamento; renova o token uma vez se expirado. */
 export async function apiUpload<T>(path: string, form: FormData, opts: UploadOptions = {}) {
+  const gen = tokenStore.generation();
   try {
     return await rawUpload<T>(path, form, opts);
   } catch (error) {
     if (error instanceof ApiError && isExpiredToken(error)) {
+      if (tokenStore.generation() !== gen) return rawUpload<T>(path, form, opts);
       const renewed = await refreshAccessToken().catch(() => false);
       if (renewed) return rawUpload<T>(path, form, opts);
       unauthorizedHandler?.();
@@ -231,10 +241,12 @@ export async function apiDownload(path: string): Promise<{ blob: Blob; filename:
     const m = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
     return { blob: await res.blob(), filename: m?.[1] ? decodeURIComponent(m[1]) : null };
   };
+  const gen = tokenStore.generation();
   try {
     return await run();
   } catch (error) {
     if (error instanceof ApiError && isExpiredToken(error)) {
+      if (tokenStore.generation() !== gen) return run();
       const renewed = await refreshAccessToken().catch(() => false);
       if (renewed) return run();
       unauthorizedHandler?.();

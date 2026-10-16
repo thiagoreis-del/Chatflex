@@ -10,6 +10,8 @@
 const STORAGE_KEY = "chatbotflex.accessToken";
 
 let accessToken: string | null = null;
+/** Incrementa a cada troca de token; detecta pedidos feitos com token antigo. */
+let generation = 0;
 
 function readStored(): string | null {
   try {
@@ -26,6 +28,7 @@ export const tokenStore = {
   },
   set: (token: string) => {
     accessToken = token;
+    generation += 1;
     try {
       window.localStorage.setItem(STORAGE_KEY, token);
     } catch {
@@ -34,10 +37,13 @@ export const tokenStore = {
   },
   clear: () => {
     accessToken = null;
+    generation += 1;
     try {
       window.localStorage.removeItem(STORAGE_KEY);
     } catch {
       // Ignora falhas de storage.
     }
   },
+  /** Geração atual do token; pedidos iniciados com valor diferente usaram token antigo. */
+  generation: () => generation,
 };
