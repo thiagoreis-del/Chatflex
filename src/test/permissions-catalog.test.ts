@@ -18,6 +18,9 @@ describe("permissões", () => {
   it("atendente vê Atendimento", () => {
     expect(can(base, "module.tickets")).toBe(true);
   });
+  it("atendente vê Publicar Status", () => {
+    expect(can(base, "module.status")).toBe(true);
+  });
   it("admin vê Conexões", () => {
     expect(can({ ...base, role: "company_admin" }, "module.connections")).toBe(true);
   });

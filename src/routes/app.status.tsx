@@ -7,7 +7,7 @@ import { pageMeta } from "@/shared/config/meta";
 export const Route = createFileRoute("/app/status")({
   head: () => pageMeta("whatsapp:status.meta.title", "whatsapp:status.meta.description", { noindex: true }),
   beforeLoad: () => {
-    if (!can(sessionStore.get().user, "module.connections")) throw redirect({ to: "/403" });
+    if (!can(sessionStore.get().user, "module.status")) throw redirect({ to: "/403" });
   },
   component: StatusPublishPage,
 });
