@@ -175,8 +175,8 @@
     "saveError": "Não foi possível salvar o padrão da empresa.",
     "error": "Não foi possível finalizar o atendimento.",
     "settingsTitle": "Mensagem de agradecimento da empresa",
-    "settingsDescription": "Texto enviado ao cliente ao finalizar um atendimento. O atendente ainda pode editar antes de enviar.",
-    "settingsToggle": "Já vir ligada ao finalizar",
+    "settingsDescription": "Quando ativada, a mensagem é enviada automaticamente ao finalizar, sem perguntar ao atendente.",
+    "settingsToggle": "Enviar automaticamente ao finalizar",
     "save": "Salvar mensagem"
   },
   "sidebar": {

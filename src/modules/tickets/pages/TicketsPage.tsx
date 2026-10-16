@@ -77,6 +77,7 @@ import { AudioRecorder } from "../components/AudioRecorder";
 import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
+import { closingMessageQuery } from "@/modules/settings/closing-message";
 import { computeSla, slaConfigQuery, type SlaState } from "@/modules/sla/sla";
 import { SlaBadge } from "@/modules/sla/components/SlaBadge";
 import { quickMessagesQuery } from "@/modules/quick-messages/api";
@@ -1154,7 +1155,15 @@ function Conversation({
             <Button
               size="sm"
               className="bg-destructive font-semibold text-destructive-foreground shadow-sm hover:bg-destructive/90"
-              onClick={() => setCloseOpen(true)}
+              onClick={async () => {
+                // Mensagem de agradecimento ativada: finaliza direto, sem perguntar.
+                const cfg = await qc
+                  .fetchQuery(closingMessageQuery(String(session.user?.companyId ?? "")))
+                  .catch(() => null);
+                const msg = cfg?.enabled ? cfg.message.trim() : "";
+                if (msg) closeWithMessage.mutate(msg);
+                else setCloseOpen(true);
+              }}
               disabled={status.isPending || closeWithMessage.isPending}
             >
               {t("actions.close")}
