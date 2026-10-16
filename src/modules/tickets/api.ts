@@ -112,25 +112,43 @@ export const incomingTicketsQuery = (companyId: string) =>
     refetchIntervalInBackground: true,
   });
 
+/** Busca TODAS as páginas de um status, para métricas e gráficos completos. */
+async function fetchAllTickets(
+  status: TicketStatus,
+  extra: Record<string, unknown>,
+  signal: AbortSignal | undefined,
+): Promise<{ tickets: Ticket[]; count: number }> {
+  const tickets: Ticket[] = [];
+  let count = 0;
+  let pageNumber = 1;
+  while (true) {
+    const result = await apiRequest<TicketsResponse>(
+      withQuery(ep.list, { ...scope(), status, pageNumber, ...extra }),
+      { signal },
+    );
+    tickets.push(...(result.tickets ?? []));
+    count = result.count ?? tickets.length;
+    if (!result.hasMore || !result.tickets?.length) break;
+    pageNumber += 1;
+  }
+  return { tickets, count };
+}
+
 /**
  * Resumo operacional usando contratos já disponíveis no backend.
- * O total por status vem de `count`. A distribuição por atendente usa os
- * tickets fechados devolvidos na página; `attendantsPartial` informa paginação.
- * O tempo de primeira resposta permanece nulo até o servidor expor a métrica.
- */
+ * Todas as páginas são percorridas, então gráficos e métricas contam
+ * todos os atendimentos. O tempo de primeira resposta permanece nulo
+ * até o servidor expor a métrica.
+  */
 export const operationalDashboardQuery = () =>
   queryOptions({
     queryKey: ticketKeys.operationalDashboard(),
     queryFn: async ({ signal }): Promise<OperationalDashboard> => {
       const date = new Date().toLocaleDateString("en-CA");
-      const get = (status: TicketStatus, extra: Record<string, unknown> = {}) =>
-        apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, ...extra }), {
-          signal,
-        });
       const [pending, open, closed] = await Promise.all([
-        get("pending"),
-        get("open"),
-        get("closed", { date }),
+        fetchAllTickets("pending", {}, signal),
+        fetchAllTickets("open", {}, signal),
+        fetchAllTickets("closed", { date }, signal),
       ]);
       const now = Date.now();
       const minutes = (from?: string | null, to?: string | number | null) => {
