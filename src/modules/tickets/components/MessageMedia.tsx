@@ -4,6 +4,7 @@ import { Download, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { Message } from "../types";
+import { isAudioMedia } from "../audio-format";
 
 export function isImage(m: Pick<Message, "mediaType" | "mediaUrl">) {
   return m.mediaType === "image" || /\.(png|jpe?g|gif|webp)(\?|$)/i.test(m.mediaUrl ?? "");
@@ -20,6 +21,7 @@ export function fileNameFromUrl(url: string) {
 export function MessageMedia({ message }: { message: Message }) {
   const { t } = useTranslation("tickets");
   const [open, setOpen] = useState(false);
+  const [failed, setFailed] = useState(false);
   const url = message.mediaUrl;
   if (!url) return null;
 
@@ -53,14 +55,22 @@ export function MessageMedia({ message }: { message: Message }) {
     );
   }
 
-  if (message.mediaType === "audio") {
+  if (isAudioMedia(message.mediaType, url)) {
+    if (failed) {
+      return (
+        <a href={url} target="_blank" rel="noreferrer" download className="mb-1 block text-sm underline">
+          {t("media.audioError")}
+        </a>
+      );
+    }
     return (
       <audio
         controls
-        preload="none"
+        preload="metadata"
         src={url}
         aria-label={t("media.audio")}
         className="max-w-full"
+        onError={() => setFailed(true)}
       />
     );
   }

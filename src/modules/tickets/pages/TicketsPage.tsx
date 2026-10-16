@@ -56,6 +56,7 @@ import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../typ
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { MessageMedia, isImage } from "../components/MessageMedia";
 import { AudioRecorder } from "../components/AudioRecorder";
+import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
 import { computeSla, slaConfigQuery, type SlaState } from "@/modules/sla/sla";
@@ -567,8 +568,10 @@ function Conversation({
     },
   });
 
-  const addFiles = (list: File[]) => {
-    const ok = list.filter((f) => f.size <= MAX_MEDIA_BYTES);
+  const addFiles = (input: File[]) => {
+    const list = input.filter((f) => !isDangerousFile(f.name));
+    if (list.length < input.length) toast.error(t("toast.fileBlocked"));
+    const ok = list.filter((f) => f.size > 0 && f.size <= MAX_MEDIA_BYTES);
     if (ok.length < list.length) toast.error(t("toast.fileTooLarge"));
     if (!ok.length) return;
     setFiles((current) => {
@@ -1230,9 +1233,10 @@ function Conversation({
                 stop: t("audio.stop"),
                 cancel: t("audio.cancel"),
                 recording: t("audio.recording"),
+                unsupported: t("audio.unsupported"),
               }}
               onReady={selectFile}
-              onError={() => toast.error(t("toast.microphoneError"))}
+              onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
             <textarea
               rows={2}
