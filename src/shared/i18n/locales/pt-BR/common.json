@@ -152,6 +152,23 @@
     "exitRelogin": "Sessão da empresa encerrada. Entre novamente como superadministrador."
   },
   "offline": {
-    "banner": "Sem conexão com a internet. As mensagens serão enviadas quando a conexão voltar."
+    "banner": "Sem conexão com a internet. As mensagens serão enviadas quando a conexão voltar.",
+    "backend": "Servidor indisponível no momento. Tentando reconectar automaticamente…"
+  },
+  "connectivity": {
+    "title": "Conexão em tempo real",
+    "internet": "Internet (navegador)",
+    "api": "API (backend)",
+    "socket": "WebSocket (tempo real)",
+    "whatsapp": "WhatsApp",
+    "online": "Online",
+    "offline": "Offline",
+    "unknown": "Verificando…",
+    "connected": "Conectado",
+    "reconnecting": "Reconectando…",
+    "disconnected": "Desconectado",
+    "disabled": "Desativado",
+    "lastChecked": "Última verificação: {{time}}",
+    "socketNote": "Queda do WebSocket não afeta o envio: o sistema usa verificação periódica como reserva."
   }
 }
