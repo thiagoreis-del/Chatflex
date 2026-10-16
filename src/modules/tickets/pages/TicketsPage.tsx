@@ -67,6 +67,7 @@ import {
 } from "../api";
 import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../types";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
+import { usersQuery } from "@/modules/users/api";
 import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
 import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
@@ -180,9 +181,18 @@ export function TicketsPage() {
       (query.data ?? []).filter((x) => x.whatsapp).map((x) => [x.whatsapp!.id, x.whatsapp!]),
     ).values(),
   );
-  const attendants = Array.from(
-    new Map((query.data ?? []).filter((x) => x.user).map((x) => [x.user!.id, x.user!])).values(),
-  );
+  const companyUsers = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: isAdmin });
+  /** Admin vê todos os atendentes da empresa; os demais não escolhem colegas. */
+  const attendants = isAdmin
+    ? Array.from(
+        new Map(
+          [
+            ...(companyUsers.data?.data ?? []).map((u) => ({ id: u.id, name: u.name })),
+            ...(query.data ?? []).filter((x) => x.user).map((x) => x.user!),
+          ].map((u) => [String(u.id), u]),
+        ).values(),
+      ).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"))
+    : [];
   const matchesFilters = (x: Ticket) =>
     (connectionId === "all" || String(x.whatsapp?.id) === connectionId) &&
     (attendantFilter === "all" ||
@@ -361,11 +371,15 @@ export function TicketsPage() {
                 <option value="all">{t("sidebar.allAttendants")}</option>
                 <option value="mine">{t("sidebar.mine")}</option>
                 <option value="none">{t("sidebar.unassigned")}</option>
-                {attendants.map((u) => (
-                  <option key={u.id} value={String(u.id)}>
-                    {u.name}
-                  </option>
-                ))}
+                {attendants.length > 0 && (
+                  <optgroup label={t("sidebar.attendantsGroup")}>
+                    {attendants.map((u) => (
+                      <option key={u.id} value={String(u.id)}>
+                        {u.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
               {slaOn ? (
                 <select
