@@ -56,7 +56,7 @@ export function TransferTicketDialog({
       // Recusar devolve o ticket à fila atual, sem atendente e sem preencher nada.
       if (refusing) {
         return transferTicket(ticket.id, {
-          queueId: ticket.queue ? ticket.queue.id : undefined,
+          ...(ticket.queue ? { queueId: ticket.queue.id } : {}),
           userId: null,
         });
       }
