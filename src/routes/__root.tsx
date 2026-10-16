@@ -22,7 +22,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   useEffect(() => {
     // Arquivos de uma versão antiga (após nova publicação): recarrega uma vez para buscar a nova.
-    const msg = String(error?.message ?? "");
+    const msg = String((error as Error | undefined)?.message ?? "");
     if (
       /reading 'component'|Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(
         msg,
