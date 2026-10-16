@@ -69,6 +69,22 @@ const activeLink = {
   "aria-current": "page" as const,
 };
 
+/** Cabeçalho de seção do menu: marcador de cor, rótulo e filete decorativo. */
+function SectionTitle({ label }: { label: string }) {
+  return (
+    <div className="mb-2 flex items-center gap-2 px-3">
+      <span className="size-1.5 shrink-0 rounded-full bg-sidebar-primary" aria-hidden />
+      <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-sidebar-foreground/60">
+        {label}
+      </span>
+      <span
+        className="h-px flex-1 bg-gradient-to-r from-sidebar-border to-transparent"
+        aria-hidden
+      />
+    </div>
+  );
+}
+
 function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { t } = useTranslation();
   const { hasRole } = usePermissions();
@@ -94,9 +110,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
       )}
       {isSuperadmin && (
         <div>
-          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-            {t("nav.platform.section")}
-          </p>
+          <SectionTitle label={t("nav.platform.section")} />
           <ul className="space-y-1">
             {platformLinks.map(({ to, key, icon: Icon, exact }) => (
               <li key={key}>
@@ -116,15 +130,19 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
         </div>
       )}
       {(
-      <div>
-        <div className="mb-2 px-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-            {t("nav.operation.section")}
-          </p>
-          <p className="mt-1 truncate text-[11px] text-sidebar-foreground/65">
-            {t("nav.operation.currentCompany", { company: user?.companyName ?? user?.companyId })}
-          </p>
-        </div>
+        <div>
+          <SectionTitle label={t("nav.operation.section")} />
+          <div className="mb-2 flex items-center gap-2 px-3">
+            <span className="shrink-0 text-[11px] text-sidebar-foreground/60">
+              {t("nav.operation.companyLabel")}
+            </span>
+            <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full border border-sidebar-border bg-sidebar-accent/50 px-2 py-0.5 text-[11px] font-medium text-sidebar-foreground/90">
+              <span className="size-1.5 shrink-0 rounded-full bg-sidebar-primary" aria-hidden />
+              <span className="truncate">
+                {user?.companyName ?? user?.companyId}
+              </span>
+            </span>
+          </div>
         <ul className="space-y-1">
           <li>
             <Link
@@ -238,9 +256,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
       )}
       {!isSuperadmin && (
         <div>
-          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-            {t("nav.soon")}
-          </p>
+          <SectionTitle label={t("nav.soon")} />
           <ul className="space-y-1">
             {soonModules.map(({ key, icon: Icon }) => (
               <li

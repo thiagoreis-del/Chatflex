@@ -93,6 +93,7 @@
     },
     "operation": {
       "section": "Operação da empresa",
+      "companyLabel": "Empresa atual",
       "platformAccount": "Conta atual: {{company}}",
       "currentCompany": "Empresa atual: {{company}}",
       "enterHint": "Para atender conversas e configurar uma empresa, abra Empresas e clique em \"Entrar na empresa\"."
