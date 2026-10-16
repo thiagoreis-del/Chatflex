@@ -1,0 +1,32 @@
+{
+  "meta": "Backups",
+  "title": "Backups",
+  "subtitle": "Gere, baixe e restaure cópias de segurança do sistema e defina a rotina automática.",
+  "create": "Gerar backup agora",
+  "creating": "Gerando…",
+  "created": "Backup solicitado com sucesso.",
+  "listTitle": "Histórico de backups",
+  "empty": "Nenhum backup encontrado.",
+  "columns": { "file": "Arquivo", "date": "Data", "size": "Tamanho", "status": "Situação", "actions": "Ações" },
+  "status": { "pending": "Na fila", "running": "Em andamento", "completed": "Concluído", "failed": "Falhou" },
+  "download": "Baixar",
+  "restore": "Restaurar",
+  "restoreTitle": "Restaurar este backup?",
+  "restoreDescription": "Os dados atuais serão substituídos pelo conteúdo de {{file}}. Essa ação não pode ser desfeita. Gere um backup antes, por segurança.",
+  "restoreConfirmLabel": "Digite RESTAURAR para confirmar",
+  "restoreConfirmWord": "RESTAURAR",
+  "restored": "Restauração iniciada. O sistema pode ficar indisponível por alguns minutos.",
+  "schedule": {
+    "title": "Backup automático",
+    "enabled": "Ativar backup automático",
+    "frequency": "Frequência",
+    "daily": "Diário",
+    "weekly": "Semanal",
+    "monthly": "Mensal",
+    "time": "Horário",
+    "retention": "Manter os últimos",
+    "retentionHint": "backups",
+    "save": "Salvar rotina",
+    "saved": "Rotina de backup salva."
+  }
+}

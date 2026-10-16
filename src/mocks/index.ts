@@ -16,6 +16,7 @@ import { contactsMock } from "./contacts";
 import { teamMock } from "./team";
 import { ticketsMock } from "./tickets";
 import { quickMessagesMock } from "./quick-messages";
+import { backupsMock } from "./backups";
 
 export const DEMO_SUPERADMIN_EMAIL = "superadmin@exemplo.test";
 
@@ -105,6 +106,10 @@ export async function mockRequest<T>(path: string, opts: RequestOptions): Promis
   if (path.startsWith("/quick-messages")) {
     if (!currentUser || currentUser.role === "superadmin") throw new ApiError("forbidden", 403);
     return quickMessagesMock(path, opts) as T;
+  }
+  if (path.startsWith("/backups")) {
+    if (currentUser?.role !== "superadmin") throw new ApiError("forbidden", 403);
+    return backupsMock(path, opts) as T;
   }
   throw new ApiError("notFound", 404);
 }
