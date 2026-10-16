@@ -928,15 +928,27 @@ function Conversation({
           <p className="truncate font-semibold leading-tight">
             {ticket.contact.name || `+${ticket.contact.number}`}
           </p>
-          <p className="truncate text-xs text-muted-foreground">
-            +{ticket.contact.number} ·{" "}
+          <p className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            {session.user?.companyName && (
+              <span className="font-medium text-foreground">
+                {t("context.company")}: {session.user.companyName}
+                {" · "}
+              </span>
+            )}
+            <span className="font-medium text-emerald-700 dark:text-emerald-300">
+              {t("origin")}: {ticket.whatsapp?.name ?? t("unknownOrigin")}
+              {ticket.whatsapp?.number ? ` · +${ticket.whatsapp.number}` : ""}
+            </span>
+          </p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">
+              {t("context.queue")}: {ticket.queue?.name ?? t("noQueue")}
+            </span>
+            {" · "}
             <span className="font-medium text-foreground">
               {t("attendant")}: {ticket.user?.name ?? t("noAttendant")}
             </span>
-          </p>
-          <p className="mt-0.5 hidden truncate text-xs font-medium text-emerald-700 sm:block dark:text-emerald-300">
-            {t("origin")}: {ticket.whatsapp?.name ?? t("unknownOrigin")}
-            {ticket.whatsapp?.number ? ` · +${ticket.whatsapp.number}` : ""}
           </p>
           <div className="mt-1 flex items-center gap-1 overflow-x-auto pb-0.5 [scrollbar-width:none] sm:flex-wrap">
             {(ticket.tags ?? []).map((tag) => (
@@ -1040,7 +1052,7 @@ function Conversation({
           {ticket.status === "open" && (
             <Button
               size="sm"
-              variant="outline"
+              className="bg-destructive font-semibold text-destructive-foreground shadow-sm hover:bg-destructive/90"
               onClick={() => setCloseOpen(true)}
               disabled={status.isPending || closeWithMessage.isPending}
             >
