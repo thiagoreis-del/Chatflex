@@ -120,6 +120,9 @@ const TAB_IDLE_CLASSES: Record<TicketTab, string> = {
 
 /** Remove a assinatura `*Nome:*\n` enviada ao cliente — o painel já mostra o atendente. */
 const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
+/** Texto visível na bolha: remove a assinatura "*Nome:*" das mensagens enviadas. */
+const displayBody = (m: Pick<Message, "body" | "fromMe" | "isPrivate">) =>
+  m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body;
 
 export function TicketsPage() {
   const { t } = useTranslation("tickets");
