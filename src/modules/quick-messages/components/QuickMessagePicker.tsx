@@ -23,7 +23,7 @@ export function QuickMessagePicker({
   onPick: (m: QuickMessage) => void;
 }) {
   const { t } = useTranslation("quickMessages");
-  const query = useQuery(quickMessagesQuery());
+  const query = useQuery(quickMessagesQuery(useSession().user?.companyId));
   const items = filterQuickMessages(query.data ?? [], term).slice(0, 8);
   return (
     <div
