@@ -134,8 +134,6 @@
         "connectionsDescription": "Veja os números vinculados, sua identificação e o estado da conexão.",
         "service": "Acompanhar atendimentos",
         "serviceDescription": "Requer acesso delegado da empresa no servidor para abrir as conversas com segurança.",
-        "accessTitle": "Acesso operacional por empresa ainda depende do servidor",
-        "accessDescription": "A consulta de usuários e conexões já identifica esta empresa. Para cadastrar, gerar QR Code ou abrir seus atendimentos, o backend deve emitir uma sessão delegada e registrar a ação do superadministrador em auditoria."
       },
       "usersSummary": "Resumo de usuários da empresa. A gestão de usuários chegará em uma etapa futura.",
       "connectionsSummary": "Resumo de conexões da empresa. A gestão de conexões chegará em uma etapa futura.",
