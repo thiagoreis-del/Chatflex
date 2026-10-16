@@ -16,6 +16,8 @@ import type {
 export const internalChatEndpoints = {
   conversations: "/internal-chat/conversations",
   messages: (id: number) => `/internal-chat/conversations/${id}/messages`,
+  members: (id: number) => `/internal-chat/conversations/${id}/members`,
+  member: (id: number, userId: number) => `/internal-chat/conversations/${id}/members/${userId}`,
 } as const;
 
 const asArray = <T,>(res: unknown): T[] => {
@@ -61,3 +63,12 @@ export const sendInternalMedia = (conversationId: number, file: File, caption: s
   if (caption) form.append("body", caption);
   return apiUpload<InternalMessage>(internalChatEndpoints.messages(conversationId), form);
 };
+
+export const addInternalMember = (conversationId: number, userId: number) =>
+  apiRequest<InternalConversation>(internalChatEndpoints.members(conversationId), {
+    method: "POST",
+    body: { userId },
+  });
+
+export const removeInternalMember = (conversationId: number, userId: number) =>
+  apiRequest<void>(internalChatEndpoints.member(conversationId, userId), { method: "DELETE" });
