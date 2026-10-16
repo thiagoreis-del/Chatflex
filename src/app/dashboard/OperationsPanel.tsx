@@ -9,7 +9,7 @@ import { ticketKeys } from "@/shared/api/query-keys";
 import { socketClient } from "@/shared/socket/socket-client";
 import { operationalDashboardQuery } from "@/modules/tickets/api";
 
-function Metric({ icon, title, value, hint }: { icon: ReactNode; title: string; value: ReactNode; hint?: string }) {
+function Metric({ icon, title, value, hint }: { icon: ReactNode; title: string; value: ReactNode; hint?: string | undefined }) {
   return (
     <section className="rounded-2xl border bg-card p-5 shadow-soft">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">

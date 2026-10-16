@@ -144,7 +144,7 @@ export const operationalDashboardQuery = () =>
       const today = new Date().toDateString();
       for (const tk of [...(pending.tickets ?? []), ...(open.tickets ?? []), ...(closed.tickets ?? [])]) {
         const d = tk.createdAt ? new Date(tk.createdAt) : null;
-        if (d && d.toDateString() === today) hourly[d.getHours()].created += 1;
+        if (d && d.toDateString() === today) hourly[d.getHours()]!.created += 1;
       }
       const byAttendant = new Map<number, AttendantMetric & { handle: number[] }>();
       const byQueue = new Map<number, QueueMetric & { wait: number[] }>();
@@ -152,7 +152,7 @@ export const operationalDashboardQuery = () =>
       const handleTimes: number[] = [];
       for (const ticket of closed.tickets ?? []) {
         const closedAt = new Date(ticket.updatedAt);
-        if (closedAt.toDateString() === today) hourly[closedAt.getHours()].closed += 1;
+        if (closedAt.toDateString() === today) hourly[closedAt.getHours()]!.closed += 1;
         const fr = minutes(ticket.createdAt, ticket.firstResponseAt);
         if (fr != null) firstResponseTimes.push(fr);
         const handle = minutes(ticket.firstResponseAt ?? ticket.createdAt, ticket.updatedAt);
