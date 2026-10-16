@@ -43,6 +43,7 @@ import { useSession } from "@/shared/auth/session-store";
 import { exitCompany, logout } from "@/shared/auth/auth-service";
 import { toast } from "sonner";
 import { usePermissions } from "@/shared/permissions/permissions";
+import { can } from "@/shared/permissions/catalog";
 import { IncomingNotifications } from "@/modules/tickets/components/IncomingNotifications";
 import { SlaWatcher } from "@/modules/sla/components/SlaWatcher";
 
@@ -136,6 +137,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
               {t("nav.modules.tickets")}
             </Link>
           </li>
+          {can(user, "module.connections") && (
           <li>
             <Link
               to="/app/conexoes"
@@ -147,6 +149,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
               {t("nav.modules.whatsapp")}
             </Link>
           </li>
+          )}
           <li>
             <Link
               to="/app/contatos"
