@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { WifiOff } from "lucide-react";
+import { i18n } from "@/shared/i18n";
 
 /** Faixa fixa exibida quando o navegador perde a conexão. */
 export function OfflineNotice() {
-  const { t } = useTranslation("common");
   const [offline, setOffline] = useState(() =>
     typeof navigator === "undefined" ? false : !navigator.onLine,
   );
