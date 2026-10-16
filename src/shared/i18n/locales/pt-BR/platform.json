@@ -453,7 +453,7 @@
     "whatsappActive": "Ativas",
     "whatsappAwaitingQr": "Aguardando QR Code",
     "whatsappDisconnected": "Desconectadas",
-    "capacity": "VPS contratada: {{cores}​​} núcleos · {{ram}} GB RAM · {{disk}} GB disco",
+    "capacity": "VPS contratada: {{cores}} núcleos · {{ram}} GB RAM · {{disk}} GB de disco",
     "historyTitle": "Histórico de utilização",
     "historyCollecting": "Coletando amostras reais…",
     "historyHint": "Amostras reais dos últimos ~{{minutes}} min desta sessão do painel.",
