@@ -597,6 +597,28 @@ export function TicketsPage() {
                                 <UserRound className="size-2.5 shrink-0" />
                                 <span className="truncate">{tk.user?.name ?? t("noAttendant")}</span>
                               </span>
+                              {tk.status !== "closed" && (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  aria-label={t("actions.refuse")}
+                                  title={t("actions.refuse")}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    refuseFromList.mutate(tk);
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      refuseFromList.mutate(tk);
+                                    }
+                                  }}
+                                  className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive/40"
+                                >
+                                  <Undo2 className="size-3" />
+                                </span>
+                              )}
                             </div>
                           </div>
                         </button>
