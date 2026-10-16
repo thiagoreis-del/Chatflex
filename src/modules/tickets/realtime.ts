@@ -1,5 +1,5 @@
 /**
- * Tempo real do Atendimento via Socket.io (contrato ZapPro).
+ * Tempo real do Atendimento via Socket.io.
  * Payloads: appMessage `{ action, message, ticket? }`, ticket `{ action, ticket?, ticketId? }`.
  * Mensagens novas entram direto no cache; listas de tickets são invalidadas.
  */

@@ -21,7 +21,7 @@ interface BackendContacts {
   total?: number;
 }
 
-/** Backend ZapPro/Whaticket: GET /contacts?searchParam&pageNumber → { contacts, count, hasMore }. */
+/** Backend: GET /contacts?searchParam&pageNumber → { contacts, count, hasMore }. */
 export const contactsQuery = (filters: ContactFilters) =>
   queryOptions({
     queryKey: contactKeys.list(filters),

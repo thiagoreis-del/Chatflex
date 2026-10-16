@@ -4,7 +4,7 @@ import { settingEndpoints as ep } from "@/shared/config/endpoints";
 
 /**
  * Mensagem de agradecimento ao finalizar, uma por empresa (a empresa vem do token).
- * CONTRATO PENDENTE: usa a chave `closingMessage` em /settings (padrão Whaticket); confirmar na VPS.
+ * CONTRATO PENDENTE: usa a chave `closingMessage` em /settings; confirmar na VPS.
  */
 export interface ClosingMessageSetting {
   enabled: boolean;

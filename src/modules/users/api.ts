@@ -17,7 +17,7 @@ interface BackendUsers extends Partial<Paginated<CompanyUser>> {
   count?: number;
 }
 
-/** Backend ZapPro/Whaticket: GET /users?searchParam&pageNumber → { users, count, hasMore }. */
+/** Backend: GET /users?searchParam&pageNumber → { users, count, hasMore }. */
 export const usersQuery = (filters: UserFilters) =>
   queryOptions({
     queryKey: userKeys.list(filters),

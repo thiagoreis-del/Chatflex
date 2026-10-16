@@ -11,7 +11,7 @@ export interface AuthenticatedUser {
   role: UserRole;
   companyId: string;
   permissions: string[];
-  /** Vencimento/teste da empresa (ZapPro: user.company.dueDate). */
+  /** Vencimento/teste da empresa (user.company.dueDate). */
   companyDueDate?: string | null;
   companyActive?: boolean;
   /** Filas do usuário; o backend só lista tickets das filas enviadas em `queueIds`. */
@@ -21,7 +21,7 @@ export interface AuthenticatedUser {
   companyName?: string;
 }
 
-/** POST /auth/login — backend ZapPro retorna `token`; `accessToken` aceito por compatibilidade. */
+/** POST /auth/login — o backend retorna `token`; `accessToken` aceito por compatibilidade. */
 export interface LoginResponse {
   accessToken?: string;
   token?: string;

@@ -1,7 +1,7 @@
 import type { AuthenticatedUser, UserRole } from "./types";
 
 /**
- * Converte o usuário do backend (formato ZapPro/Whaticket: `profile`, `super`,
+ * Converte o usuário do backend (campos `profile`, `super`,
  * ids numéricos) para o formato interno. Apenas apresentação; o backend autoriza.
  */
 export function normalizeUser(raw: unknown): AuthenticatedUser {

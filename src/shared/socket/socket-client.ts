@@ -1,5 +1,5 @@
 /**
- * Adaptador Socket.io — contrato confirmado no backend ZapPro/Whaticket:
+ * Adaptador Socket.io — contrato confirmado no backend:
  * - namespace por empresa: `${VITE_SOCKET_URL}/${companyId}`;
  * - autenticação via query `{ token, userId }` (JWT de acesso em memória);
  * - salas: joinTickets(status)/leaveTickets, joinChatBox(ticketId)/joinChatBoxLeave, joinNotification;
