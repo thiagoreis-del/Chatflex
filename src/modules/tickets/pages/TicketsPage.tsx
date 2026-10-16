@@ -79,6 +79,14 @@ import {
   QuickMessagePicker,
   filterQuickMessages,
 } from "@/modules/quick-messages/components/QuickMessagePicker";
+import {
+  clearDraft,
+  enqueueOutbox,
+  listOutbox,
+  loadDraft,
+  removeFromOutbox,
+  saveDraft,
+} from "../offline-outbox";
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -602,7 +610,13 @@ function Conversation({
   const msgFallback = useFallbackInterval();
   useMessagesRealtime(ticket.id);
   const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
-  const [text, setText] = useState("");
+  const companyId = String(session.user?.companyId ?? "");
+  const [text, setText] = useState(() => loadDraft(companyId, ticket.id));
+  // Rascunho preservado por conversa (sobrevive a queda de conexão/recarga).
+  useEffect(() => {
+    const id = setTimeout(() => saveDraft(companyId, ticket.id, text), 400);
+    return () => clearTimeout(id);
+  }, [companyId, ticket.id, text]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   useEffect(() => setReplyTo(null), [ticket.id]);
@@ -809,6 +823,7 @@ function Conversation({
       setReplyTo(null);
       followLatest.current = true;
       setText("");
+      clearDraft(companyId, ticket.id);
       setFiles([]);
       setActive(0);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
@@ -818,12 +833,43 @@ function Conversation({
         toast.info(t("toast.uploadCanceled"));
         return;
       }
+      // Sem conexão e só texto: entra na fila e é reenviado ao reconectar.
+      if (!v.media.length && v.body.trim() && !navigator.onLine) {
+        enqueueOutbox(companyId, { ticketId: ticket.id, body: v.body, isPrivate });
+        setText("");
+        clearDraft(companyId, ticket.id);
+        toast.info(t("toast.queued"));
+        return;
+      }
       const detail = e instanceof ApiError ? e.body?.message : undefined;
       toast.error(t(v.media.length ? "toast.fileError" : "toast.sendError"), {
         description: detail,
       });
     },
   });
+
+  // Reenvia mensagens de texto enfileiradas quando a conexão volta.
+  useEffect(() => {
+    const flush = async () => {
+      const pending = listOutbox(companyId).filter((m) => m.ticketId === ticket.id);
+      for (const item of pending) {
+        try {
+          const message = await sendMessage(ticket.id, item.body, item.isPrivate, null);
+          removeFromOutbox(companyId, item.id);
+          if (message?.id) {
+            qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (previous = []) =>
+              previous.some((m) => m.id === message.id) ? previous : [...previous, message],
+            );
+          }
+        } catch {
+          return; // ainda sem conexão: tenta de novo no próximo evento
+        }
+      }
+      if (pending.length) void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    };
+    window.addEventListener("online", flush);
+    return () => window.removeEventListener("online", flush);
+  }, [companyId, ticket.id, qc]);
 
   const addFiles = (input: File[]) => {
     const list = input.filter((f) => !isDangerousFile(f.name));
