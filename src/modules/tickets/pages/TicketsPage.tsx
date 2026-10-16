@@ -58,6 +58,8 @@ import { MessageMedia, isImage } from "../components/MessageMedia";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
+import { computeSla, slaConfigQuery, type SlaState } from "@/modules/sla/sla";
+import { SlaBadge } from "@/modules/sla/components/SlaBadge";
 import { quickMessagesQuery } from "@/modules/quick-messages/api";
 import {
   QuickMessagePicker,
@@ -80,6 +82,16 @@ export function TicketsPage() {
   const [confirmClose, setConfirmClose] = useState(false);
   const [search, setSearch] = useState("");
   const [connectionId, setConnectionId] = useState("all");
+  const [slaFilter, setSlaFilter] = useState<"all" | SlaState>("all");
+  const { t: ts } = useTranslation("settings");
+  const sla = useQuery(slaConfigQuery(String(session.user?.companyId ?? ""))).data;
+  const slaOn = !!sla?.enabled && tab !== "closed" && tab !== "groups";
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!slaOn) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [slaOn]);
   const [selected, setSelected] = useState<Ticket | null>(null);
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
@@ -167,6 +179,23 @@ export function TicketsPage() {
               bulkClose.mutate();
             }}
           />
+          {slaOn && (
+            <label className="block space-y-1 text-xs font-medium text-muted-foreground">
+              <span>{ts("sla.filter")}</span>
+              <select
+                value={slaFilter}
+                onChange={(e) => setSlaFilter(e.target.value as "all" | SlaState)}
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm text-foreground"
+              >
+                <option value="all">{ts("sla.filterAll")}</option>
+                {(["monitoring", "warning", "urgent", "violated"] as const).map((s) => (
+                  <option key={s} value={s}>
+                    {ts(`sla.states.${s}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           {(query.data ?? []).some((ticket) => ticket.whatsapp) && (
             <label className="block space-y-1 text-xs font-medium text-muted-foreground">
               <span>{t("connectionFilter")}</span>
@@ -195,66 +224,80 @@ export function TicketsPage() {
         <div className="min-h-0 flex-1 overflow-y-auto">
           <QueryBoundary query={query} contract={ticketsContract}>
             {(list) => {
-              const visible =
+              const visible = (
                 connectionId === "all"
                   ? list
-                  : list.filter((ticket) => String(ticket.whatsapp?.id) === connectionId);
+                  : list.filter((ticket) => String(ticket.whatsapp?.id) === connectionId)
+              ).filter(
+                (ticket) =>
+                  !slaOn ||
+                  slaFilter === "all" ||
+                  computeSla(ticket, sla!, now).state === slaFilter,
+              );
               return visible.length === 0 ? (
                 <p className="p-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
               ) : (
                 <ul>
-                  {visible.map((tk) => (
-                    <li key={tk.id}>
-                      <button
-                        type="button"
-                        onClick={() => setSelected(tk)}
-                        className={cn(
-                          "flex w-full gap-3 border-b px-3 py-3 text-left transition-colors hover:bg-muted/60",
-                          selected?.id === tk.id && "bg-muted",
-                        )}
-                      >
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                          {(tk.contact.name || "#").charAt(0)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="truncate font-medium">
-                              {tk.contact.name || `+${tk.contact.number}`}
-                            </span>
-                            <span className="shrink-0 text-xs text-muted-foreground">
-                              {time(tk.updatedAt)}
-                            </span>
+                  {visible.map((tk) => {
+                    const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
+                    const hl = sla?.highlight ? slaInfo?.state : undefined;
+                    return (
+                      <li key={tk.id}>
+                        <button
+                          type="button"
+                          onClick={() => setSelected(tk)}
+                          className={cn(
+                            "flex w-full gap-3 border-b px-3 py-3 text-left transition-colors hover:bg-muted/60",
+                            selected?.id === tk.id && "bg-muted",
+                            hl === "urgent" && "border-l-4 border-l-warning bg-warning/10",
+                            hl === "violated" &&
+                              "border-l-4 border-l-destructive bg-destructive/10",
+                          )}
+                        >
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                            {(tk.contact.name || "#").charAt(0)}
                           </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="truncate text-sm text-muted-foreground">
-                              {tk.lastMessage}
-                            </span>
-                            {tk.unreadMessages > 0 && (
-                              <span className="rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
-                                {tk.unreadMessages}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate font-medium">
+                                {tk.contact.name || `+${tk.contact.number}`}
                               </span>
-                            )}
+                              <span className="shrink-0 text-xs text-muted-foreground">
+                                {time(tk.updatedAt)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate text-sm text-muted-foreground">
+                                {tk.lastMessage}
+                              </span>
+                              {tk.unreadMessages > 0 && (
+                                <span className="rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
+                                  {tk.unreadMessages}
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+                              {slaInfo && <SlaBadge info={slaInfo} />}
+                              <span className="inline-flex max-w-full items-center rounded bg-emerald-100 px-1.5 text-[11px] font-medium text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
+                                WhatsApp: {tk.whatsapp?.name ?? t("unknownOrigin")}
+                              </span>
+                              <span
+                                className="inline-block rounded px-1.5 text-[11px] font-medium text-primary-foreground"
+                                style={{
+                                  backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
+                                }}
+                              >
+                                {tk.queue?.name ?? t("noQueue")}
+                              </span>
+                              <span className="truncate text-[11px] text-muted-foreground">
+                                👤 {tk.user?.name ?? t("noAttendant")}
+                              </span>
+                            </div>
                           </div>
-                          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
-                            <span className="inline-flex max-w-full items-center rounded bg-emerald-100 px-1.5 text-[11px] font-medium text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
-                              WhatsApp: {tk.whatsapp?.name ?? t("unknownOrigin")}
-                            </span>
-                            <span
-                              className="inline-block rounded px-1.5 text-[11px] font-medium text-primary-foreground"
-                              style={{
-                                backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
-                              }}
-                            >
-                              {tk.queue?.name ?? t("noQueue")}
-                            </span>
-                            <span className="truncate text-[11px] text-muted-foreground">
-                              👤 {tk.user?.name ?? t("noAttendant")}
-                            </span>
-                          </div>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               );
             }}
