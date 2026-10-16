@@ -90,6 +90,7 @@ let refreshPromise: Promise<boolean> | null = null;
  */
 export function refreshAccessToken(): Promise<boolean> {
   if (!refreshPromise) {
+    const genAtStart = tokenStore.generation();
     refreshPromise = (async () => {
       try {
         const res = await rawRequest<RefreshResponse>(endpoints.auth.refresh, {
@@ -98,13 +99,14 @@ export function refreshAccessToken(): Promise<boolean> {
         });
         const token = res?.accessToken ?? res?.token;
         if (!token) {
-          tokenStore.clear();
+          if (tokenStore.generation() === genAtStart) tokenStore.clear();
           return false;
         }
         tokenStore.set(token);
         return true;
       } catch (error) {
-        tokenStore.clear();
+        // Não apaga um token mais novo instalado por outra troca de sessão.
+        if (tokenStore.generation() === genAtStart) tokenStore.clear();
         if (error instanceof ApiError && (error.kind === "network" || error.kind === "server")) {
           throw error;
         }
