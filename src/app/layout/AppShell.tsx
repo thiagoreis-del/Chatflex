@@ -208,6 +208,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
           )}
         </ul>
       </div>
+      )}
       {!isSuperadmin && (
         <div>
           <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
