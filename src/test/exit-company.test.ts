@@ -48,7 +48,7 @@ describe("Sair da empresa não desloga o superadmin", () => {
   });
 
   it("restaura a sessão original da plataforma quando o servidor falha", async () => {
-    apiRequestMock.mockImplementation((path: string, opts?: { body?: unknown }) => {
+    mocks.apiRequest.mockImplementation((path: string, opts?: { body?: unknown }) => {
       if (path === "/auth/login") return Promise.resolve({ token: "token-plataforma", user: platformUser });
       if (path === "/companies/2/enter")
         return Promise.resolve({ token: "token-delegado", user: companyUser });
@@ -70,7 +70,7 @@ describe("Sair da empresa não desloga o superadmin", () => {
   });
 
   it("usa a resposta do servidor quando a saída tem sucesso", async () => {
-    apiRequestMock.mockImplementation((path: string) => {
+    mocks.apiRequest.mockImplementation((path: string) => {
       if (path === "/auth/login") return Promise.resolve({ token: "token-plataforma", user: platformUser });
       if (path === "/companies/2/enter") return Promise.resolve({ token: "token-delegado", user: companyUser });
       if (path === "/companies/exit") return Promise.resolve({ token: "token-novo", user: platformUser });
