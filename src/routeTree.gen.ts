@@ -29,6 +29,7 @@ import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
 import { Route as AppPlataformaIndexRouteImport } from './routes/app.plataforma.index'
 import { Route as AppPlataformaAssinaturasRouteImport } from './routes/app.plataforma.assinaturas'
 import { Route as AppPlataformaAuditoriaRouteImport } from './routes/app.plataforma.auditoria'
+import { Route as AppPlataformaBackupsRouteImport } from './routes/app.plataforma.backups'
 import { Route as AppPlataformaFaturasRouteImport } from './routes/app.plataforma.faturas'
 import { Route as AppPlataformaEmpresasIndexRouteImport } from './routes/app.plataforma.empresas.index'
 import { Route as AppPlataformaEmpresasNovaRouteImport } from './routes/app.plataforma.empresas.nova'
@@ -139,6 +140,11 @@ const AppPlataformaAuditoriaRoute = AppPlataformaAuditoriaRouteImport.update({
   path: '/auditoria',
   getParentRoute: () => AppPlataformaRoute,
 } as any)
+const AppPlataformaBackupsRoute = AppPlataformaBackupsRouteImport.update({
+  id: '/backups',
+  path: '/backups',
+  getParentRoute: () => AppPlataformaRoute,
+} as any)
 const AppPlataformaFaturasRoute = AppPlataformaFaturasRouteImport.update({
   id: '/faturas',
   path: '/faturas',
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
   '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
+  '/app/plataforma/backups': typeof AppPlataformaBackupsRoute
   '/app/plataforma/faturas': typeof AppPlataformaFaturasRoute
   '/app/plataforma/': typeof AppPlataformaIndexRoute
   '/app/plataforma/empresas/nova': typeof AppPlataformaEmpresasNovaRoute
@@ -234,6 +241,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
   '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
+  '/app/plataforma/backups': typeof AppPlataformaBackupsRoute
   '/app/plataforma/faturas': typeof AppPlataformaFaturasRoute
   '/app/plataforma': typeof AppPlataformaIndexRoute
   '/app/plataforma/empresas/nova': typeof AppPlataformaEmpresasNovaRoute
@@ -265,6 +273,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
   '/app/plataforma/auditoria': typeof AppPlataformaAuditoriaRoute
+  '/app/plataforma/backups': typeof AppPlataformaBackupsRoute
   '/app/plataforma/faturas': typeof AppPlataformaFaturasRoute
   '/app/plataforma/': typeof AppPlataformaIndexRoute
   '/app/plataforma/empresas/nova': typeof AppPlataformaEmpresasNovaRoute
@@ -297,6 +306,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/plataforma/assinaturas'
     | '/app/plataforma/auditoria'
+    | '/app/plataforma/backups'
     | '/app/plataforma/faturas'
     | '/app/plataforma/'
     | '/app/plataforma/empresas/nova'
@@ -325,6 +335,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/plataforma/assinaturas'
     | '/app/plataforma/auditoria'
+    | '/app/plataforma/backups'
     | '/app/plataforma/faturas'
     | '/app/plataforma'
     | '/app/plataforma/empresas/nova'
@@ -355,6 +366,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/plataforma/assinaturas'
     | '/app/plataforma/auditoria'
+    | '/app/plataforma/backups'
     | '/app/plataforma/faturas'
     | '/app/plataforma/'
     | '/app/plataforma/empresas/nova'
@@ -519,6 +531,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPlataformaAuditoriaRouteImport
       parentRoute: typeof AppPlataformaRoute
     }
+    '/app/plataforma/backups': {
+      id: '/app/plataforma/backups'
+      path: '/backups'
+      fullPath: '/app/plataforma/backups'
+      preLoaderRoute: typeof AppPlataformaBackupsRouteImport
+      parentRoute: typeof AppPlataformaRoute
+    }
     '/app/plataforma/faturas': {
       id: '/app/plataforma/faturas'
       path: '/faturas'
@@ -581,6 +600,7 @@ declare module '@tanstack/react-router' {
 interface AppPlataformaRouteChildren {
   AppPlataformaAssinaturasRoute: typeof AppPlataformaAssinaturasRoute
   AppPlataformaAuditoriaRoute: typeof AppPlataformaAuditoriaRoute
+  AppPlataformaBackupsRoute: typeof AppPlataformaBackupsRoute
   AppPlataformaFaturasRoute: typeof AppPlataformaFaturasRoute
   AppPlataformaIndexRoute: typeof AppPlataformaIndexRoute
   AppPlataformaEmpresasNovaRoute: typeof AppPlataformaEmpresasNovaRoute
@@ -595,6 +615,7 @@ interface AppPlataformaRouteChildren {
 const AppPlataformaRouteChildren: AppPlataformaRouteChildren = {
   AppPlataformaAssinaturasRoute: AppPlataformaAssinaturasRoute,
   AppPlataformaAuditoriaRoute: AppPlataformaAuditoriaRoute,
+  AppPlataformaBackupsRoute: AppPlataformaBackupsRoute,
   AppPlataformaFaturasRoute: AppPlataformaFaturasRoute,
   AppPlataformaIndexRoute: AppPlataformaIndexRoute,
   AppPlataformaEmpresasNovaRoute: AppPlataformaEmpresasNovaRoute,
