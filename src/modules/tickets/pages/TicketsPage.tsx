@@ -67,6 +67,10 @@ import {
 } from "../api";
 import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../types";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
+import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
+import { getContact } from "@/modules/contacts/api";
+import type { Contact } from "@/modules/contacts/types";
+import { contactKeys } from "@/shared/api/query-keys";
 import { MessageMedia, isImage } from "../components/MessageMedia";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { isDangerousFile } from "../audio-format";
@@ -99,10 +103,16 @@ const TAB_ICONS: Record<TicketTab, typeof Inbox> = {
   closed: Inbox,
 };
 const TAB_ACTIVE_CLASSES: Record<TicketTab, string> = {
-  open: "border-primary bg-primary text-primary-foreground shadow-sm",
-  pending: "border-warning bg-warning text-warning-foreground shadow-sm",
-  groups: "border-groups bg-groups text-groups-foreground shadow-sm",
-  closed: "border-muted-foreground/40 bg-muted-foreground/15 text-foreground shadow-sm",
+  open: "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30",
+  pending: "bg-warning text-warning-foreground shadow-md ring-2 ring-warning/30",
+  groups: "bg-groups text-groups-foreground shadow-md ring-2 ring-groups/30",
+  closed: "bg-muted-foreground/20 text-foreground shadow-md ring-2 ring-muted-foreground/20",
+};
+const TAB_IDLE_CLASSES: Record<TicketTab, string> = {
+  open: "bg-primary/10 text-primary hover:bg-primary/15",
+  pending: "bg-warning/15 text-warning-foreground hover:bg-warning/25 dark:text-warning",
+  groups: "bg-groups/10 text-groups hover:bg-groups/15",
+  closed: "bg-muted/60 text-muted-foreground hover:bg-muted",
 };
 
 /** Remove a assinatura `*Nome:*\n` enviada ao cliente — o painel já mostra o atendente. */
@@ -299,28 +309,26 @@ export function TicketsPage() {
                     key={s}
                     value={s}
                     className={cn(
-                      "flex min-h-11 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg border px-1 py-1.5",
-                      "text-[11px] font-semibold leading-tight sm:text-xs",
-                      "data-[state=inactive]:bg-muted/40 data-[state=inactive]:text-muted-foreground",
-                      "data-[state=inactive]:hover:bg-muted",
-                      active && TAB_ACTIVE_CLASSES[s],
+                      "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border-0 px-1 py-2",
+                      "text-[11px] font-semibold leading-tight transition-all sm:text-xs",
+                      active ? TAB_ACTIVE_CLASSES[s] : TAB_IDLE_CLASSES[s],
                     )}
                   >
-                    <span className="flex items-center gap-1">
-                      <Icon className="size-3.5 shrink-0" aria-hidden />
-                      <span className="truncate">{t(`tabs.${s}`)}</span>
+                    <span className="flex items-center gap-1.5">
+                      <Icon className="size-4 shrink-0 sm:size-5" aria-hidden />
+                      {c !== undefined && c > 0 && (
+                        <span
+                          className={cn(
+                            "min-w-5 rounded-md px-1 text-[10px] font-bold leading-4 tabular-nums sm:text-[11px]",
+                            active ? "bg-background/90 text-foreground" : "bg-background/70",
+                          )}
+                          aria-label={String(c)}
+                        >
+                          {c > 99 ? "99+" : c}
+                        </span>
+                      )}
                     </span>
-                    {c !== undefined && c > 0 && (
-                      <span
-                        className={cn(
-                          "rounded-full px-1.5 text-[10px] font-bold leading-4 tabular-nums",
-                          active ? "bg-background/25 text-inherit" : "bg-foreground/10",
-                        )}
-                        aria-label={String(c)}
-                      >
-                        {c > 99 ? "99+" : c}
-                      </span>
-                    )}
+                    <span className="max-w-full truncate">{t(`tabs.${s}`)}</span>
                   </TabsTrigger>
                 );
               })}
@@ -618,6 +626,15 @@ function Conversation({
     return () => clearTimeout(id);
   }, [companyId, ticket.id, text]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const openContactEditor = async () => {
+    const base: Contact = { id: ticket.contact.id, name: ticket.contact.name, number: ticket.contact.number };
+    try {
+      setEditingContact({ ...base, ...(await getContact(ticket.contact.id)) });
+    } catch {
+      setEditingContact(base);
+    }
+  };
   const [highlightId, setHighlightId] = useState<string | null>(null);
   useEffect(() => setReplyTo(null), [ticket.id]);
   const jumpTo = (id: string) => {
@@ -957,6 +974,18 @@ function Conversation({
 
   return (
     <>
+      {editingContact && (
+        <ContactFormDialog
+          value={editingContact}
+          onClose={() => setEditingContact(null)}
+          onSaved={() =>
+            Promise.all([
+              qc.invalidateQueries({ queryKey: ticketKeys.all }),
+              qc.invalidateQueries({ queryKey: contactKeys.all }),
+            ])
+          }
+        />
+      )}
       <header className="flex shrink-0 items-start gap-1.5 border-b px-1.5 py-1.5 pt-[max(0.375rem,env(safe-area-inset-top))] sm:gap-2 sm:px-4 sm:py-3">
         <Button
           variant="ghost"
@@ -971,9 +1000,21 @@ function Conversation({
           {(ticket.contact.name || "#").charAt(0)}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold leading-tight">
-            {ticket.contact.name || `+${ticket.contact.number}`}
-          </p>
+          <div className="flex min-w-0 items-center gap-1">
+            <p className="truncate font-semibold leading-tight">
+              {ticket.contact.name || `+${ticket.contact.number}`}
+            </p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 shrink-0"
+              aria-label={t("actions.editContact")}
+              title={t("actions.editContact")}
+              onClick={() => void openContactEditor()}
+            >
+              <Pencil className="size-3.5" />
+            </Button>
+          </div>
           <p className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</p>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">
             {session.user?.companyName && (

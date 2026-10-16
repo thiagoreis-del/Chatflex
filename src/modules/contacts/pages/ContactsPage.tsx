@@ -35,10 +35,10 @@ import {
   contactsQuery,
   createContact,
   deleteContact,
-  updateContact,
 } from "../api";
-import { isValidNumber, normalizeNumber, parseContactsCsv, type ImportRow } from "../import";
-import type { Contact, ContactInput } from "../types";
+import { parseContactsCsv, type ImportRow } from "../import";
+import { ContactFormDialog } from "../components/ContactFormDialog";
+import type { Contact } from "../types";
 
 export function ContactsPage() {
   const { t } = useTranslation("contacts");
@@ -99,6 +99,7 @@ export function ContactsPage() {
             <EmptyState title={t("empty")} />
           ) : (
             <>
+              <div className="overflow-x-auto rounded-xl border bg-card shadow-soft">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -112,8 +113,19 @@ export function ContactsPage() {
                 <TableBody>
                   {result.data.map((c) => (
                     <TableRow key={c.id}>
-                      <TableCell className="font-medium">{c.name}</TableCell>
-                      <TableCell>{c.number}</TableCell>
+                      <TableCell>
+                        <button
+                          type="button"
+                          onClick={() => setForm(c)}
+                          className="flex min-w-0 items-center gap-3 text-left"
+                        >
+                          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                            {(c.name || "#").charAt(0).toUpperCase()}
+                          </span>
+                          <span className="truncate font-medium hover:underline">{c.name}</span>
+                        </button>
+                      </TableCell>
+                      <TableCell className="tabular-nums text-muted-foreground">+{c.number}</TableCell>
                       <TableCell>{c.email ?? "—"}</TableCell>
                       <TableCell>
                         <span className="flex flex-wrap gap-1">
@@ -146,6 +158,7 @@ export function ContactsPage() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
               <Pagination
                 page={result.page}
                 pageSize={result.pageSize}
@@ -178,145 +191,6 @@ export function ContactsPage() {
   );
 }
 
-function ContactFormDialog({
-  value,
-  existing,
-  onClose,
-  onSaved,
-}: {
-  value: Contact | "new";
-  existing: Contact[];
-  onClose: () => void;
-  onSaved: () => unknown;
-}) {
-  const { t } = useTranslation("contacts");
-  const editing = value !== "new" ? value : null;
-  const [data, setData] = useState<ContactInput>({
-    name: editing?.name ?? "",
-    number: editing?.number ?? "",
-    email: editing?.email ?? "",
-    tags: editing?.tags ?? [],
-  });
-  const [tagsText, setTagsText] = useState((editing?.tags ?? []).join(", "));
-  const [errors, setErrors] = useState({ name: false, number: false, email: false });
-  const [duplicate, setDuplicate] = useState<Contact | null>(null);
-
-  const save = useMutation({
-    mutationFn: () => (editing ? updateContact(editing.id, data) : createContact(data)),
-    onSuccess: () => {
-      toast.success(t("toast.saved"));
-      void onSaved();
-      onClose();
-    },
-    onError: () => toast.error(t("toast.error")),
-  });
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const normalized = normalizeNumber(data.number);
-    const next = {
-      name: !data.name.trim(),
-      number: !data.number.trim() || !isValidNumber(data.number),
-      email: !!data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email),
-    };
-    setErrors(next);
-    if (Object.values(next).some(Boolean)) return;
-    const dup = existing.find(
-      (c) => c.id !== editing?.id && normalizeNumber(c.number) === normalized,
-    );
-    if (dup) {
-      setDuplicate(dup);
-      return;
-    }
-    setDuplicate(null);
-    save.mutate();
-  };
-
-  return (
-    <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
-        <form className="space-y-4" onSubmit={submit}>
-          <DialogHeader>
-            <DialogTitle>{editing ? t("edit") : t("new")}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="ct-name">{t("form.name")}</Label>
-            <Input
-              id="ct-name"
-              value={data.name}
-              aria-invalid={errors.name}
-              onChange={(e) => setData({ ...data, name: e.target.value })}
-            />
-            {errors.name && <p className="text-xs text-destructive">{t("form.nameRequired")}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="ct-number">{t("form.number")}</Label>
-            <Input
-              id="ct-number"
-              value={data.number}
-              aria-invalid={errors.number}
-              onChange={(e) => {
-                setData({ ...data, number: e.target.value });
-                setDuplicate(null);
-              }}
-              onBlur={() => {
-                const n = normalizeNumber(data.number);
-                if (n) setData((d) => ({ ...d, number: n }));
-              }}
-            />
-            {errors.number && (
-              <p className="text-xs text-destructive">
-                {data.number.trim() ? t("form.numberInvalid") : t("form.numberRequired")}
-              </p>
-            )}
-            {duplicate && (
-              <p className="text-xs text-destructive">
-                {t("form.duplicate", { name: duplicate.name })}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="ct-email">{t("form.email")}</Label>
-            <Input
-              id="ct-email"
-              type="email"
-              value={data.email}
-              aria-invalid={errors.email}
-              onChange={(e) => setData({ ...data, email: e.target.value })}
-            />
-            {errors.email && <p className="text-xs text-destructive">{t("form.emailInvalid")}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="ct-tags">{t("form.tags")}</Label>
-            <Input
-              id="ct-tags"
-              value={tagsText}
-              onChange={(e) => {
-                setTagsText(e.target.value);
-                setData({
-                  ...data,
-                  tags: e.target.value
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean),
-                });
-              }}
-            />
-            <p className="text-xs text-muted-foreground">{t("form.tagsHint")}</p>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t("actions.cancel")}
-            </Button>
-            <Button type="submit" disabled={save.isPending}>
-              {t("actions.save")}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function ImportDialog({ onClose, onDone }: { onClose: () => void; onDone: () => unknown }) {
   const { t } = useTranslation("contacts");

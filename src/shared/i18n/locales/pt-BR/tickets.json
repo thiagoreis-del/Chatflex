@@ -26,6 +26,7 @@
   },
   "noAttendant": "Sem atendente",
   "actions": {
+    "editContact": "Editar contato",
     "accept": "Aceitar",
     "close": "Finalizar",
     "reopen": "Reabrir",
