@@ -110,12 +110,9 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
               </li>
             ))}
           </ul>
-          <p className="mt-4 px-3 text-[11px] leading-relaxed text-sidebar-foreground/60">
-            {t("nav.operation.enterHint")}
-          </p>
         </div>
       )}
-      {!isSuperadmin && (
+      {(
       <div>
         <div className="mb-2 px-3">
           <p className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
@@ -172,7 +169,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
               {t("nav.modules.quickMessages")}
             </Link>
           </li>
-          {hasRole("company_admin") && (
+          {(isSuperadmin || hasRole("company_admin")) && (
             <>
               <li>
                 <Link
