@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/shared/auth/session-store";
 import { quickMessagesQuery } from "../api";
 import type { QuickMessage } from "../types";
 
