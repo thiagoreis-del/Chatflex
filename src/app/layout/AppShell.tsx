@@ -317,6 +317,35 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
       <DemoBanner />
       <TrialNotice />
+      {user && (
+        <div
+          role="status"
+          aria-label={t("context.label")}
+          className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b bg-muted/60 px-3 py-1.5 text-xs sm:px-6"
+        >
+          <span
+            className={
+              user.role === "superadmin"
+                ? "rounded-full bg-primary px-2 py-0.5 font-semibold text-primary-foreground"
+                : "rounded-full bg-secondary px-2 py-0.5 font-semibold text-secondary-foreground"
+            }
+          >
+            {user.role === "superadmin" ? t("context.platform") : t("context.company")}
+          </span>
+          <span className="font-medium">
+            {t("context.currentCompany", { company: user.companyId })}
+          </span>
+          <span className="hidden text-muted-foreground sm:inline">
+            {user.role === "superadmin" ? t("context.platformMode") : t("context.companyMode")}
+          </span>
+          <span className="hidden text-muted-foreground md:inline">
+            {t("context.user", { name: user.name })}
+          </span>
+          <span className="text-muted-foreground">
+            {t("context.role", { role: t(`roles.${user.role}`) })}
+          </span>
+        </div>
+      )}
       <div className="flex min-h-0 flex-1">
         <aside className="hidden w-64 shrink-0 lg:block">
           <div className="h-full">
