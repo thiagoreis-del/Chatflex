@@ -14,6 +14,7 @@ import tickets from "./locales/pt-BR/tickets.json";
 import quickMessages from "./locales/pt-BR/quickMessages.json";
 import settings from "./locales/pt-BR/settings.json";
 import backups from "./locales/pt-BR/backups.json";
+import internalChat from "./locales/pt-BR/internalChat.json";
 
 export const supportedLanguages = ["pt-BR"] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
@@ -23,10 +24,12 @@ if (!i18n.isInitialized) {
     lng: "pt-BR",
     fallbackLng: "pt-BR",
     defaultNS: "common",
-    ns: ["common", "auth", "dashboard", "errors", "landing", "platform", "whatsapp", "contacts", "team", "tickets", "quickMessages", "backups", "settings"],
-    resources: { "pt-BR": { common, auth, dashboard, errors, landing, platform, whatsapp, contacts, team, tickets, quickMessages, backups, settings } },
+    ns: ["common", "auth", "dashboard", "errors", "landing", "platform", "whatsapp", "contacts", "team", "tickets", "quickMessages", "backups", "settings", "internalChat"],
+    resources: { "pt-BR": { common, auth, dashboard, errors, landing, platform, whatsapp, contacts, team, tickets, quickMessages, backups, settings, internalChat } },
     interpolation: { escapeValue: false, defaultVariables: { appName: env.appName } },
   });
 }
 
 export { i18n };
+
+// recarrega recursos após inclusão do namespace internalChat

@@ -1,15 +1,9 @@
-# Ajuste das telas
-- [x] Ajustar estrutura, cabeçalho e navegação para larguras pequenas.
-- [x] Ajustar Atendimento, abas, tabelas e formulários.
-- [x] Verificar telas no navegador em celular e computador com demonstração isolada; conexão real preservada.
+# Roadmap
 
-# Salvamento de filas
-- [x] Enviar os campos obrigatórios do servidor na criação sem apagar configurações existentes na edição.
-- [x] Melhorar os avisos de erro e testar o contrato de criação e edição.
-- [ ] Validar o salvamento na VPS: depende de uma sessão autenticada no backend externo.
+## Concluído
+- Etapa 1 — Abas de atendimento com cores/ícones/contadores, cabeçalho da conversa com Empresa/Conexão/Fila/Atendente e botão Finalizar em destaque.
+- Etapa 2 — PWA: manifesto, ícones, service worker (produção, NetworkFirst), aviso offline, rascunho e fila de envio offline de mensagens de texto.
+- Etapa 3 — Chat interno da empresa: página `/app/chat-interno` (direto/grupo/fila, menções, anexos, áudio), link no menu, namespace i18n.
 
-# Avisos de mensagens
-- [x] Adicionar som, aviso na tela e permissão de notificação do navegador.
-- [x] Cobrir eventos em tempo real e consulta periódica sem alertar histórico nem repetir mensagens.
-- [x] Testar deduplicação, avisos por Socket e polling com quatro testes automatizados; compilação aprovada.
-- [ ] Validar uma mensagem real da VPS no navegador: acesso autenticado indisponível neste teste. Som exige interação inicial; notificações dependem da permissão e suporte do navegador e não funcionam com o site fechado sem serviço push.
+## Pendente (bloqueado)
+- Backend do chat interno: endpoints `/internal-chat/*` assumidos no frontend; contrato precisa ser confirmado/implementado no backend externo (api.notasflex.com.br).

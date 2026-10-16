@@ -77,7 +77,8 @@
       "reports": "Relatórios",
       "settings": "Configurações",
       "users": "Usuários",
-      "quickMessages": "Respostas rápidas"
+      "quickMessages": "Respostas rápidas",
+      "internalChat": "Chat interno"
     },
     "platform": {
       "section": "Administração da plataforma",
@@ -148,5 +149,8 @@
     "exit": "Voltar para a Plataforma",
     "exitError": "Não foi possível voltar para a Plataforma.",
     "exitRelogin": "Sessão da empresa encerrada. Entre novamente como superadministrador."
+  },
+  "offline": {
+    "banner": "Sem conexão com a internet. As mensagens serão enviadas quando a conexão voltar."
   }
 }

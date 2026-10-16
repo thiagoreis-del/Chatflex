@@ -20,6 +20,7 @@ import {
   Gauge,
   Zap,
   DatabaseBackup,
+  UsersRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -168,6 +169,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             >
               <Zap className="size-4" aria-hidden />
               {t("nav.modules.quickMessages")}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/app/chat-interno"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
+              <UsersRound className="size-4" aria-hidden />
+              {t("nav.modules.internalChat")}
             </Link>
           </li>
           {(isSuperadmin || hasRole("company_admin")) && (

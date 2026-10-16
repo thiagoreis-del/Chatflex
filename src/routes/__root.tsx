@@ -16,6 +16,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { ErrorState } from "@/shared/components";
 import { NotFoundPage } from "@/app/pages/NotFoundPage";
 import { initTheme, themeBootScript } from "@/shared/theme/theme";
+import { registerAppServiceWorker } from "@/shared/pwa/register-sw";
+import { OfflineNotice } from "@/shared/pwa/OfflineNotice";
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
@@ -52,10 +54,6 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-    ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -65,6 +63,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+    ],
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#2563eb" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
     ],
   }),
   shellComponent: RootShell,
@@ -90,9 +98,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => initTheme(), []);
+  useEffect(() => {
+    initTheme();
+    void registerAppServiceWorker();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
+      <OfflineNotice />
       <Outlet />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>

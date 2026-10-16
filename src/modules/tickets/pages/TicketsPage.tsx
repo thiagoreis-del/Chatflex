@@ -79,9 +79,31 @@ import {
   QuickMessagePicker,
   filterQuickMessages,
 } from "@/modules/quick-messages/components/QuickMessagePicker";
+import {
+  clearDraft,
+  enqueueOutbox,
+  listOutbox,
+  loadDraft,
+  removeFromOutbox,
+  saveDraft,
+} from "../offline-outbox";
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+/** Identidade visual das quatro categorias de atendimento. */
+const TAB_ICONS: Record<TicketTab, typeof Inbox> = {
+  open: MessageCircle,
+  pending: Clock,
+  groups: Users,
+  closed: Inbox,
+};
+const TAB_ACTIVE_CLASSES: Record<TicketTab, string> = {
+  open: "border-primary bg-primary text-primary-foreground shadow-sm",
+  pending: "border-warning bg-warning text-warning-foreground shadow-sm",
+  groups: "border-groups bg-groups text-groups-foreground shadow-sm",
+  closed: "border-muted-foreground/40 bg-muted-foreground/15 text-foreground shadow-sm",
+};
 
 /** Remove a assinatura `*Nome:*\n` enviada ao cliente — o painel já mostra o atendente. */
 const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
@@ -267,20 +289,34 @@ export function TicketsPage() {
             )}
           </div>
           <Tabs value={tab} onValueChange={(v) => setTab(v as TicketTab)}>
-            <TabsList className="grid h-9 w-full grid-cols-4 p-0.5">
+            <TabsList className="grid h-auto w-full grid-cols-4 gap-1 bg-transparent p-0">
               {(["open", "pending", "groups", "closed"] as const).map((s) => {
                 const c = s === tab ? query.data?.length : counts[s];
+                const Icon = TAB_ICONS[s];
+                const active = s === tab;
                 return (
-                  <TabsTrigger key={s} value={s} className="min-w-0 gap-1 px-1 text-[11px] sm:text-xs">
-                    <span className="truncate">{t(`tabs.${s}`)}</span>
-                    {c !== undefined && s !== "closed" && c > 0 && (
+                  <TabsTrigger
+                    key={s}
+                    value={s}
+                    className={cn(
+                      "flex min-h-11 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg border px-1 py-1.5",
+                      "text-[11px] font-semibold leading-tight sm:text-xs",
+                      "data-[state=inactive]:bg-muted/40 data-[state=inactive]:text-muted-foreground",
+                      "data-[state=inactive]:hover:bg-muted",
+                      active && TAB_ACTIVE_CLASSES[s],
+                    )}
+                  >
+                    <span className="flex items-center gap-1">
+                      <Icon className="size-3.5 shrink-0" aria-hidden />
+                      <span className="truncate">{t(`tabs.${s}`)}</span>
+                    </span>
+                    {c !== undefined && c > 0 && (
                       <span
                         className={cn(
-                          "rounded-full px-1.5 text-[10px] font-semibold leading-4",
-                          s === "pending"
-                            ? "bg-warning/20 text-foreground"
-                            : "bg-primary/15 text-primary",
+                          "rounded-full px-1.5 text-[10px] font-bold leading-4 tabular-nums",
+                          active ? "bg-background/25 text-inherit" : "bg-foreground/10",
                         )}
+                        aria-label={String(c)}
                       >
                         {c > 99 ? "99+" : c}
                       </span>
@@ -574,7 +610,13 @@ function Conversation({
   const msgFallback = useFallbackInterval();
   useMessagesRealtime(ticket.id);
   const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
-  const [text, setText] = useState("");
+  const companyId = String(session.user?.companyId ?? "");
+  const [text, setText] = useState(() => loadDraft(companyId, ticket.id));
+  // Rascunho preservado por conversa (sobrevive a queda de conexão/recarga).
+  useEffect(() => {
+    const id = setTimeout(() => saveDraft(companyId, ticket.id, text), 400);
+    return () => clearTimeout(id);
+  }, [companyId, ticket.id, text]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   useEffect(() => setReplyTo(null), [ticket.id]);
@@ -781,6 +823,7 @@ function Conversation({
       setReplyTo(null);
       followLatest.current = true;
       setText("");
+      clearDraft(companyId, ticket.id);
       setFiles([]);
       setActive(0);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
@@ -790,12 +833,43 @@ function Conversation({
         toast.info(t("toast.uploadCanceled"));
         return;
       }
+      // Sem conexão e só texto: entra na fila e é reenviado ao reconectar.
+      if (!v.media.length && v.body.trim() && !navigator.onLine) {
+        enqueueOutbox(companyId, { ticketId: ticket.id, body: v.body, isPrivate });
+        setText("");
+        clearDraft(companyId, ticket.id);
+        toast.info(t("toast.queued"));
+        return;
+      }
       const detail = e instanceof ApiError ? e.body?.message : undefined;
       toast.error(t(v.media.length ? "toast.fileError" : "toast.sendError"), {
         description: detail,
       });
     },
   });
+
+  // Reenvia mensagens de texto enfileiradas quando a conexão volta.
+  useEffect(() => {
+    const flush = async () => {
+      const pending = listOutbox(companyId).filter((m) => m.ticketId === ticket.id);
+      for (const item of pending) {
+        try {
+          const message = await sendMessage(ticket.id, item.body, item.isPrivate, null);
+          removeFromOutbox(companyId, item.id);
+          if (message?.id) {
+            qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (previous = []) =>
+              previous.some((m) => m.id === message.id) ? previous : [...previous, message],
+            );
+          }
+        } catch {
+          return; // ainda sem conexão: tenta de novo no próximo evento
+        }
+      }
+      if (pending.length) void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    };
+    window.addEventListener("online", flush);
+    return () => window.removeEventListener("online", flush);
+  }, [companyId, ticket.id, qc]);
 
   const addFiles = (input: File[]) => {
     const list = input.filter((f) => !isDangerousFile(f.name));
@@ -900,15 +974,27 @@ function Conversation({
           <p className="truncate font-semibold leading-tight">
             {ticket.contact.name || `+${ticket.contact.number}`}
           </p>
-          <p className="truncate text-xs text-muted-foreground">
-            +{ticket.contact.number} ·{" "}
+          <p className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            {session.user?.companyName && (
+              <span className="font-medium text-foreground">
+                {t("context.company")}: {session.user.companyName}
+                {" · "}
+              </span>
+            )}
+            <span className="font-medium text-emerald-700 dark:text-emerald-300">
+              {t("origin")}: {ticket.whatsapp?.name ?? t("unknownOrigin")}
+              {ticket.whatsapp?.number ? ` · +${ticket.whatsapp.number}` : ""}
+            </span>
+          </p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">
+              {t("context.queue")}: {ticket.queue?.name ?? t("noQueue")}
+            </span>
+            {" · "}
             <span className="font-medium text-foreground">
               {t("attendant")}: {ticket.user?.name ?? t("noAttendant")}
             </span>
-          </p>
-          <p className="mt-0.5 hidden truncate text-xs font-medium text-emerald-700 sm:block dark:text-emerald-300">
-            {t("origin")}: {ticket.whatsapp?.name ?? t("unknownOrigin")}
-            {ticket.whatsapp?.number ? ` · +${ticket.whatsapp.number}` : ""}
           </p>
           <div className="mt-1 flex items-center gap-1 overflow-x-auto pb-0.5 [scrollbar-width:none] sm:flex-wrap">
             {(ticket.tags ?? []).map((tag) => (
@@ -1012,7 +1098,7 @@ function Conversation({
           {ticket.status === "open" && (
             <Button
               size="sm"
-              variant="outline"
+              className="bg-destructive font-semibold text-destructive-foreground shadow-sm hover:bg-destructive/90"
               onClick={() => setCloseOpen(true)}
               disabled={status.isPending || closeWithMessage.isPending}
             >

@@ -20,6 +20,10 @@
   "selectDescription": "Escolha um atendimento na lista ao lado para ver as mensagens.",
   "noQueue": "Sem fila",
   "attendant": "Atendente",
+  "context": {
+    "company": "Empresa",
+    "queue": "Fila"
+  },
   "noAttendant": "Sem atendente",
   "actions": {
     "accept": "Aceitar",
@@ -109,7 +113,8 @@
     "microphoneError": "Não foi possível acessar o microfone. Confira a permissão do navegador.",
     "uploadCanceled": "Envio cancelado. Os arquivos continuam anexados.",
     "attachUnavailable": "Não é possível anexar arquivos em nota interna ou durante um envio.",
-    "fileBlocked": "Tipo de arquivo bloqueado por segurança."
+    "fileBlocked": "Tipo de arquivo bloqueado por segurança.",
+    "queued": "Sem conexão. A mensagem será enviada automaticamente quando a internet voltar."
   },
   "privateBadge": "Nota interna · só a equipe vê",
   "tags": {
