@@ -41,9 +41,8 @@ export function TransferTicketDialog({
 }) {
   const { t } = useTranslation("tickets");
   const qc = useQueryClient();
-  const queues = useQuery({ ...queuesQuery(), enabled: open });
   const users = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: open });
-  const [queueId, setQueueId] = useState<string>(ticket.queue ? String(ticket.queue.id) : "");
+  const [queueId] = useState<string>(ticket.queue ? String(ticket.queue.id) : "");
   const [userId, setUserId] = useState<string>(ANY);
   const [note, setNote] = useState("");
   const [mode, setMode] = useState<"forward" | "refuse">("forward");
@@ -119,22 +118,24 @@ export function TransferTicketDialog({
             </Select>
           </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="transfer-note">{t("transfer.note")}</Label>
-            <Textarea
-              id="transfer-note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder={t("transfer.notePlaceholder")}
-              rows={3}
-            />
-          </div>
+          {!refusing && (
+            <div className="space-y-2">
+              <Label htmlFor="transfer-note">{t("transfer.note")}</Label>
+              <Textarea
+                id="transfer-note"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={t("transfer.notePlaceholder")}
+                rows={3}
+              />
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("transfer.cancel")}
           </Button>
-          <Button disabled={!queueId || mutation.isPending || (refusing && !reason.trim())} onClick={() => mutation.mutate()}>
+          <Button disabled={mutation.isPending || (!refusing && !queueId)} onClick={() => mutation.mutate()}>
             {t(refusing ? "transfer.refuseSubmit" : "transfer.submit")}
           </Button>
         </DialogFooter>
