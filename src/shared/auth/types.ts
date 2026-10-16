@@ -16,6 +16,9 @@ export interface AuthenticatedUser {
   companyActive?: boolean;
   /** Filas do usuário; o backend só lista tickets das filas enviadas em `queueIds`. */
   queueIds?: number[];
+  /** Superadmin em acesso delegado a uma empresa cliente. */
+  impersonated?: boolean;
+  companyName?: string;
 }
 
 /** POST /auth/login — backend ZapPro retorna `token`; `accessToken` aceito por compatibilidade. */

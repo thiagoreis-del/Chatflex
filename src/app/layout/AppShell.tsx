@@ -40,14 +40,13 @@ import {
   ThemeToggle,
 } from "@/shared/components";
 import { useSession } from "@/shared/auth/session-store";
-import { logout } from "@/shared/auth/auth-service";
+import { exitCompany, logout } from "@/shared/auth/auth-service";
+import { toast } from "sonner";
 import { usePermissions } from "@/shared/permissions/permissions";
 import { IncomingNotifications } from "@/modules/tickets/components/IncomingNotifications";
 import { SlaWatcher } from "@/modules/sla/components/SlaWatcher";
 
-const soonModules = [
-  { key: "reports", icon: BarChart3 },
-] as const;
+const soonModules = [{ key: "reports", icon: BarChart3 }] as const;
 
 const platformLinks = [
   { to: "/app/plataforma", key: "overview", icon: Gauge, exact: true },
@@ -292,6 +291,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     await navigate({ to: "/login", replace: true });
   };
 
+  const handleExit = async () => {
+    try {
+      await exitCompany();
+      router.options.context.queryClient.clear();
+      await navigate({ to: "/app/plataforma" });
+    } catch {
+      toast.error(t("context.exitError"));
+    }
+  };
+
   const left = trialDaysLeft(user?.companyDueDate);
   if (
     user &&
@@ -317,6 +326,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
       <DemoBanner />
       <TrialNotice />
+      {user?.impersonated && (
+        <div className="flex shrink-0 flex-wrap items-center justify-center gap-3 bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">
+          <span>{t("context.impersonating", { company: user.companyName ?? user.companyId })}</span>
+          <Button size="sm" variant="secondary" className="h-7" onClick={() => void handleExit()}>
+            {t("context.exit")}
+          </Button>
+        </div>
+      )}
       {user && (
         <div
           role="status"
@@ -333,7 +350,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {user.role === "superadmin" ? t("context.platform") : t("context.company")}
           </span>
           <span className="font-medium">
-            {t("context.currentCompany", { company: user.companyId })}
+            {t("context.currentCompany", { company: user.companyName ?? user.companyId })}
           </span>
           <span className="hidden text-muted-foreground sm:inline">
             {user.role === "superadmin" ? t("context.platformMode") : t("context.companyMode")}

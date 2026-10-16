@@ -122,6 +122,8 @@
         "internalNotes": "Observações internas"
       },
       "actionsTitle": "Ações administrativas",
+      "enter": "Entrar na empresa",
+      "enterError": "Não foi possível entrar na empresa.",
       "management": {
         "title": "Gestão da empresa",
         "description": "Consulte a estrutura operacional da {{company}} sem misturar com a conta da plataforma.",

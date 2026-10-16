@@ -134,6 +134,9 @@
     "user": "Usuário: {{name}}",
     "role": "Perfil: {{role}}",
     "platformMode": "Modo: Administração da plataforma",
-    "companyMode": "Modo: Ambiente da empresa"
+    "companyMode": "Modo: Ambiente da empresa",
+    "impersonating": "Acessando como superadministrador a empresa: {{company}}",
+    "exit": "Voltar para a Plataforma",
+    "exitError": "Não foi possível voltar para a Plataforma."
   }
 }

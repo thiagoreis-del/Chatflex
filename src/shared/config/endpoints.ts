@@ -12,6 +12,8 @@ export const endpoints = {
     forgotPassword: "/auth/forgot-password",
     resetPassword: "/auth/reset-password",
     me: "/auth/me",
+    enterCompany: (id: string) => `/companies/${encodeURIComponent(id)}/enter`,
+    exitCompany: "/companies/exit",
   },
 } as const;
 
