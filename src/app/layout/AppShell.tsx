@@ -295,7 +295,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     try {
       await exitCompany();
       router.options.context.queryClient.clear();
-      await navigate({ to: "/app/plataforma/empresas" });
+      await navigate({ to: "/app/plataforma" });
     } catch {
       toast.error(t("context.exitError"));
     }
