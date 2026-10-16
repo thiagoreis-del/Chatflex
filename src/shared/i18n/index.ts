@@ -31,3 +31,5 @@ if (!i18n.isInitialized) {
 }
 
 export { i18n };
+
+// recarrega recursos após inclusão do namespace internalChat
