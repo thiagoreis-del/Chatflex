@@ -86,7 +86,8 @@ export function MessageMedia({ message }: { message: Message }) {
     );
   }
 
-  const name = message.body || fileNameFromUrl(url);
+  // Sempre o nome real do arquivo; a legenda (body) é exibida à parte na bolha.
+  const name = fileNameFromUrl(url);
   return (
     <a
       href={url}

@@ -72,7 +72,7 @@ import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDial
 import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
 import { contactKeys } from "@/shared/api/query-keys";
-import { MessageMedia, isImage } from "../components/MessageMedia";
+import { MessageMedia } from "../components/MessageMedia";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
@@ -120,6 +120,9 @@ const TAB_IDLE_CLASSES: Record<TicketTab, string> = {
 
 /** Remove a assinatura `*Nome:*\n` enviada ao cliente — o painel já mostra o atendente. */
 const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
+/** Texto visível na bolha: remove a assinatura "*Nome:*" das mensagens enviadas. */
+const displayBody = (m: Pick<Message, "body" | "fromMe" | "isPrivate">) =>
+  m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body;
 
 export function TicketsPage() {
   const { t } = useTranslation("tickets");
@@ -1287,9 +1290,9 @@ function Conversation({
                         </button>
                       )}
                       <MessageMedia message={m} />
-                      {!(m.mediaUrl && !isImage(m)) && m.body && (
+                      {displayBody(m) && (
                         <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
-                          {m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body}
+                          {displayBody(m)}
                         </p>
                       )}
                       <p
