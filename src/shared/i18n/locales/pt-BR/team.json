@@ -104,6 +104,8 @@
       "color": "Cor",
       "greeting": "Mensagem de saudação",
       "greetingHint": "Enviada ao cliente quando o atendimento entra nesta fila.",
+      "colorTaken": "Já existe uma fila com esta cor. Escolha outra.",
+      "nameTaken": "Já existe uma fila com este nome.",
       "nameRequired": "Informe o nome."
     },
     "confirmDelete": {

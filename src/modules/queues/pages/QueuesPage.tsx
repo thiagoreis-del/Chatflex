@@ -160,7 +160,9 @@ function QueueFormDialog({
       onClose();
     },
     onError: (err) => {
-      const msg = isApiError(err) ? err.body?.message || err.body?.code : undefined;
+      const b = isApiError(err) ? (err.body as { message?: string; code?: string; error?: string } | undefined) : undefined;
+      const raw = b?.error || b?.message || b?.code;
+      const msg = raw?.includes("COLOR") ? t("queues.form.colorTaken") : raw?.includes("NAME") ? t("queues.form.nameTaken") : raw;
       toast.error(msg ? `${t("toast.error")} ${msg}` : t("toast.error"));
     },
   });
