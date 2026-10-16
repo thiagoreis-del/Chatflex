@@ -242,21 +242,11 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
               ].map((s) => (
                 <li key={s.name} className="flex items-center justify-between gap-2">
                   <span>{s.name}</span>
-                  <span
-                    className={cn(
-                      "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                      s.status === "online"
-                        ? "bg-success/15 text-success"
-                        : s.status
-                          ? "bg-destructive/15 text-destructive"
-                          : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {s.status ?? t("vps.unavailable")}
-                  </span>
+                  <ServiceBadge status={s.status} />
                 </li>
               ))}
             </ul>
+            <p className="mt-2 text-xs text-muted-foreground">{t("vps.servicesHint")}</p>
           </div>
           <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
             <p className="flex items-center gap-2 font-medium text-muted-foreground">
