@@ -11,6 +11,9 @@ import type { AuditEvent } from "@/modules/audit/types";
 import type { Paginated } from "@/shared/types/pagination";
 
 const allFeatures = {
+  whatsapp: true,
+  facebook: true,
+  instagram: true,
   campaigns: true,
   internalChat: true,
   integrations: true,
@@ -55,6 +58,7 @@ const plans: Plan[] = [
     connectionLimit: 3,
     storageLimitMb: 10240,
     trialDays: 14,
+    queueLimit: 10,
     features: { ...allFeatures, artificialIntelligence: false, externalApi: false },
     active: true,
   },
