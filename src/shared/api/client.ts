@@ -129,10 +129,16 @@ function isExpiredToken(error: ApiError): boolean {
 }
 
 export async function apiRequest<T>(path: string, opts: RequestOptions = {}): Promise<T> {
+  const gen = tokenStore.generation();
   try {
     return await rawRequest<T>(path, opts);
   } catch (error) {
     if (error instanceof ApiError && isExpiredToken(error) && !opts.skipRefresh) {
+      if (tokenStore.generation() !== gen) {
+        // Token já trocado (entrada/saída de empresa): refaz com o token atual
+        // em vez de deslogar por uma falha do token antigo.
+        return rawRequest<T>(path, opts);
+      }
       const renewed = await refreshAccessToken().catch(() => false);
       if (renewed) return rawRequest<T>(path, opts);
       unauthorizedHandler?.();
@@ -195,10 +201,12 @@ function rawUpload<T>(path: string, form: FormData, opts: UploadOptions): Promis
 
 /** Envio multipart com progresso e cancelamento; renova o token uma vez se expirado. */
 export async function apiUpload<T>(path: string, form: FormData, opts: UploadOptions = {}) {
+  const gen = tokenStore.generation();
   try {
     return await rawUpload<T>(path, form, opts);
   } catch (error) {
     if (error instanceof ApiError && isExpiredToken(error)) {
+      if (tokenStore.generation() !== gen) return rawUpload<T>(path, form, opts);
       const renewed = await refreshAccessToken().catch(() => false);
       if (renewed) return rawUpload<T>(path, form, opts);
       unauthorizedHandler?.();
