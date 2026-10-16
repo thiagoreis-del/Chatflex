@@ -9,7 +9,9 @@ import {
   levelOf,
   serverHealthQuery,
   serverMetricsContract,
+  serviceState,
   type HealthLevel,
+  type ServiceState,
 } from "../vps-health";
 import type { PlatformDashboard } from "../api";
 
@@ -84,9 +86,11 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
     const diskPct = health.disk?.usedPercent;
     if (diskPct != null && levelOf(diskPct, VPS_LIMITS.diskPercent) === "danger")
       alerts.push(t("vps.alertDisk", { limit: VPS_LIMITS.diskPercent }));
+    // Alerta somente em falha real confirmada: "não configurado" ou status
+    // desconhecido nunca derrubam o painel (ex.: Wuzapi não utilizado).
     const down = [
-      health.redis?.status && health.redis.status !== "online" ? "Redis" : null,
-      health.wuzapi?.status && health.wuzapi.status !== "online" ? "Wuzapi" : null,
+      serviceState(health.redis?.status) === "offline" ? "Redis" : null,
+      serviceState(health.wuzapi?.status) === "offline" ? "Wuzapi" : null,
     ].filter(Boolean);
     if (down.length > 0) alerts.push(t("vps.alertServices", { names: down.join(", ") }));
   }
