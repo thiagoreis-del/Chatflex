@@ -175,7 +175,7 @@ export function TicketsPage() {
     select: (l: Ticket[]) => l.length,
     refetchInterval: fallback,
   }).data;
-  const counts: Partial<Record<TicketTab, number>> = {
+  const counts: Partial<Record<TicketTab, number | undefined>> = {
     open: openCount,
     pending: pendingCount,
     groups: groupsCount,
