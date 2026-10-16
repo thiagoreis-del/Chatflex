@@ -1034,7 +1034,7 @@ function Conversation({
           }
         />
       )}
-      <header className="flex shrink-0 items-start gap-1.5 border-b px-1.5 py-1.5 pt-[max(0.375rem,env(safe-area-inset-top))] sm:gap-2 sm:px-4 sm:py-3">
+      <header className="flex shrink-0 items-center gap-1.5 border-b px-1.5 py-1.5 pt-[max(0.375rem,env(safe-area-inset-top))] sm:gap-3 sm:px-4 sm:py-2.5">
         <Button
           variant="ghost"
           size="icon"
@@ -1044,47 +1044,46 @@ function Conversation({
         >
           <ArrowLeft className="size-4" />
         </Button>
-        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary md:hidden">
-          {(ticket.contact.name || "#").charAt(0)}
+        <div className="flex size-9 shrink-0 items-center justify-center self-center rounded-full bg-primary/10 font-semibold text-primary sm:size-11 sm:text-lg">
+          {(ticket.contact.name || "#").charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2">
             <p className="truncate font-semibold leading-tight">
               {ticket.contact.name || `+${ticket.contact.number}`}
             </p>
             <Button
               variant="ghost"
               size="icon"
-              className="size-7 shrink-0"
+              className="-ml-1 size-7 shrink-0"
               aria-label={t("actions.editContact")}
               title={t("actions.editContact")}
               onClick={() => void openContactEditor()}
             >
               <Pencil className="size-3.5" />
             </Button>
+            <span className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</span>
           </div>
-          <p className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+          <div className="mt-1 flex items-center gap-1 overflow-x-auto text-[11px] [scrollbar-width:none] sm:flex-wrap">
             {session.user?.companyName && (
-              <span className="font-medium text-foreground">
-                {t("context.company")}: {session.user.companyName}
-                {" · "}
+              <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
+                {t("context.company")}:{" "}
+                <span className="font-medium text-foreground">{session.user.companyName}</span>
               </span>
             )}
-            <span className="font-medium text-emerald-700 dark:text-emerald-300">
+            <span className="shrink-0 rounded-md bg-emerald-500/10 px-1.5 py-0.5 font-medium text-emerald-700 dark:text-emerald-300">
               {t("origin")}: {ticket.whatsapp?.name ?? t("unknownOrigin")}
               {ticket.whatsapp?.number ? ` · +${ticket.whatsapp.number}` : ""}
             </span>
-          </p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">
-              {t("context.queue")}: {ticket.queue?.name ?? t("noQueue")}
+            <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
+              {t("context.queue")}:{" "}
+              <span className="font-medium text-foreground">{ticket.queue?.name ?? t("noQueue")}</span>
             </span>
-            {" · "}
-            <span className="font-medium text-foreground">
-              {t("attendant")}: {ticket.user?.name ?? t("noAttendant")}
+            <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
+              {t("attendant")}:{" "}
+              <span className="font-medium text-foreground">{ticket.user?.name ?? t("noAttendant")}</span>
             </span>
-          </p>
+          </div>
           <div className="mt-1 flex items-center gap-1 overflow-x-auto pb-0.5 [scrollbar-width:none] sm:flex-wrap">
             {(ticket.tags ?? []).map((tag) => (
               <span
