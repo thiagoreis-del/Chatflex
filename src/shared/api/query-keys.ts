@@ -82,3 +82,12 @@ export const quickMessageKeys = {
   all: ["company", "quick-messages"] as const,
   list: (companyId?: string) => ["company", "quick-messages", "list", companyId ?? ""] as const,
 };
+
+/** Chat interno pertence à empresa da sessão; o backend filtra pelo token. */
+export const internalChatKeys = {
+  all: ["company", "internal-chat"] as const,
+  conversations: (companyId?: string) =>
+    ["company", "internal-chat", "conversations", companyId ?? ""] as const,
+  messages: (conversationId: number) =>
+    ["company", "internal-chat", "messages", conversationId] as const,
+};

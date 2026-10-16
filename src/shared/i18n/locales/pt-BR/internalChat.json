@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "title": "Chat interno",
+    "description": "Converse com a equipe da sua empresa em privado."
+  },
+  "title": "Chat interno",
+  "search": "Buscar conversa",
+  "new": "Nova conversa",
+  "kinds": {
+    "direct": "Direta",
+    "group": "Grupo",
+    "queue": "Fila"
+  },
+  "empty": "Nenhuma conversa interna ainda.",
+  "selectTitle": "Selecione uma conversa",
+  "selectDescription": "Escolha uma conversa interna ao lado ou inicie uma nova.",
+  "composer": {
+    "placeholder": "Mensagem interna…",
+    "send": "Enviar",
+    "attach": "Anexar arquivo"
+  },
+  "mentions": {
+    "hint": "Use @nome para mencionar um colega."
+  },
+  "privateNotice": "Mensagens internas nunca são enviadas ao cliente pelo WhatsApp.",
+  "create": {
+    "title": "Nova conversa interna",
+    "kind": "Tipo",
+    "direct": "Conversa direta",
+    "group": "Grupo interno",
+    "queue": "Grupo da fila",
+    "name": "Nome do grupo",
+    "namePlaceholder": "Ex.: Equipe comercial",
+    "members": "Participantes",
+    "queueLabel": "Fila",
+    "queuePlaceholder": "Selecione a fila",
+    "submit": "Criar conversa",
+    "cancel": "Cancelar",
+    "error": "Não foi possível criar a conversa."
+  },
+  "toast": {
+    "sendError": "Não foi possível enviar a mensagem.",
+    "fileError": "Não foi possível enviar o arquivo."
+  },
+  "unread": "{{count}} não lidas"
+}
