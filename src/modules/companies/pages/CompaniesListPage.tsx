@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -105,15 +105,64 @@ export function CompaniesListPage({
         <EmptyState title={t("companies.empty")} />
       ) : (
         <>
-          <div className="overflow-x-auto rounded-xl border bg-card">
+          <ul className="space-y-3 md:hidden">
+            {q.data.data.map((c) => (
+              <li key={c.id} className="space-y-3 rounded-xl border bg-card p-4">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                  <div className="min-w-0">
+                    <Link
+                      to="/app/plataforma/empresas/$companyId"
+                      params={{ companyId: c.id }}
+                      className="block truncate font-medium text-foreground hover:text-primary"
+                    >
+                      {c.tradeName}
+                    </Link>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {c.planName ?? plans.data?.find((p) => p.id === c.planId)?.name ?? c.planId}
+                    </p>
+                  </div>
+                  <CompanyStatusBadge status={c.status} />
+                </div>
+                <dl className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <dt className="text-muted-foreground">{t("companies.columns.dueDate")}</dt>
+                    <dd><DateDisplay value={c.dueDate} /></dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">{t("companies.columns.users")}</dt>
+                    <dd className="tabular-nums">{formatNumber(c.usersCount ?? c.userLimit)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">{t("companies.columns.connections")}</dt>
+                    <dd className="tabular-nums">{formatNumber(c.connectionsCount ?? c.connectionLimit)}</dd>
+                  </div>
+                </dl>
+                <div className="flex flex-wrap items-center gap-1">
+                  <EnterCompanyButton companyId={c.id} />
+                  <Button asChild variant="ghost" size="icon" title={t("companies.manage")}>
+                    <Link to="/app/plataforma/empresas/$companyId" params={{ companyId: c.id }} aria-label={t("companies.manage")}>
+                      <Settings2 className="size-4" aria-hidden />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="icon" title={t("common:actions.edit")}>
+                    <Link to="/app/plataforma/empresas/$companyId/editar" params={{ companyId: c.id }} aria-label={t("common:actions.edit")}>
+                      <Pencil className="size-4" aria-hidden />
+                    </Link>
+                  </Button>
+                  <CompanyQuickActions company={c} compact />
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto rounded-xl border bg-card md:block">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("companies.columns.company")}</TableHead>
                   <TableHead>{t("companies.columns.status")}</TableHead>
                   <TableHead>{t("companies.columns.plan")}</TableHead>
-                  <TableHead>{t("companies.columns.dueDate")}</TableHead>
-                  <TableHead>{t("companies.columns.trialEndsAt")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t("companies.columns.dueDate")}</TableHead>
+                  <TableHead className="hidden xl:table-cell">{t("companies.columns.trialEndsAt")}</TableHead>
                   <TableHead className="text-right">{t("companies.columns.users")}</TableHead>
                   <TableHead className="text-right">{t("companies.columns.connections")}</TableHead>
                   <TableHead className="text-right">{t("companies.columns.actions")}</TableHead>
@@ -122,26 +171,29 @@ export function CompaniesListPage({
               <TableBody>
                 {q.data.data.map((c) => (
                   <TableRow key={c.id}>
-                    <TableCell>
+                    <TableCell className="max-w-56">
                       <Link
                         to="/app/plataforma/empresas/$companyId"
                         params={{ companyId: c.id }}
-                        className="font-medium text-foreground hover:text-primary hover:underline"
+                        className="block truncate font-medium text-foreground hover:text-primary hover:underline"
+                        title={c.tradeName}
                       >
                         {c.tradeName}
                       </Link>
-                      <p className="text-xs text-muted-foreground">{c.legalName}</p>
+                      {c.legalName !== c.tradeName && (
+                        <p className="truncate text-xs text-muted-foreground">{c.legalName}</p>
+                      )}
                     </TableCell>
                     <TableCell>
                       <CompanyStatusBadge status={c.status} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-nowrap">
                       {c.planName ?? plans.data?.find((p) => p.id === c.planId)?.name ?? c.planId}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden whitespace-nowrap lg:table-cell">
                       <DateDisplay value={c.dueDate} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden whitespace-nowrap xl:table-cell">
                       <DateDisplay value={c.trialEndsAt} />
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
@@ -155,22 +207,16 @@ export function CompaniesListPage({
                         : formatNumber(c.connectionLimit)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
+                      <div className="flex items-center justify-end gap-0.5">
                         <EnterCompanyButton companyId={c.id} />
-                        <Button asChild variant="ghost" size="sm">
-                          <Link
-                            to="/app/plataforma/empresas/$companyId"
-                            params={{ companyId: c.id }}
-                          >
-                            {t("companies.manage")}
+                        <Button asChild variant="ghost" size="icon" title={t("companies.manage")}>
+                          <Link to="/app/plataforma/empresas/$companyId" params={{ companyId: c.id }} aria-label={t("companies.manage")}>
+                            <Settings2 className="size-4" aria-hidden />
                           </Link>
                         </Button>
-                        <Button asChild variant="ghost" size="sm">
-                          <Link
-                            to="/app/plataforma/empresas/$companyId/editar"
-                            params={{ companyId: c.id }}
-                          >
-                            {t("common:actions.edit")}
+                        <Button asChild variant="ghost" size="icon" title={t("common:actions.edit")}>
+                          <Link to="/app/plataforma/empresas/$companyId/editar" params={{ companyId: c.id }} aria-label={t("common:actions.edit")}>
+                            <Pencil className="size-4" aria-hidden />
                           </Link>
                         </Button>
                         <CompanyQuickActions company={c} compact />
