@@ -125,5 +125,15 @@
     "blockedTitle": "Acesso suspenso",
     "blockedText": "O período de teste ou a assinatura da sua empresa terminou. Entre em contato com o administrador para ativar o acesso.",
     "logout": "Sair"
+  },
+  "context": {
+    "label": "Contexto atual",
+    "platform": "Plataforma",
+    "company": "Empresa",
+    "currentCompany": "Empresa atual: {{company}}",
+    "user": "Usuário: {{name}}",
+    "role": "Perfil: {{role}}",
+    "platformMode": "Modo: Administração da plataforma",
+    "companyMode": "Modo: Ambiente da empresa"
   }
 }
