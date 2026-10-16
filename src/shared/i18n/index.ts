@@ -12,6 +12,7 @@ import contacts from "./locales/pt-BR/contacts.json";
 import team from "./locales/pt-BR/team.json";
 import tickets from "./locales/pt-BR/tickets.json";
 import quickMessages from "./locales/pt-BR/quickMessages.json";
+import settings from "./locales/pt-BR/settings.json";
 import backups from "./locales/pt-BR/backups.json";
 
 export const supportedLanguages = ["pt-BR"] as const;
@@ -22,8 +23,8 @@ if (!i18n.isInitialized) {
     lng: "pt-BR",
     fallbackLng: "pt-BR",
     defaultNS: "common",
-    ns: ["common", "auth", "dashboard", "errors", "landing", "platform", "whatsapp", "contacts", "team", "tickets", "quickMessages", "backups"],
-    resources: { "pt-BR": { common, auth, dashboard, errors, landing, platform, whatsapp, contacts, team, tickets, quickMessages, backups } },
+    ns: ["common", "auth", "dashboard", "errors", "landing", "platform", "whatsapp", "contacts", "team", "tickets", "quickMessages", "backups", "settings"],
+    resources: { "pt-BR": { common, auth, dashboard, errors, landing, platform, whatsapp, contacts, team, tickets, quickMessages, backups, settings } },
     interpolation: { escapeValue: false, defaultVariables: { appName: env.appName } },
   });
 }

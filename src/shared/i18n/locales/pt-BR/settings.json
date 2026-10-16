@@ -1,0 +1,31 @@
+{
+  "meta": "Configurações da empresa",
+  "title": "Configurações da empresa",
+  "subtitle": "Horário de atendimento, mensagem fora do expediente e mensagem de finalização.",
+  "save": "Salvar configurações",
+  "saving": "Salvando…",
+  "saved": "Configurações salvas.",
+  "days": { "sun": "Domingo", "mon": "Segunda", "tue": "Terça", "wed": "Quarta", "thu": "Quinta", "fri": "Sexta", "sat": "Sábado" },
+  "hours": {
+    "title": "Horário de atendimento",
+    "description": "Defina os dias e horários em que a empresa atende (horário de Brasília).",
+    "openNow": "Aberto agora",
+    "closedNow": "Fechado agora",
+    "start": "Início",
+    "end": "Fim",
+    "to": "às",
+    "closed": "Fechado",
+    "endBeforeStart": "O fim deve ser depois do início",
+    "invalid": "Confira o horário de {{day}}: o fim deve ser depois do início.",
+    "copyFirst": "Usar o mesmo horário em todos os dias abertos",
+    "reset": "Restaurar padrão (seg a sex, 8h às 18h)"
+  },
+  "outOfHours": {
+    "title": "Mensagem fora do expediente",
+    "description": "Resposta automática enviada quando o cliente escreve fora do horário de atendimento.",
+    "enabled": "Enviar mensagem fora do expediente",
+    "placeholder": "Ex.: Olá! Nosso atendimento é de segunda a sexta, das 8h às 18h. Responderemos assim que possível.",
+    "required": "Escreva a mensagem ou desative a opção.",
+    "backendNote": "O envio automático depende do servidor ler esta configuração."
+  }
+}

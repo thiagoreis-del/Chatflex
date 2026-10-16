@@ -20,6 +20,7 @@ import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAtendimentoRouteImport } from './routes/app.atendimento'
 import { Route as AppConexoesRouteImport } from './routes/app.conexoes'
+import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes'
 import { Route as AppContatosRouteImport } from './routes/app.contatos'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppFilasRouteImport } from './routes/app.filas'
@@ -92,6 +93,11 @@ const AppAtendimentoRoute = AppAtendimentoRouteImport.update({
 const AppConexoesRoute = AppConexoesRouteImport.update({
   id: '/conexoes',
   path: '/conexoes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => AppRoute,
 } as any)
 const AppContatosRoute = AppContatosRouteImport.update({
@@ -203,6 +209,7 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/atendimento': typeof AppAtendimentoRoute
   '/app/conexoes': typeof AppConexoesRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
@@ -233,6 +240,7 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/atendimento': typeof AppAtendimentoRoute
   '/app/conexoes': typeof AppConexoesRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
@@ -264,6 +272,7 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/app/atendimento': typeof AppAtendimentoRoute
   '/app/conexoes': typeof AppConexoesRoute
+  '/app/configuracoes': typeof AppConfiguracoesRoute
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
@@ -297,6 +306,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/app/atendimento'
     | '/app/conexoes'
+    | '/app/configuracoes'
     | '/app/contatos'
     | '/app/dashboard'
     | '/app/filas'
@@ -327,6 +337,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/app/atendimento'
     | '/app/conexoes'
+    | '/app/configuracoes'
     | '/app/contatos'
     | '/app/dashboard'
     | '/app/filas'
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/app/atendimento'
     | '/app/conexoes'
+    | '/app/configuracoes'
     | '/app/contatos'
     | '/app/dashboard'
     | '/app/filas'
@@ -466,6 +478,13 @@ declare module '@tanstack/react-router' {
       path: '/conexoes'
       fullPath: '/app/conexoes'
       preLoaderRoute: typeof AppConexoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/configuracoes': {
+      id: '/app/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/app/configuracoes'
+      preLoaderRoute: typeof AppConfiguracoesRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/contatos': {
@@ -636,6 +655,7 @@ const AppPlataformaRouteWithChildren = AppPlataformaRoute._addFileChildren(
 interface AppRouteChildren {
   AppAtendimentoRoute: typeof AppAtendimentoRoute
   AppConexoesRoute: typeof AppConexoesRoute
+  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppContatosRoute: typeof AppContatosRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppFilasRoute: typeof AppFilasRoute
@@ -648,6 +668,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAtendimentoRoute: AppAtendimentoRoute,
   AppConexoesRoute: AppConexoesRoute,
+  AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppContatosRoute: AppContatosRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppFilasRoute: AppFilasRoute,

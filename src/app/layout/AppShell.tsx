@@ -46,7 +46,6 @@ import { IncomingNotifications } from "@/modules/tickets/components/IncomingNoti
 
 const soonModules = [
   { key: "reports", icon: BarChart3 },
-  { key: "settings", icon: Settings },
 ] as const;
 
 const platformLinks = [
@@ -191,6 +190,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
                 >
                   <ListOrdered className="size-4" aria-hidden />
                   {t("nav.modules.queues")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/app/configuracoes"
+                  onClick={onNavigate}
+                  className={linkClass}
+                  activeProps={activeLink}
+                >
+                  <Settings className="size-4" aria-hidden />
+                  {t("nav.modules.settings")}
                 </Link>
               </li>
             </>
