@@ -27,6 +27,7 @@ import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppFilasRouteImport } from './routes/app.filas'
 import { Route as AppPlataformaRouteImport } from './routes/app.plataforma'
 import { Route as AppRespostasRapidasRouteImport } from './routes/app.respostas-rapidas'
+import { Route as AppStatusRouteImport } from './routes/app.status'
 import { Route as AppUsuariosRouteImport } from './routes/app.usuarios'
 import { Route as AppPlataformaIndexRouteImport } from './routes/app.plataforma.index'
 import { Route as AppPlataformaAssinaturasRouteImport } from './routes/app.plataforma.assinaturas'
@@ -131,6 +132,11 @@ const AppRespostasRapidasRoute = AppRespostasRapidasRouteImport.update({
   path: '/respostas-rapidas',
   getParentRoute: () => AppRoute,
 } as any)
+const AppStatusRoute = AppStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppUsuariosRoute = AppUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/app/filas': typeof AppFilasRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
+  '/app/status': typeof AppStatusRoute
   '/app/usuarios': typeof AppUsuariosRoute
   '/app/': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
   '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
+  '/app/status': typeof AppStatusRoute
   '/app/usuarios': typeof AppUsuariosRoute
   '/app': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
@@ -287,6 +295,7 @@ export interface FileRoutesById {
   '/app/filas': typeof AppFilasRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
+  '/app/status': typeof AppStatusRoute
   '/app/usuarios': typeof AppUsuariosRoute
   '/app/': typeof AppIndexRoute
   '/app/plataforma/assinaturas': typeof AppPlataformaAssinaturasRoute
@@ -322,6 +331,7 @@ export interface FileRouteTypes {
     | '/app/filas'
     | '/app/plataforma'
     | '/app/respostas-rapidas'
+    | '/app/status'
     | '/app/usuarios'
     | '/app/'
     | '/app/plataforma/assinaturas'
@@ -353,6 +363,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/filas'
     | '/app/respostas-rapidas'
+    | '/app/status'
     | '/app/usuarios'
     | '/app'
     | '/app/plataforma/assinaturas'
@@ -386,6 +397,7 @@ export interface FileRouteTypes {
     | '/app/filas'
     | '/app/plataforma'
     | '/app/respostas-rapidas'
+    | '/app/status'
     | '/app/usuarios'
     | '/app/'
     | '/app/plataforma/assinaturas'
@@ -541,6 +553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRespostasRapidasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/status': {
+      id: '/app/status'
+      path: '/status'
+      fullPath: '/app/status'
+      preLoaderRoute: typeof AppStatusRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/usuarios': {
       id: '/app/usuarios'
       path: '/usuarios'
@@ -681,6 +700,7 @@ interface AppRouteChildren {
   AppFilasRoute: typeof AppFilasRoute
   AppPlataformaRoute: typeof AppPlataformaRouteWithChildren
   AppRespostasRapidasRoute: typeof AppRespostasRapidasRoute
+  AppStatusRoute: typeof AppStatusRoute
   AppUsuariosRoute: typeof AppUsuariosRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -695,6 +715,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFilasRoute: AppFilasRoute,
   AppPlataformaRoute: AppPlataformaRouteWithChildren,
   AppRespostasRapidasRoute: AppRespostasRapidasRoute,
+  AppStatusRoute: AppStatusRoute,
   AppUsuariosRoute: AppUsuariosRoute,
   AppIndexRoute: AppIndexRoute,
 }

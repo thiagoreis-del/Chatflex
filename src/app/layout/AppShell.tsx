@@ -21,6 +21,7 @@ import {
   Zap,
   DatabaseBackup,
   UsersRound,
+  ImagePlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -146,6 +147,19 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             >
               <Smartphone className="size-4" aria-hidden />
               {t("nav.modules.whatsapp")}
+            </Link>
+          </li>
+          )}
+          {can(user, "module.connections") && (
+          <li>
+            <Link
+              to="/app/status"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
+              <ImagePlus className="size-4" aria-hidden />
+              {t("nav.modules.whatsappStatus")}
             </Link>
           </li>
           )}

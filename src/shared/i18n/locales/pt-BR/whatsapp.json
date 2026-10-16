@@ -1,5 +1,8 @@
 {
-  "meta": { "title": "Conexões WhatsApp", "description": "Gerencie as conexões WhatsApp da sua empresa." },
+  "meta": {
+    "title": "Conexões WhatsApp",
+    "description": "Gerencie as conexões WhatsApp da sua empresa."
+  },
   "title": "Conexões WhatsApp",
   "description": "Conecte e acompanhe os números de WhatsApp usados no atendimento.",
   "new": "Nova conexão",
@@ -8,16 +11,44 @@
   "default": "Padrão",
   "noNumber": "Sem número vinculado",
   "status": {
-    "CONNECTED": "Conectado", "DISCONNECTED": "Desconectado", "qrcode": "Aguardando leitura",
-    "OPENING": "Iniciando", "PAIRING": "Pareando", "PENDING": "Sincronizando", "TIMEOUT": "Tempo esgotado"
+    "meta": {
+      "title": "Publicar Status",
+      "description": "Publique fotos no Status do WhatsApp da empresa."
+    },
+    "title": "Publicar Status",
+    "description": "Envie de 1 a 20 fotos para o Status de uma conexão conectada. Recurso em teste.",
+    "connection": "Conexão",
+    "selectConnection": "Selecione uma conexão conectada",
+    "noConnected": "Nenhuma conexão conectada no momento.",
+    "add": "Adicionar fotos",
+    "limit": "{{count}} de 20 fotos",
+    "caption": "Legenda (opcional)",
+    "remove": "Remover foto",
+    "publish": "Publicar no Status",
+    "publishing": "Publicando… {{percent}}%",
+    "clear": "Limpar",
+    "tooMany": "Limite de 20 fotos. Algumas foram ignoradas.",
+    "onlyImages": "Apenas imagens são aceitas.",
+    "success": "Fotos enviadas para publicação no Status.",
+    "error": "Não foi possível publicar o Status.",
+    "empty": "Nenhuma foto selecionada."
   },
   "actions": {
-    "connect": "Conectar", "reconnect": "Reconectar", "showQr": "Ver QR Code", "newQr": "Novo QR Code",
-    "disconnect": "Desconectar", "edit": "Editar", "delete": "Excluir", "save": "Salvar", "cancel": "Cancelar"
+    "connect": "Conectar",
+    "reconnect": "Reconectar",
+    "showQr": "Ver QR Code",
+    "newQr": "Novo QR Code",
+    "disconnect": "Desconectar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "save": "Salvar",
+    "cancel": "Cancelar"
   },
   "form": {
-    "name": "Nome da conexão", "nameRequired": "Informe um nome.",
-    "greeting": "Mensagem de saudação", "isDefault": "Usar como conexão padrão"
+    "name": "Nome da conexão",
+    "nameRequired": "Informe um nome.",
+    "greeting": "Mensagem de saudação",
+    "isDefault": "Usar como conexão padrão"
   },
   "qr": {
     "title": "Leia o QR Code",
@@ -27,7 +58,18 @@
     "loadError": "Não foi possível consultar a conexão. Tente gerar um novo QR Code.",
     "connected": "Conexão estabelecida!"
   },
-  "confirmDelete": { "title": "Excluir conexão?", "description": "A conexão “{{name}}” será removida." },
-  "confirmDisconnect": { "title": "Desconectar?", "description": "O número deixará de receber mensagens até ser reconectado." },
-  "toast": { "saved": "Conexão salva.", "deleted": "Conexão excluída.", "disconnected": "Conexão desconectada.", "error": "Não foi possível concluir a ação." }
+  "confirmDelete": {
+    "title": "Excluir conexão?",
+    "description": "A conexão “{{name}}” será removida."
+  },
+  "confirmDisconnect": {
+    "title": "Desconectar?",
+    "description": "O número deixará de receber mensagens até ser reconectado."
+  },
+  "toast": {
+    "saved": "Conexão salva.",
+    "deleted": "Conexão excluída.",
+    "disconnected": "Conexão desconectada.",
+    "error": "Não foi possível concluir a ação."
+  }
 }

@@ -78,7 +78,8 @@
       "settings": "Configurações",
       "users": "Usuários",
       "quickMessages": "Respostas rápidas",
-      "internalChat": "Chat interno"
+      "internalChat": "Chat interno",
+      "whatsappStatus": "Publicar Status"
     },
     "platform": {
       "section": "Administração da plataforma",
