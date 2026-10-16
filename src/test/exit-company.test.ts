@@ -1,18 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/shared/api/errors";
 
-const apiRequestMock = vi.fn();
-const connectMock = vi.fn();
-const disconnectMock = vi.fn();
+const mocks = vi.hoisted(() => ({
+  apiRequest: vi.fn(),
+  connect: vi.fn(),
+  disconnect: vi.fn(),
+}));
 
 vi.mock("@/shared/api/client", () => ({
-  apiRequest: (...args: unknown[]) => apiRequestMock(...args),
+  apiRequest: mocks.apiRequest,
   refreshAccessToken: vi.fn(),
   setUnauthorizedHandler: vi.fn(),
 }));
 
 vi.mock("@/shared/socket/socket-client", () => ({
-  socketClient: { connect: connectMock, disconnect: disconnectMock },
+  socketClient: { connect: mocks.connect, disconnect: mocks.disconnect },
 }));
 
 import { enterCompany, exitCompany, login } from "@/shared/auth/auth-service";
