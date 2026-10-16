@@ -293,7 +293,8 @@ export function TicketsPage() {
                         </div>
                       </button>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               );
             }}
