@@ -77,6 +77,7 @@ import { AudioRecorder } from "../components/AudioRecorder";
 import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
+import { useConnectivity } from "@/shared/connectivity/connectivity";
 import { closingMessageQuery } from "@/modules/settings/closing-message";
 import { computeSla, slaConfigQuery, type SlaState } from "@/modules/sla/sla";
 import { SlaBadge } from "@/modules/sla/components/SlaBadge";
