@@ -562,3 +562,117 @@ function NewConversationDialog({
     </Dialog>
   );
 }
+
+function ManageMembersDialog({
+  conversation,
+  open,
+  onOpenChange,
+  onChanged,
+}: {
+  conversation: InternalConversation;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onChanged: () => void;
+}) {
+  const { t } = useTranslation("internalChat");
+  const session = useSession();
+  const myId = Number(session.user?.id) || null;
+  const [addId, setAddId] = useState("");
+
+  const users = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: open });
+  const participantIds = new Set(conversation.participants.map((p) => p.id));
+  const candidates = (users.data?.data ?? []).filter((u) => !participantIds.has(u.id));
+
+  const add = useMutation({
+    mutationFn: (userId: number) => addInternalMember(conversation.id, userId),
+    onSuccess: () => {
+      setAddId("");
+      toast.success(t("members.added"));
+      onChanged();
+    },
+    onError: () => toast.error(t("members.error")),
+  });
+
+  const remove = useMutation({
+    mutationFn: (userId: number) => removeInternalMember(conversation.id, userId),
+    onSuccess: () => {
+      toast.success(t("members.removed"));
+      onChanged();
+    },
+    onError: () => toast.error(t("members.error")),
+  });
+
+  const busy = add.isPending || remove.isPending;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("members.title")}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="max-h-56 overflow-y-auto rounded-md border">
+            <p className="border-b px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+              {t("members.current")}
+            </p>
+            <ul>
+              {conversation.participants.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex min-h-11 items-center gap-2 border-b px-3 py-2 text-sm last:border-0"
+                >
+                  <span className="truncate flex-1">{p.name}</span>
+                  {p.id !== myId && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-destructive"
+                      disabled={busy}
+                      aria-label={t("members.remove", { name: p.name })}
+                      title={t("members.remove", { name: p.name })}
+                      onClick={() => remove.mutate(p.id)}
+                    >
+                      <UserMinus className="size-4" />
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex items-end gap-2">
+            <select
+              value={addId}
+              onChange={(e) => setAddId(e.target.value)}
+              aria-label={t("members.add")}
+              className="h-10 min-w-0 flex-1 rounded-md border bg-background px-2 text-sm"
+            >
+              <option value="">{t("members.add")}</option>
+              {candidates.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name}
+                </option>
+              ))}
+            </select>
+            <Button
+              type="button"
+              disabled={!addId || busy}
+              onClick={() => add.mutate(Number(addId))}
+            >
+              <UserPlus className="size-4" aria-hidden />
+              {t("members.addAction")}
+            </Button>
+          </div>
+          {candidates.length === 0 && (
+            <p className="text-xs text-muted-foreground">{t("members.noMoreUsers")}</p>
+          )}
+          <div className="flex justify-end">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              {t("members.close")}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
