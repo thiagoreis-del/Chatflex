@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Activity, Cpu, Database, HardDrive, MemoryStick, Server, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
+  VPS_CAPACITY,
   VPS_LIMITS,
+  appendSample,
   connectionLevel,
   cpuPercent,
   levelOf,
@@ -11,6 +14,7 @@ import {
   serverMetricsContract,
   serviceState,
   type HealthLevel,
+  type MetricsSample,
   type ServiceState,
 } from "../vps-health";
 import type { PlatformDashboard } from "../api";
