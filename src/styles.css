@@ -183,6 +183,12 @@
 }
 
 /* The app owns viewport scrolling; wide content scrolls within its own region. */
+/* O painel ocupa a janela inteira; só a área de conteúdo rola (evita a tela "deslocada" ao focar campos). */
+.app-shell {
+  position: fixed;
+  inset: 0;
+  height: auto;
+}
 .app-main > * {
   min-width: 0;
   max-width: 100%;
