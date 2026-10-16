@@ -53,7 +53,7 @@ export function CompanyQuickActions({ company, compact }: { company: Company; co
     onSuccess: async () => {
       toast.success(t("companyAdmin.deleted"));
       await refresh();
-      if (!compact) await navigate({ to: "/app/plataforma/empresas" });
+      if (!compact) await navigate({ to: "/app/plataforma/empresas", search: { page: 1 } });
     },
     onError: () => toast.error(t("companyAdmin.error")),
   });
