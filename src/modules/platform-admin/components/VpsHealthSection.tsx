@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Activity, Cpu, Database, HardDrive, MemoryStick, Server, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
+  VPS_CAPACITY,
   VPS_LIMITS,
+  appendSample,
   connectionLevel,
   cpuPercent,
   levelOf,
@@ -11,6 +14,7 @@ import {
   serverMetricsContract,
   serviceState,
   type HealthLevel,
+  type MetricsSample,
   type ServiceState,
 } from "../vps-health";
 import type { PlatformDashboard } from "../api";
@@ -86,6 +90,28 @@ function ServiceBadge({ status }: { status: string | null | undefined }) {
   );
 }
 
+/** Mini-gráfico do histórico real coletado nesta sessão do painel. */
+function Sparkline({ samples, pick, level }: { samples: MetricsSample[]; pick: (s: MetricsSample) => number | null; level: HealthLevel }) {
+  const { t } = useTranslation("platform");
+  const points = samples.map(pick).filter((v): v is number => v != null);
+  if (points.length < 2) {
+    return <p className="mt-2 text-xs text-muted-foreground">{t("vps.historyCollecting")}</p>;
+  }
+  const w = 100;
+  const h = 24;
+  const step = w / (points.length - 1);
+  const d = points
+    .map((v, i) => `${i === 0 ? "M" : "L"}${(i * step).toFixed(1)},${(h - (Math.min(100, v) / 100) * h).toFixed(1)}`)
+    .join(" ");
+  const stroke =
+    level === "danger" ? "var(--destructive)" : level === "warning" ? "var(--warning)" : "var(--success)";
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 h-6 w-full" preserveAspectRatio="none" aria-hidden>
+      <path d={d} fill="none" stroke={stroke} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
 export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard | undefined }) {
   const { t } = useTranslation("platform");
   const q = useQuery(serverHealthQuery());
@@ -95,6 +121,20 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
   const companies = dashboard?.companies.active ?? 0;
   const connLevel = connectionLevel(online);
   const cpuPct = health ? cpuPercent(health.cpu) : 0;
+  const diskPct = health?.disk?.usedPercent ?? null;
+
+  // Histórico real: acumula as amostras coletadas a cada 30s nesta sessão.
+  const [history, setHistory] = useState<MetricsSample[]>([]);
+  const collectedAt = health?.collectedAt;
+  useEffect(() => {
+    if (!health || !collectedAt) return;
+    const at = new Date(collectedAt).getTime();
+    if (Number.isNaN(at)) return;
+    setHistory((h) =>
+      appendSample(h, { at, cpu: cpuPct, memory: health.memory.usedPercent, disk: diskPct }),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectedAt]);
 
   const alerts: string[] = [];
   if (health) {
@@ -102,9 +142,10 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
       alerts.push(t("vps.alertCpu", { limit: VPS_LIMITS.cpuPercent }));
     if (levelOf(health.memory.usedPercent, VPS_LIMITS.memoryPercent) === "danger")
       alerts.push(t("vps.alertMemory", { limit: VPS_LIMITS.memoryPercent }));
-    const diskPct = health.disk?.usedPercent;
-    if (diskPct != null && levelOf(diskPct, VPS_LIMITS.diskPercent) === "danger")
+    if (diskPct != null && diskPct >= VPS_LIMITS.diskPercent)
       alerts.push(t("vps.alertDisk", { limit: VPS_LIMITS.diskPercent }));
+    else if (diskPct != null && diskPct >= VPS_LIMITS.diskWarningPercent)
+      alerts.push(t("vps.alertDiskWarning", { limit: VPS_LIMITS.diskWarningPercent }));
     // Alerta somente em falha real confirmada: "não configurado" ou status
     // desconhecido nunca derrubam o painel (ex.: Wuzapi não utilizado).
     const down = [
@@ -130,6 +171,12 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
                 uptime: formatUptime(health.uptimeSeconds),
               })
             : t("vps.estimated", { contract: serverMetricsContract })}
+          {" · "}
+          {t("vps.capacity", {
+            cores: VPS_CAPACITY.cpuCores,
+            ram: VPS_CAPACITY.memoryGb,
+            disk: VPS_CAPACITY.diskGb,
+          })}
         </span>
       </div>
 
@@ -226,6 +273,32 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
           level={connLevel}
         />
       </div>
+
+      {health && (
+        <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
+          <p className="flex items-center gap-2 font-medium text-muted-foreground">
+            <Activity className="size-4" aria-hidden />
+            {t("vps.historyTitle")}
+          </p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-3">
+            <div>
+              <p className="text-xs text-muted-foreground">{t("vps.cpu")}</p>
+              <Sparkline samples={history} pick={(s) => s.cpu} level={levelOf(cpuPct, VPS_LIMITS.cpuPercent)} />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">{t("vps.memory")}</p>
+              <Sparkline samples={history} pick={(s) => s.memory} level={levelOf(health.memory.usedPercent, VPS_LIMITS.memoryPercent)} />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">{t("vps.disk")}</p>
+              <Sparkline samples={history} pick={(s) => s.disk} level={diskPct != null ? levelOf(diskPct, VPS_LIMITS.diskPercent) : "ok"} />
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("vps.historyHint", { minutes: Math.round((history.length * 30) / 60) })}
+          </p>
+        </div>
+      )}
 
       <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
         <p className="flex items-center gap-2 font-medium text-muted-foreground">
