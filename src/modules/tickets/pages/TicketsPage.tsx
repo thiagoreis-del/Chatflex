@@ -56,6 +56,7 @@ import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../typ
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { MessageMedia, isImage } from "../components/MessageMedia";
 import { AudioRecorder } from "../components/AudioRecorder";
+import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
 import { computeSla, slaConfigQuery, type SlaState } from "@/modules/sla/sla";
