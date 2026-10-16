@@ -5,11 +5,49 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+  },
+  vite: {
+    plugins: [
+      // PWA com modo offline (pedido explícito). O registro do service worker
+      // acontece apenas via src/shared/pwa/register-sw.ts, nunca em dev/preview.
+      VitePWA({
+        registerType: "autoUpdate",
+        injectRegister: null,
+        devOptions: { enabled: false },
+        filename: "sw.js",
+        manifest: false, // manifesto servido de public/manifest.webmanifest
+        workbox: {
+          navigateFallback: "/index.html",
+          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
+          runtimeCaching: [
+            {
+              // Navegações/HTML sempre tentam a rede primeiro.
+              urlPattern: ({ request }: { request: Request }) => request.mode === "navigate",
+              handler: "NetworkFirst",
+              options: { cacheName: "html-navigations" },
+            },
+            {
+              // Assets versionados (hash) da mesma origem podem usar cache.
+              urlPattern: ({ url, request }: { url: URL; request: Request }) =>
+                url.origin === self.location.origin &&
+                /\/assets\/.+\.[a-f0-9]{8,}\./i.test(url.pathname) &&
+                request.destination !== "document",
+              handler: "CacheFirst",
+              options: {
+                cacheName: "static-assets",
+                expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              },
+            },
+          ],
+        },
+      }),
+    ],
   },
 });
