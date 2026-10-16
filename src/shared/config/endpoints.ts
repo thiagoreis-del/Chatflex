@@ -220,3 +220,16 @@ export const backupEndpoints = {
   restore: "/backups/restore",
   schedule: "/backups/schedule",
 } as const;
+
+/**
+ * Horário de atendimento (padrão ZapPro, confirmado no código do backend):
+ * - escala da empresa em Companies.schedules (PUT /companies/:id/schedules)
+ * - modo em CompaniesSettings.scheduleType ("company" liga, "disabled" desliga)
+ * - mensagem fora do expediente em Whatsapps.outOfHoursMessage (por conexão)
+ */
+export const businessHoursEndpoints = {
+  company: (id: string) => `/companies/${encodeURIComponent(id)}`,
+  schedules: (id: string) => `/companies/${encodeURIComponent(id)}/schedules`,
+  companySettingOne: (column: string) => `/companySettingOne/?column=${encodeURIComponent(column)}`,
+  companySettings: "/companySettings/",
+} as const;
