@@ -405,6 +405,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <div className="ml-auto flex shrink-0 items-center gap-0 sm:gap-1 [&>button]:size-8 sm:[&>button]:size-10">
               <IncomingNotifications />
+              <AdminAlerts />
               <SlaWatcher />
               <LanguageSelector />
               <ThemeToggle />
