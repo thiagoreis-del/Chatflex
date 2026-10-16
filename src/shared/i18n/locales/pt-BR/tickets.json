@@ -31,7 +31,8 @@
     "close": "Finalizar",
     "reopen": "Reabrir",
     "back": "Voltar",
-    "transfer": "Recusar / Encaminhar"
+    "transfer": "Recusar / Encaminhar",
+    "refuse": "Recusar"
   },
   "composer": {
     "placeholder": "Digite uma mensagem…",

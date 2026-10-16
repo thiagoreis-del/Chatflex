@@ -27,6 +27,7 @@ import {
   Reply,
   Search,
   Smile,
+  Undo2,
   Send,
   Tag,
   Video,
@@ -63,6 +64,7 @@ import {
   ticketsQuery,
   groupTicketsQuery,
   closeTicketsBulk,
+  transferTicket,
   updateTicketStatus,
 } from "../api";
 import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../types";
@@ -770,6 +772,20 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
   });
+  // Recusar devolve o atendimento à fila atual, sem atendente, direto da conversa.
+  const refuse = useMutation({
+    mutationFn: () =>
+      transferTicket(ticket.id, {
+        ...(ticket.queue ? { queueId: ticket.queue.id } : {}),
+        userId: null,
+      }),
+    onSuccess: (tk) => {
+      toast.success(t("toast.refused"));
+      onChange(tk);
+      void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: () => toast.error(t("toast.transferError")),
+  });
   const [files, setFiles] = useState<File[]>([]);
   const [active, setActive] = useState(0);
   const file = files[active] ?? null;
@@ -1150,6 +1166,19 @@ function Conversation({
           >
             <Search className="size-4" />
           </Button>
+          {ticket.status !== "closed" && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("actions.refuse")}
+              title={t("actions.refuse")}
+              onClick={() => refuse.mutate()}
+              disabled={refuse.isPending}
+            >
+              <Undo2 className="size-4" />
+            </Button>
+          )}
           {ticket.status !== "closed" && (
             <Button
               size="sm"
