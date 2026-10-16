@@ -307,6 +307,81 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
 
       <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
         <p className="flex items-center gap-2 font-medium text-muted-foreground">
+          <Radio className="size-4" aria-hidden />
+          {tc("connectivity.title")}
+        </p>
+        <ul className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+          <li className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <Globe className="size-3.5 text-muted-foreground" aria-hidden />
+              {tc("connectivity.internet")}
+            </span>
+            <ConnectivityBadge
+              state={connectivity.internet}
+              onlineLabel={tc("connectivity.online")}
+              offlineLabel={tc("connectivity.offline")}
+              unknownLabel={tc("connectivity.unknown")}
+            />
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <Server className="size-3.5 text-muted-foreground" aria-hidden />
+              {tc("connectivity.api")}
+            </span>
+            <ConnectivityBadge
+              state={connectivity.api}
+              onlineLabel={tc("connectivity.online")}
+              offlineLabel={tc("connectivity.offline")}
+              unknownLabel={tc("connectivity.unknown")}
+            />
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <Radio className="size-3.5 text-muted-foreground" aria-hidden />
+              {tc("connectivity.socket")}
+            </span>
+            <span
+              className={cn(
+                "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                socketStatus === "connected"
+                  ? "bg-success/15 text-success"
+                  : socketStatus === "reconnecting" || socketStatus === "connecting"
+                    ? "bg-warning/15 text-warning-foreground dark:text-warning"
+                    : "bg-muted text-muted-foreground",
+              )}
+            >
+              {tc(`connectivity.${socketStatus === "connected" ? "connected" : socketStatus === "reconnecting" || socketStatus === "connecting" ? "reconnecting" : socketStatus === "disabled" ? "disabled" : "disconnected"}`)}
+            </span>
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5">
+              <Smartphone className="size-3.5 text-muted-foreground" aria-hidden />
+              {tc("connectivity.whatsapp")}
+            </span>
+            <span
+              className={cn(
+                "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                online > 0 ? "bg-success/15 text-success" : "bg-muted text-muted-foreground",
+              )}
+            >
+              {online > 0
+                ? tc("connectivity.connected")
+                : tc("connectivity.disconnected")}
+            </span>
+          </li>
+        </ul>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {tc("connectivity.socketNote")}
+          {connectivity.lastCheckedAt
+            ? ` · ${tc("connectivity.lastChecked", {
+                time: new Date(connectivity.lastCheckedAt).toLocaleTimeString("pt-BR"),
+              })}`
+            : ""}
+        </p>
+      </div>
+
+      <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
+        <p className="flex items-center gap-2 font-medium text-muted-foreground">
           <Smartphone className="size-4" aria-hidden />
           {t("vps.whatsappTitle")}
         </p>
