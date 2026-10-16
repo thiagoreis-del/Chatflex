@@ -362,5 +362,32 @@
       "enter": "Entrou",
       "exit": "Saiu"
     }
+  },
+  "companyAdmin": {
+    "activate": "Ativar",
+    "deactivate": "Desativar",
+    "delete": "Excluir",
+    "deleteTitle": "Excluir a empresa {{name}}?",
+    "deleteDescription": "Todos os dados da empresa (usuários, conexões e conversas) serão removidos. Esta ação não pode ser desfeita.",
+    "deleteTyped": "Digite EXCLUIR para confirmar",
+    "deactivateTitle": "Desativar {{name}}?",
+    "deactivateDescription": "A empresa perderá o acesso até ser ativada novamente.",
+    "activateTitle": "Ativar {{name}}?",
+    "activateDescription": "A empresa voltará a ter acesso ao sistema.",
+    "done": "Alteração salva.",
+    "deleted": "Empresa excluída.",
+    "error": "Não foi possível concluir a ação.",
+    "access": "Gerar acesso",
+    "accessTitle": "Gerar novo acesso para {{name}}?",
+    "accessDescription": "Uma nova senha temporária será criada e a senha atual deixará de funcionar.",
+    "connEdit": "Editar conexão",
+    "connName": "Nome",
+    "connDefault": "Conexão padrão",
+    "connGreeting": "Mensagem de saudação",
+    "connDeleteTitle": "Excluir a conexão {{name}}?",
+    "connDeleteDescription": "O WhatsApp será desconectado e a conexão removida.",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "actions": "Ações"
   }
 }
