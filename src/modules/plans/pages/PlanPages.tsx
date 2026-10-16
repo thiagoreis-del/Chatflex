@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Check, Copy, Minus, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Check, Copy, Minus, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -161,6 +161,17 @@ export function PlansListPage() {
                           </button>
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-right">
+                          <Button
+                            asChild
+                            size="icon"
+                            variant="ghost"
+                            aria-label={t("plans.edit")}
+                            title={t("plans.edit")}
+                          >
+                            <Link to="/app/plataforma/planos/$planId" params={{ planId: p.id }}>
+                              <Pencil className="size-4" />
+                            </Link>
+                          </Button>
                           <Button
                             size="icon"
                             variant="ghost"
