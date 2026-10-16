@@ -9,6 +9,8 @@ import {
   Paperclip,
   Search,
   Send,
+  UserMinus,
+  UserPlus,
   UserRound,
   Users,
   X,
@@ -30,9 +32,11 @@ import { queuesQuery } from "@/modules/queues/api";
 import { AudioRecorder } from "@/modules/tickets/components/AudioRecorder";
 import { useFallbackInterval } from "@/modules/tickets/realtime";
 import {
+  addInternalMember,
   createInternalConversation,
   internalConversationsQuery,
   internalMessagesQuery,
+  removeInternalMember,
   sendInternalMedia,
   sendInternalMessage,
 } from "../api";
