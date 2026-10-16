@@ -13,7 +13,21 @@ export interface PlatformDashboard {
   pendingInvoices: number;
   /** Percentual já calculado pelo backend, ex.: 4.2 */
   delinquencyPercent: number;
-  usageByPlan: { planId: string; planName: string; companies: number }[];
+  usageByPlan: { planId: string; planName: string; companies: number; revenueInCents?: number }[];
+  totalCompanies?: number;
+  connectionsOnline?: number;
+  forecastRevenueInCents?: number;
+  dueSoon?: CompanyBrief[];
+  overdueList?: CompanyBrief[];
+  recent?: CompanyBrief[];
+}
+
+export interface CompanyBrief {
+  id: string;
+  name: string;
+  planName?: string;
+  dueDate?: string | null;
+  createdAt?: string | null;
 }
 
 export const dashboardContract = "GET /companies/list + /plans/all + /whatsapp/all";
@@ -24,6 +38,7 @@ interface RawCompany {
   status?: boolean | null;
   dueDate?: string | null;
   planId?: number | null;
+  createdAt?: string | null;
 }
 interface RawPlan {
   id: number;
@@ -54,21 +69,46 @@ async function aggregateDashboard(signal: AbortSignal): Promise<PlatformDashboar
   const counts = { active: 0, trial: 0, overdue: 0, suspended: 0 };
   let users = 0;
   let revenue = 0;
-  const byPlan = new Map<number, number>();
+  let forecast = 0;
+  const byPlan = new Map<number, { n: number; rev: number }>();
+  const dueSoon: CompanyBrief[] = [];
+  const overdueList: CompanyBrief[] = [];
+  const week = now + 7 * 864e5;
   for (const c of companies) {
     const plan = c.planId != null ? plans.get(c.planId) : undefined;
+    const price = Math.round(Number(String(plan?.amount ?? "0").replace(",", ".")) * 100) || 0;
+    const due = c.dueDate ? new Date(c.dueDate).getTime() : NaN;
+    const brief: CompanyBrief = {
+      id: String(c.id),
+      name: c.name ?? `#${c.id}`,
+      ...(plan?.name ? { planName: plan.name } : {}),
+      dueDate: c.dueDate ?? null,
+      createdAt: c.createdAt ?? null,
+    };
     if (c.status === false) counts.suspended++;
-    else if (c.dueDate && new Date(c.dueDate).getTime() < now) counts.overdue++;
-    else {
+    else if (due < now) {
+      counts.overdue++;
+      forecast += price;
+      overdueList.push(brief);
+    } else {
       counts.active++;
-      revenue += Math.round(Number(String(plan?.amount ?? "0").replace(",", ".")) * 100) || 0;
+      revenue += price;
+      forecast += price;
+      if (due <= week) dueSoon.push(brief);
     }
     users += plan?.users ?? 0;
-    if (c.planId != null) byPlan.set(c.planId, (byPlan.get(c.planId) ?? 0) + 1);
+    if (c.planId != null) {
+      const cur = byPlan.get(c.planId) ?? { n: 0, rev: 0 };
+      byPlan.set(c.planId, { n: cur.n + 1, rev: cur.rev + (c.status === false ? 0 : price) });
+    }
   }
-  const connections = arr<{ companyId?: number }>(connectionsRaw, "whatsapps").filter(
+  const byDate = (k: "dueDate" | "createdAt", dir: 1 | -1) => (a: CompanyBrief, b: CompanyBrief) =>
+    dir * (new Date(a[k] ?? 0).getTime() - new Date(b[k] ?? 0).getTime());
+  const conns = arr<{ companyId?: number; status?: string }>(connectionsRaw, "whatsapps").filter(
     (w) => w.companyId == null || ids.has(w.companyId),
-  ).length;
+  );
+  const connections = conns.length;
+  const online = conns.filter((w) => String(w.status ?? "").toUpperCase() === "CONNECTED").length;
   const pendingInvoices = arr<RawInvoice>(invoicesRaw, "invoices").filter(
     (i) => String(i.status ?? "").toLowerCase() === "open",
   ).length;
@@ -81,14 +121,29 @@ async function aggregateDashboard(signal: AbortSignal): Promise<PlatformDashboar
     pendingInvoices,
     delinquencyPercent: billable ? (counts.overdue / billable) * 100 : 0,
     usageByPlan: [...byPlan.entries()]
-      .map(([id, n]) => ({ planId: String(id), planName: plans.get(id)?.name ?? `#${id}`, companies: n }))
+      .map(([id, v]) => ({
+        planId: String(id),
+        planName: plans.get(id)?.name ?? `#${id}`,
+        companies: v.n,
+        revenueInCents: v.rev,
+      }))
       .sort((a, b) => b.companies - a.companies),
+    totalCompanies: companies.length,
+    connectionsOnline: online,
+    forecastRevenueInCents: forecast,
+    dueSoon: dueSoon.sort(byDate("dueDate", 1)).slice(0, 6),
+    overdueList: overdueList.sort(byDate("dueDate", 1)).slice(0, 6),
+    recent: companies
+      .map((c) => ({ id: String(c.id), name: c.name ?? `#${c.id}`, createdAt: c.createdAt ?? null }))
+      .sort(byDate("createdAt", -1))
+      .slice(0, 6),
   };
 }
 
 export const platformDashboardQuery = () =>
   queryOptions({
     queryKey: platformKeys.dashboard(),
+    refetchInterval: 60_000,
     queryFn: ({ signal }) =>
       env.useMocks
         ? apiRequest<PlatformDashboard>(ep.dashboard, { signal })

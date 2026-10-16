@@ -2,7 +2,7 @@
   "dashboard": {
     "meta": "Visão da plataforma",
     "title": "Visão da plataforma",
-    "subtitle": "Indicadores gerais calculados pelo servidor.",
+    "subtitle": "Resumo em tempo real das empresas, conexões e faturamento.",
     "metrics": {
       "active": "Empresas ativas",
       "trial": "Empresas em teste",
@@ -17,7 +17,33 @@
     "usageByPlan": "Uso por plano",
     "usageByPlanEmpty": "Nenhuma empresa vinculada a planos.",
     "companiesCount_one": "{{count}} empresa",
-    "companiesCount_other": "{{count}} empresas"
+    "companiesCount_other": "{{count}} empresas",
+    "refresh": "Atualizar",
+    "updatedAt": "Atualizado às {{time}}",
+    "totalCompanies": "{{count}} empresas no total",
+    "sections": {
+      "companies": "Empresas",
+      "operation": "Operação",
+      "finance": "Financeiro"
+    },
+    "metrics2": {
+      "online": "Conexões online",
+      "offline": "Conexões offline",
+      "forecast": "Receita prevista (com vencidas)"
+    },
+    "dueSoon": "Vencimentos nos próximos 7 dias",
+    "dueSoonEmpty": "Nenhum vencimento próximo.",
+    "recent": "Empresas recentes",
+    "recentEmpty": "Nenhuma empresa cadastrada.",
+    "overdueList": "Empresas vencidas",
+    "overdueEmpty": "Nenhuma empresa vencida.",
+    "daysLeft_one": "vence em {{count}} dia",
+    "daysLeft_other": "vence em {{count}} dias",
+    "today": "vence hoje",
+    "daysLate_one": "{{count}} dia em atraso",
+    "daysLate_other": "{{count}} dias em atraso",
+    "revenueShare": "{{value}} / mês",
+    "open": "Abrir"
   },
   "companyStatus": {
     "trial": "Em teste",
