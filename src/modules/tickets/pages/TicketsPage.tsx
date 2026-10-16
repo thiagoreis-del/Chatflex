@@ -147,6 +147,7 @@ export function TicketsPage() {
     return () => clearInterval(id);
   }, [slaOn]);
   const [selected, setSelected] = useState<Ticket | null>(null);
+  const hiddenRefused = useRefusedHiddenIds(String(session.user?.id ?? ""));
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -159,7 +160,8 @@ export function TicketsPage() {
       ? groupTicketsQuery(debouncedSearch)
       : {
           ...ticketsQuery({ status, search: debouncedSearch }),
-          select: (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup && !x.isGroup),
+          select: (l: Ticket[]) =>
+            l.filter((x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id)),
         };
   const query = useQuery({
     ...(listOpts as ReturnType<typeof groupTicketsQuery>),
@@ -183,16 +185,21 @@ export function TicketsPage() {
     setUnreadOnly(false);
     setSlaFilter("all");
   };
-  // Recusar direto da lista devolve o atendimento à fila atual, sem atendente.
+  // Recusar tira o atendimento da lista do atendente que recusou.
   const refuseFromList = useMutation({
-    mutationFn: (tk: Ticket) =>
-      transferTicket(tk.id, { ...(tk.queue ? { queueId: tk.queue.id } : {}), userId: null }),
+    mutationFn: (tk: Ticket) => {
+      hideRefusedTicket(String(session.user?.id ?? ""), tk.id);
+      return transferTicket(tk.id, { ...(tk.queue ? { queueId: tk.queue.id } : {}), userId: null });
+    },
     onSuccess: (tk) => {
       toast.success(t("toast.refused"));
-      if (selected?.id === tk.id) setSelected(tk);
+      if (selected?.id === tk.id) setSelected(null);
       void qcl.invalidateQueries({ queryKey: ticketKeys.all });
     },
-    onError: () => toast.error(t("toast.transferError")),
+    onError: (_e, tk) => {
+      restoreRefusedTicket(String(session.user?.id ?? ""), tk.id);
+      toast.error(t("toast.transferError"));
+    },
   });
   const connections = Array.from(
     new Map(
@@ -219,7 +226,8 @@ export function TicketsPage() {
       String(x.user?.id) === attendantFilter) &&
     (!unreadOnly || x.unreadMessages > 0) &&
     (!slaOn || slaFilter === "all" || computeSla(x, sla!, now).state === slaFilter);
-  const notGroup = (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup && !x.isGroup);
+  const notGroup = (l: Ticket[]) =>
+    l.filter((x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id));
   const openCount = useQuery({
     ...ticketsQuery({ status: "open", search: debouncedSearch }),
     select: (l: Ticket[]) => notGroup(l).length,
@@ -232,7 +240,7 @@ export function TicketsPage() {
   }).data;
   const groupsCount = useQuery({
     ...groupTicketsQuery(debouncedSearch),
-    select: (l: Ticket[]) => l.length,
+    select: (l: Ticket[]) => l.filter((x) => !hiddenRefused.has(x.id)).length,
     refetchInterval: fallback,
   }).data;
   const counts: Partial<Record<TicketTab, number | undefined>> = {
@@ -467,7 +475,7 @@ export function TicketsPage() {
           ) : (
           <QueryBoundary query={query} contract={ticketsContract}>
             {(list) => {
-              const visible = list.filter(matchesFilters);
+              const visible = list.filter((x) => !hiddenRefused.has(x.id) && matchesFilters(x));
               if (visible.length === 0) {
                 const msg = debouncedSearch
                   ? t("sidebar.noResults", { q: debouncedSearch })
@@ -662,7 +670,7 @@ function Conversation({
 }: {
   ticket: Ticket;
   onBack: () => void;
-  onChange: (t: Ticket) => void;
+  onChange: (t: Ticket | null) => void;
 }) {
   const { t } = useTranslation("tickets");
   const { t: tq } = useTranslation("quickMessages");
@@ -805,19 +813,24 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
   });
-  // Recusar devolve o atendimento à fila atual, sem atendente, direto da conversa.
+  // Recusar tira o atendimento da lista do atendente que recusou, direto da conversa.
   const refuse = useMutation({
-    mutationFn: () =>
-      transferTicket(ticket.id, {
+    mutationFn: () => {
+      hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
+      return transferTicket(ticket.id, {
         ...(ticket.queue ? { queueId: ticket.queue.id } : {}),
         userId: null,
-      }),
-    onSuccess: (tk) => {
+      });
+    },
+    onSuccess: () => {
       toast.success(t("toast.refused"));
-      onChange(tk);
+      onChange(null);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
-    onError: () => toast.error(t("toast.transferError")),
+    onError: () => {
+      restoreRefusedTicket(String(session.user?.id ?? ""), ticket.id);
+      toast.error(t("toast.transferError"));
+    },
   });
   const [files, setFiles] = useState<File[]>([]);
   const [active, setActive] = useState(0);
