@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Activity, Cpu, Database, HardDrive, MemoryStick, Server, Smartphone } from "lucide-react";
+import { Activity, Cpu, Database, Globe, HardDrive, MemoryStick, Radio, Server, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useConnectivity } from "@/shared/connectivity/connectivity";
+import { useSocketStatus } from "@/shared/socket/socket-client";
 import {
   VPS_CAPACITY,
   VPS_LIMITS,
