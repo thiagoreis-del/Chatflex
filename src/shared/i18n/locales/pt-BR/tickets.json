@@ -130,7 +130,7 @@
     "title": "Recusar ou encaminhar",
     "forwardTab": "Encaminhar",
     "refuseTab": "Recusar",
-    "refuseDescription": "O atendimento sai da sua lista. Não é preciso preencher nada.",
+    "refuseDescription": "O atendimento é recusado e sai da sua lista, sem voltar para a fila. Não é preciso preencher nada.",
     "refuseSubmit": "Recusar",
     "description": "Escolha a fila e, se quiser, um atendente específico.",
     "user": "Atendente",
