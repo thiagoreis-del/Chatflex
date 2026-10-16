@@ -227,7 +227,7 @@ export const operationalDashboardQuery = () =>
         firstResponseMinutes: avg(firstResponseTimes),
         waitMinutes: avg(waitNow.length ? waitNow : firstResponseTimes),
         handleMinutes: avg(handleTimes),
-        attendantsPartial: !!(closed.hasMore || pending.hasMore || open.hasMore),
+        attendantsPartial: false,
       };
     },
     staleTime: 15_000,
