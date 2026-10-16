@@ -28,5 +28,5 @@ export function publishStatusBatch(
   const form = new FormData();
   items.forEach((it) => form.append("file", it.file, it.file.name));
   form.append("captions", JSON.stringify(items.map((it) => it.caption.trim())));
-  return apiUpload<unknown>(ep.statusBatch(whatsappId), form, { onProgress });
+  return apiUpload<unknown>(ep.statusBatch(whatsappId), form, onProgress ? { onProgress } : {});
 }

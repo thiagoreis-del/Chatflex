@@ -21,7 +21,7 @@ export function StatusPublishPage() {
   useEffect(() => () => previews.forEach((u) => URL.revokeObjectURL(u)), [previews]);
 
   useEffect(() => {
-    if (whatsappId === "" && connected.length === 1) setWhatsappId(connected[0].id);
+    if (whatsappId === "" && connected.length === 1 && connected[0]) setWhatsappId(connected[0].id);
   }, [connected, whatsappId]);
 
   const addFiles = (files: FileList | null) => {
