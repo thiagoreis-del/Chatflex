@@ -16,6 +16,10 @@ export interface PlatformDashboard {
   usageByPlan: { planId: string; planName: string; companies: number; revenueInCents?: number }[];
   totalCompanies?: number;
   connectionsOnline?: number;
+  /** Conexões aguardando leitura de QR Code / pareamento. */
+  connectionsAwaitingQr?: number;
+  /** Conexões desconectadas (não conectadas e não aguardando QR). */
+  connectionsDisconnected?: number;
   forecastRevenueInCents?: number;
   dueSoon?: CompanyBrief[];
   overdueList?: CompanyBrief[];
@@ -109,6 +113,10 @@ async function aggregateDashboard(signal: AbortSignal): Promise<PlatformDashboar
   );
   const connections = conns.length;
   const online = conns.filter((w) => String(w.status ?? "").toUpperCase() === "CONNECTED").length;
+  const awaitingQr = conns.filter((w) =>
+    ["QRCODE", "PAIRING", "OPENING"].includes(String(w.status ?? "").toUpperCase()),
+  ).length;
+  const disconnected = connections - online - awaitingQr;
   const pendingInvoices = arr<RawInvoice>(invoicesRaw, "invoices").filter(
     (i) => String(i.status ?? "").toLowerCase() === "open",
   ).length;
@@ -130,6 +138,8 @@ async function aggregateDashboard(signal: AbortSignal): Promise<PlatformDashboar
       .sort((a, b) => b.companies - a.companies),
     totalCompanies: companies.length,
     connectionsOnline: online,
+    connectionsAwaitingQr: awaitingQr,
+    connectionsDisconnected: disconnected,
     forecastRevenueInCents: forecast,
     dueSoon: dueSoon.sort(byDate("dueDate", 1)).slice(0, 6),
     overdueList: overdueList.sort(byDate("dueDate", 1)).slice(0, 6),

@@ -79,6 +79,24 @@ export function levelOf(percent: number, limit: number): HealthLevel {
   return "ok";
 }
 
+/** Estado normalizado de um serviço reportado pela VPS. */
+export type ServiceState = "online" | "offline" | "not_configured" | "unknown";
+
+/**
+ * Interpreta o status bruto do backend. `not_configured` significa que o serviço
+ * não faz parte da instalação (ex.: Wuzapi não utilizado) — nunca é falha.
+ * Apenas estados explicitamente negativos contam como offline confirmado.
+ */
+export function serviceState(status: string | null | undefined): ServiceState {
+  if (!status) return "unknown";
+  const s = status.toLowerCase();
+  if (s === "not_configured" || s === "not-configured" || s === "disabled") return "not_configured";
+  if (s === "online" || s === "ok" || s === "connected" || s === "healthy") return "online";
+  if (s === "offline" || s === "down" || s === "error" || s === "failed" || s === "unreachable")
+    return "offline";
+  return "unknown";
+}
+
 /** Estimativa de capacidade por conexões ativas, usada quando a rota da VPS não responde. */
 export function connectionLevel(active: number): HealthLevel {
   return levelOf((active / VPS_LIMITS.activeConnections) * 100, 100);

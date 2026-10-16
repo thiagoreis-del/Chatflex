@@ -9,7 +9,9 @@ import {
   levelOf,
   serverHealthQuery,
   serverMetricsContract,
+  serviceState,
   type HealthLevel,
+  type ServiceState,
 } from "../vps-health";
 import type { PlatformDashboard } from "../api";
 
@@ -65,6 +67,25 @@ function formatUptime(seconds: number): string {
   return d > 0 ? `${d}d ${h}h` : `${h}h ${Math.floor((seconds % 3600) / 60)}min`;
 }
 
+const STATE_STYLE: Record<ServiceState, string> = {
+  online: "bg-success/15 text-success",
+  offline: "bg-destructive/15 text-destructive",
+  not_configured: "bg-muted text-muted-foreground",
+  unknown: "bg-muted text-muted-foreground",
+};
+
+function ServiceBadge({ status }: { status: string | null | undefined }) {
+  const { t } = useTranslation("platform");
+  const state = serviceState(status);
+  return (
+    <span
+      className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", STATE_STYLE[state])}
+    >
+      {t(`vps.state.${state}`)}
+    </span>
+  );
+}
+
 export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard | undefined }) {
   const { t } = useTranslation("platform");
   const q = useQuery(serverHealthQuery());
@@ -84,9 +105,11 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
     const diskPct = health.disk?.usedPercent;
     if (diskPct != null && levelOf(diskPct, VPS_LIMITS.diskPercent) === "danger")
       alerts.push(t("vps.alertDisk", { limit: VPS_LIMITS.diskPercent }));
+    // Alerta somente em falha real confirmada: "não configurado" ou status
+    // desconhecido nunca derrubam o painel (ex.: Wuzapi não utilizado).
     const down = [
-      health.redis?.status && health.redis.status !== "online" ? "Redis" : null,
-      health.wuzapi?.status && health.wuzapi.status !== "online" ? "Wuzapi" : null,
+      serviceState(health.redis?.status) === "offline" ? "Redis" : null,
+      serviceState(health.wuzapi?.status) === "offline" ? "Wuzapi" : null,
     ].filter(Boolean);
     if (down.length > 0) alerts.push(t("vps.alertServices", { names: down.join(", ") }));
   }
@@ -204,6 +227,33 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
         />
       </div>
 
+      <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
+        <p className="flex items-center gap-2 font-medium text-muted-foreground">
+          <Smartphone className="size-4" aria-hidden />
+          {t("vps.whatsappTitle")}
+        </p>
+        <ul className="mt-2 grid gap-1.5 sm:grid-cols-3">
+          <li className="flex items-center justify-between gap-2">
+            <span>{t("vps.whatsappActive")}</span>
+            <span className="inline-flex rounded-full bg-success/15 px-2 py-0.5 text-xs font-semibold tabular-nums text-success">
+              {online}
+            </span>
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span>{t("vps.whatsappAwaitingQr")}</span>
+            <span className="inline-flex rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold tabular-nums text-warning-foreground dark:text-warning">
+              {dashboard?.connectionsAwaitingQr ?? 0}
+            </span>
+          </li>
+          <li className="flex items-center justify-between gap-2">
+            <span>{t("vps.whatsappDisconnected")}</span>
+            <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+              {dashboard?.connectionsDisconnected ?? 0}
+            </span>
+          </li>
+        </ul>
+      </div>
+
       {health && (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
@@ -219,21 +269,11 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
               ].map((s) => (
                 <li key={s.name} className="flex items-center justify-between gap-2">
                   <span>{s.name}</span>
-                  <span
-                    className={cn(
-                      "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                      s.status === "online"
-                        ? "bg-success/15 text-success"
-                        : s.status
-                          ? "bg-destructive/15 text-destructive"
-                          : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {s.status ?? t("vps.unavailable")}
-                  </span>
+                  <ServiceBadge status={s.status} />
                 </li>
               ))}
             </ul>
+            <p className="mt-2 text-xs text-muted-foreground">{t("vps.servicesHint")}</p>
           </div>
           <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
             <p className="flex items-center gap-2 font-medium text-muted-foreground">

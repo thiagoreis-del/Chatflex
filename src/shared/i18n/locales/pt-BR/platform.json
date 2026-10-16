@@ -441,6 +441,17 @@
     "unavailable": "Dado não retornado pela VPS",
     "installHint": "Aguardando resposta da rota de métricas",
     "services": "Serviços",
+    "servicesHint": "“Não configurado” significa que o serviço não faz parte da instalação e não indica falha.",
+    "state": {
+      "online": "Online",
+      "offline": "Offline",
+      "not_configured": "Não configurado",
+      "unknown": "Status desconhecido"
+    },
+    "whatsappTitle": "Conexões WhatsApp",
+    "whatsappActive": "Ativas",
+    "whatsappAwaitingQr": "Aguardando QR Code",
+    "whatsappDisconnected": "Desconectadas",
     "system": "Sistema",
     "sysPlatform": "Sistema operacional",
     "sysNode": "Node.js",
