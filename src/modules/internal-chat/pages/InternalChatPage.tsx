@@ -133,19 +133,9 @@ export function InternalChatPage() {
           <p className="text-[11px] leading-snug text-muted-foreground">{t("privateNotice")}</p>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <QueryBoundary
-            isLoading={conversations.isLoading}
-            error={conversations.error}
-            onRetry={() => void conversations.refetch()}
-            skeleton={
-              <div className="space-y-2 p-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-14 w-full" />
-                ))}
-              </div>
-            }
-          >
-            {filtered.length === 0 ? (
+          <QueryBoundary query={conversations}>
+            {() =>
+            filtered.length === 0 ? (
               <p className="p-4 text-center text-sm text-muted-foreground">{t("empty")}</p>
             ) : (
               <ul>
@@ -187,7 +177,8 @@ export function InternalChatPage() {
                   );
                 })}
               </ul>
-            )}
+            )
+            }
           </QueryBoundary>
         </div>
       </aside>
@@ -301,18 +292,9 @@ function InternalConversationView({
         </div>
       </header>
       <div className="chat-messages min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-6">
-        <QueryBoundary
-          isLoading={messages.isLoading}
-          error={messages.error}
-          onRetry={() => void messages.refetch()}
-          skeleton={
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className={cn("h-10 w-2/3", i % 2 && "ml-auto")} />
-              ))}
-            </div>
-          }
-        >
+        <QueryBoundary query={messages}>
+          {() => (
+          <>
           <ul className="space-y-1.5">
             {(messages.data ?? []).map((m) => (
               <li key={m.id} className={cn("flex", m.fromMe ? "justify-end" : "justify-start")}>
@@ -348,6 +330,8 @@ function InternalConversationView({
             ))}
           </ul>
           <div ref={endRef} />
+          </>
+          )}
         </QueryBoundary>
       </div>
       <form
