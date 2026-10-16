@@ -241,10 +241,12 @@ export async function apiDownload(path: string): Promise<{ blob: Blob; filename:
     const m = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
     return { blob: await res.blob(), filename: m?.[1] ? decodeURIComponent(m[1]) : null };
   };
+  const gen = tokenStore.generation();
   try {
     return await run();
   } catch (error) {
     if (error instanceof ApiError && isExpiredToken(error)) {
+      if (tokenStore.generation() !== gen) return run();
       const renewed = await refreshAccessToken().catch(() => false);
       if (renewed) return run();
       unauthorizedHandler?.();
