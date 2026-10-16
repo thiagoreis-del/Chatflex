@@ -46,20 +46,27 @@ export function TransferTicketDialog({
   const [queueId, setQueueId] = useState<string>(ticket.queue ? String(ticket.queue.id) : "");
   const [userId, setUserId] = useState<string>(ANY);
   const [note, setNote] = useState("");
+  const [mode, setMode] = useState<"forward" | "refuse">("forward");
+  const [reason, setReason] = useState("");
+  const refusing = mode === "refuse";
 
   const eligible = (users.data?.data ?? []).filter(
     (u) => !queueId || u.queueIds.includes(Number(queueId)),
   );
 
   const mutation = useMutation({
-    mutationFn: () =>
-      transferTicket(ticket.id, {
+    mutationFn: () => {
+      const text = refusing
+        ? `${t("transfer.refusedPrefix")}: ${reason.trim()}${note.trim() ? `\n${note.trim()}` : ""}`
+        : note.trim();
+      return transferTicket(ticket.id, {
         queueId: Number(queueId),
-        userId: userId === ANY ? null : Number(userId),
-        ...(note.trim() ? { note: note.trim() } : {}),
-      }),
+        userId: refusing || userId === ANY ? null : Number(userId),
+        ...(text ? { note: text } : {}),
+      });
+    },
     onSuccess: (tk) => {
-      toast.success(t("toast.transferred"));
+      toast.success(t(refusing ? "toast.refused" : "toast.transferred"));
       onDone(tk);
       onOpenChange(false);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
@@ -72,9 +79,37 @@ export function TransferTicketDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t("transfer.title")}</DialogTitle>
-          <DialogDescription>{t("transfer.description")}</DialogDescription>
+          <DialogDescription>
+            {t(refusing ? "transfer.refuseDescription" : "transfer.description")}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist">
+            {(["forward", "refuse"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                role="tab"
+                aria-selected={mode === m}
+                onClick={() => setMode(m)}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${mode === m ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                {t(m === "forward" ? "transfer.forwardTab" : "transfer.refuseTab")}
+              </button>
+            ))}
+          </div>
+          {refusing && (
+            <div className="space-y-2">
+              <Label htmlFor="refuse-reason">{t("transfer.reason")}</Label>
+              <Textarea
+                id="refuse-reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder={t("transfer.reasonPlaceholder")}
+                rows={2}
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label>{t("transfer.queue")}</Label>
             <Select
