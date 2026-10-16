@@ -83,6 +83,20 @@ import {
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
+/** Identidade visual das quatro categorias de atendimento. */
+const TAB_ICONS: Record<TicketTab, typeof Inbox> = {
+  open: MessageCircle,
+  pending: Clock,
+  groups: Users,
+  closed: Inbox,
+};
+const TAB_ACTIVE_CLASSES: Record<TicketTab, string> = {
+  open: "border-primary bg-primary text-primary-foreground shadow-sm",
+  pending: "border-warning bg-warning text-warning-foreground shadow-sm",
+  groups: "border-groups bg-groups text-groups-foreground shadow-sm",
+  closed: "border-muted-foreground/40 bg-muted-foreground/15 text-foreground shadow-sm",
+};
+
 /** Remove a assinatura `*Nome:*\n` enviada ao cliente — o painel já mostra o atendente. */
 const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
 
