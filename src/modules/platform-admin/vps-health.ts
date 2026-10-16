@@ -124,6 +124,7 @@ export const HISTORY_MAX_SAMPLES = 120;
 
 /** Acrescenta uma amostra real ao histórico, descartando as mais antigas. */
 export function appendSample(history: MetricsSample[], sample: MetricsSample): MetricsSample[] {
-  if (history.length > 0 && history[history.length - 1].at === sample.at) return history;
+  const last = history[history.length - 1];
+  if (last && last.at === sample.at) return history;
   return [...history, sample].slice(-HISTORY_MAX_SAMPLES);
 }
