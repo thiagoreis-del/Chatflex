@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Info, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,10 +69,6 @@ export function QuickMessagesPage() {
           </Button>
         }
       />
-      <p className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-        <Info className="size-4 shrink-0" aria-hidden />
-        {t("pending")}
-      </p>
       {isAdmin && <ClosingMessageCard />}
       <div className="relative max-w-sm">
         <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" aria-hidden />

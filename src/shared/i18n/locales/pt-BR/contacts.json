@@ -2,7 +2,6 @@
   "meta": { "title": "Contatos", "description": "Gerencie os contatos da sua empresa." },
   "title": "Contatos",
   "description": "Cadastre e organize as pessoas que sua empresa atende.",
-  "pending": "Contrato de integração pendente de confirmação com o backend.",
   "new": "Novo contato",
   "edit": "Editar contato",
   "import": "Importar",

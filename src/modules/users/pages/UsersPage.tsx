@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Copy, Info, KeyRound, Lock, MessageCircle, Pencil, Plus, Search, Trash2, Unlock, Wand2 } from "lucide-react";
+import { Copy, KeyRound, Lock, MessageCircle, Pencil, Plus, Search, Trash2, Unlock, Wand2 } from "lucide-react";
 import { env } from "@/shared/config/env";
 import { accessMessage, generatePassword, whatsappLink, type AccessData } from "../access";
 import { Button } from "@/components/ui/button";
@@ -110,10 +110,6 @@ export function UsersPage() {
           </Button>
         }
       />
-      <p className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-        <Info className="size-4 shrink-0" aria-hidden />
-        {t("pending")}
-      </p>
       <div className="relative max-w-sm">
         <Search
           className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
