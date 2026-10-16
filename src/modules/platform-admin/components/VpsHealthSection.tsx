@@ -268,6 +268,32 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
         />
       </div>
 
+      {health && (
+        <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
+          <p className="flex items-center gap-2 font-medium text-muted-foreground">
+            <Activity className="size-4" aria-hidden />
+            {t("vps.historyTitle")}
+          </p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-3">
+            <div>
+              <p className="text-xs text-muted-foreground">{t("vps.cpu")}</p>
+              <Sparkline samples={history} pick={(s) => s.cpu} level={levelOf(cpuPct, VPS_LIMITS.cpuPercent)} />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">{t("vps.memory")}</p>
+              <Sparkline samples={history} pick={(s) => s.memory} level={levelOf(health.memory.usedPercent, VPS_LIMITS.memoryPercent)} />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">{t("vps.disk")}</p>
+              <Sparkline samples={history} pick={(s) => s.disk} level={diskPct != null ? levelOf(diskPct, VPS_LIMITS.diskPercent) : "ok"} />
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("vps.historyHint", { minutes: Math.round((history.length * 30) / 60) })}
+          </p>
+        </div>
+      )}
+
       <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
         <p className="flex items-center gap-2 font-medium text-muted-foreground">
           <Smartphone className="size-4" aria-hidden />
