@@ -7,6 +7,17 @@ import {
   ArrowLeft,
   ArrowRightLeft,
   Camera,
+  Clock,
+  Inbox,
+  MessageCircle,
+  MoreVertical,
+  RefreshCw,
+  SearchX,
+  SlidersHorizontal,
+  Smartphone,
+  UserRound,
+  Users,
+  XCircle,
   FileText,
   Image as ImageIcon,
   Lock,
@@ -27,9 +38,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
@@ -116,6 +129,57 @@ export function TicketsPage() {
     (x) =>
       x.status !== "closed" && (connectionId === "all" || String(x.whatsapp?.id) === connectionId),
   );
+  const [showFilters, setShowFilters] = useState(false);
+  const [attendantFilter, setAttendantFilter] = useState("all");
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const activeFilters =
+    (connectionId !== "all" ? 1 : 0) +
+    (attendantFilter !== "all" ? 1 : 0) +
+    (unreadOnly ? 1 : 0) +
+    (slaOn && slaFilter !== "all" ? 1 : 0);
+  const clearFilters = () => {
+    setConnectionId("all");
+    setAttendantFilter("all");
+    setUnreadOnly(false);
+    setSlaFilter("all");
+  };
+  const connections = Array.from(
+    new Map(
+      (query.data ?? []).filter((x) => x.whatsapp).map((x) => [x.whatsapp!.id, x.whatsapp!]),
+    ).values(),
+  );
+  const attendants = Array.from(
+    new Map((query.data ?? []).filter((x) => x.user).map((x) => [x.user!.id, x.user!])).values(),
+  );
+  const matchesFilters = (x: Ticket) =>
+    (connectionId === "all" || String(x.whatsapp?.id) === connectionId) &&
+    (attendantFilter === "all" ||
+      (attendantFilter === "mine" && String(x.user?.id) === String(session.user?.id)) ||
+      (attendantFilter === "none" && !x.user) ||
+      String(x.user?.id) === attendantFilter) &&
+    (!unreadOnly || x.unreadMessages > 0) &&
+    (!slaOn || slaFilter === "all" || computeSla(x, sla!, now).state === slaFilter);
+  const notGroup = (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup && !x.isGroup);
+  const openCount = useQuery({
+    ...ticketsQuery({ status: "open", search: debouncedSearch }),
+    select: (l: Ticket[]) => notGroup(l).length,
+    refetchInterval: fallback,
+  }).data;
+  const pendingCount = useQuery({
+    ...ticketsQuery({ status: "pending", search: debouncedSearch }),
+    select: (l: Ticket[]) => notGroup(l).length,
+    refetchInterval: fallback,
+  }).data;
+  const groupsCount = useQuery({
+    ...groupTicketsQuery(debouncedSearch),
+    select: (l: Ticket[]) => l.length,
+    refetchInterval: fallback,
+  }).data;
+  const counts: Partial<Record<TicketTab, number>> = {
+    open: openCount,
+    pending: pendingCount,
+    groups: groupsCount,
+  };
   const bulkClose = useMutation({
     mutationFn: () => closeTicketsBulk(closeable.map((x) => x.id)),
     onSuccess: (r) => {
@@ -130,44 +194,173 @@ export function TicketsPage() {
     <div className="tickets-workspace flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
       <aside
         className={cn(
-          "flex min-h-0 min-w-0 w-full flex-col border-r md:w-72 md:shrink-0 xl:w-80",
+          "flex min-h-0 min-w-0 w-full flex-col border-r bg-card md:w-80 md:shrink-0 xl:w-96",
           selected && "hidden md:flex",
         )}
       >
-        <div className="space-y-3 border-b p-3">
-          <h1 className="font-display text-lg font-semibold">{t("title")}</h1>
+        <div className="space-y-2.5 border-b px-3 pb-2.5 pt-3">
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="font-display text-lg font-semibold tracking-tight">{t("sidebar.title")}</h1>
+            <div className="flex items-center gap-1">
+              <Button
+                variant={showFilters || activeFilters > 0 ? "secondary" : "ghost"}
+                size="icon"
+                className="relative size-8"
+                aria-label={t("sidebar.filters")}
+                aria-pressed={showFilters}
+                onClick={() => setShowFilters((v) => !v)}
+              >
+                <SlidersHorizontal className="size-4" />
+                {activeFilters > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {activeFilters}
+                  </span>
+                )}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="size-8" aria-label={t("sidebar.actions")}>
+                    <MoreVertical className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem
+                    onSelect={() => qcl.invalidateQueries({ queryKey: ticketKeys.all })}
+                  >
+                    <RefreshCw className="mr-2 size-4" /> {t("sidebar.refresh")}
+                  </DropdownMenuItem>
+                  {isAdmin && tab !== "closed" && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        disabled={closeable.length === 0 || bulkClose.isPending}
+                        onSelect={() => setConfirmClose(true)}
+                      >
+                        <XCircle className="mr-2 size-4" /> {t("closeAll.button")} (
+                        {closeable.length})
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
           <div className="relative">
-            <Search
-              className="absolute left-2.5 top-2.5 size-4 text-muted-foreground"
-              aria-hidden
-            />
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" aria-hidden />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("search")}
               aria-label={t("search")}
-              className="pl-8"
+              className="h-9 rounded-full bg-muted/60 pl-8 pr-8"
             />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label={t("sidebar.clearSearch")}
+                className="absolute right-2 top-2 rounded-full p-0.5 text-muted-foreground hover:bg-muted"
+              >
+                <X className="size-4" />
+              </button>
+            )}
           </div>
           <Tabs value={tab} onValueChange={(v) => setTab(v as TicketTab)}>
-            <TabsList className="grid w-full grid-cols-4">
-              {(["open", "pending", "groups", "closed"] as const).map((s) => (
-                <TabsTrigger key={s} value={s} className="text-xs">
-                  {t(`tabs.${s}`)}
-                </TabsTrigger>
-              ))}
+            <TabsList className="grid h-9 w-full grid-cols-4 p-0.5">
+              {(["open", "pending", "groups", "closed"] as const).map((s) => {
+                const c = s === tab ? query.data?.length : counts[s];
+                return (
+                  <TabsTrigger key={s} value={s} className="gap-1 px-1 text-[11px] sm:text-xs">
+                    <span className="truncate">{t(`tabs.${s}`)}</span>
+                    {c !== undefined && s !== "closed" && c > 0 && (
+                      <span
+                        className={cn(
+                          "rounded-full px-1.5 text-[10px] font-semibold leading-4",
+                          s === "pending"
+                            ? "bg-warning/20 text-foreground"
+                            : "bg-primary/15 text-primary",
+                        )}
+                      >
+                        {c > 99 ? "99+" : c}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
           </Tabs>
-          {isAdmin && tab !== "closed" && closeable.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full text-destructive"
-              disabled={bulkClose.isPending}
-              onClick={() => setConfirmClose(true)}
-            >
-              {t("closeAll.button")} ({closeable.length})
-            </Button>
+          {showFilters && (
+            <div className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/30 p-2">
+              {connections.length > 0 && (
+                <select
+                  value={connectionId}
+                  onChange={(e) => setConnectionId(e.target.value)}
+                  aria-label={t("connectionFilter")}
+                  className="col-span-2 h-8 rounded-md border bg-background px-2 text-xs"
+                >
+                  <option value="all">{t("allConnections")}</option>
+                  {connections.map((c) => (
+                    <option key={c.id} value={String(c.id)}>
+                      {c.name}
+                      {c.number ? ` · +${c.number}` : ""}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <select
+                value={attendantFilter}
+                onChange={(e) => setAttendantFilter(e.target.value)}
+                aria-label={t("attendant")}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="all">{t("sidebar.allAttendants")}</option>
+                <option value="mine">{t("sidebar.mine")}</option>
+                <option value="none">{t("sidebar.unassigned")}</option>
+                {attendants.map((u) => (
+                  <option key={u.id} value={String(u.id)}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+              {slaOn ? (
+                <select
+                  value={slaFilter}
+                  onChange={(e) => setSlaFilter(e.target.value as "all" | SlaState)}
+                  aria-label={ts("sla.filter")}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                >
+                  <option value="all">{ts("sla.filterAll")}</option>
+                  {(["monitoring", "warning", "urgent", "violated"] as const).map((s) => (
+                    <option key={s} value={s}>
+                      {ts(`sla.states.${s}`)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span />
+              )}
+              <button
+                type="button"
+                onClick={() => setUnreadOnly((v) => !v)}
+                aria-pressed={unreadOnly}
+                className={cn(
+                  "inline-flex h-7 items-center justify-center gap-1 rounded-full border px-2 text-xs font-medium transition-colors",
+                  unreadOnly ? "border-primary bg-primary/10 text-primary" : "bg-background",
+                )}
+              >
+                <MessageCircle className="size-3.5" /> {t("sidebar.unreadOnly")}
+              </button>
+              {activeFilters > 0 && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="h-7 text-xs font-medium text-muted-foreground hover:text-foreground"
+                >
+                  {t("sidebar.clearFilters")}
+                </button>
+              )}
+            </div>
           )}
           <ConfirmDialog
             open={confirmClose}
@@ -177,121 +370,156 @@ export function TicketsPage() {
             confirmLabel={t("closeAll.confirm")}
             onConfirm={() => {
               setConfirmClose(false);
-              bulkClose.mutate();
+              if (isAdmin) bulkClose.mutate();
             }}
           />
-          {slaOn && (
-            <label className="block space-y-1 text-xs font-medium text-muted-foreground">
-              <span>{ts("sla.filter")}</span>
-              <select
-                value={slaFilter}
-                onChange={(e) => setSlaFilter(e.target.value as "all" | SlaState)}
-                className="h-9 w-full rounded-md border bg-background px-2 text-sm text-foreground"
-              >
-                <option value="all">{ts("sla.filterAll")}</option>
-                {(["monitoring", "warning", "urgent", "violated"] as const).map((s) => (
-                  <option key={s} value={s}>
-                    {ts(`sla.states.${s}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          {(query.data ?? []).some((ticket) => ticket.whatsapp) && (
-            <label className="block space-y-1 text-xs font-medium text-muted-foreground">
-              <span>{t("connectionFilter")}</span>
-              <select
-                value={connectionId}
-                onChange={(event) => setConnectionId(event.target.value)}
-                className="h-9 w-full rounded-md border bg-background px-2 text-sm text-foreground"
-              >
-                <option value="all">{t("allConnections")}</option>
-                {Array.from(
-                  new Map(
-                    (query.data ?? [])
-                      .filter((ticket) => ticket.whatsapp)
-                      .map((ticket) => [ticket.whatsapp!.id, ticket.whatsapp!]),
-                  ).values(),
-                ).map((connection) => (
-                  <option key={connection.id} value={String(connection.id)}>
-                    {connection.name}
-                    {connection.number ? ` · +${connection.number}` : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
+          {query.isPending ? (
+            <ul aria-busy className="divide-y">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <li key={i} className="flex gap-3 px-3 py-3">
+                  <Skeleton className="size-11 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-2/3" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
           <QueryBoundary query={query} contract={ticketsContract}>
             {(list) => {
-              const visible = (
-                connectionId === "all"
-                  ? list
-                  : list.filter((ticket) => String(ticket.whatsapp?.id) === connectionId)
-              ).filter(
-                (ticket) =>
-                  !slaOn ||
-                  slaFilter === "all" ||
-                  computeSla(ticket, sla!, now).state === slaFilter,
-              );
-              return visible.length === 0 ? (
-                <p className="p-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
-              ) : (
-                <ul>
+              const visible = list.filter(matchesFilters);
+              if (visible.length === 0) {
+                const msg = debouncedSearch
+                  ? t("sidebar.noResults", { q: debouncedSearch })
+                  : activeFilters > 0
+                    ? t("sidebar.noFiltered")
+                    : t("empty");
+                return (
+                  <div className="flex flex-col items-center gap-2 px-6 py-12 text-center text-sm text-muted-foreground">
+                    {debouncedSearch ? <SearchX className="size-8" /> : <Inbox className="size-8" />}
+                    <p>{msg}</p>
+                    {(debouncedSearch || activeFilters > 0) && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => {
+                          setSearch("");
+                          clearFilters();
+                        }}
+                      >
+                        {t("sidebar.clearFilters")}
+                      </Button>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <ul className="divide-y divide-border/60">
                   {visible.map((tk) => {
                     const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
                     const hl = sla?.highlight ? slaInfo?.state : undefined;
+                    const isSel = selected?.id === tk.id;
+                    const name = tk.contact.name || `+${tk.contact.number}`;
+                    const preview = stripSignature(tk.lastMessage ?? "");
+                    const waitMin =
+                      tk.status === "pending"
+                        ? Math.max(0, Math.floor((now - new Date(tk.updatedAt).getTime()) / 60000))
+                        : 0;
                     return (
                       <li key={tk.id}>
                         <button
                           type="button"
                           onClick={() => setSelected(tk)}
+                          aria-current={isSel || undefined}
                           className={cn(
-                            "flex w-full gap-3 border-b px-3 py-3 text-left transition-colors hover:bg-muted/60",
-                            selected?.id === tk.id && "bg-muted",
-                            hl === "urgent" && "border-l-4 border-l-warning bg-warning/10",
-                            hl === "violated" &&
-                              "border-l-4 border-l-destructive bg-destructive/10",
+                            "flex w-full gap-3 border-l-[3px] border-l-transparent px-3 py-2.5 text-left transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none",
+                            hl === "urgent" && "border-l-warning bg-warning/5",
+                            hl === "violated" && "border-l-destructive bg-destructive/5",
+                            isSel && "border-l-primary bg-primary/10 hover:bg-primary/10",
                           )}
                         >
-                          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                            {(tk.contact.name || "#").charAt(0)}
+                          <div className="relative shrink-0">
+                            <div className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/25 to-primary/5 font-display text-base font-semibold uppercase text-primary">
+                              {tk.contact.isGroup || tk.isGroup ? (
+                                <Users className="size-5" />
+                              ) : (
+                                name.replace(/^\+/, "").charAt(0) || "#"
+                              )}
+                            </div>
+                            <span
+                              className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full border-2 border-card bg-success text-success-foreground"
+                              title={tk.whatsapp?.name ?? t("unknownOrigin")}
+                            >
+                              <MessageCircle className="size-2" />
+                            </span>
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="truncate font-medium">
-                                {tk.contact.name || `+${tk.contact.number}`}
+                            <div className="flex items-baseline justify-between gap-2">
+                              <span
+                                className={cn(
+                                  "truncate text-sm",
+                                  tk.unreadMessages > 0 ? "font-semibold" : "font-medium",
+                                )}
+                              >
+                                {name}
                               </span>
-                              <span className="shrink-0 text-xs text-muted-foreground">
+                              <span
+                                className={cn(
+                                  "shrink-0 text-[11px]",
+                                  tk.unreadMessages > 0
+                                    ? "font-semibold text-primary"
+                                    : "text-muted-foreground",
+                                )}
+                              >
                                 {time(tk.updatedAt)}
                               </span>
                             </div>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="truncate text-sm text-muted-foreground">
-                                {tk.lastMessage}
+                            <div className="mt-0.5 flex items-center justify-between gap-2">
+                              <span
+                                className={cn(
+                                  "truncate text-[13px]",
+                                  tk.unreadMessages > 0
+                                    ? "text-foreground"
+                                    : "text-muted-foreground",
+                                )}
+                              >
+                                {preview || "\u00a0"}
                               </span>
                               {tk.unreadMessages > 0 && (
-                                <span className="rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground">
-                                  {tk.unreadMessages}
+                                <span
+                                  className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground"
+                                  aria-label={t("sidebar.unread", { count: tk.unreadMessages })}
+                                >
+                                  {tk.unreadMessages > 99 ? "99+" : tk.unreadMessages}
                                 </span>
                               )}
                             </div>
-                            <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+                            <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1">
                               {slaInfo && <SlaBadge info={slaInfo} />}
-                              <span className="inline-flex max-w-full items-center rounded bg-emerald-100 px-1.5 text-[11px] font-medium text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
-                                WhatsApp: {tk.whatsapp?.name ?? t("unknownOrigin")}
+                              <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                                <span
+                                  className="size-1.5 shrink-0 rounded-full"
+                                  style={{ backgroundColor: tk.queue?.color ?? "var(--muted-foreground)" }}
+                                />
+                                <span className="truncate">{tk.queue?.name ?? t("noQueue")}</span>
                               </span>
-                              <span
-                                className="inline-block rounded px-1.5 text-[11px] font-medium text-primary-foreground"
-                                style={{
-                                  backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
-                                }}
-                              >
-                                {tk.queue?.name ?? t("noQueue")}
+                              <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md bg-muted px-1.5 py-px text-[10px] text-muted-foreground">
+                                <Smartphone className="size-2.5 shrink-0" />
+                                <span className="truncate">{tk.whatsapp?.name ?? t("unknownOrigin")}</span>
                               </span>
-                              <span className="truncate text-[11px] text-muted-foreground">
-                                👤 {tk.user?.name ?? t("noAttendant")}
+                              {waitMin > 0 && (
+                                <span className="inline-flex items-center gap-0.5 rounded-md bg-warning/15 px-1.5 py-px text-[10px] font-medium text-foreground">
+                                  <Clock className="size-2.5" />
+                                  {waitMin >= 60 ? `${Math.floor(waitMin / 60)}h${waitMin % 60}m` : `${waitMin}m`}
+                                </span>
+                              )}
+                              <span className="ml-auto inline-flex min-w-0 items-center gap-0.5 truncate text-[10px] text-muted-foreground">
+                                <UserRound className="size-2.5 shrink-0" />
+                                <span className="truncate">{tk.user?.name ?? t("noAttendant")}</span>
                               </span>
                             </div>
                           </div>
@@ -303,6 +531,7 @@ export function TicketsPage() {
               );
             }}
           </QueryBoundary>
+          )}
         </div>
       </aside>
       <section
