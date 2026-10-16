@@ -6,22 +6,28 @@ import type { QuickMessage, QuickMessageInput } from "./types";
 
 export const quickMessagesContract = "GET /quick-messages/list";
 
-export const quickMessagesQuery = () =>
+export const quickMessagesQuery = (companyId?: string) =>
   queryOptions({
-    queryKey: quickMessageKeys.list(),
+    queryKey: quickMessageKeys.list(companyId),
     queryFn: async ({ signal }) => {
       const all: QuickMessage[] = [];
       for (let page = 1; page <= 50; page++) {
         const res = await apiRequest<unknown>(`${ep.base}?searchParam=&pageNumber=${page}`, { signal });
-        if (Array.isArray(res)) return res as QuickMessage[];
+        if (Array.isArray(res)) return filterByCompany(res as QuickMessage[], companyId);
         const r = (res ?? {}) as { records?: QuickMessage[]; hasMore?: boolean };
         all.push(...(r.records ?? []));
         if (!r.hasMore) break;
       }
-      return all;
+      return filterByCompany(all, companyId);
     },
     staleTime: 60_000,
   });
+
+/** Garante que respostas de outras empresas nunca apareçam, mesmo se o backend não filtrar. */
+const filterByCompany = (list: QuickMessage[], companyId?: string) => {
+  if (!companyId) return list;
+  return list.filter((m) => m.companyId == null || String(m.companyId) === companyId);
+};
 
 export const createQuickMessage = (body: QuickMessageInput) =>
   apiRequest<QuickMessage>(ep.base, { method: "POST", body });
