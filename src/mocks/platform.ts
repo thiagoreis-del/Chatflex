@@ -36,9 +36,6 @@ const plans: Plan[] = [
     trialDays: 7,
     queueLimit: 5,
     features: {
-      whatsapp: true,
-      facebook: false,
-      instagram: false,
       ...allFeatures,
       campaigns: false,
       artificialIntelligence: false,
