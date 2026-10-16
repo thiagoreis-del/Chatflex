@@ -101,42 +101,6 @@ export function TransferTicketDialog({
               </button>
             ))}
           </div>
-          {refusing && (
-            <div className="space-y-2">
-              <Label htmlFor="refuse-reason">{t("transfer.reason")}</Label>
-              <Textarea
-                id="refuse-reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={t("transfer.reasonPlaceholder")}
-                rows={2}
-              />
-            </div>
-          )}
-          <div className="space-y-2">
-            <Label>{t("transfer.queue")}</Label>
-            <Select
-              value={queueId}
-              onValueChange={(v) => {
-                setQueueId(v);
-                setUserId(ANY);
-              }}
-            >
-              <SelectTrigger aria-label={t("transfer.queue")}>
-                <SelectValue placeholder={t("transfer.queuePlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {(queues.data ?? []).map((q) => (
-                  <SelectItem key={q.id} value={String(q.id)}>
-                    <span className="inline-flex items-center gap-2">
-                      <span className="size-2 rounded-full" style={{ backgroundColor: q.color }} />
-                      {q.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
           {!refusing && (
           <div className="space-y-2">
             <Label>{t("transfer.user")}</Label>

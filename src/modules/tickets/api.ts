@@ -312,7 +312,8 @@ export const transferTicket = (ticketId: number, input: TransferInput) =>
   apiRequest<Ticket>(ep.detail(ticketId), {
     method: "PUT",
     body: {
-      queueId: input.queueId,
+      // Recusa não envia fila: o backend mantém a fila atual do ticket.
+      ...(input.queueId ? { queueId: input.queueId } : {}),
       userId: input.userId ?? null,
       status: input.userId ? "open" : "pending",
       isTransfered: true,
