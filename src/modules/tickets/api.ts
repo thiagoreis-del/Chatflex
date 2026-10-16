@@ -214,9 +214,9 @@ export const operationalDashboardQuery = () =>
         byQueue.set(q.id, q);
       }
       return {
-        pending: pending.count ?? pending.tickets.length,
-        open: open.count ?? open.tickets.length,
-        closedToday: closed.count ?? closed.tickets.length,
+        pending: pending.count,
+        open: open.count,
+        closedToday: closed.count,
         attendants: [...byAttendant.values()]
           .map(({ handle, ...a }) => ({ ...a, avgHandleMinutes: avg(handle) }))
           .sort((a, b) => b.closedToday - a.closedToday || b.open - a.open),
