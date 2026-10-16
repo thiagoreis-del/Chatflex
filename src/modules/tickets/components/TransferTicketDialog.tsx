@@ -47,7 +47,6 @@ export function TransferTicketDialog({
   const [userId, setUserId] = useState<string>(ANY);
   const [note, setNote] = useState("");
   const [mode, setMode] = useState<"forward" | "refuse">("forward");
-  const [reason, setReason] = useState("");
   const refusing = mode === "refuse";
 
   const eligible = (users.data?.data ?? []).filter(
@@ -56,13 +55,17 @@ export function TransferTicketDialog({
 
   const mutation = useMutation({
     mutationFn: () => {
-      const text = refusing
-        ? `${t("transfer.refusedPrefix")}: ${reason.trim()}${note.trim() ? `\n${note.trim()}` : ""}`
-        : note.trim();
+      // Recusar devolve o ticket à fila atual, sem atendente e sem preencher nada.
+      if (refusing) {
+        return transferTicket(ticket.id, {
+          queueId: ticket.queue ? ticket.queue.id : undefined,
+          userId: null,
+        });
+      }
       return transferTicket(ticket.id, {
         queueId: Number(queueId),
-        userId: refusing || userId === ANY ? null : Number(userId),
-        ...(text ? { note: text } : {}),
+        userId: userId === ANY ? null : Number(userId),
+        ...(note.trim() ? { note: note.trim() } : {}),
       });
     },
     onSuccess: (tk) => {
