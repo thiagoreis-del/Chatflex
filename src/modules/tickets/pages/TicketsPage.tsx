@@ -190,11 +190,11 @@ export function TicketsPage() {
     setUnreadOnly(false);
     setSlaFilter("all");
   };
-  // Recusar tira o atendimento da lista do atendente que recusou.
+  // Recusar encerra o atendimento (não volta para a fila) e o tira da lista do atendente.
   const refuseFromList = useMutation({
     mutationFn: (tk: Ticket) => {
       hideRefusedTicket(String(session.user?.id ?? ""), tk.id);
-      return transferTicket(tk.id, { ...(tk.queue ? { queueId: tk.queue.id } : {}), userId: null });
+      return updateTicketStatus(tk.id, "closed");
     },
     onSuccess: (tk) => {
       toast.success(t("toast.refused"));
@@ -818,14 +818,11 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
   });
-  // Recusar tira o atendimento da lista do atendente que recusou, direto da conversa.
+  // Recusar encerra o atendimento (não volta para a fila) e o tira da lista do atendente.
   const refuse = useMutation({
     mutationFn: () => {
       hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
-      return transferTicket(ticket.id, {
-        ...(ticket.queue ? { queueId: ticket.queue.id } : {}),
-        userId: null,
-      });
+      return updateTicketStatus(ticket.id, "closed");
     },
     onSuccess: () => {
       toast.success(t("toast.refused"));

@@ -22,7 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { usersQuery } from "@/modules/users/api";
-import { transferTicket } from "../api";
+import { transferTicket, updateTicketStatus } from "../api";
 import { hideRefusedTicket, restoreRefusedTicket } from "../refused";
 import type { Ticket } from "../types";
 import { useSession } from "@/shared/auth/session-store";
@@ -56,18 +56,16 @@ export function TransferTicketDialog({
 
   const mutation = useMutation({
     mutationFn: () => {
-      // Recusar oculta o ticket para o atendente que recusou, sem preencher nada.
-      if (refusing) hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
-      return refusing
-        ? transferTicket(ticket.id, {
-            ...(ticket.queue ? { queueId: ticket.queue.id } : {}),
-            userId: null,
-          })
-        : transferTicket(ticket.id, {
-            queueId: Number(queueId),
-            userId: userId === ANY ? null : Number(userId),
-            ...(note.trim() ? { note: note.trim() } : {}),
-          });
+      // Recusar encerra o ticket (não volta para a fila) e o oculta para o atendente.
+      if (refusing) {
+        hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
+        return updateTicketStatus(ticket.id, "closed");
+      }
+      return transferTicket(ticket.id, {
+        queueId: Number(queueId),
+        userId: userId === ANY ? null : Number(userId),
+        ...(note.trim() ? { note: note.trim() } : {}),
+      });
     },
     onSuccess: (tk) => {
       toast.success(t(refusing ? "toast.refused" : "toast.transferred"));
