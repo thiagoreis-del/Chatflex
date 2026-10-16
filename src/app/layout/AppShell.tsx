@@ -251,16 +251,6 @@ function TrialNotice() {
   const { t } = useTranslation();
   const { user } = useSession();
   if (!user || user.role === "superadmin") return null;
-  const handleExit = async () => {
-    try {
-      await exitCompany();
-      router.options.context.queryClient.clear();
-      await navigate({ to: "/app/plataforma/empresas" });
-    } catch {
-      toast.error(t("context.exitError"));
-    }
-  };
-
   const left = trialDaysLeft(user.companyDueDate);
   if (left === null || left < 0 || left > 15) return null;
   return (
@@ -299,6 +289,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const handleLogout = async () => {
     await logout(router.options.context.queryClient);
     await navigate({ to: "/login", replace: true });
+  };
+
+  const handleExit = async () => {
+    try {
+      await exitCompany();
+      router.options.context.queryClient.clear();
+      await navigate({ to: "/app/plataforma/empresas" });
+    } catch {
+      toast.error(t("context.exitError"));
+    }
   };
 
   const left = trialDaysLeft(user?.companyDueDate);
