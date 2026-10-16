@@ -26,6 +26,7 @@ import { ConfirmDialog, EmptyState, PageHeader, QueryBoundary } from "@/shared/c
 import { queueKeys } from "@/shared/api/query-keys";
 import { createQueue, deleteQueue, queuesContract, queuesQuery, updateQueue } from "../api";
 import type { Queue, QueueInput } from "../types";
+import { isApiError } from "@/shared/api/errors";
 
 export function QueuesPage() {
   const { t } = useTranslation("team");
@@ -145,13 +146,25 @@ function QueueFormDialog({
   });
   const [nameError, setNameError] = useState(false);
   const save = useMutation({
-    mutationFn: () => (editing ? updateQueue(editing.id, data) : createQueue(data)),
+    mutationFn: () => {
+      const body = {
+        ...data,
+        name: data.name.trim(),
+        greetingMessage: data.greetingMessage.trim(),
+      };
+      return editing ? updateQueue(editing.id, body) : createQueue(body);
+    },
     onSuccess: () => {
       toast.success(t("toast.saved"));
       void onSaved();
       onClose();
     },
-    onError: () => toast.error(t("toast.error")),
+    onError: (err) => {
+      const b = isApiError(err) ? (err.body as { message?: string; code?: string; error?: string } | undefined) : undefined;
+      const raw = b?.error || b?.message || b?.code;
+      const msg = raw?.includes("COLOR") ? t("queues.form.colorTaken") : raw?.includes("NAME") ? t("queues.form.nameTaken") : raw;
+      toast.error(msg ? `${t("toast.error")} ${msg}` : t("toast.error"));
+    },
   });
 
   return (
