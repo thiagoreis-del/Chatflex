@@ -48,8 +48,14 @@ export function SettingsPage() {
 
   function submit() {
     if (!form) return;
-    if (invalidDay >= 0) return toast.error(t("hours.invalid", { day: t(`days.${DAY_KEYS[invalidDay]}`) }));
-    if (missingMessage) return toast.error(t("outOfHours.required"));
+    if (invalidDay >= 0) {
+      toast.error(t("hours.invalid", { day: t(`days.${DAY_KEYS[invalidDay]}`) }));
+      return;
+    }
+    if (missingMessage) {
+      toast.error(t("outOfHours.required"));
+      return;
+    }
     save.mutate({ ...form, outOfHoursMessage: form.outOfHoursMessage.trim() });
   }
 
