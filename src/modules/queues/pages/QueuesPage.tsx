@@ -26,7 +26,7 @@ import { ConfirmDialog, EmptyState, PageHeader, QueryBoundary } from "@/shared/c
 import { queueKeys } from "@/shared/api/query-keys";
 import { createQueue, deleteQueue, queuesContract, queuesQuery, updateQueue } from "../api";
 import type { Queue, QueueInput } from "../types";
-import { isApiError } from "@/shared/api/errors";
+import { queueErrorKey } from "../contract";
 
 export function QueuesPage() {
   const { t } = useTranslation("team");
@@ -42,7 +42,7 @@ export function QueuesPage() {
       toast.success(t("toast.deleted"));
       void invalidate();
     },
-    onError: () => toast.error(t("toast.error")),
+    onError: (err) => toast.error(t(queueErrorKey(err))),
   });
 
   return (
@@ -145,6 +145,7 @@ function QueueFormDialog({
     greetingMessage: editing?.greetingMessage ?? "",
   });
   const [nameError, setNameError] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const save = useMutation({
     mutationFn: () => {
       const body = {
@@ -160,10 +161,9 @@ function QueueFormDialog({
       onClose();
     },
     onError: (err) => {
-      const b = isApiError(err) ? (err.body as { message?: string; code?: string; error?: string } | undefined) : undefined;
-      const raw = b?.error || b?.message || b?.code;
-      const msg = raw?.includes("COLOR") ? t("queues.form.colorTaken") : raw?.includes("NAME") ? t("queues.form.nameTaken") : raw;
-      toast.error(msg ? `${t("toast.error")} ${msg}` : t("toast.error"));
+      const message = t(queueErrorKey(err));
+      setSaveError(message);
+      toast.error(message);
     },
   });
 
@@ -174,7 +174,9 @@ function QueueFormDialog({
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
-            const invalid = !data.name.trim();
+            if (save.isPending) return;
+            setSaveError(null);
+            const invalid = data.name.trim().length < 2;
             setNameError(invalid);
             if (!invalid) save.mutate();
           }}
@@ -215,13 +217,14 @@ function QueueFormDialog({
             <p className="text-xs text-muted-foreground">{t("queues.form.greetingHint")}</p>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={save.isPending}>
               {t("actions.cancel")}
             </Button>
             <Button type="submit" disabled={save.isPending}>
               {t("actions.save")}
             </Button>
           </DialogFooter>
+          {saveError && <p role="alert" className="text-sm text-destructive">{saveError}</p>}
         </form>
       </DialogContent>
     </Dialog>
