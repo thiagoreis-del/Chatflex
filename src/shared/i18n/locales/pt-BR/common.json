@@ -78,7 +78,8 @@
       "plans": "Planos",
       "subscriptions": "Assinaturas",
       "invoices": "Faturas",
-      "audit": "Auditoria"
+      "audit": "Auditoria",
+      "backups": "Backups"
     },
     "operation": {
       "section": "Operação da empresa",

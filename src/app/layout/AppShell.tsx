@@ -19,6 +19,7 @@ import {
   ScrollText,
   Gauge,
   Zap,
+  DatabaseBackup,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -55,6 +56,7 @@ const platformLinks = [
   { to: "/app/plataforma/assinaturas", key: "subscriptions", icon: Repeat, exact: false },
   { to: "/app/plataforma/faturas", key: "invoices", icon: Receipt, exact: false },
   { to: "/app/plataforma/auditoria", key: "audit", icon: ScrollText, exact: false },
+  { to: "/app/plataforma/backups", key: "backups", icon: DatabaseBackup, exact: false },
 ] as const;
 
 const linkClass =

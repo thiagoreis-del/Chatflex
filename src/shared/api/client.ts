@@ -204,3 +204,41 @@ export async function apiUpload<T>(path: string, form: FormData, opts: UploadOpt
     throw error;
   }
 }
+
+/** Baixa um arquivo autenticado (Blob). Renova o token uma vez se expirado. */
+export async function apiDownload(path: string): Promise<{ blob: Blob; filename: string | null }> {
+  if (env.useMocks) {
+    return { blob: new Blob(["-- backup de demonstração\n"], { type: "application/sql" }), filename: "backup-demo.sql" };
+  }
+  const run = async () => {
+    const headers: Record<string, string> = {};
+    const token = tokenStore.get();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    let res: Response;
+    try {
+      res = await fetch(`${env.apiUrl}${path}`, { headers, credentials: "include" });
+    } catch {
+      apiStatusStore.set("offline");
+      throw new ApiError("network", 0);
+    }
+    apiStatusStore.set("online");
+    if (!res.ok) {
+      let data: unknown;
+      try { data = await res.json(); } catch { data = undefined; }
+      throw new ApiError(kindFromStatus(res.status), res.status, data as ApiErrorBody);
+    }
+    const cd = res.headers.get("Content-Disposition") ?? "";
+    const m = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
+    return { blob: await res.blob(), filename: m?.[1] ? decodeURIComponent(m[1]) : null };
+  };
+  try {
+    return await run();
+  } catch (error) {
+    if (error instanceof ApiError && isExpiredToken(error)) {
+      const renewed = await refreshAccessToken().catch(() => false);
+      if (renewed) return run();
+      unauthorizedHandler?.();
+    }
+    throw error;
+  }
+}

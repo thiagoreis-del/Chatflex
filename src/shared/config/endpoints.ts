@@ -210,3 +210,13 @@ export const quickMessageContracts = [
 export const settingEndpoints = {
   detail: (key: string) => `/settings/${encodeURIComponent(key)}`,
 } as const;
+
+/**
+ * Backups (superadmin). Caminhos informados pelo usuário; formato do payload assumido.
+ */
+export const backupEndpoints = {
+  list: "/backups",
+  download: (id: string | number) => `/backups/${encodeURIComponent(String(id))}/download`,
+  restore: "/backups/restore",
+  schedule: "/backups/schedule",
+} as const;
