@@ -59,7 +59,7 @@ export interface TicketFilters {
 }
 
 export interface TransferInput {
-  /** Omitido ao recusar: o ticket volta para a fila atual. */
+  /** Recusa oculta o ticket para o atendente; o backend mantém a fila atual. */
   queueId?: number;
   userId?: number | null;
   note?: string;

@@ -23,7 +23,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { usersQuery } from "@/modules/users/api";
 import { transferTicket } from "../api";
+import { hideRefusedTicket, restoreRefusedTicket } from "../refused";
 import type { Ticket } from "../types";
+import { useSession } from "@/shared/auth/session-store";
 
 const ANY = "any";
 
@@ -36,9 +38,10 @@ export function TransferTicketDialog({
   ticket: Ticket;
   open: boolean;
   onOpenChange: (o: boolean) => void;
-  onDone: (t: Ticket) => void;
+  onDone: (t: Ticket | null) => void;
 }) {
   const { t } = useTranslation("tickets");
+  const session = useSession();
   const qc = useQueryClient();
   const users = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: open });
   const [queueId] = useState<string>(ticket.queue ? String(ticket.queue.id) : "");
@@ -53,26 +56,29 @@ export function TransferTicketDialog({
 
   const mutation = useMutation({
     mutationFn: () => {
-      // Recusar devolve o ticket à fila atual, sem atendente e sem preencher nada.
-      if (refusing) {
-        return transferTicket(ticket.id, {
-          ...(ticket.queue ? { queueId: ticket.queue.id } : {}),
-          userId: null,
-        });
-      }
-      return transferTicket(ticket.id, {
-        queueId: Number(queueId),
-        userId: userId === ANY ? null : Number(userId),
-        ...(note.trim() ? { note: note.trim() } : {}),
-      });
+      // Recusar oculta o ticket para o atendente que recusou, sem preencher nada.
+      if (refusing) hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
+      return refusing
+        ? transferTicket(ticket.id, {
+            ...(ticket.queue ? { queueId: ticket.queue.id } : {}),
+            userId: null,
+          })
+        : transferTicket(ticket.id, {
+            queueId: Number(queueId),
+            userId: userId === ANY ? null : Number(userId),
+            ...(note.trim() ? { note: note.trim() } : {}),
+          });
     },
     onSuccess: (tk) => {
       toast.success(t(refusing ? "toast.refused" : "toast.transferred"));
-      onDone(tk);
+      onDone(refusing ? null : tk);
       onOpenChange(false);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
-    onError: () => toast.error(t("toast.transferError")),
+    onError: () => {
+      if (refusing) restoreRefusedTicket(String(session.user?.id ?? ""), ticket.id);
+      toast.error(t("toast.transferError"));
+    },
   });
 
   return (
