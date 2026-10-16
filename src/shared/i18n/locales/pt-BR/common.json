@@ -14,6 +14,14 @@
     "unsupported": "Este navegador não permite notificações aqui. Os avisos na tela continuam ativos.",
     "denied": "Notificações não autorizadas. Confira a permissão nas configurações do navegador."
   },
+  "adminAlerts": {
+    "newConversationTitle": "Nova conversa aguardando",
+    "newConversationBody": "{{count}} conversa(s) nova(s) na fila: {{names}}",
+    "slaWarning": "SLA em atenção",
+    "slaUrgent": "SLA urgente",
+    "slaViolated": "SLA vencido",
+    "slaBody": "A conversa com {{contact}} precisa de resposta."
+  },
   "skipToContent": "Pular para o conteúdo",
   "demoBanner": "Ambiente de demonstração — dados fictícios",
   "actions": {

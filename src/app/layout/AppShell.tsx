@@ -45,6 +45,7 @@ import { toast } from "sonner";
 import { usePermissions } from "@/shared/permissions/permissions";
 import { can } from "@/shared/permissions/catalog";
 import { IncomingNotifications } from "@/modules/tickets/components/IncomingNotifications";
+import { AdminAlerts } from "@/modules/tickets/components/AdminAlerts";
 import { SlaWatcher } from "@/modules/sla/components/SlaWatcher";
 
 const soonModules = [{ key: "reports", icon: BarChart3 }] as const;
