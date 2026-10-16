@@ -283,6 +283,7 @@
     },
     "copyName": "{{name}} (cópia)",
     "duplicate": "Duplicar plano",
+    "edit": "Editar plano",
     "delete": "Excluir plano",
     "deleted": "Plano excluído.",
     "deleteError": "Não foi possível excluir. Planos com empresas vinculadas não podem ser excluídos; desative-o.",
