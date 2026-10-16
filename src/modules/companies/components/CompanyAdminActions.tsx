@@ -61,25 +61,29 @@ export function CompanyQuickActions({ company, compact }: { company: Company; co
   return (
     <>
       <Button
-        size={size}
+        size={compact ? "icon" : size}
         variant={compact ? "ghost" : "outline"}
         disabled={toggle.isPending}
         onClick={() => setConfirm("toggle")}
+        title={active ? t("companyAdmin.deactivate") : t("companyAdmin.activate")}
+        aria-label={active ? t("companyAdmin.deactivate") : t("companyAdmin.activate")}
       >
         {active ? <PowerOff className="size-4" aria-hidden /> : <Power className="size-4" aria-hidden />}
-        {active ? t("companyAdmin.deactivate") : t("companyAdmin.activate")}
+        {!compact && (active ? t("companyAdmin.deactivate") : t("companyAdmin.activate"))}
       </Button>
       <Button
-        size={size}
+        size={compact ? "icon" : size}
         variant={compact ? "ghost" : "destructive"}
         className={compact ? "text-destructive" : undefined}
         disabled={remove.isPending}
+        title={t("companyAdmin.delete")}
+        aria-label={t("companyAdmin.delete")}
         onClick={() => {
           setTyped("");
           setConfirm("delete");
         }}
       >
-        <Trash2 className="size-4" aria-hidden /> {t("companyAdmin.delete")}
+        <Trash2 className="size-4" aria-hidden /> {!compact && t("companyAdmin.delete")}
       </Button>
       <ConfirmDialog
         open={confirm === "toggle"}
