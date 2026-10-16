@@ -69,26 +69,25 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { t } = useTranslation();
   const { hasRole } = usePermissions();
   const { user } = useSession();
-  const isSuperadmin = user?.role === "superadmin";
+  const isSuperadmin = user?.role === "superadmin" && !user?.impersonated;
   void hasRole;
   return (
     <nav aria-label={t("nav.main")} className="flex flex-1 flex-col gap-6 px-3">
-      <ul className="space-y-1">
-        <li>
-          <Link
-            to="/app/dashboard"
-            onClick={onNavigate}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/85 transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
-            activeProps={{
-              className: "bg-sidebar-accent text-sidebar-accent-foreground",
-              "aria-current": "page",
-            }}
-          >
-            <LayoutDashboard className="size-4" aria-hidden />
-            {t("nav.dashboard")}
-          </Link>
-        </li>
-      </ul>
+      {!isSuperadmin && (
+        <ul className="space-y-1">
+          <li>
+            <Link
+              to="/app/dashboard"
+              onClick={onNavigate}
+              className={linkClass}
+              activeProps={activeLink}
+            >
+              <LayoutDashboard className="size-4" aria-hidden />
+              {t("nav.dashboard")}
+            </Link>
+          </li>
+        </ul>
+      )}
       {isSuperadmin && (
         <div>
           <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
@@ -110,17 +109,19 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
               </li>
             ))}
           </ul>
+          <p className="mt-4 px-3 text-[11px] leading-relaxed text-sidebar-foreground/60">
+            {t("nav.operation.enterHint")}
+          </p>
         </div>
       )}
+      {!isSuperadmin && (
       <div>
         <div className="mb-2 px-3">
           <p className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
             {t("nav.operation.section")}
           </p>
           <p className="mt-1 truncate text-[11px] text-sidebar-foreground/65">
-            {isSuperadmin
-              ? t("nav.operation.platformAccount", { company: user?.companyId })
-              : t("nav.operation.currentCompany", { company: user?.companyId })}
+            {t("nav.operation.currentCompany", { company: user?.companyName ?? user?.companyId })}
           </p>
         </div>
         <ul className="space-y-1">
@@ -207,6 +208,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
           )}
         </ul>
       </div>
+      )}
       {!isSuperadmin && (
         <div>
           <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
