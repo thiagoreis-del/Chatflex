@@ -110,3 +110,20 @@ export function serviceState(status: string | null | undefined): ServiceState {
 export function connectionLevel(active: number): HealthLevel {
   return levelOf((active / VPS_LIMITS.activeConnections) * 100, 100);
 }
+
+/** Amostra real coletada da rota de métricas, usada no histórico do painel. */
+export interface MetricsSample {
+  at: number;
+  cpu: number;
+  memory: number;
+  disk: number | null;
+}
+
+/** Máximo de amostras mantidas no histórico da sessão (30s cada ≈ 1h). */
+export const HISTORY_MAX_SAMPLES = 120;
+
+/** Acrescenta uma amostra real ao histórico, descartando as mais antigas. */
+export function appendSample(history: MetricsSample[], sample: MetricsSample): MetricsSample[] {
+  if (history.length > 0 && history[history.length - 1].at === sample.at) return history;
+  return [...history, sample].slice(-HISTORY_MAX_SAMPLES);
+}
