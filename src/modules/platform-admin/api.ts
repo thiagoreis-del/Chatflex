@@ -113,6 +113,10 @@ async function aggregateDashboard(signal: AbortSignal): Promise<PlatformDashboar
   );
   const connections = conns.length;
   const online = conns.filter((w) => String(w.status ?? "").toUpperCase() === "CONNECTED").length;
+  const awaitingQr = conns.filter((w) =>
+    ["QRCODE", "PAIRING", "OPENING"].includes(String(w.status ?? "").toUpperCase()),
+  ).length;
+  const disconnected = connections - online - awaitingQr;
   const pendingInvoices = arr<RawInvoice>(invoicesRaw, "invoices").filter(
     (i) => String(i.status ?? "").toLowerCase() === "open",
   ).length;
