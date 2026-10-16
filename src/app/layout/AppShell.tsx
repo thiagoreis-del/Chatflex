@@ -252,6 +252,16 @@ function TrialNotice() {
   const { t } = useTranslation();
   const { user } = useSession();
   if (!user || user.role === "superadmin") return null;
+  const handleExit = async () => {
+    try {
+      await exitCompany();
+      router.options.context.queryClient.clear();
+      await navigate({ to: "/app/plataforma/empresas" });
+    } catch {
+      toast.error(t("context.exitError"));
+    }
+  };
+
   const left = trialDaysLeft(user.companyDueDate);
   if (left === null || left < 0 || left > 15) return null;
   return (
@@ -317,6 +327,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
       <DemoBanner />
       <TrialNotice />
+      {user?.impersonated && (
+        <div className="flex shrink-0 flex-wrap items-center justify-center gap-3 bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">
+          <span>
+            {t("context.impersonating", { company: user.companyName ?? user.companyId })}
+          </span>
+          <Button size="sm" variant="secondary" className="h-7" onClick={() => void handleExit()}>
+            {t("context.exit")}
+          </Button>
+        </div>
+      )}
       {user && (
         <div
           role="status"
@@ -333,7 +353,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {user.role === "superadmin" ? t("context.platform") : t("context.company")}
           </span>
           <span className="font-medium">
-            {t("context.currentCompany", { company: user.companyId })}
+            {t("context.currentCompany", { company: user.companyName ?? user.companyId })}
           </span>
           <span className="hidden text-muted-foreground sm:inline">
             {user.role === "superadmin" ? t("context.platformMode") : t("context.companyMode")}

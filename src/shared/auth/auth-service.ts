@@ -136,7 +136,7 @@ export function resetPassword(token: string, password: string) {
 
 /** Superadmin: troca o token pelo acesso delegado à empresa (auditado no servidor). */
 export async function enterCompany(companyId: string) {
-  const res = await apiRequest<LoginResponse>(`/companies/${encodeURIComponent(companyId)}/enter`, {
+  const res = await apiRequest<LoginResponse>(endpoints.auth.enterCompany(companyId), {
     method: "POST",
   });
   await applyDelegatedSession(res);
@@ -144,7 +144,7 @@ export async function enterCompany(companyId: string) {
 
 /** Encerra o acesso delegado e restaura o ambiente da plataforma. */
 export async function exitCompany() {
-  const res = await apiRequest<LoginResponse>("/companies/exit", { method: "POST" });
+  const res = await apiRequest<LoginResponse>(endpoints.auth.exitCompany, { method: "POST" });
   await applyDelegatedSession(res);
 }
 

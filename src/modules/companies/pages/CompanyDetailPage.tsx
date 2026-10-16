@@ -4,10 +4,12 @@ import type { AccessData } from "@/modules/users/access";
 import { queuesQuery } from "@/modules/queues/api";
 import { companyKeys } from "@/shared/api/query-keys";
 import { useState, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { enterCompany } from "@/shared/auth/auth-service";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MessagesSquare, Pencil, Plus, ShieldAlert, Smartphone, Users } from "lucide-react";
+import { LogIn, MessagesSquare, Pencil, Plus, ShieldAlert, Smartphone, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -260,6 +262,21 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
   const q = useQuery(companyQuery(companyId));
   const [action, setAction] = useState<CompanyAction | null>(null);
   const [tab, setTab] = useState("overview");
+  const [entering, setEntering] = useState(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const handleEnter = async () => {
+    setEntering(true);
+    try {
+      await enterCompany(companyId);
+      queryClient.clear();
+      await navigate({ to: "/app/atendimento" });
+    } catch {
+      toast.error(t("companies.detail.enterError"));
+    } finally {
+      setEntering(false);
+    }
+  };
   const plan = useQuery({ ...planQuery(q.data?.planId ?? ""), enabled: !!q.data?.planId });
   const subs = useQuery({
     ...subscriptionsQuery({ page: 1, pageSize: 10, companyId }),
@@ -301,11 +318,18 @@ export function CompanyDetailPage({ companyId }: { companyId: string }) {
         title={c.tradeName}
         description={c.legalName}
         actions={
+          <div className="flex flex-wrap gap-2">
+          {!env.useMocks && (
+            <Button onClick={() => void handleEnter()} disabled={entering}>
+              <LogIn className="size-4" aria-hidden /> {t("companies.detail.enter")}
+            </Button>
+          )}
           <Button asChild variant="outline">
             <Link to="/app/plataforma/empresas/$companyId/editar" params={{ companyId }}>
               <Pencil className="size-4" aria-hidden /> {t("common:actions.edit")}
             </Link>
           </Button>
+          </div>
         }
       />
       <div className="flex flex-wrap items-center gap-3">
