@@ -1,4 +1,7 @@
 export interface PlanFeatures {
+  whatsapp: boolean;
+  facebook: boolean;
+  instagram: boolean;
   campaigns: boolean;
   internalChat: boolean;
   integrations: boolean;
@@ -9,6 +12,9 @@ export interface PlanFeatures {
 }
 
 export const planFeatureKeys: (keyof PlanFeatures)[] = [
+  "whatsapp",
+  "facebook",
+  "instagram",
   "campaigns",
   "internalChat",
   "integrations",
@@ -30,6 +36,8 @@ export interface Plan {
   annualPrice: number | null;
   userLimit: number;
   connectionLimit: number;
+  /** Setores/filas (Plans.queues). */
+  queueLimit: number;
   storageLimitMb: number;
   trialDays: number;
   features: PlanFeatures;

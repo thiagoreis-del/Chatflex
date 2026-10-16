@@ -28,6 +28,7 @@ const schema = z.object({
     .refine((v) => v === "" || parseMoneyToCents(v) !== null, "invalidPrice"),
   userLimit: int(1),
   connectionLimit: int(0),
+  queueLimit: int(0),
   storageLimitMb: int(0),
   trialDays: int(0).max(365),
   active: z.boolean(),
@@ -62,6 +63,7 @@ export function PlanForm({
       annualPrice: plan?.annualPrice != null ? centsToInput(plan.annualPrice) : "",
       userLimit: plan?.userLimit ?? 1,
       connectionLimit: plan?.connectionLimit ?? 1,
+      queueLimit: plan?.queueLimit ?? 5,
       storageLimitMb: plan?.storageLimitMb ?? 1024,
       trialDays: plan?.trialDays ?? 15,
       active: plan?.active ?? true,
@@ -87,6 +89,7 @@ export function PlanForm({
       annualPrice: v.annualPrice ? parseMoneyToCents(v.annualPrice) : null,
       userLimit: v.userLimit,
       connectionLimit: v.connectionLimit,
+      queueLimit: v.queueLimit,
       storageLimitMb: v.storageLimitMb,
       trialDays: v.trialDays,
       active: v.active,
@@ -149,6 +152,9 @@ export function PlanForm({
           error={numErr(!!e.connectionLimit)}
         >
           {(a) => <Input {...a} type="number" min={0} {...register("connectionLimit")} />}
+        </Field>
+        <Field id="queueLimit" label={t("plans.form.queueLimit")} error={numErr(!!e.queueLimit)}>
+          {(a) => <Input {...a} type="number" min={0} {...register("queueLimit")} />}
         </Field>
         <Field
           id="storageLimitMb"
