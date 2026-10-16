@@ -183,6 +183,17 @@ export function TicketsPage() {
     setUnreadOnly(false);
     setSlaFilter("all");
   };
+  // Recusar direto da lista devolve o atendimento à fila atual, sem atendente.
+  const refuseFromList = useMutation({
+    mutationFn: (tk: Ticket) =>
+      transferTicket(tk.id, { ...(tk.queue ? { queueId: tk.queue.id } : {}), userId: null }),
+    onSuccess: (tk) => {
+      toast.success(t("toast.refused"));
+      if (selected?.id === tk.id) setSelected(tk);
+      void qcl.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: () => toast.error(t("toast.transferError")),
+  });
   const connections = Array.from(
     new Map(
       (query.data ?? []).filter((x) => x.whatsapp).map((x) => [x.whatsapp!.id, x.whatsapp!]),
@@ -586,6 +597,28 @@ export function TicketsPage() {
                                 <UserRound className="size-2.5 shrink-0" />
                                 <span className="truncate">{tk.user?.name ?? t("noAttendant")}</span>
                               </span>
+                              {tk.status !== "closed" && (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  aria-label={t("actions.refuse")}
+                                  title={t("actions.refuse")}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    refuseFromList.mutate(tk);
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      refuseFromList.mutate(tk);
+                                    }
+                                  }}
+                                  className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive/40"
+                                >
+                                  <Undo2 className="size-3" />
+                                </span>
+                              )}
                             </div>
                           </div>
                         </button>
