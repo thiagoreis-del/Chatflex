@@ -974,6 +974,18 @@ function Conversation({
 
   return (
     <>
+      {editingContact && (
+        <ContactFormDialog
+          value={editingContact}
+          onClose={() => setEditingContact(null)}
+          onSaved={() =>
+            Promise.all([
+              qc.invalidateQueries({ queryKey: ticketKeys.all }),
+              qc.invalidateQueries({ queryKey: contactKeys.all }),
+            ])
+          }
+        />
+      )}
       <header className="flex shrink-0 items-start gap-1.5 border-b px-1.5 py-1.5 pt-[max(0.375rem,env(safe-area-inset-top))] sm:gap-2 sm:px-4 sm:py-3">
         <Button
           variant="ghost"
