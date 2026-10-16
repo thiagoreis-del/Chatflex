@@ -134,6 +134,7 @@ export function TransferTicketDialog({
               </SelectContent>
             </Select>
           </div>
+          {!refusing && (
           <div className="space-y-2">
             <Label>{t("transfer.user")}</Label>
             <Select value={userId} onValueChange={setUserId} disabled={!queueId}>
@@ -150,6 +151,7 @@ export function TransferTicketDialog({
               </SelectContent>
             </Select>
           </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="transfer-note">{t("transfer.note")}</Label>
             <Textarea
@@ -165,8 +167,8 @@ export function TransferTicketDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("transfer.cancel")}
           </Button>
-          <Button disabled={!queueId || mutation.isPending} onClick={() => mutation.mutate()}>
-            {t("transfer.submit")}
+          <Button disabled={!queueId || mutation.isPending || (refusing && !reason.trim())} onClick={() => mutation.mutate()}>
+            {t(refusing ? "transfer.refuseSubmit" : "transfer.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>
