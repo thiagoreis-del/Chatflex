@@ -1290,9 +1290,9 @@ function Conversation({
                         </button>
                       )}
                       <MessageMedia message={m} />
-                      {!(m.mediaUrl && !isImage(m)) && m.body && (
+                      {displayBody(m) && (
                         <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
-                          {m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body}
+                          {displayBody(m)}
                         </p>
                       )}
                       <p
