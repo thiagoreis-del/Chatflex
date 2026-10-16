@@ -16,6 +16,10 @@ export interface PlatformDashboard {
   usageByPlan: { planId: string; planName: string; companies: number; revenueInCents?: number }[];
   totalCompanies?: number;
   connectionsOnline?: number;
+  /** Conexões aguardando leitura de QR Code / pareamento. */
+  connectionsAwaitingQr?: number;
+  /** Conexões desconectadas (não conectadas e não aguardando QR). */
+  connectionsDisconnected?: number;
   forecastRevenueInCents?: number;
   dueSoon?: CompanyBrief[];
   overdueList?: CompanyBrief[];
