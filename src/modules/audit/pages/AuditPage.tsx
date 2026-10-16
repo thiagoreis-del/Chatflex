@@ -4,6 +4,7 @@ import { LoadingState, PageHeader, Pagination, QueryError } from "@/shared/compo
 import { FilterBar, SelectFilter, TextFilter } from "@/modules/platform-admin/components/FilterBar";
 import { auditContract, auditQuery } from "../api";
 import { AuditEventTable } from "../components/AuditEventTable";
+import { ImpersonationLogTable } from "../components/ImpersonationLogTable";
 import { auditResults, type AuditFilters, type AuditResult } from "../types";
 
 export function AuditPage({
@@ -18,6 +19,7 @@ export function AuditPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader title={t("audit.title")} description={t("audit.subtitle")} />
+      <ImpersonationLogTable />
       <FilterBar
         onClear={() =>
           setSearch({

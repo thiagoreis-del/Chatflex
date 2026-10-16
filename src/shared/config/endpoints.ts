@@ -61,6 +61,7 @@ export const platformEndpoints = {
   subscriptions: "/platform/subscriptions",
   invoices: "/platform/invoices",
   auditEvents: "/platform/audit-events",
+  impersonationLogs: "/platform/impersonation-logs",
 } as const;
 
 export const platformContracts: ContractStatus[] = [
