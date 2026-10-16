@@ -67,6 +67,25 @@ function formatUptime(seconds: number): string {
   return d > 0 ? `${d}d ${h}h` : `${h}h ${Math.floor((seconds % 3600) / 60)}min`;
 }
 
+const STATE_STYLE: Record<ServiceState, string> = {
+  online: "bg-success/15 text-success",
+  offline: "bg-destructive/15 text-destructive",
+  not_configured: "bg-muted text-muted-foreground",
+  unknown: "bg-muted text-muted-foreground",
+};
+
+function ServiceBadge({ status }: { status: string | null | undefined }) {
+  const { t } = useTranslation("platform");
+  const state = serviceState(status);
+  return (
+    <span
+      className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", STATE_STYLE[state])}
+    >
+      {t(`vps.state.${state}`)}
+    </span>
+  );
+}
+
 export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard | undefined }) {
   const { t } = useTranslation("platform");
   const q = useQuery(serverHealthQuery());
