@@ -207,6 +207,12 @@ export const quickMessageContracts = [
  * Configurações por empresa (empresa do token).
  * CONTRATO PENDENTE: padrão Whaticket `GET/PUT /settings/:key`; confirmar no backend do ChatbotFlex.
  */
+/** SLA no servidor (contrato do guia PATCH-VPS-SLA). */
+export const slaEndpoints = {
+  violations: "/sla/violations",
+  report: "/sla/report",
+} as const;
+
 export const settingEndpoints = {
   detail: (key: string) => `/settings/${encodeURIComponent(key)}`,
 } as const;

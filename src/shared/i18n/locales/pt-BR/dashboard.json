@@ -65,5 +65,18 @@
     "closedToday": "Encerrados hoje",
     "tme": "TME",
     "empty": "Nenhum atendimento com fila hoje."
+  },
+  "slaReport": {
+    "title": "Relatório de SLA (hoje)",
+    "description": "Calculado pelo servidor, mesmo com o painel fechado.",
+    "unavailable": "Relatório indisponível: o serviço de SLA ainda não está instalado no servidor.",
+    "total": "Violações",
+    "warnings": "Avisos",
+    "avgMinutes": "Espera média (min)",
+    "maxMinutes": "Maior espera (min)",
+    "recent": "Últimas violações",
+    "none": "Nenhuma violação hoje.",
+    "ticket": "Atendimento #{{id}}",
+    "minutes": "{{count}} min"
   }
 }
