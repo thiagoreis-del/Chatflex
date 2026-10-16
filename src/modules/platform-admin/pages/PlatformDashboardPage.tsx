@@ -25,6 +25,7 @@ import { isApiError } from "@/shared/api/errors";
 import { formatNumber } from "@/shared/format/format";
 import { dashboardContract, platformDashboardQuery, type CompanyBrief } from "../api";
 import { PlatformMetricCard } from "../components/PlatformMetricCard";
+import { VpsHealthSection } from "../components/VpsHealthSection";
 
 const DAY = 864e5;
 
@@ -94,6 +95,7 @@ export function PlatformDashboardPage() {
         <QueryError error={q.error} contract={dashboardContract} onRetry={() => void q.refetch()} />
       ) : (
         <>
+          <VpsHealthSection dashboard={d} />
           {section(
             t("dashboard.sections.companies"),
             <>
