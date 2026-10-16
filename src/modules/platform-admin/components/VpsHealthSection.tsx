@@ -171,6 +171,12 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
                 uptime: formatUptime(health.uptimeSeconds),
               })
             : t("vps.estimated", { contract: serverMetricsContract })}
+          {" · "}
+          {t("vps.capacity", {
+            cores: VPS_CAPACITY.cpuCores,
+            ram: VPS_CAPACITY.memoryGb,
+            disk: VPS_CAPACITY.diskGb,
+          })}
         </span>
       </div>
 
