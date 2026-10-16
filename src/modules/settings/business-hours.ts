@@ -71,8 +71,8 @@ function fromSchedules(list: BackendSchedule[] | null | undefined): DayHours[] {
 /** Dia fechado vai com horários vazios: o backend trata como fora do expediente. */
 function toSchedules(days: DayHours[]): BackendSchedule[] {
   return days.map((d, i) => ({
-    weekday: WEEKDAY_PT[i],
-    weekdayEn: WEEKDAY_EN[i],
+    weekday: WEEKDAY_PT[i] ?? "",
+    weekdayEn: WEEKDAY_EN[i] ?? "",
     startTimeA: d.enabled ? d.start : "",
     endTimeA: d.enabled ? d.end : "",
     startTimeB: "",
