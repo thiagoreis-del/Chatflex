@@ -267,20 +267,34 @@ export function TicketsPage() {
             )}
           </div>
           <Tabs value={tab} onValueChange={(v) => setTab(v as TicketTab)}>
-            <TabsList className="grid h-9 w-full grid-cols-4 p-0.5">
+            <TabsList className="grid h-auto w-full grid-cols-4 gap-1 bg-transparent p-0">
               {(["open", "pending", "groups", "closed"] as const).map((s) => {
                 const c = s === tab ? query.data?.length : counts[s];
+                const Icon = TAB_ICONS[s];
+                const active = s === tab;
                 return (
-                  <TabsTrigger key={s} value={s} className="min-w-0 gap-1 px-1 text-[11px] sm:text-xs">
-                    <span className="truncate">{t(`tabs.${s}`)}</span>
-                    {c !== undefined && s !== "closed" && c > 0 && (
+                  <TabsTrigger
+                    key={s}
+                    value={s}
+                    className={cn(
+                      "flex min-h-11 min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg border px-1 py-1.5",
+                      "text-[11px] font-semibold leading-tight sm:text-xs",
+                      "data-[state=inactive]:bg-muted/40 data-[state=inactive]:text-muted-foreground",
+                      "data-[state=inactive]:hover:bg-muted",
+                      active && TAB_ACTIVE_CLASSES[s],
+                    )}
+                  >
+                    <span className="flex items-center gap-1">
+                      <Icon className="size-3.5 shrink-0" aria-hidden />
+                      <span className="truncate">{t(`tabs.${s}`)}</span>
+                    </span>
+                    {c !== undefined && c > 0 && (
                       <span
                         className={cn(
-                          "rounded-full px-1.5 text-[10px] font-semibold leading-4",
-                          s === "pending"
-                            ? "bg-warning/20 text-foreground"
-                            : "bg-primary/15 text-primary",
+                          "rounded-full px-1.5 text-[10px] font-bold leading-4 tabular-nums",
+                          active ? "bg-background/25 text-inherit" : "bg-foreground/10",
                         )}
+                        aria-label={String(c)}
                       >
                         {c > 99 ? "99+" : c}
                       </span>
