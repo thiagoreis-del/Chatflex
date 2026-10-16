@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Activity, Cpu, HardDrive, MemoryStick, Server, Smartphone } from "lucide-react";
+import { Activity, Cpu, Database, HardDrive, MemoryStick, Server, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   VPS_LIMITS,
   connectionLevel,
+  cpuPercent,
   levelOf,
-  serverHealthContract,
   serverHealthQuery,
+  serverMetricsContract,
   type HealthLevel,
 } from "../vps-health";
 import type { PlatformDashboard } from "../api";
@@ -72,18 +73,22 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
   const online = dashboard?.connectionsOnline ?? 0;
   const companies = dashboard?.companies.active ?? 0;
   const connLevel = connectionLevel(online);
+  const cpuPct = health ? cpuPercent(health.cpu) : 0;
 
   const alerts: string[] = [];
   if (health) {
-    if (levelOf(health.cpu.percent, VPS_LIMITS.cpuPercent) === "danger")
+    if (levelOf(cpuPct, VPS_LIMITS.cpuPercent) === "danger")
       alerts.push(t("vps.alertCpu", { limit: VPS_LIMITS.cpuPercent }));
-    if (levelOf(health.memory.percent, VPS_LIMITS.memoryPercent) === "danger")
+    if (levelOf(health.memory.usedPercent, VPS_LIMITS.memoryPercent) === "danger")
       alerts.push(t("vps.alertMemory", { limit: VPS_LIMITS.memoryPercent }));
-    if (health.disk && levelOf(health.disk.percent, VPS_LIMITS.diskPercent) === "danger")
+    const diskPct = health.disk?.usedPercent;
+    if (diskPct != null && levelOf(diskPct, VPS_LIMITS.diskPercent) === "danger")
       alerts.push(t("vps.alertDisk", { limit: VPS_LIMITS.diskPercent }));
-    const crashed = health.pm2?.filter((p) => p.status !== "online") ?? [];
-    if (crashed.length > 0)
-      alerts.push(t("vps.alertPm2", { names: crashed.map((p) => p.name).join(", ") }));
+    const down = [
+      health.redis?.status && health.redis.status !== "online" ? "Redis" : null,
+      health.wuzapi?.status && health.wuzapi.status !== "online" ? "Wuzapi" : null,
+    ].filter(Boolean);
+    if (down.length > 0) alerts.push(t("vps.alertServices", { names: down.join(", ") }));
   }
   if (connLevel === "danger")
     alerts.push(t("vps.alertConnections", { count: online, limit: VPS_LIMITS.activeConnections }));
@@ -97,8 +102,11 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
         </h2>
         <span className="text-xs text-muted-foreground">
           {health
-            ? t("vps.live", { host: health.hostname, uptime: formatUptime(health.uptimeSeconds) })
-            : t("vps.estimated", { contract: serverHealthContract })}
+            ? t("vps.live", {
+                host: health.general.hostname,
+                uptime: formatUptime(health.uptimeSeconds),
+              })
+            : t("vps.estimated", { contract: serverMetricsContract })}
         </span>
       </div>
 
@@ -123,27 +131,34 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
             <Gauge
               label={t("vps.cpu")}
               icon={<Cpu className="size-4" />}
-              percent={health.cpu.percent}
-              detail={t("vps.cpuDetail", { load: health.cpu.loadAvg1m, cores: health.cpu.cores })}
-              level={levelOf(health.cpu.percent, VPS_LIMITS.cpuPercent)}
+              percent={cpuPct}
+              detail={t("vps.cpuDetail", {
+                load: health.cpu.loadAverage1m.toFixed(2).replace(".", ","),
+                cores: health.cpu.cores,
+              })}
+              level={levelOf(cpuPct, VPS_LIMITS.cpuPercent)}
             />
             <Gauge
               label={t("vps.memory")}
               icon={<MemoryStick className="size-4" />}
-              percent={health.memory.percent}
+              percent={health.memory.usedPercent}
               detail={t("vps.memoryDetail", {
-                used: health.memory.usedMB,
-                total: health.memory.totalMB,
+                used: health.memory.used,
+                total: health.memory.total,
               })}
-              level={levelOf(health.memory.percent, VPS_LIMITS.memoryPercent)}
+              level={levelOf(health.memory.usedPercent, VPS_LIMITS.memoryPercent)}
             />
-            {health.disk ? (
+            {health.disk?.usedPercent != null ? (
               <Gauge
                 label={t("vps.disk")}
                 icon={<HardDrive className="size-4" />}
-                percent={health.disk.percent}
-                detail={t("vps.diskDetail", { used: health.disk.usedGB, total: health.disk.totalGB })}
-                level={levelOf(health.disk.percent, VPS_LIMITS.diskPercent)}
+                percent={health.disk.usedPercent}
+                detail={
+                  health.disk.used && health.disk.total
+                    ? t("vps.diskDetail", { used: health.disk.used, total: health.disk.total })
+                    : t("vps.unavailable")
+                }
+                level={levelOf(health.disk.usedPercent, VPS_LIMITS.diskPercent)}
               />
             ) : (
               <Gauge
@@ -189,45 +204,63 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
         />
       </div>
 
-      {health?.pm2 && health.pm2.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border bg-card shadow-soft">
-          <table className="w-full min-w-[480px] text-sm">
-            <thead>
-              <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <th className="px-4 py-2.5 font-medium">{t("vps.pm2Process")}</th>
-                <th className="px-4 py-2.5 font-medium">{t("vps.pm2Status")}</th>
-                <th className="px-4 py-2.5 font-medium">{t("vps.pm2Cpu")}</th>
-                <th className="px-4 py-2.5 font-medium">{t("vps.pm2Memory")}</th>
-                <th className="px-4 py-2.5 font-medium">{t("vps.pm2Restarts")}</th>
-                <th className="px-4 py-2.5 font-medium">{t("vps.pm2Uptime")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {health.pm2.map((p) => (
-                <tr key={p.name}>
-                  <td className="px-4 py-2.5 font-medium">{p.name}</td>
-                  <td className="px-4 py-2.5">
-                    <span
-                      className={cn(
-                        "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                        p.status === "online"
-                          ? "bg-success/15 text-success"
-                          : "bg-destructive/15 text-destructive",
-                      )}
-                    >
-                      {p.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2.5 tabular-nums">{p.cpuPercent}%</td>
-                  <td className="px-4 py-2.5 tabular-nums">{p.memoryMB} MB</td>
-                  <td className="px-4 py-2.5 tabular-nums">{p.restarts}</td>
-                  <td className="px-4 py-2.5 tabular-nums">
-                    {p.uptimeSeconds != null ? formatUptime(p.uptimeSeconds) : "—"}
-                  </td>
-                </tr>
+      {health && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
+            <p className="flex items-center gap-2 font-medium text-muted-foreground">
+              <Database className="size-4" aria-hidden />
+              {t("vps.services")}
+            </p>
+            <ul className="mt-2 space-y-1.5">
+              {[
+                { name: "Redis", status: health.redis?.status },
+                { name: "Wuzapi", status: health.wuzapi?.status },
+                { name: "Backend (Node)", status: health.status },
+              ].map((s) => (
+                <li key={s.name} className="flex items-center justify-between gap-2">
+                  <span>{s.name}</span>
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                      s.status === "online"
+                        ? "bg-success/15 text-success"
+                        : s.status
+                          ? "bg-destructive/15 text-destructive"
+                          : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {s.status ?? t("vps.unavailable")}
+                  </span>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </div>
+          <div className="rounded-xl border bg-card p-4 text-sm shadow-soft">
+            <p className="flex items-center gap-2 font-medium text-muted-foreground">
+              <Server className="size-4" aria-hidden />
+              {t("vps.system")}
+            </p>
+            <dl className="mt-2 space-y-1.5">
+              <div className="flex justify-between gap-2">
+                <dt className="text-muted-foreground">{t("vps.sysPlatform")}</dt>
+                <dd className="text-right">
+                  {health.general.platform} {health.general.release} ({health.general.arch})
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt className="text-muted-foreground">{t("vps.sysNode")}</dt>
+                <dd>{health.general.nodeVersion}</dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt className="text-muted-foreground">{t("vps.sysCpuModel")}</dt>
+                <dd className="text-right">{health.cpu.model}</dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt className="text-muted-foreground">{t("vps.sysProcessUptime")}</dt>
+                <dd>{formatUptime(health.processUptimeSeconds)}</dd>
+              </div>
+            </dl>
+          </div>
         </div>
       )}
     </section>
