@@ -92,6 +92,33 @@ function ServiceBadge({ status }: { status: string | null | undefined }) {
   );
 }
 
+function ConnectivityBadge({
+  state,
+  onlineLabel,
+  offlineLabel,
+  unknownLabel,
+}: {
+  state: "unknown" | "online" | "offline";
+  onlineLabel: string;
+  offlineLabel: string;
+  unknownLabel: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+        state === "online"
+          ? "bg-success/15 text-success"
+          : state === "offline"
+            ? "bg-destructive/15 text-destructive"
+            : "bg-muted text-muted-foreground",
+      )}
+    >
+      {state === "online" ? onlineLabel : state === "offline" ? offlineLabel : unknownLabel}
+    </span>
+  );
+}
+
 /** Mini-gráfico do histórico real coletado nesta sessão do painel. */
 function Sparkline({ samples, pick, level }: { samples: MetricsSample[]; pick: (s: MetricsSample) => number | null; level: HealthLevel }) {
   const { t } = useTranslation("platform");
