@@ -26,7 +26,7 @@ export function OfflineNotice() {
       className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-2 bg-warning px-3 py-1.5 text-center text-xs font-semibold text-warning-foreground pt-[max(0.375rem,env(safe-area-inset-top))]"
     >
       <WifiOff className="size-3.5" aria-hidden />
-      {t("offline.banner")}
+      {i18n.t("offline.banner")}
     </div>
   );
 }
