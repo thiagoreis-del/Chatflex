@@ -10,4 +10,5 @@
 - Backend do chat interno: usuário confirmou criação de conversas e troca de mensagens após instalar as rotas.
 
 ## Em andamento
+- Ajustar filtro de atendentes e assinatura automática sem ocultar aguardando sem responsável.
 - Publicação de Status — tela `/app/status` pronta; aguarda teste real com fotos (nome do campo de legendas `captions` a confirmar no controller).
