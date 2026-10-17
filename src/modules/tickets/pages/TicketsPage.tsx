@@ -74,7 +74,8 @@ import {
 } from "../api";
 import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../types";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
-import { usersQuery } from "@/modules/users/api";
+import { allCompanyUsersQuery } from "@/modules/users/api";
+import { matchesAttendantFilter, selectedReplyUserId } from "../attendant-selection";
 import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
 import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
@@ -211,13 +212,13 @@ export function TicketsPage() {
       (query.data ?? []).filter((x) => x.whatsapp).map((x) => [x.whatsapp!.id, x.whatsapp!]),
     ).values(),
   );
-  const companyUsers = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: isAdmin });
+  const companyUsers = useQuery({ ...allCompanyUsersQuery(), enabled: isAdmin });
   /** Admin vê todos os atendentes da empresa; os demais não escolhem colegas. */
   const attendants = isAdmin
     ? Array.from(
         new Map(
           [
-            ...(companyUsers.data?.data ?? []).map((u) => ({ id: u.id, name: u.name })),
+            ...(companyUsers.data ?? []).map((u) => ({ id: u.id, name: u.name })),
             ...(query.data ?? []).filter((x) => x.user).map((x) => x.user!),
           ].map((u) => [String(u.id), u]),
         ).values(),
@@ -225,10 +226,7 @@ export function TicketsPage() {
     : [];
   const matchesFilters = (x: Ticket) =>
     (connectionId === "all" || String(x.whatsapp?.id) === connectionId) &&
-    (attendantFilter === "all" ||
-      (attendantFilter === "mine" && String(x.user?.id) === String(session.user?.id)) ||
-      (attendantFilter === "none" && !x.user) ||
-      String(x.user?.id) === attendantFilter) &&
+    matchesAttendantFilter(x, attendantFilter, session.user?.id, isAdmin) &&
     (!unreadOnly || x.unreadMessages > 0) &&
     (!slaOn || slaFilter === "all" || computeSla(x, sla!, now).state === slaFilter);
   const notGroup = (l: Ticket[]) =>
@@ -655,6 +653,7 @@ export function TicketsPage() {
           <Conversation
             key={selected.id}
             ticket={selected}
+            defaultReplyAsId={selectedReplyUserId(attendantFilter, isAdmin)}
             onBack={() => setSelected(null)}
             onChange={setSelected}
           />
@@ -670,10 +669,12 @@ export function TicketsPage() {
 
 function Conversation({
   ticket,
+  defaultReplyAsId,
   onBack,
   onChange,
 }: {
   ticket: Ticket;
+  defaultReplyAsId: number | null;
   onBack: () => void;
   onChange: (t: Ticket | null) => void;
 }) {
@@ -684,9 +685,10 @@ function Conversation({
   const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
   const myId = Number(session.user?.id) || null;
   // Admin pode responder em nome de qualquer usuário da empresa.
-  const companyUsers = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: isAdmin });
-  const [replyAsId, setReplyAsId] = useState<number | null>(null);
-  const replyAs = isAdmin && replyAsId ? companyUsers.data?.data.find((u) => u.id === replyAsId) : undefined;
+  const companyUsers = useQuery({ ...allCompanyUsersQuery(), enabled: isAdmin });
+  const [replyAsId, setReplyAsId] = useState<number | null>(defaultReplyAsId);
+  useEffect(() => setReplyAsId(defaultReplyAsId), [defaultReplyAsId]);
+  const replyAs = isAdmin && replyAsId ? companyUsers.data?.find((u) => u.id === replyAsId) : undefined;
   const senderId = replyAs?.id ?? myId;
   const senderName = (replyAs?.name ?? session.user?.name)?.trim();
   const msgFallback = useFallbackInterval();
@@ -1617,6 +1619,35 @@ function Conversation({
               }}
             />
           )}
+          {isAdmin && (companyUsers.data?.length ?? 0) > 0 && (
+            <div className="mb-2 flex min-w-0 flex-wrap items-center gap-2">
+              <label htmlFor={`reply-as-${ticket.id}`} className="text-xs text-muted-foreground">
+                {t("composer.replyAs")}
+              </label>
+              <select
+                id={`reply-as-${ticket.id}`}
+                aria-label={t("composer.replyAs")}
+                value={replyAsId ?? ""}
+                disabled={send.isPending}
+                onChange={(e) => setReplyAsId(e.target.value ? Number(e.target.value) : null)}
+                className="h-8 min-w-0 max-w-full rounded-md border bg-background px-2 text-xs text-foreground"
+              >
+                <option value="">{t("composer.replyAsMe")}</option>
+                {(companyUsers.data ?? []).filter((u) => u.id !== myId).map((u) => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+              <span className="min-w-0 break-words text-xs text-muted-foreground">
+                {t("composer.signingAs", { name: senderName })}
+              </span>
+              {replyAsId !== null && (
+                <Button variant="ghost" size="icon" className="size-7 shrink-0" disabled={send.isPending}
+                  onClick={() => setReplyAsId(null)} aria-label={t("composer.replyAsMe")} title={t("composer.replyAsMe")}>
+                  <Undo2 className="size-3.5" />
+                </Button>
+              )}
+            </div>
+          )}
           <div className="grid grid-cols-[auto_auto_auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
             <Button
               type="button"
@@ -1718,25 +1749,6 @@ function Conversation({
               onReady={selectFile}
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
-            {isAdmin && (companyUsers.data?.data.length ?? 0) > 0 && (
-              <select
-                aria-label={t("composer.replyAs")}
-                title={t("composer.replyAs")}
-                value={replyAsId ?? ""}
-                disabled={send.isPending}
-                onChange={(e) => setReplyAsId(e.target.value ? Number(e.target.value) : null)}
-                className="h-9 max-w-[9rem] shrink-0 truncate rounded-lg border bg-background px-2 text-xs text-foreground"
-              >
-                <option value="">{t("composer.replyAsMe")}</option>
-                {companyUsers.data!.data
-                  .filter((u) => u.id !== myId)
-                  .map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name}
-                    </option>
-                  ))}
-              </select>
-            )}
             <textarea
               rows={2}
               disabled={send.isPending}
