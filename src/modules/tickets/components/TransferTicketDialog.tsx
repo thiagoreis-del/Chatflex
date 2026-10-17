@@ -48,7 +48,8 @@ export function TransferTicketDialog({
   const [userId, setUserId] = useState<string>(ANY);
   const [note, setNote] = useState("");
   const [mode, setMode] = useState<"forward" | "refuse">("forward");
-  const refusing = mode === "refuse";
+  const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
+  const refusing = isAdmin && mode === "refuse";
 
   const eligible = (users.data?.data ?? []).filter(
     (u) => !queueId || u.queueIds.includes(Number(queueId)),
@@ -90,7 +91,7 @@ export function TransferTicketDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist">
-            {(["forward", "refuse"] as const).map((m) => (
+            {(isAdmin ? (["forward", "refuse"] as const) : (["forward"] as const)).map((m) => (
               <button
                 key={m}
                 type="button"

@@ -610,7 +610,7 @@ export function TicketsPage() {
                                 <UserRound className="size-2.5 shrink-0" />
                                 <span className="truncate">{tk.user?.name ?? t("noAttendant")}</span>
                               </span>
-                              {tk.status !== "closed" && (
+                              {isAdmin && tk.status !== "closed" && (
                                 <span
                                   role="button"
                                   tabIndex={0}
@@ -681,7 +681,14 @@ function Conversation({
   const { t: tq } = useTranslation("quickMessages");
   const qc = useQueryClient();
   const session = useSession();
+  const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
   const myId = Number(session.user?.id) || null;
+  // Admin pode responder em nome de qualquer usuário da empresa.
+  const companyUsers = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: isAdmin });
+  const [replyAsId, setReplyAsId] = useState<number | null>(null);
+  const replyAs = isAdmin && replyAsId ? companyUsers.data?.data.find((u) => u.id === replyAsId) : undefined;
+  const senderId = replyAs?.id ?? myId;
+  const senderName = (replyAs?.name ?? session.user?.name)?.trim();
   const msgFallback = useFallbackInterval();
   useMessagesRealtime(ticket.id);
   const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
@@ -864,14 +871,15 @@ function Conversation({
   const send = useMutation({
     mutationFn: async ({ body, media }: { body: string; media: File[] }) => {
       // Conversa aberta sem responsável: o atendente logado assume antes de responder.
-      if (!ticket.user && myId) {
-        const tk = await assignTicket(ticket.id, myId);
+      // Admin respondendo como outro usuário: o ticket passa para esse usuário.
+      if (senderId && (!ticket.user || (replyAs && ticket.user.id !== senderId))) {
+        const tk = await assignTicket(ticket.id, senderId);
         onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
       }
       // Mensagens de texto e anexos recebem assinatura do atendente.
       // Áudio não recebe legenda porque mensagens de voz podem rejeitar caption.
       // Notas internas nunca são assinadas (não vão ao cliente).
-      const myName = session.user?.name?.trim();
+      const myName = senderName;
       const signFor = (text: string, item: File | null) => {
         const isAudio = item?.type.startsWith("audio/");
         if (isPrivate || !myName || isAudio) return text;
@@ -1214,7 +1222,7 @@ function Conversation({
           >
             <Search className="size-4" />
           </Button>
-          {ticket.status !== "closed" && (
+          {isAdmin && ticket.status !== "closed" && (
             <Button
               type="button"
               variant="ghost"
@@ -1710,6 +1718,25 @@ function Conversation({
               onReady={selectFile}
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
+            {isAdmin && (companyUsers.data?.data.length ?? 0) > 0 && (
+              <select
+                aria-label={t("composer.replyAs")}
+                title={t("composer.replyAs")}
+                value={replyAsId ?? ""}
+                disabled={send.isPending}
+                onChange={(e) => setReplyAsId(e.target.value ? Number(e.target.value) : null)}
+                className="h-9 max-w-[9rem] shrink-0 truncate rounded-lg border bg-background px-2 text-xs text-foreground"
+              >
+                <option value="">{t("composer.replyAsMe")}</option>
+                {companyUsers.data!.data
+                  .filter((u) => u.id !== myId)
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
+                  ))}
+              </select>
+            )}
             <textarea
               rows={2}
               disabled={send.isPending}
