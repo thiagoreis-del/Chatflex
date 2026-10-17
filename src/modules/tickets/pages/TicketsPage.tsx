@@ -610,7 +610,7 @@ export function TicketsPage() {
                                 <UserRound className="size-2.5 shrink-0" />
                                 <span className="truncate">{tk.user?.name ?? t("noAttendant")}</span>
                               </span>
-                              {tk.status !== "closed" && (
+                              {isAdmin && tk.status !== "closed" && (
                                 <span
                                   role="button"
                                   tabIndex={0}
@@ -1214,7 +1214,7 @@ function Conversation({
           >
             <Search className="size-4" />
           </Button>
-          {ticket.status !== "closed" && (
+          {isAdmin && ticket.status !== "closed" && (
             <Button
               type="button"
               variant="ghost"
