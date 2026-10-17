@@ -796,7 +796,7 @@ function Conversation({
   const closeWithMessage = useMutation({
     mutationFn: async (msg: string | null) => {
       if (msg) {
-        const name = session.user?.name?.trim();
+        const name = senderName;
         await sendMessage(ticket.id, name ? `*${name}:*\n${msg}` : msg);
       }
       return updateTicketStatus(ticket.id, "closed", myId);
