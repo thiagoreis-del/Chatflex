@@ -20,3 +20,4 @@
 - All visible text in `src/shared/i18n/locales/*`; app name via `{{appName}}` default variable. Why: i18n requirement.
 - Socket adapter stays disabled (`SOCKET_ENABLED`) until the backend contract is confirmed.
 - Incoming message alerts mount once per AppShell session, deduplicate Socket and paginated polling by message ID, and ignore history/outgoing/private messages; browser permission and audio unlocking require user gestures. Why: reliable alerts across modules without exposing customer message text on lock screens.
+- Ticket attendant filtering and reply identity defaults use shared pure selection rules; the conversation keeps its own editable sender state independent of message and draft state. Why: changing the selected sender must not clear a conversation or its draft.

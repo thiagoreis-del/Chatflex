@@ -37,6 +37,7 @@
   "composer": {
     "replyAs": "Responder como",
     "replyAsMe": "Eu mesmo",
+    "signingAs": "Assinatura: {{name}}",
     "placeholder": "Digite uma mensagem…",
     "send": "Enviar",
     "acceptFirst": "Aceite o atendimento para responder.",

@@ -35,6 +35,31 @@ export const usersQuery = (filters: UserFilters) =>
     },
   });
 
+/** Seletores da empresa precisam de todas as páginas, não só dos primeiros 20 usuários. */
+export const allCompanyUsersQuery = () =>
+  queryOptions({
+    queryKey: userKeys.list({ search: "", scope: "all" }),
+    queryFn: async ({ signal }): Promise<CompanyUser[]> => {
+      const users = new Map<number, CompanyUser>();
+      for (let page = 1; ; page++) {
+        const res = await apiRequest<BackendUsers & { hasMore?: boolean }>(
+          withQuery(ep.list, { search: "", searchParam: "", page, pageNumber: page }),
+          { signal },
+        );
+        const list = res.data ?? (res.users ?? []).map(({ queues, ...u }) => ({
+          ...u,
+          queueIds: u.queueIds ?? (queues ?? []).map((q) => q.id),
+        }));
+        const before = users.size;
+        for (const user of list) users.set(user.id, user);
+        const total = res.total ?? res.count;
+        if (!list.length || users.size === before || res.hasMore === false ||
+          (res.hasMore !== true && (total === undefined || users.size >= total))) break;
+      }
+      return [...users.values()].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+    },
+  });
+
 export const createUser = (body: CompanyUserInput) =>
   apiRequest<CompanyUser>(ep.list, { method: "POST", body });
 export const updateUser = (id: number, body: CompanyUserInput) =>
