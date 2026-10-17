@@ -871,14 +871,15 @@ function Conversation({
   const send = useMutation({
     mutationFn: async ({ body, media }: { body: string; media: File[] }) => {
       // Conversa aberta sem responsável: o atendente logado assume antes de responder.
-      if (!ticket.user && myId) {
-        const tk = await assignTicket(ticket.id, myId);
+      // Admin respondendo como outro usuário: o ticket passa para esse usuário.
+      if (senderId && (!ticket.user || (replyAs && ticket.user.id !== senderId))) {
+        const tk = await assignTicket(ticket.id, senderId);
         onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
       }
       // Mensagens de texto e anexos recebem assinatura do atendente.
       // Áudio não recebe legenda porque mensagens de voz podem rejeitar caption.
       // Notas internas nunca são assinadas (não vão ao cliente).
-      const myName = session.user?.name?.trim();
+      const myName = senderName;
       const signFor = (text: string, item: File | null) => {
         const isAudio = item?.type.startsWith("audio/");
         if (isPrivate || !myName || isAudio) return text;
