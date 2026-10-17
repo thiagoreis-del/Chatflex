@@ -681,7 +681,14 @@ function Conversation({
   const { t: tq } = useTranslation("quickMessages");
   const qc = useQueryClient();
   const session = useSession();
+  const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
   const myId = Number(session.user?.id) || null;
+  // Admin pode responder em nome de qualquer usuário da empresa.
+  const companyUsers = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: isAdmin });
+  const [replyAsId, setReplyAsId] = useState<number | null>(null);
+  const replyAs = isAdmin && replyAsId ? companyUsers.data?.data.find((u) => u.id === replyAsId) : undefined;
+  const senderId = replyAs?.id ?? myId;
+  const senderName = (replyAs?.name ?? session.user?.name)?.trim();
   const msgFallback = useFallbackInterval();
   useMessagesRealtime(ticket.id);
   const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
