@@ -1718,6 +1718,25 @@ function Conversation({
               onReady={selectFile}
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
+            {isAdmin && (companyUsers.data?.data.length ?? 0) > 0 && (
+              <select
+                aria-label={t("composer.replyAs")}
+                title={t("composer.replyAs")}
+                value={replyAsId ?? ""}
+                disabled={send.isPending}
+                onChange={(e) => setReplyAsId(e.target.value ? Number(e.target.value) : null)}
+                className="h-9 max-w-[9rem] shrink-0 truncate rounded-lg border bg-background px-2 text-xs text-foreground"
+              >
+                <option value="">{t("composer.replyAsMe")}</option>
+                {companyUsers.data!.data
+                  .filter((u) => u.id !== myId)
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
+                  ))}
+              </select>
+            )}
             <textarea
               rows={2}
               disabled={send.isPending}

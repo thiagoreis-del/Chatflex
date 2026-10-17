@@ -35,6 +35,8 @@
     "refuse": "Recusar"
   },
   "composer": {
+    "replyAs": "Responder como",
+    "replyAsMe": "Eu mesmo",
     "placeholder": "Digite uma mensagem…",
     "send": "Enviar",
     "acceptFirst": "Aceite o atendimento para responder.",
