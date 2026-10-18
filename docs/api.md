@@ -1,0 +1,109 @@
+# 7. Catálogo de API
+
+## 7.1 Convenções
+Paths relativos usam VITE_API_URL. :id/:ticketId/:tagId/:userId são parâmetros. Métodos abaixo são callers identificados, não implementação de servidor. Bearer/cookie conforme sessão significa que o cliente usa token em memória e credentials:include; servidor deve exigir o papel e tenant adequados (plataforma exige superadmin na interface).
+
+Respostas são expectativas e normalizações, não schema certificado. unknown/sem resposta tipada não permite inventar contrato. JSON inválido/vazio pode resultar em undefined mesmo em sucesso. FormData deixa o boundary ao navegador. Nunca inserir tokens/senhas reais nos exemplos.
+
+## 7.2 Erros comuns a cada chamada
+401 não autorizado (pode renovar); 403 proibido; 404 não encontrado; 409 conflito; 400/422 validação; 429 limite; 5xx servidor; rede, abort e desconhecido. Corpo esperado: message,code,errors. Queries repetem rede/servidor até duas vezes; mutações não oferecem transação geral. Defaults/listas vazias/null podem esconder erro em alguns adaptadores. Status específicos de sucesso não são uniformemente validados: não inventar 201/204 por endpoint.
+
+## 7.3 Operações não-mock
+| Domínio | Método | Endpoint | Autenticação cliente | Parâmetros/corpo | Resposta consumida |
+|---|---|---|---|---|---|
+| Auth | POST | /auth/login | Login/recuperação anônimos; refresh cookie; demais conforme sessão | email,password | usuário + accessToken/token |
+| Auth | POST | /auth/refresh_token | Login/recuperação anônimos; refresh cookie; demais conforme sessão | sem corpo | sessão/token |
+| Auth | POST | /auth/logout | Login/recuperação anônimos; refresh cookie; demais conforme sessão | sem corpo | sem resposta tipada |
+| Auth | POST | /auth/forgot-password | Login/recuperação anônimos; refresh cookie; demais conforme sessão | email | sem resposta tipada |
+| Auth | POST | /auth/reset-password | Login/recuperação anônimos; refresh cookie; demais conforme sessão | token,password | sem resposta tipada |
+| Auth | GET | /auth/me | Login/recuperação anônimos; refresh cookie; demais conforme sessão | nenhum | usuário |
+| Auth | POST | /companies/:id/enter | Bearer/cookie conforme sessão | sem corpo | sessão com usuário/token |
+| Auth | POST | /companies/exit | Bearer/cookie conforme sessão | sem corpo | sessão com usuário/token |
+| Empresas | GET | /companies | Bearer/cookie conforme sessão | searchParam,pageNumber | {companies,count} → página interna20 |
+| Empresas | GET | /companies/:id | Bearer/cookie conforme sessão | id | BackendCompany → Company |
+| Empresas | POST | /companies | Bearer/cookie conforme sessão | name,email,phone,document,status:true,planId,dueDate,recurrence,companyUserName,password | BackendCompany |
+| Empresas | PUT | /companies/:id | Bearer/cookie conforme sessão | id,name/email/phone/document/planId/dueDate/status opcionais | BackendCompany |
+| Empresas | DELETE | /companies/:id | Bearer/cookie conforme sessão | id | sem conteúdo esperado |
+| Plataforma | GET | /companies/list | Bearer/cookie conforme sessão | companyId para usuários; demais sem filtros adicionais nesse agregador | array ou {companies} |
+| Plataforma | GET | /users/list | Bearer/cookie conforme sessão | companyId para usuários; demais sem filtros adicionais nesse agregador | array ou {users}; companyId opcional na query |
+| Plataforma | GET | /whatsapp/all?session=0 | Bearer/cookie conforme sessão | companyId para usuários; demais sem filtros adicionais nesse agregador | array ou {whatsapps} |
+| Plataforma | GET | /invoices/all | Bearer/cookie conforme sessão | companyId para usuários; demais sem filtros adicionais nesse agregador | array ou {invoices} |
+| Planos | GET | /plans/all | Bearer/cookie conforme sessão | id no detalhe | BackendPlan[] ou BackendPlan |
+| Planos | GET | /plans/:id | Bearer/cookie conforme sessão | id no detalhe | BackendPlan[] ou BackendPlan |
+| Planos | GET | /plans/list | Anônimo, sem refresh | nenhum | lista pública → planos elegíveis/fallback |
+| Planos | POST | /plans | Bearer/cookie conforme sessão | name,users,connections,queues,amount,trial,trialDays,isPublic,use*,recurrence:MENSAL; id no PUT | BackendPlan → centavos/flags |
+| Planos | PUT | /plans/:id | Bearer/cookie conforme sessão | name,users,connections,queues,amount,trial,trialDays,isPublic,use*,recurrence:MENSAL; id no PUT | BackendPlan → centavos/flags |
+| Planos | DELETE | /plans/:id | Bearer/cookie conforme sessão | id | sem conteúdo esperado |
+| Plataforma | GET | /platform/subscriptions | Bearer/cookie conforme sessão | page,pageSize,companyId,status | {data,page,pageSize,total} Subscription |
+| Plataforma | GET | /platform/invoices | Bearer/cookie conforme sessão | page,pageSize,companyId,status,dueFrom,dueTo,createdFrom,createdTo | {data,page,pageSize,total} Invoice |
+| Plataforma | GET | /platform/audit-events | Bearer/cookie conforme sessão | page,pageSize,from,to,companyId,userId,action,result,resource,resourceId | {data,page,pageSize,total} AuditEvent |
+| Plataforma | GET | /platform/impersonation-logs | Bearer/cookie conforme sessão | sem paginação demonstrada | array/{logs}/{data} |
+| Plataforma | GET | /server-metrics | Bearer/cookie conforme sessão | nenhum | ServerMetrics; falha → null |
+| Contatos | GET | /contacts | Bearer/cookie conforme sessão | busca/página: contatos search/page e searchParam/pageNumber; usuários searchParam/pageNumber; respostas searchParam/pageNumber; filas sem paginação local | coleção; contatos {contacts,count}, usuários {users,count}, respostas array/{records,hasMore} |
+| Contatos | POST | /contacts | Bearer/cookie conforme sessão | name,number,email,tags | Contact |
+| Contatos | PUT | /contacts/:id | Bearer/cookie conforme sessão | name,number,email,tags | Contact |
+| Contatos | DELETE | /contacts/:id | Bearer/cookie conforme sessão | id | sem conteúdo esperado |
+| Usuários | GET | /users | Bearer/cookie conforme sessão | busca/página: contatos search/page e searchParam/pageNumber; usuários searchParam/pageNumber; respostas searchParam/pageNumber; filas sem paginação local | coleção; contatos {contacts,count}, usuários {users,count}, respostas array/{records,hasMore} |
+| Usuários | POST | /users | Bearer/cookie conforme sessão | name,email,profile,queueIds; blocked/companyId/password opcionais | User |
+| Usuários | PUT | /users/:id | Bearer/cookie conforme sessão | name,email,profile,queueIds; blocked/companyId/password opcionais | User |
+| Usuários | DELETE | /users/:id | Bearer/cookie conforme sessão | id | sem conteúdo esperado |
+| Filas | GET | /queue | Bearer/cookie conforme sessão | busca/página: contatos search/page e searchParam/pageNumber; usuários searchParam/pageNumber; respostas searchParam/pageNumber; filas sem paginação local | coleção; contatos {contacts,count}, usuários {users,count}, respostas array/{records,hasMore} |
+| Filas | POST | /queue | Bearer/cookie conforme sessão | name,color,greetingMessage e campos de roteador/escala preservados por whitelist | Queue |
+| Filas | PUT | /queue/:id | Bearer/cookie conforme sessão | name,color,greetingMessage e campos de roteador/escala preservados por whitelist | Queue |
+| Filas | DELETE | /queue/:id | Bearer/cookie conforme sessão | id | sem conteúdo esperado |
+| Respostas rápidas | GET | /quick-messages | Bearer/cookie conforme sessão | busca/página: contatos search/page e searchParam/pageNumber; usuários searchParam/pageNumber; respostas searchParam/pageNumber; filas sem paginação local | coleção; contatos {contacts,count}, usuários {users,count}, respostas array/{records,hasMore} |
+| Respostas rápidas | POST | /quick-messages | Bearer/cookie conforme sessão | shortcode,message,geral,companyId opcional | QuickMessage |
+| Respostas rápidas | PUT | /quick-messages/:id | Bearer/cookie conforme sessão | shortcode,message,geral,companyId opcional | QuickMessage |
+| Respostas rápidas | DELETE | /quick-messages/:id | Bearer/cookie conforme sessão | id | sem conteúdo esperado |
+| Contatos | GET | /contacts/:id | Bearer/cookie conforme sessão | id | registro completo |
+| Filas | GET | /queue/:id | Bearer/cookie conforme sessão | id | registro completo |
+| Tickets | GET | /tickets | Bearer/cookie conforme sessão | status,busca,conexão,atendente,queueIds JSON,pageNumber,recortes de data; showAll para não-agent | {tickets,...}; listas e métricas têm percursos distintos |
+| Tickets | PUT | /tickets/:id | Bearer/cookie conforme sessão | status,userId; transferência queueId/userId/status/isTransfered:true/msgTransfer | ticket atualizado esperado |
+| Mensagens | GET | /messages/:ticketId | Bearer/cookie conforme sessão | ticketId | coleção ou {messages}; sem paginação de histórico do caller |
+| Mensagens | POST | /messages/:ticketId | Bearer/cookie conforme sessão | body; quotedMsg:{id,body,fromMe}; nota isPrivate string true; multipart medias/body | mensagem/resposta de envio |
+| Etiquetas | GET | /tags/list | Bearer/cookie conforme sessão | nenhum | tags |
+| Etiquetas | PUT | /ticket-tags/:ticketId/:tagId | Bearer/cookie conforme sessão | IDs | sem resposta tipada |
+| Etiquetas | DELETE | /ticket-tags/:ticketId | Bearer/cookie conforme sessão | ticketId; apaga todas | sem resposta tipada |
+| WhatsApp | GET | /whatsapp | Bearer/cookie conforme sessão | nenhum | lista conexões |
+| WhatsApp | GET | /whatsapp/:id?session=0 | Bearer/cookie conforme sessão | id | conexão/QR |
+| WhatsApp | POST | /whatsapp | Bearer/cookie conforme sessão | name,isDefault,greetingMessage | conexão |
+| WhatsApp | PUT | /whatsapp/:id | Bearer/cookie conforme sessão | name,isDefault,greetingMessage; horário preserva outros campos | conexão |
+| WhatsApp | DELETE | /whatsapp/:id | Bearer/cookie conforme sessão | id | sem conteúdo esperado |
+| WhatsApp | POST | /whatsappsession/:id | Bearer/cookie conforme sessão | id, sem corpo | sessão/status |
+| WhatsApp | PUT | /whatsappsession/:id | Bearer/cookie conforme sessão | id, sem corpo | QR/status |
+| WhatsApp | DELETE | /whatsappsession/:id | Bearer/cookie conforme sessão | id | sem resposta tipada |
+| WhatsApp | POST | /whatsapp/:id/status/test-batch | Bearer/cookie conforme sessão | multipart file repetido,captions JSON | resultado experimental sem prova de publicação individual |
+| Chat interno | GET | /internal-chat/conversations | Bearer/cookie conforme sessão | nenhum | array/{records}/{data} |
+| Chat interno | POST | /internal-chat/conversations | Bearer/cookie conforme sessão | kind,userIds,name?,queueId? | conversa |
+| Chat interno | GET | /internal-chat/conversations/:id/messages | Bearer/cookie conforme sessão | pageNumber=1 | mensagens normalizadas |
+| Chat interno | POST | /internal-chat/conversations/:id/messages | Bearer/cookie conforme sessão | body,ticketId? ou multipart medias/body | mensagem |
+| Chat interno | POST | /internal-chat/conversations/:id/members | Bearer/cookie conforme sessão | userId | sem resposta tipada |
+| Chat interno | DELETE | /internal-chat/conversations/:id/members/:userId | Bearer/cookie conforme sessão | IDs | sem resposta tipada |
+| Configurações | GET | /settings/sla | Bearer/cookie conforme sessão | nenhum | JSON serializado/normalizado; falha pode virar default/null |
+| Configurações | PUT | /settings/sla | Bearer/cookie conforme sessão | {value:JSON.stringify(config)} | sem resposta tipada |
+| Configurações | GET | /settings/closingMessage | Bearer/cookie conforme sessão | nenhum | JSON serializado/normalizado; falha pode virar default/null |
+| Configurações | PUT | /settings/closingMessage | Bearer/cookie conforme sessão | {value:JSON.stringify(config)} | sem resposta tipada |
+| Config/Backup | PUT | /companies/:id/schedules | Bearer/cookie conforme sessão | {schedules} | sem resposta tipada |
+| Config/Backup | GET | /companySettingOne/ | Bearer/cookie conforme sessão | column=scheduleType | configuração |
+| Config/Backup | PUT | /companySettings/ | Bearer/cookie conforme sessão | column:scheduleType,data:company/disabled | sem resposta tipada |
+| Config/Backup | GET | /sla/report | Bearer/cookie conforme sessão | period=today | relatório SLA |
+| Config/Backup | GET | /backups | Bearer/cookie conforme sessão | nenhum | array/{backups}/{data}, schedule opcional |
+| Config/Backup | POST | /backups | Bearer/cookie conforme sessão | sem corpo | unknown, solicitação HTTP |
+| Config/Backup | GET | /backups/:id/download | Bearer/cookie conforme sessão | id | blob; Content-Disposition para nome |
+| Config/Backup | POST | /backups/restore | Bearer/cookie conforme sessão | backupId | unknown, não acompanhamento de restore |
+| Config/Backup | PUT | /backups/schedule | Bearer/cookie conforme sessão | enabled,frequency,time,retention | unknown |
+| Conectividade | GET | /health | Anônimo/no-cors/sem credenciais | timestamp ant_cache | resposta opaca possível; não prova2xx |
+| CNPJ | GET | https://brasilapi.com.br/api/cnpj/v1/:cnpj | Externa, anônimo | 14 dígitos | dados cadastrais |
+
+## 7.4 Contratos e divergências
+Tickets são classificados confirmados no catálogo; isso não certifica produção nesta auditoria. A maioria dos demais contratos está pendente no catálogo. Chat interno/Status tiveram instalação relatada no roadmap, sem execução aqui. Backups têm caminhos informados, mas formato assumido. Billing/auditoria continuam /platform, enquanto empresas/planos usam adaptadores /companies e /plans no modo real.
+
+Catálogo menciona /quick-messages/list, mas caller usa /quick-messages. /sla/violations é declaração sem caller identificado. Criar empresa envia password raiz e não confirmação. Plano converte centavos em amount; vários campos do formulário não são persistidos. Veja manuais administrativos.
+
+## 7.5 Somente mocks
+GET /platform/dashboard; GET/POST /platform/companies; GET/PATCH/DELETE /platform/companies/:id; GET /platform/companies/:id/usage; POST /platform/companies/:id/{activate,suspend,reactivate,cancel,end-trial} com reason; PATCH /platform/companies/:id/limits; GET/POST /platform/plans; GET/PATCH/DELETE /platform/plans/:id; GET/PUT /settings/businessHours. Não são prova de endpoints remotos. Mocks não são fallback da rede.
+
+**Fontes:** src/shared/config/endpoints.ts; src/shared/api/{client,errors}.ts; src/shared/auth/auth-service.ts; src/modules/*/api.ts; settings/business-hours.ts; sla/sla.ts; whatsapp/status.ts; audit/impersonation.ts; platform-admin/vps-health.ts; landing/PublicPlans.tsx; connectivity.ts; companies/cnpj-lookup.ts.
+
+---
+[Voltar ao sumário](README.md) · Documentação 1.0.0 · 18/10/2026

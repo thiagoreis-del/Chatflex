@@ -1,5 +1,11 @@
 # Roadmap
 
+## Documentação solicitada em 18/10/2026
+- [ ] Auditar o código em somente leitura e apresentar inventário.
+- [ ] Gerar documentação técnica e manuais em `docs/` com evidências e limitações.
+- [ ] Propor Central de Ajuda sem implementar ou publicar.
+- [ ] Validar links e pacote de documentação; entregar relatório de cobertura.
+
 ## Concluído
 - Saída da empresa: restauração administrativa em memória retorna com sucesso, sem logout por estado antigo da tela.
 - Cadastro de empresa: senha inicial e confirmação validadas; senha enviada no campo exigido por POST /companies.
