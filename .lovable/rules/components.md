@@ -1092,6 +1092,30 @@ import { ThemeToggle } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9
 import { TicketsPage } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195"
 ```
 
+### Tooltip
+
+```ts
+import { Tooltip } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195"
+```
+
+### TooltipContent
+
+```ts
+import { TooltipContent } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195"
+```
+
+### TooltipProvider
+
+```ts
+import { TooltipProvider } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195"
+```
+
+### TooltipTrigger
+
+```ts
+import { TooltipTrigger } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195"
+```
+
 ### TransferTicketDialog
 
 ```ts

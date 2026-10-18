@@ -2,7 +2,7 @@
   "meta": {
     "name": "Chatflex",
     "package": "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "framework": "react",
     "css_framework": "tailwind",
     "starter_template": "custom_design_system_tailwind",
@@ -12,7 +12,7 @@
     ],
     "source_type": "local",
     "source_manifest": {
-      "#enrichment": "25c0d04f3dcd625db9ef2e9c9956c9e9289ad78736402063e02cc9abccfbf08d",
+      "#enrichment": "343a401f0e3dbd26d581c0266bafe8dae3bfe2fda7e54577e688fa4259b579c4",
       ".github/workflows/ci.yml": "777ea6af5fe736b278685380cca75c57",
       ".gitignore": "2f01fb83ea81250941e8c2f2a9eb0d2f",
       ".lovable/meta.yaml": "954a981e8847ec1692669dbb04ae9ae9",
@@ -20,7 +20,7 @@
       ".lovable/sources.yaml": "5b63f5b8f111cb95a44f8a67cbe96971",
       ".prettierignore": "7279a476f196a2da5f7edd18db568dc6",
       ".prettierrc": "185ef0234746ab738ac1ab6cec5e2bd9",
-      "AGENTS.md": "bab0c312e0c07e5244a176b565e3cba5",
+      "AGENTS.md": "81470c8beffe39f64fe3b2600d8c4d02",
       "README.md": "d15ac7fb51cef39be667be685be57937",
       "bunfig.toml": "89115995d9de72fdfc894e16b1e75297",
       "components.json": "30d3d035361ce807021f5c54620962e9",
@@ -38,11 +38,11 @@
       "public/manifest.webmanifest": "257eaed592e7be74582aaf8129e41bc1",
       "public/robots.txt": "f9dff89adf98833e676de2205921996a",
       "public/safari-pinned-tab.svg": "b3ba11eaecd04fbb15a7fb740d42295f",
-      "roadmap.md": "464bc742f317b0c7fd2b2f78f1007757",
+      "roadmap.md": "3d487b8180a7dfef82241df13406e480",
       "src/app/dashboard/DashboardPage.tsx": "340318b019a7ee9e6913374dad2481bd",
       "src/app/dashboard/OperationsPanel.tsx": "9a0908a6d8d4e5ee44c3c747a100d96b",
       "src/app/dashboard/SlaReportPanel.tsx": "972b652f39e695ddda24a0306ae7c5bc",
-      "src/app/layout/AppShell.tsx": "cc7cfbac9d5112d817b042f9422e2103",
+      "src/app/layout/AppShell.tsx": "8708f14de6aec1c1c82ef1a1c73de92a",
       "src/app/pages/NotFoundPage.tsx": "ce9e4045027a77b2e22b922f4fd0b302",
       "src/app/pages/StatusPage.tsx": "30fe9897bf4e8e1cf5988ebbd0270a59",
       "src/assets/chatbotflex-logo.png": "4baa64ac47784aafb54384a9ddbd8d57",
@@ -93,7 +93,7 @@
       "src/components/ui/toggle.tsx": "ee8c5adac74e7242b85b544db1a8fbad",
       "src/components/ui/tooltip.tsx": "67d71db5a1ab935695d1def497f5b8a6",
       "src/hooks/use-mobile.tsx": "c0a0bdd4638c391a1dd06ac82074e60b",
-      "src/index.ts": "e3eabffdb84450416e406ae94b395bec",
+      "src/index.ts": "e375f203f6435f86f62860345b02de7a",
       "src/landing/LandingPage.tsx": "567659830480f4bcae26ac1f5a3d62c1",
       "src/landing/PublicPlans.tsx": "6daf0de2b4d5f445e5f9fb3b675f220e",
       "src/lib/error-capture.ts": "f630d9686a9a989170f22eff4de7b30d",
@@ -260,11 +260,11 @@
       "src/shared/api/client.ts": "1bacd4a8d3ee1ad3c7fdc205d458eb68",
       "src/shared/api/errors.ts": "2884d27b51e9d95bf6f3c052a36fb3c2",
       "src/shared/api/query-keys.ts": "4f663e4705d4080a84a5e2eba496ab68",
-      "src/shared/auth/auth-service.ts": "2641e4558bc9ba9d0a0714c8c9d0a6d3",
+      "src/shared/auth/auth-service.ts": "ea11957bc227ab2b14d867296afaae47",
       "src/shared/auth/generate-password.ts": "983ff6776353b99722cce6265001467d",
       "src/shared/auth/normalize-user.ts": "266a4872e78aca56e803d72f32a66513",
       "src/shared/auth/session-store.ts": "4ffd186d8f74d0e33017aced71dd3693",
-      "src/shared/auth/token-store.ts": "502e118175c25cbcdd830962f5fb6efb",
+      "src/shared/auth/token-store.ts": "c980026d0ca763ffa8b5608cba28dca1",
       "src/shared/auth/types.ts": "d3769d3abc3536e57fc51bcbf0b70781",
       "src/shared/components/ConfirmDialog.tsx": "339dd9142f4f25dea4b5ece6eef7e37c",
       "src/shared/components/DemoBanner.tsx": "33c0a24c98040991c168c26272c410de",
@@ -317,7 +317,7 @@
       "src/test/audio-format.test.ts": "cea78790ba1f3841c5d6e32cf63aeaeb",
       "src/test/company-create.test.ts": "c81a857db905eb84b0952286956f52cf",
       "src/test/connectivity.test.ts": "27afb275d26f6892a1e379e0d54f2651",
-      "src/test/exit-company.test.ts": "0217f2b1e66cd079d3c16a98ab50f454",
+      "src/test/exit-company.test.ts": "bff222cacc6ab2778cfe33fc51bf541d",
       "src/test/generate-password.test.ts": "d886f91000a0609151a7d4a5c19b25bf",
       "src/test/incoming-message-tracker.test.ts": "92ab176da96760f11d5fd6e6cb82b89d",
       "src/test/incoming-notifications.test.tsx": "393456f432e9398a81655c923a791261",
@@ -1129,6 +1129,26 @@
     {
       "name": "Textarea",
       "file": "src/components/ui/textarea",
+      "import_path": ""
+    },
+    {
+      "name": "Tooltip",
+      "file": "src/components/ui/tooltip",
+      "import_path": ""
+    },
+    {
+      "name": "TooltipTrigger",
+      "file": "src/components/ui/tooltip",
+      "import_path": ""
+    },
+    {
+      "name": "TooltipContent",
+      "file": "src/components/ui/tooltip",
+      "import_path": ""
+    },
+    {
+      "name": "TooltipProvider",
+      "file": "src/components/ui/tooltip",
       "import_path": ""
     },
     {
