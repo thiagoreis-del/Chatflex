@@ -55,6 +55,7 @@ export async function login(email: string, password: string) {
   });
   const token = res.accessToken ?? res.token;
   if (!token) throw new Error("Token ausente na resposta de login");
+  forgetPlatformSession();
   tokenStore.set(token);
   const user = normalizeUser(res.user);
   saveUser(user);
@@ -104,6 +105,7 @@ export function ensureSession(): Promise<boolean> {
 
 export async function logout(queryClient: QueryClient) {
   await queryClient.cancelQueries();
+  forgetPlatformSession();
   try {
     await apiRequest(endpoints.auth.logout, { method: "POST", skipRefresh: true });
   } catch {
@@ -136,8 +138,7 @@ export function resetPassword(token: string, password: string) {
 
 /**
  * Sessão original do superadmin na plataforma, guardada ao entrar em uma empresa.
- * Usa sessionStorage (só a aba atual): se o servidor falhar ao encerrar o acesso
- * delegado, o ambiente da plataforma é restaurado localmente sem deslogar.
+ * Somente em memória: nunca persistir credenciais em storage do navegador.
  */
 const PLATFORM_SESSION_KEY = "chatbotflex.platformSession";
 
@@ -146,39 +147,31 @@ interface PlatformSession {
   user: AuthenticatedUser;
 }
 
+let platformSession: PlatformSession | null = null;
+
 function savePlatformSession() {
   if (loadPlatformSession()) return; // Já há um acesso delegado em andamento.
   const token = tokenStore.get();
-  const user = loadUser();
-  if (!token || !user) return;
-  try {
-    window.sessionStorage.setItem(
-      PLATFORM_SESSION_KEY,
-      JSON.stringify({ token, user } satisfies PlatformSession),
-    );
-  } catch {
-    // Sem storage: sai pelo fallback do AppShell (desloga) se o servidor falhar.
-  }
+  const user = sessionStore.get().user;
+  if (!token || user?.role !== "superadmin" || user.impersonated) return;
+  platformSession = { token, user };
 }
 
 function loadPlatformSession(): PlatformSession | null {
-  try {
-    const raw = window.sessionStorage.getItem(PLATFORM_SESSION_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as PlatformSession;
-    return parsed.token && parsed.user ? parsed : null;
-  } catch {
-    return null;
-  }
+  return platformSession;
 }
 
 function forgetPlatformSession() {
+  platformSession = null;
   try {
     window.sessionStorage.removeItem(PLATFORM_SESSION_KEY);
   } catch {
     // Ignora falhas de storage.
   }
 }
+
+// Remove credenciais legadas, mas nunca as lê nem as restaura de storage.
+try { window.sessionStorage.removeItem(PLATFORM_SESSION_KEY); } catch { /* SSR / storage bloqueado */ }
 
 /** Superadmin: troca o token pelo acesso delegado à empresa (auditado no servidor). */
 export async function enterCompany(companyId: string) {
@@ -196,12 +189,16 @@ export async function enterCompany(companyId: string) {
  */
 export async function exitCompany() {
   try {
-    const res = await apiRequest<LoginResponse>(endpoints.auth.exitCompany, { method: "POST" });
-    forgetPlatformSession();
+    const res = await apiRequest<LoginResponse>(endpoints.auth.exitCompany, { method: "POST", skipRefresh: true });
+    const user = normalizeUser(res.user);
+    if (user.role !== "superadmin" || user.impersonated) {
+      throw new Error("Resposta não restaurou a sessão da plataforma");
+    }
     await applyDelegatedSession(res);
+    forgetPlatformSession();
   } catch (error) {
+    if (!loadPlatformSession()) throw error;
     await restorePlatformSession();
-    throw error;
   }
 }
 
