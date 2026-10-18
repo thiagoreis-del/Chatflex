@@ -68,10 +68,10 @@ export interface CompanyInput {
 
 /**
  * Criação em operação única no backend. O primeiro administrador recebe apenas
- * nome, e-mail e telefone — perfil, permissões, status e credenciais são definidos pelo backend.
+ * nome, e-mail, telefone e senha inicial — perfil e permissões são definidos pelo backend.
  */
 export interface CreateCompanyRequest extends CompanyInput {
-  firstAdmin: { name: string; email: string; phone?: string | undefined };
+  firstAdmin: { name: string; email: string; password: string; phone?: string | undefined };
 }
 
 export type CompanyAction =

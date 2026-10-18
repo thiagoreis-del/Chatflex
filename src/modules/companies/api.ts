@@ -197,7 +197,7 @@ export const companyUsersQuery = (companyId: string) =>
 
 export async function createCompany(body: CreateCompanyRequest) {
   if (env.useMocks) return apiRequest<Company>(ep.companies, { method: "POST", body });
-  // O backend cria o primeiro administrador com o e-mail da empresa e senha padrão "mudar123".
+  // Contrato confirmado: POST /companies exige a senha inicial no campo password.
   const raw = await apiRequest<BackendCompany>("/companies", {
     method: "POST",
     body: {
@@ -210,6 +210,7 @@ export async function createCompany(body: CreateCompanyRequest) {
       dueDate: addDays(body.trialDays ?? 15),
       recurrence: "MENSAL",
       companyUserName: body.firstAdmin.name || body.responsibleName,
+      password: body.firstAdmin.password,
     },
   });
   return fromBackendCompany(raw);

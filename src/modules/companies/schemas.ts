@@ -41,7 +41,12 @@ export const createCompanySchema = companyBaseSchema.extend({
     name: req(),
     email: z.string().trim().min(1, "validation.required").max(255).email("validation.email"),
     phone: phone.optional(),
-  }),
+    password: z.string().min(8, "validation.passwordMin").max(128, "validation.tooLong"),
+    confirmPassword: z.string(),
+  }).refine((v) => v.password === v.confirmPassword, {
+    message: "validation.passwordMismatch",
+    path: ["confirmPassword"],
+  }).transform(({ confirmPassword: _confirmation, ...admin }) => admin),
 });
 
 export type CompanyFormValues = z.input<typeof createCompanySchema>;
