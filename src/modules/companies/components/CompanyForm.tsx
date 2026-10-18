@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Loader2, Search } from "lucide-react";
+import { Copy, Eye, EyeOff, Loader2, RefreshCw, Search } from "lucide-react";
+import { generatePassword } from "@/shared/auth/generate-password";
 import { toast } from "sonner";
 import { lookupCnpj } from "../cnpj-lookup";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,6 +69,29 @@ export function CompanyForm({
     m === "validation.passwordMin" || m === "validation.passwordMismatch" ? `auth:${m}` : `common:${m}`,
   ) : undefined);
   const [lookingUp, setLookingUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (mode !== "create" || getValues("firstAdmin.password")) return;
+    const password = generatePassword();
+    setValue("firstAdmin.password", password);
+    setValue("firstAdmin.confirmPassword", password);
+  }, [mode, getValues, setValue]);
+
+  const regeneratePassword = () => {
+    const password = generatePassword();
+    setValue("firstAdmin.password", password, { shouldDirty: true, shouldValidate: true });
+    setValue("firstAdmin.confirmPassword", password, { shouldDirty: true, shouldValidate: true });
+  };
+
+  const copyPassword = async () => {
+    try {
+      await navigator.clipboard.writeText(getValues("firstAdmin.password") ?? "");
+      toast.success(t("companies.form.passwordCopied"));
+    } catch {
+      toast.error(t("companies.form.passwordCopyFailed"));
+    }
+  };
 
   const runCnpjLookup = async () => {
     const digits = (getValues("document") ?? "").replace(/\D/g, "");
@@ -290,14 +314,29 @@ export function CompanyForm({
             label={t("companies.form.adminPassword")}
             error={msg(e.firstAdmin?.password?.message)}
           >
-            {(a) => <Input {...a} type="password" autoComplete="new-password" maxLength={128} {...register("firstAdmin.password")} />}
+            {(a) => (
+              <div className="flex flex-wrap gap-2">
+                <Input {...a} className="min-w-0 flex-1" type={showPassword ? "text" : "password"} autoComplete="new-password" maxLength={128} {...register("firstAdmin.password")} />
+                <div className="flex gap-1">
+                  <Button type="button" size="icon" variant="outline" disabled={submitting} title={t(showPassword ? "companies.form.hidePassword" : "companies.form.showPassword")} aria-label={t(showPassword ? "companies.form.hidePassword" : "companies.form.showPassword")} aria-pressed={showPassword} onClick={() => setShowPassword((v) => !v)}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                  <Button type="button" size="icon" variant="outline" disabled={submitting} title={t("companies.form.copyPassword")} aria-label={t("companies.form.copyPassword")} onClick={copyPassword}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button type="button" size="icon" variant="outline" disabled={submitting} title={t("companies.form.generatePassword")} aria-label={t("companies.form.generatePassword")} onClick={regeneratePassword}>
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </Field>
           <Field
             id="adminConfirmPassword"
             label={t("companies.form.adminConfirmPassword")}
             error={msg(e.firstAdmin?.confirmPassword?.message)}
           >
-            {(a) => <Input {...a} type="password" autoComplete="new-password" maxLength={128} {...register("firstAdmin.confirmPassword")} />}
+            {(a) => <Input {...a} type={showPassword ? "text" : "password"} autoComplete="new-password" maxLength={128} {...register("firstAdmin.confirmPassword")} />}
           </Field>
         </FormSection>
       )}
