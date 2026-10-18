@@ -1,12 +1,6 @@
 import { env } from "@/shared/config/env";
 
-/** Senha temporária forte gerada no navegador (crypto). Nunca é armazenada. */
-export function generatePassword(length = 12) {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789@#$%&*";
-  const buf = new Uint32Array(length);
-  crypto.getRandomValues(buf);
-  return Array.from(buf, (n) => chars[n % chars.length]).join("");
-}
+export { generatePassword } from "@/shared/auth/generate-password";
 
 export interface AccessData {
   company: string;

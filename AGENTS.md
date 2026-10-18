@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Account password generation uses a shared browser CSPRNG helper with rejection sampling; generated passwords stay in form memory only. Why: consistent security across company and user creation without persistent credential storage.
 - Company creation sends the initial administrator password as the root password field of POST /companies; confirmation is validation-only and never sent. Why: the backend requires explicit credentials, not a default password or an invitation flow.
 - Queue writes use a whitelisted server payload; updates read the full queue before merging visible fields. Why: required router fields are sent without resetting hidden schedules, integrations or chatbot associations.
 - AppShell owns dynamic viewport height and main scrolling; wide tables/tabs scroll locally and the ticket workspace fills the remaining height with shrinkable panes. Why: every module fits mobile browsers without clipping actions or enlarging the page.
