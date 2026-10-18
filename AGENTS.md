@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- System documentation lives in docs with source evidence and an explicit distinction between frontend implementation and verified external behavior. Why: manuals must remain maintainable without inventing backend contracts or exposing technical documents publicly.
 - The shared library barrel imports the canonical theme and exposes TooltipProvider. Why: consumers receive base styling and the provider needed for tooltip composition.
 - Delegated company exit resolves after restoring the original authenticated platform session; its backup is memory-only and successful server exit must return a non-delegated superadmin. Why: avoids stale UI logout and never persists or invents administrative credentials.
 - Account password generation uses a shared browser CSPRNG helper with rejection sampling; generated passwords stay in form memory only. Why: consistent security across company and user creation without persistent credential storage.
