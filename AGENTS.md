@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- The shared library barrel imports the canonical theme and exposes TooltipProvider. Why: consumers receive base styling and the provider needed for tooltip composition.
 - Delegated company exit resolves after restoring the original authenticated platform session; its backup is memory-only and successful server exit must return a non-delegated superadmin. Why: avoids stale UI logout and never persists or invents administrative credentials.
 - Account password generation uses a shared browser CSPRNG helper with rejection sampling; generated passwords stay in form memory only. Why: consistent security across company and user creation without persistent credential storage.
 - Company creation sends the initial administrator password as the root password field of POST /companies; confirmation is validation-only and never sent. Why: the backend requires explicit credentials, not a default password or an invitation flow.
