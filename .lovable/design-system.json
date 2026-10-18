@@ -1,0 +1,1592 @@
+{
+  "meta": {
+    "name": "Chatflex",
+    "package": "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195",
+    "version": "1.0.0",
+    "framework": "react",
+    "css_framework": "tailwind",
+    "starter_template": "custom_design_system_tailwind",
+    "theme_files": [
+      "src/shared/theme/theme.ts",
+      "src/styles.css"
+    ],
+    "source_type": "local",
+    "source_manifest": {
+      "#enrichment": "25c0d04f3dcd625db9ef2e9c9956c9e9289ad78736402063e02cc9abccfbf08d",
+      ".github/workflows/ci.yml": "777ea6af5fe736b278685380cca75c57",
+      ".gitignore": "2f01fb83ea81250941e8c2f2a9eb0d2f",
+      ".lovable/project.json": "8a614b0de0ec719c6a3c839b39ebb7b9",
+      ".prettierignore": "7279a476f196a2da5f7edd18db568dc6",
+      ".prettierrc": "185ef0234746ab738ac1ab6cec5e2bd9",
+      "AGENTS.md": "beddfcf6899ac8055d4e5cd4e8f669b2",
+      "README.md": "d15ac7fb51cef39be667be685be57937",
+      "bunfig.toml": "89115995d9de72fdfc894e16b1e75297",
+      "components.json": "30d3d035361ce807021f5c54620962e9",
+      "eslint.config.js": "345bdd57e188e0e4525edcd00e5003f5",
+      "package.json": "9b809cbc8d33550bcc2e1222c1a2e715",
+      "public/favicon-16x16.png": "3256eaa3312143d9bfd4df7f73deec1a",
+      "public/favicon-32x32.png": "88e250abd587e567eab0b386fb07b913",
+      "public/favicon.ico": "87e27befd8f49039b6e3bfeef1372b77",
+      "public/favicon.png": "8894002b837114a73fb912ee371857ba",
+      "public/icons/apple-touch-icon.png": "64cfbff1b22bcfe06a653f610365c091",
+      "public/icons/icon-192.png": "8b9768b416752428abf61ae224772116",
+      "public/icons/icon-512.png": "639724e35a18485a3fbdf49735c318b9",
+      "public/icons/icon-maskable-192.png": "84324e3ff7dced9390b51b969e610d16",
+      "public/icons/icon-maskable-512.png": "986a7934e8bd1e41df5d2e7199668c53",
+      "public/manifest.webmanifest": "257eaed592e7be74582aaf8129e41bc1",
+      "public/robots.txt": "f9dff89adf98833e676de2205921996a",
+      "public/safari-pinned-tab.svg": "b3ba11eaecd04fbb15a7fb740d42295f",
+      "roadmap.md": "af8c5c15578d7372c4f604f4255a89de",
+      "src/app/dashboard/DashboardPage.tsx": "340318b019a7ee9e6913374dad2481bd",
+      "src/app/dashboard/OperationsPanel.tsx": "9a0908a6d8d4e5ee44c3c747a100d96b",
+      "src/app/dashboard/SlaReportPanel.tsx": "972b652f39e695ddda24a0306ae7c5bc",
+      "src/app/layout/AppShell.tsx": "cc7cfbac9d5112d817b042f9422e2103",
+      "src/app/pages/NotFoundPage.tsx": "ce9e4045027a77b2e22b922f4fd0b302",
+      "src/app/pages/StatusPage.tsx": "30fe9897bf4e8e1cf5988ebbd0270a59",
+      "src/assets/chatbotflex-logo.png": "4baa64ac47784aafb54384a9ddbd8d57",
+      "src/components/ui/accordion.tsx": "55f9dda62b4e3913c9b23e5015a86aef",
+      "src/components/ui/alert-dialog.tsx": "96350e949e9b7b674545430a410ab89c",
+      "src/components/ui/alert.tsx": "f993d7e96b1e25ce50e68ed97e11d2a8",
+      "src/components/ui/aspect-ratio.tsx": "c5c364545e1b25a94e9e752cd67ad048",
+      "src/components/ui/avatar.tsx": "72989cd32f72c4122802540ef32525a5",
+      "src/components/ui/badge.tsx": "81cade001fc4260f9943e18dcd79449b",
+      "src/components/ui/breadcrumb.tsx": "bb9ac254f12662b20d5d50b84308bf3a",
+      "src/components/ui/button.tsx": "7d07d520f486b12bd47373d694ecd2ee",
+      "src/components/ui/calendar.tsx": "d849cc610e2683271f3f1c47d093cf30",
+      "src/components/ui/card.tsx": "d6c48ea36221b9cdc3576d305d12d5d5",
+      "src/components/ui/carousel.tsx": "e324c68ae00cd5aed49317638abd429a",
+      "src/components/ui/chart.tsx": "6a3baf94f2e89f1f97d4d7a28f3622d2",
+      "src/components/ui/checkbox.tsx": "f78aac270ca482c8c2cb907ef6260462",
+      "src/components/ui/collapsible.tsx": "767631bbc344945c236f185f4078d71d",
+      "src/components/ui/command.tsx": "014782599cc838b021ec68b07ad4ea02",
+      "src/components/ui/context-menu.tsx": "3ba8244ea23df34a1dba92f3a1230dad",
+      "src/components/ui/dialog.tsx": "72c4a6054ef07c5d0c0423ce0dfb543f",
+      "src/components/ui/drawer.tsx": "8be333e8fd8e42576b1b5f72f07f4337",
+      "src/components/ui/dropdown-menu.tsx": "28d6e98d3c7811fc0514bfa69416f087",
+      "src/components/ui/form.tsx": "1b0aa6302b9017ea2a1307c22a1d2983",
+      "src/components/ui/hover-card.tsx": "1442794c5ca2a78d69e4e613b315ed3d",
+      "src/components/ui/input-otp.tsx": "65625f2f1c4d731a760aeed7b54459d1",
+      "src/components/ui/input.tsx": "1d4cc52a4cd8afb3e18e45bda942bb8a",
+      "src/components/ui/label.tsx": "7e35df4ca8edd0835efd97ca7937ef92",
+      "src/components/ui/menubar.tsx": "3c4121a1e78d3f424a7295381a8997d3",
+      "src/components/ui/navigation-menu.tsx": "e85351147a02b29577ff83d188b63c24",
+      "src/components/ui/pagination.tsx": "fac6cdbb4bbf78b273d85cd36d6cbb49",
+      "src/components/ui/popover.tsx": "f18aa1da2144f25ee60795c539c51bcd",
+      "src/components/ui/progress.tsx": "55c462e5c9dd678dcf2c0c510b014ac4",
+      "src/components/ui/radio-group.tsx": "0e1ace237a5da3197e3eb1e6683faba9",
+      "src/components/ui/resizable.tsx": "d9fcb9203c749fcab4e125a99bb12a86",
+      "src/components/ui/scroll-area.tsx": "87b65d3eb26f2b02ff35a7acea585ba5",
+      "src/components/ui/select.tsx": "31ea1bbd6671833b010b2e852c8a55d0",
+      "src/components/ui/separator.tsx": "433d163c4ffa00b59398a0c293198b5e",
+      "src/components/ui/sheet.tsx": "0221fbf97b69611b47fcbc10bb27669a",
+      "src/components/ui/sidebar.tsx": "83c1623eb50ebc370d7b1b84a542e369",
+      "src/components/ui/skeleton.tsx": "41b182e6e2fc3805960d41e767d4a972",
+      "src/components/ui/slider.tsx": "4752f1bfa26426988d325599e01c335b",
+      "src/components/ui/sonner.tsx": "97f59f60be3413196d095fcbf7383216",
+      "src/components/ui/switch.tsx": "82f5d8b0c59bb7ff305caa9f502e79ff",
+      "src/components/ui/table.tsx": "94f4102eab9d568cf3605606f3965946",
+      "src/components/ui/tabs.tsx": "b1cdac6fcadddf417079decdd37bba87",
+      "src/components/ui/textarea.tsx": "c7aad96fb9545210d53135a96c76ed6b",
+      "src/components/ui/toggle-group.tsx": "ac26383acf721d116ca8e3ab5c5355d5",
+      "src/components/ui/toggle.tsx": "ee8c5adac74e7242b85b544db1a8fbad",
+      "src/components/ui/tooltip.tsx": "67d71db5a1ab935695d1def497f5b8a6",
+      "src/hooks/use-mobile.tsx": "c0a0bdd4638c391a1dd06ac82074e60b",
+      "src/landing/LandingPage.tsx": "567659830480f4bcae26ac1f5a3d62c1",
+      "src/landing/PublicPlans.tsx": "6daf0de2b4d5f445e5f9fb3b675f220e",
+      "src/lib/error-capture.ts": "f630d9686a9a989170f22eff4de7b30d",
+      "src/lib/error-page.ts": "8da0ddd7569bac2676b9a5c8edff8a36",
+      "src/lib/lovable-error-reporting.ts": "920280997099588d609de792663bcbf0",
+      "src/lib/utils.ts": "d9837f38cc05303254571985e3164050",
+      "src/mocks/backups.ts": "e996202337cbc2d0dab6444cb9c270f9",
+      "src/mocks/contacts.ts": "e5423b9bf80e1d1a338ae905fbe60cde",
+      "src/mocks/index.ts": "f310088cde2aee907d1ca165c51d0348",
+      "src/mocks/platform.ts": "1c83d36e4646357631564b1d7f9d580e",
+      "src/mocks/quick-messages.ts": "f3403d59f74736b13e763397607f69b0",
+      "src/mocks/team.ts": "882980f130d4acb3702c732d6ada0bd7",
+      "src/mocks/tickets.ts": "3f0766f55550254b0f35e8fdab81a4b0",
+      "src/mocks/whatsapp.ts": "e5cdbf97c3418092c1b54b0881f2803f",
+      "src/modules/audit/README.md": "c076dc6255b3a020d5537dee32d0a5fc",
+      "src/modules/audit/api.ts": "ed2b1c10c792ea09635c5eb84bd4e3b5",
+      "src/modules/audit/components/AuditEventTable.tsx": "d0e09dcc3fbbe3e40b76b509a93e3ce7",
+      "src/modules/audit/components/ImpersonationLogTable.tsx": "75684b5095157d577727e994d849f4c6",
+      "src/modules/audit/impersonation.ts": "c809266cfdf81c0a95f2276fe31c9f0d",
+      "src/modules/audit/pages/AuditPage.tsx": "6e2042f50898d71f482cf731b50979a1",
+      "src/modules/audit/types.ts": "7dba314199f7cce2924cbc85b281325f",
+      "src/modules/auth/components/AuthLayout.tsx": "fd68b6127c96f0c0bf8773ee01e9ce83",
+      "src/modules/auth/components/FormField.tsx": "fa3a30cbd7c875682191e01919b59419",
+      "src/modules/auth/pages/ForgotPasswordPage.tsx": "350a0fe831224bdcb75fd3c77e06dedc",
+      "src/modules/auth/pages/LoginPage.tsx": "c14028ff5c9d531c8f222ebda3402c3b",
+      "src/modules/auth/pages/ResetPasswordPage.tsx": "ea88d7dd420413d60ba03cecfedc16d1",
+      "src/modules/auth/schemas/auth-schemas.ts": "4041d61e1d6c4f52866b7eb3b4c6867e",
+      "src/modules/automations/README.md": "1caa39a1295588431a1b44d6a8e27115",
+      "src/modules/backup/api.ts": "a5011e0c3f1faf8ebbbed7131e33651c",
+      "src/modules/backup/pages/BackupsPage.tsx": "bf984a52985d764f70bc31cf46432fd5",
+      "src/modules/billing/README.md": "672b9c0ff2979b5945f02032f6414ec5",
+      "src/modules/billing/api.ts": "4f4612b1399bb5a5e86cca99ebfc5013",
+      "src/modules/billing/pages/InvoicesPage.tsx": "3118c9b4c5dd62befb751b05f47f5c38",
+      "src/modules/billing/pages/SubscriptionsPage.tsx": "a1928180bba83311eddaa6f36026eae9",
+      "src/modules/billing/types.ts": "fbb29fbe025fbb939d669ed2dd897a64",
+      "src/modules/campaigns/README.md": "297f987bdad89df66a815f56fdbd6b10",
+      "src/modules/companies/README.md": "6b0a2daa9b73ac1328843cb4ac619da7",
+      "src/modules/companies/api.ts": "dc8a7a38ad2847836ded8ab0c6b7b459",
+      "src/modules/companies/cnpj-lookup.ts": "e261ebaf46fc5854b890f14f8296bb40",
+      "src/modules/companies/components/CompanyAdminActions.tsx": "d94f9ab2ffbee2b56ad6548273c66cd4",
+      "src/modules/companies/components/CompanyForm.tsx": "eb32dcafdb2d0cf637d002218c1e9577",
+      "src/modules/companies/components/EnterCompanyButton.tsx": "a32ef38a05c8f504e457a03a6d76cd7d",
+      "src/modules/companies/components/SensitiveActionDialog.tsx": "995fed9074c74b823fdbaa66fab26158",
+      "src/modules/companies/pages/CompaniesListPage.tsx": "e290cda9e68fe1eeb9edfa2da6647ca8",
+      "src/modules/companies/pages/CompanyDetailPage.tsx": "e9f53bf27992c369973f230b5cc27469",
+      "src/modules/companies/pages/CompanyFormPages.tsx": "3dae2c41f71b15420c47968350ac526f",
+      "src/modules/companies/schemas.ts": "9bd2f2614e246ad847d42190822a0e58",
+      "src/modules/companies/types.ts": "0e85bc577c9ee199572cddadfb0c3d81",
+      "src/modules/contacts/README.md": "3c76b68842b37b8258940c41eb25d1f8",
+      "src/modules/contacts/api.ts": "4dd4c27e252ad51bf1c878b7217b5cce",
+      "src/modules/contacts/components/ContactFormDialog.tsx": "5ac7f62dcf4f2d4790ea6a9bf8e7b274",
+      "src/modules/contacts/import.ts": "b0b0b55c5582c09bd74704710cd4ce02",
+      "src/modules/contacts/pages/ContactsPage.tsx": "b5b093dab1394fb3386ab2a68b53f6e1",
+      "src/modules/contacts/types.ts": "aebc660277e8099e1778d61d3d04e884",
+      "src/modules/files/README.md": "e2cb2e16225be486a35e16e56f06cc63",
+      "src/modules/flows/README.md": "a9e0bc03c01ca3561433f0e820e98e96",
+      "src/modules/internal-chat/api.ts": "29deb29cda2bb70f3d407028cd7264de",
+      "src/modules/internal-chat/pages/InternalChatPage.tsx": "c53b708d4feca4995e11ed1adaf9231e",
+      "src/modules/internal-chat/types.ts": "cd793d714b789cbaef924d6f1d92ddd0",
+      "src/modules/messages/README.md": "55615ff483ac81dc0f4f1c8ccf095a22",
+      "src/modules/monitoring/README.md": "d2544304e11f992c9ae0bd37b8ec8bb2",
+      "src/modules/plans/README.md": "0218e6f9a351b873b466edc1af5f2f5d",
+      "src/modules/plans/api.ts": "57d9ebb02ae2c546a69f3baa1b1444ee",
+      "src/modules/plans/commercial.ts": "6eddcfb6f2c6e1d92f75831b759838a3",
+      "src/modules/plans/components/PlanFeatureList.tsx": "ad9bb3f4583ac343efcf07993166913c",
+      "src/modules/plans/components/PlanForm.tsx": "482ffbc20e4d1196dce43d9c2cde5035",
+      "src/modules/plans/pages/PlanPages.tsx": "1c34ad619c397626c845a5e96537f0aa",
+      "src/modules/plans/types.ts": "5a2e4d489a7c3a21054a798edcdc10b6",
+      "src/modules/platform-admin/README.md": "3af7fede13c135106738643324ae33f7",
+      "src/modules/platform-admin/api.ts": "c72c9869138765f674655ca3d3fabcfb",
+      "src/modules/platform-admin/components/FilterBar.tsx": "0d2019d0f0d931d31cb075a32542e681",
+      "src/modules/platform-admin/components/PlatformMetricCard.tsx": "108b0f8a4f3698a6a6f96968c3cca0ab",
+      "src/modules/platform-admin/components/UsageProgress.tsx": "dbdbb0859b3426da0ab9f07e9f67603b",
+      "src/modules/platform-admin/components/VpsHealthSection.tsx": "934354f924fe3a10bf34d0ec75ea704a",
+      "src/modules/platform-admin/components/badges.tsx": "f5f3a68b963f14e1211f1e57b7550528",
+      "src/modules/platform-admin/pages/PlatformDashboardPage.tsx": "2e38054976a4d4e3c59587203046fba1",
+      "src/modules/platform-admin/vps-health.ts": "5906c54a54d807fbce2a24146bac9706",
+      "src/modules/queues/README.md": "4bbd92c6c04aae9b4fc63306e777082d",
+      "src/modules/queues/api.ts": "b49a95c6430f4f563ca53ed96b90eb10",
+      "src/modules/queues/contract.ts": "675b40a9fef989b1c9bd8ae249c751b0",
+      "src/modules/queues/pages/QueuesPage.tsx": "563d6c264ccef9c25ba1f70cef4f4437",
+      "src/modules/queues/types.ts": "fcc2f86d7c17930eb03d942105eb43d8",
+      "src/modules/quick-messages/api.ts": "00d57c938ad5606df4f3ec4b6091d97b",
+      "src/modules/quick-messages/components/QuickMessagePicker.tsx": "a91696783cd82a66f10bfaa74f17d508",
+      "src/modules/quick-messages/pages/QuickMessagesPage.tsx": "d5b5570f1bbcadfa1f21fa8a48d87335",
+      "src/modules/quick-messages/types.ts": "6be21c16ef7bf3341fd90734591baae5",
+      "src/modules/reports/README.md": "dfcb1382a541eced5296f13a43fa9b8b",
+      "src/modules/roles/README.md": "5999183e660019183fb6e074979f4c71",
+      "src/modules/settings/ClosingMessageCard.tsx": "f966a91d454220052638e7a2a3d5a7ef",
+      "src/modules/settings/README.md": "e6eb1a3abce803e13ce3b74f8bbe3c1e",
+      "src/modules/settings/business-hours.ts": "c561bd2b30ef760d5d62c1091be960c3",
+      "src/modules/settings/closing-message.ts": "74572b860dde9491a9f79774fb024439",
+      "src/modules/settings/pages/SettingsPage.tsx": "2863835e365043dc6f1f33466d13301e",
+      "src/modules/sla/components/SlaBadge.tsx": "2fc5efbcbc479b445c7790dd201f036a",
+      "src/modules/sla/components/SlaSettingsCard.tsx": "0b0ace92ea9d1791dd5dd7c6346a6043",
+      "src/modules/sla/components/SlaWatcher.tsx": "8894a050687a8ab8a3cbba0578214f03",
+      "src/modules/sla/sla.ts": "9f746aeb81aa833753c882bf28f2b663",
+      "src/modules/tickets/README.md": "7e8eecaafb696a7651e2d8faaa00906c",
+      "src/modules/tickets/api.ts": "355acbf37ca007059ade4e34f47bc0da",
+      "src/modules/tickets/attendant-selection.ts": "c6612a156ec47dd7e3fee24454946aba",
+      "src/modules/tickets/audio-format.ts": "5161379ebe1fe0ec987d7cb6d5947f51",
+      "src/modules/tickets/components/AdminAlerts.tsx": "cc0c23fb247579e34a27e435c25fcf5c",
+      "src/modules/tickets/components/AudioRecorder.tsx": "c123f18d691647a3219bd765f7d7541b",
+      "src/modules/tickets/components/CloseTicketDialog.tsx": "403b6068802b6921e6722fe3e31f9f9c",
+      "src/modules/tickets/components/ImageEditorDialog.tsx": "2ad69e4fa3be07ead4db4a2dab23de37",
+      "src/modules/tickets/components/IncomingNotifications.tsx": "4efcd70157a63e2c514bcdc3170084ba",
+      "src/modules/tickets/components/MessageMedia.tsx": "2a2c831ef90cee334e5144ca725a589f",
+      "src/modules/tickets/components/TransferTicketDialog.tsx": "5ddc227d7eb2f584d625d85f6509b659",
+      "src/modules/tickets/incoming-message-tracker.ts": "adf4b5528257d7099dfd967956a3f048",
+      "src/modules/tickets/offline-outbox.ts": "a74c7f280035e818a3e93e25b19bcb1d",
+      "src/modules/tickets/pages/TicketsPage.tsx": "05cccea1703080247dcfc32381ba6fb9",
+      "src/modules/tickets/realtime.ts": "8c1e09c070d59342ee5af2e4f6f25941",
+      "src/modules/tickets/refused.ts": "d0cf097e4433ef8ad844e5a4d2947d4e",
+      "src/modules/tickets/types.ts": "49e932d400335cd8ced7fd8415e32f6e",
+      "src/modules/users/README.md": "831a6d8e509ff50d489b743570a0cf33",
+      "src/modules/users/access.ts": "e3ac6853be981563ee6187d4548495d7",
+      "src/modules/users/api.ts": "7753f40b77236dcccce6f53ccd67f4a6",
+      "src/modules/users/pages/UsersPage.tsx": "b120796ab8ec222f50e3097ac9bb037a",
+      "src/modules/users/types.ts": "ce474b5ce4c265ce6b55cd2469565200",
+      "src/modules/whatsapp/README.md": "acb85fc760bec458d6ade90f90bb26f3",
+      "src/modules/whatsapp/api.ts": "035d7bc6da3cd6b4c4c58063a8d1216d",
+      "src/modules/whatsapp/pages/ConnectionsPage.tsx": "a736e4229b20d2be9230fefe5b409202",
+      "src/modules/whatsapp/pages/StatusPublishPage.tsx": "f9e5322b02eec3e90e2d3ce17e341f88",
+      "src/modules/whatsapp/status.ts": "828eb6ac8418846c924e0b09c80e566f",
+      "src/modules/whatsapp/types.ts": "5b7466cbfd1b18e08487871144fc22aa",
+      "src/routeTree.gen.ts": "15066d893760c39f15fac1c2a6903452",
+      "src/router.tsx": "5aaf84f025a216c09227eedc33f5e03c",
+      "src/routes/403.tsx": "abe5f6febe507508acc7e40097508e7c",
+      "src/routes/404.tsx": "b9a06e09fc25f308b05ed64220a1a559",
+      "src/routes/README.md": "0044790c298aeb33868a7525d79f1585",
+      "src/routes/__root.tsx": "04a35e0fd8f9330c5fdeeb6ad6e022ed",
+      "src/routes/app.atendimento.tsx": "40fb6f94ee0328a5e0c3dbcf2674d632",
+      "src/routes/app.chat-interno.tsx": "961309a96651ae45bb0f80ab430c2292",
+      "src/routes/app.conexoes.tsx": "1d56f2c76bb8d19200395a5e176789f9",
+      "src/routes/app.configuracoes.tsx": "73bab739b9dc476fbc1d5f65717b3fb8",
+      "src/routes/app.contatos.tsx": "21e3e19e37543d6aea4e325f83f8969f",
+      "src/routes/app.dashboard.tsx": "d41cfa87d4c94cb5e249f90262a9b40b",
+      "src/routes/app.filas.tsx": "6d2532f6af862f46d11c5fcf13327c07",
+      "src/routes/app.index.tsx": "ec5912897e8675e6c2645083bbf1803e",
+      "src/routes/app.plataforma.assinaturas.tsx": "6f88219f798a3774300de7a239263b81",
+      "src/routes/app.plataforma.auditoria.tsx": "67fde526cf7a1aaad901ec566323e6d1",
+      "src/routes/app.plataforma.backups.tsx": "143f6f20ca0db648beb8d2a6e207ac7c",
+      "src/routes/app.plataforma.empresas.$companyId.editar.tsx": "9918ba83b8448f84c979af08858ead1f",
+      "src/routes/app.plataforma.empresas.$companyId.index.tsx": "fbbaa34523472e4aea6c8cd098c4901a",
+      "src/routes/app.plataforma.empresas.index.tsx": "b7a0f268f4b9e149c7f3a7b169f3d6f1",
+      "src/routes/app.plataforma.empresas.nova.tsx": "10ed25105e49fbebee1598f138b7be42",
+      "src/routes/app.plataforma.faturas.tsx": "1bcef4294be72f857f76510f16fe2ec2",
+      "src/routes/app.plataforma.index.tsx": "98aff9603c76d024a70527e06c82649b",
+      "src/routes/app.plataforma.planos.$planId.tsx": "10cdf1a936af6f3361276091ab35b03d",
+      "src/routes/app.plataforma.planos.index.tsx": "7fea0aa0e6d5a50049bba446e2027495",
+      "src/routes/app.plataforma.planos.novo.tsx": "c625d7bad9e80b323136239d719c0ce4",
+      "src/routes/app.plataforma.tsx": "da50ffe1d1b9690dcb945a432cc077c7",
+      "src/routes/app.respostas-rapidas.tsx": "b1a29ff2d5f7377c6227e2ab1cdc2b05",
+      "src/routes/app.status.tsx": "bc25811e5cfab77bdd6ac9e32d20be17",
+      "src/routes/app.tsx": "82cbe546351cac607ef3296e647ecde8",
+      "src/routes/app.usuarios.tsx": "71f6b9b081a05ad83c2304e0691d01fe",
+      "src/routes/esqueci-minha-senha.tsx": "00b7f7a0d11887459fb817a181835587",
+      "src/routes/index.tsx": "919afd794ec63d5cc616106f068d484e",
+      "src/routes/indisponivel.tsx": "9803f314fb7374cb925ff25a5643711c",
+      "src/routes/login.tsx": "01a5e038f2c9155849c8afa727e1ed32",
+      "src/routes/redefinir-senha.tsx": "f76cd7ec0a367861272095b076728087",
+      "src/server.ts": "c7bbc49bb70e318af618d92775ee0f27",
+      "src/shared/api/api-status.ts": "b6e8ffaddd4de7c8adca29e5cfa4d856",
+      "src/shared/api/client.ts": "1bacd4a8d3ee1ad3c7fdc205d458eb68",
+      "src/shared/api/errors.ts": "2884d27b51e9d95bf6f3c052a36fb3c2",
+      "src/shared/api/query-keys.ts": "4f663e4705d4080a84a5e2eba496ab68",
+      "src/shared/auth/auth-service.ts": "2641e4558bc9ba9d0a0714c8c9d0a6d3",
+      "src/shared/auth/normalize-user.ts": "266a4872e78aca56e803d72f32a66513",
+      "src/shared/auth/session-store.ts": "4ffd186d8f74d0e33017aced71dd3693",
+      "src/shared/auth/token-store.ts": "502e118175c25cbcdd830962f5fb6efb",
+      "src/shared/auth/types.ts": "d3769d3abc3536e57fc51bcbf0b70781",
+      "src/shared/components/ConfirmDialog.tsx": "339dd9142f4f25dea4b5ece6eef7e37c",
+      "src/shared/components/DemoBanner.tsx": "33c0a24c98040991c168c26272c410de",
+      "src/shared/components/Field.tsx": "a4178e575f5a1712fdcc3b7bdc9bee7f",
+      "src/shared/components/Pagination.tsx": "9b5ee49169f6d4b8fdd87b04deef97df",
+      "src/shared/components/QueryBoundary.tsx": "e6024fb6cbdcac50bfeb3c32d5614f14",
+      "src/shared/components/brand.tsx": "82c1e2440185e920a009e80c64f75ecf",
+      "src/shared/components/display.tsx": "7b5ccbe2f4b1e70921c8f38e46e1403f",
+      "src/shared/components/index.ts": "c8b064e7303c6934f82fa496e9611dc2",
+      "src/shared/components/preferences.tsx": "95a920668fc4436d2acdd0136574209d",
+      "src/shared/components/states.tsx": "fe015eca774bb5451003b644040973be",
+      "src/shared/config/endpoints.ts": "4fda0a46bacec16226114b728b804a47",
+      "src/shared/config/env.ts": "8d0e947fb037fe040b070d3424dac4a8",
+      "src/shared/config/meta.ts": "2e34944444e3733fd2814a99bda290c5",
+      "src/shared/config/vite-env.d.ts": "79ad3f1649f3289c024884a3658fa36f",
+      "src/shared/connectivity/connectivity.ts": "a40453fe60ab014c6f50567a4e767f7c",
+      "src/shared/errors/handle-error.ts": "1607fdc3edc961e205cbeaea7a9896c4",
+      "src/shared/format/format.ts": "dfcad8f0c797e5f2607f22a6343c55c0",
+      "src/shared/hooks/create-store.ts": "05888ffb8fe1dd9734b826e69cae46f3",
+      "src/shared/i18n/index.ts": "9c27bff2e4d6063ddeb363e11623009f",
+      "src/shared/i18n/locales/pt-BR/auth.json": "bef58604118e9fd6dcadbffc2592574f",
+      "src/shared/i18n/locales/pt-BR/backups.json": "bb019e739f44b8137bcddc0c767385ba",
+      "src/shared/i18n/locales/pt-BR/common.json": "830ea782831eaa2f90475b19b3229c08",
+      "src/shared/i18n/locales/pt-BR/contacts.json": "81eb59cea8e6c35bac4568bd55553c91",
+      "src/shared/i18n/locales/pt-BR/dashboard.json": "65afea13bfc68df7f430882798e58679",
+      "src/shared/i18n/locales/pt-BR/errors.json": "b249a77290efa6779ce0c659d46f6681",
+      "src/shared/i18n/locales/pt-BR/internalChat.json": "53d84e480e04b5e8eca331a21255f8d0",
+      "src/shared/i18n/locales/pt-BR/landing.json": "41c5818327fc98325087522337c979e0",
+      "src/shared/i18n/locales/pt-BR/platform.json": "152a351aa4113ade2f11334b8f7e68b5",
+      "src/shared/i18n/locales/pt-BR/quickMessages.json": "ba80b919086d94c7376ec5ba88605fdc",
+      "src/shared/i18n/locales/pt-BR/settings.json": "89e15b5b10ed70f58999a68b2de18c3e",
+      "src/shared/i18n/locales/pt-BR/team.json": "09f59c2bc22f9959e69dfab90eb57b87",
+      "src/shared/i18n/locales/pt-BR/tickets.json": "f64d7412668adab2e040a01a9769f6aa",
+      "src/shared/i18n/locales/pt-BR/whatsapp.json": "399b2edf822cd57322a45c81c08a58db",
+      "src/shared/permissions/PermissionGate.tsx": "bf10a94fa2a8130aed26fdff9dcffa19",
+      "src/shared/permissions/catalog.ts": "3f40c4f3bdcd69e548d2782282ddf85e",
+      "src/shared/permissions/permissions.ts": "5f0f9479cebc3184714667881b7e7610",
+      "src/shared/permissions/route-guards.ts": "4595a5d17fe37f6bda1d5ed4e4a3a1b5",
+      "src/shared/pwa/OfflineNotice.tsx": "4e389ff5119ee98d3b30f5b70ebf5f40",
+      "src/shared/pwa/register-sw.ts": "9c39de1ba65d44f5c5eb21f908851a86",
+      "src/shared/router/search.ts": "e39fa83dc954407199a92c08442b9723",
+      "src/shared/socket/socket-client.ts": "377fb539b338724e72fc52741836fc4b",
+      "src/shared/theme/theme.ts": "25dd663f8d9341de3fb5145ef3897fea",
+      "src/shared/types/pagination.ts": "43e2340115e75598c51f2f385efba7a8",
+      "src/shared/validation/document.ts": "dd427dbc8988970e6250f92502fc3f26",
+      "src/start.ts": "0502f82c58afce5012b4c102e6fe2437",
+      "src/styles.css": "ac8bd0186571a839ade9f0ea53090a63",
+      "src/test/app-routing.test.tsx": "dda0393c89450a1e5b7874b424dca80d",
+      "src/test/attendant-selection.test.ts": "02e9b504cc8013c86132862f531bfb80",
+      "src/test/audio-format.test.ts": "cea78790ba1f3841c5d6e32cf63aeaeb",
+      "src/test/connectivity.test.ts": "27afb275d26f6892a1e379e0d54f2651",
+      "src/test/exit-company.test.ts": "0217f2b1e66cd079d3c16a98ab50f454",
+      "src/test/incoming-message-tracker.test.ts": "92ab176da96760f11d5fd6e6cb82b89d",
+      "src/test/incoming-notifications.test.tsx": "393456f432e9398a81655c923a791261",
+      "src/test/message-media-name.test.tsx": "36ace4ab9114449277b9040e979efab0",
+      "src/test/permissions-catalog.test.ts": "71b7eb733c4313ccc033983036e5ddfe",
+      "src/test/plans-commercial.test.ts": "b40be032b2bfe5171f5df1c0dad1193d",
+      "src/test/queues-api.test.ts": "1ba52118a74cafe47d50377035b1d58f",
+      "src/test/refused-tickets.test.ts": "558eb7caf396be2dde5e916b6b493091",
+      "src/test/setup.ts": "ef5807c07db57482ab718e40246688a2",
+      "src/test/token-swap-race.test.ts": "7a529b2b8dd3ca15f53983b0e909e50d",
+      "src/test/vps-health.test.ts": "7406a0753ae56d9cb90be4c2699b15bd",
+      "src/test/whatsapp-status.test.ts": "7eb286d7868966f61b361fdf72b3069e",
+      "tsconfig.json": "3d34aff71739a382bec105bad1c6948f",
+      "vite.config.ts": "6842a1391bfbc18508800020f017ae5a",
+      "vitest.config.ts": "cdf9aff9538e6bc3eb92842264b030a9"
+    },
+    "pipeline_version": 8
+  },
+  "tokens": {
+    "color": [
+      {
+        "name": "--background",
+        "raw": "oklch(0.985 0.002 286)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--foreground",
+        "raw": "oklch(0.24 0.015 265)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--card",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--card-foreground",
+        "raw": "oklch(0.24 0.015 265)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--popover",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--popover-foreground",
+        "raw": "oklch(0.24 0.015 265)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--primary",
+        "raw": "oklch(0.56 0.19 259)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--primary-foreground",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--secondary",
+        "raw": "oklch(0.95 0.025 255)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--secondary-foreground",
+        "raw": "oklch(0.25 0.09 268)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--muted",
+        "raw": "oklch(0.96 0.005 260)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--muted-foreground",
+        "raw": "oklch(0.55 0.023 264)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--accent",
+        "raw": "oklch(0.93 0.045 250)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--accent-foreground",
+        "raw": "oklch(0.25 0.09 268)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--highlight",
+        "raw": "oklch(0.69 0.15 250)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--navy",
+        "raw": "oklch(0.25 0.09 268)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--destructive",
+        "raw": "oklch(0.58 0.22 27)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--destructive-foreground",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--success",
+        "raw": "oklch(0.63 0.17 149)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--success-foreground",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--warning",
+        "raw": "oklch(0.77 0.16 70)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--warning-foreground",
+        "raw": "oklch(0.28 0.07 60)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--groups",
+        "raw": "oklch(0.55 0.22 295)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--groups-foreground",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--border",
+        "raw": "oklch(0.9 0.01 260)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--input",
+        "raw": "oklch(0.9 0.01 260)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--ring",
+        "raw": "oklch(0.56 0.19 259)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-1",
+        "raw": "oklch(0.56 0.19 259)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-2",
+        "raw": "oklch(0.69 0.15 250)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-3",
+        "raw": "oklch(0.25 0.09 268)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-4",
+        "raw": "oklch(0.63 0.17 149)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--chart-5",
+        "raw": "oklch(0.77 0.16 70)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar",
+        "raw": "oklch(0.25 0.09 268)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-foreground",
+        "raw": "oklch(0.93 0.02 260)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-primary",
+        "raw": "oklch(0.69 0.15 250)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-primary-foreground",
+        "raw": "oklch(0.2 0.08 268)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-accent",
+        "raw": "oklch(0.31 0.1 266)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-accent-foreground",
+        "raw": "oklch(1 0 0)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-border",
+        "raw": "oklch(0.33 0.09 266)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--sidebar-ring",
+        "raw": "oklch(0.69 0.15 250)",
+        "source": "src/styles.css"
+      }
+    ],
+    "typography": [
+      {
+        "name": "--font-display",
+        "raw": "\"Sora\", ui-sans-serif, system-ui, sans-serif",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--font-sans",
+        "raw": "\"Manrope\", ui-sans-serif, system-ui, sans-serif",
+        "source": "src/styles.css"
+      }
+    ],
+    "radius": [
+      {
+        "name": "--radius-sm",
+        "raw": "calc(var(--radius) - 4px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-md",
+        "raw": "calc(var(--radius) - 2px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-xl",
+        "raw": "calc(var(--radius) + 4px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-2xl",
+        "raw": "calc(var(--radius) + 8px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius-3xl",
+        "raw": "calc(var(--radius) + 12px)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--radius",
+        "raw": "0.5rem",
+        "source": "src/styles.css"
+      }
+    ],
+    "shadow": [
+      {
+        "name": "--shadow-soft",
+        "raw": "0 2px 8px -2px oklch(0.25 0.09 268 / 0.06), 0 12px 24px -4px oklch(0.25 0.09 268 / 0.08)",
+        "source": "src/styles.css"
+      },
+      {
+        "name": "--shadow-brand",
+        "raw": "0 12px 30px -14px oklch(0.56 0.19 259 / 0.35)",
+        "source": "src/styles.css"
+      }
+    ],
+    "other": [
+      {
+        "name": "--gradient-hero",
+        "raw": "radial-gradient(110% 90% at 90% 0%, oklch(0.69 0.15 250 / 0.22), transparent 55%),\n    radial-gradient(90% 80% at 0% 100%, oklch(0.56 0.19 259 / 0.12), transparent 60%)",
+        "source": "src/styles.css"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "DashboardPage",
+      "file": "src/app/dashboard/DashboardPage",
+      "import_path": ""
+    },
+    {
+      "name": "OperationsPanel",
+      "file": "src/app/dashboard/OperationsPanel",
+      "import_path": ""
+    },
+    {
+      "name": "SlaReportPanel",
+      "file": "src/app/dashboard/SlaReportPanel",
+      "import_path": ""
+    },
+    {
+      "name": "AppShell",
+      "file": "src/app/layout/AppShell",
+      "import_path": ""
+    },
+    {
+      "name": "NotFoundPage",
+      "file": "src/app/pages/NotFoundPage",
+      "import_path": ""
+    },
+    {
+      "name": "StatusPage",
+      "file": "src/app/pages/StatusPage",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialog",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogPortal",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogOverlay",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogTrigger",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogContent",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogHeader",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogFooter",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogTitle",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogDescription",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogAction",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "AlertDialogCancel",
+      "file": "src/components/ui/alert-dialog",
+      "import_path": ""
+    },
+    {
+      "name": "Badge",
+      "file": "src/components/ui/badge",
+      "import_path": "",
+      "props": [
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "default",
+            "secondary",
+            "destructive",
+            "outline"
+          ],
+          "default": "default"
+        }
+      ]
+    },
+    {
+      "name": "Button",
+      "file": "src/components/ui/button",
+      "import_path": "",
+      "props": [
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "default",
+            "destructive",
+            "outline",
+            "secondary",
+            "ghost",
+            "link"
+          ],
+          "default": "default"
+        },
+        {
+          "name": "size",
+          "type": "enum",
+          "values": [
+            "default",
+            "sm",
+            "lg",
+            "icon"
+          ],
+          "default": "default"
+        },
+        {
+          "name": "asChild",
+          "type": "boolean",
+          "default": "false"
+        }
+      ]
+    },
+    {
+      "name": "Card",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardHeader",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardFooter",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardTitle",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardDescription",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "CardContent",
+      "file": "src/components/ui/card",
+      "import_path": ""
+    },
+    {
+      "name": "ChartContainer",
+      "file": "src/components/ui/chart",
+      "import_path": ""
+    },
+    {
+      "name": "ChartTooltip",
+      "file": "src/components/ui/chart",
+      "import_path": ""
+    },
+    {
+      "name": "ChartTooltipContent",
+      "file": "src/components/ui/chart",
+      "import_path": ""
+    },
+    {
+      "name": "ChartLegend",
+      "file": "src/components/ui/chart",
+      "import_path": ""
+    },
+    {
+      "name": "ChartLegendContent",
+      "file": "src/components/ui/chart",
+      "import_path": ""
+    },
+    {
+      "name": "ChartStyle",
+      "file": "src/components/ui/chart",
+      "import_path": ""
+    },
+    {
+      "name": "Checkbox",
+      "file": "src/components/ui/checkbox",
+      "import_path": ""
+    },
+    {
+      "name": "Dialog",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogPortal",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogOverlay",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogTrigger",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogClose",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogContent",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogHeader",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogFooter",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogTitle",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DialogDescription",
+      "file": "src/components/ui/dialog",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenu",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuTrigger",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuContent",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuItem",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuCheckboxItem",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuRadioItem",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuLabel",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuSeparator",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuShortcut",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuGroup",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuPortal",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuSub",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuSubContent",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuSubTrigger",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "DropdownMenuRadioGroup",
+      "file": "src/components/ui/dropdown-menu",
+      "import_path": ""
+    },
+    {
+      "name": "Input",
+      "file": "src/components/ui/input",
+      "import_path": ""
+    },
+    {
+      "name": "Label",
+      "file": "src/components/ui/label",
+      "import_path": ""
+    },
+    {
+      "name": "Select",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectGroup",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectValue",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectTrigger",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectContent",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectLabel",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectItem",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectSeparator",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectScrollUpButton",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "SelectScrollDownButton",
+      "file": "src/components/ui/select",
+      "import_path": ""
+    },
+    {
+      "name": "Sheet",
+      "file": "src/components/ui/sheet",
+      "import_path": "",
+      "props": [
+        {
+          "name": "side",
+          "type": "enum",
+          "values": [
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ],
+          "default": "right"
+        }
+      ]
+    },
+    {
+      "name": "SheetPortal",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetOverlay",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetTrigger",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetClose",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetContent",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetHeader",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetFooter",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetTitle",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "SheetDescription",
+      "file": "src/components/ui/sheet",
+      "import_path": ""
+    },
+    {
+      "name": "Skeleton",
+      "file": "src/components/ui/skeleton",
+      "import_path": ""
+    },
+    {
+      "name": "Switch",
+      "file": "src/components/ui/switch",
+      "import_path": ""
+    },
+    {
+      "name": "Table",
+      "file": "src/components/ui/table",
+      "import_path": ""
+    },
+    {
+      "name": "TableHeader",
+      "file": "src/components/ui/table",
+      "import_path": ""
+    },
+    {
+      "name": "TableBody",
+      "file": "src/components/ui/table",
+      "import_path": ""
+    },
+    {
+      "name": "TableFooter",
+      "file": "src/components/ui/table",
+      "import_path": ""
+    },
+    {
+      "name": "TableHead",
+      "file": "src/components/ui/table",
+      "import_path": ""
+    },
+    {
+      "name": "TableRow",
+      "file": "src/components/ui/table",
+      "import_path": ""
+    },
+    {
+      "name": "TableCell",
+      "file": "src/components/ui/table",
+      "import_path": ""
+    },
+    {
+      "name": "TableCaption",
+      "file": "src/components/ui/table",
+      "import_path": ""
+    },
+    {
+      "name": "Tabs",
+      "file": "src/components/ui/tabs",
+      "import_path": ""
+    },
+    {
+      "name": "TabsList",
+      "file": "src/components/ui/tabs",
+      "import_path": ""
+    },
+    {
+      "name": "TabsTrigger",
+      "file": "src/components/ui/tabs",
+      "import_path": ""
+    },
+    {
+      "name": "TabsContent",
+      "file": "src/components/ui/tabs",
+      "import_path": ""
+    },
+    {
+      "name": "Textarea",
+      "file": "src/components/ui/textarea",
+      "import_path": ""
+    },
+    {
+      "name": "LandingPage",
+      "file": "src/landing/LandingPage",
+      "import_path": ""
+    },
+    {
+      "name": "PublicPlans",
+      "file": "src/landing/PublicPlans",
+      "import_path": ""
+    },
+    {
+      "name": "AuditEventTable",
+      "file": "src/modules/audit/components/AuditEventTable",
+      "import_path": ""
+    },
+    {
+      "name": "ImpersonationLogTable",
+      "file": "src/modules/audit/components/ImpersonationLogTable",
+      "import_path": ""
+    },
+    {
+      "name": "AuditPage",
+      "file": "src/modules/audit/pages/AuditPage",
+      "import_path": ""
+    },
+    {
+      "name": "AuthLayout",
+      "file": "src/modules/auth/components/AuthLayout",
+      "import_path": ""
+    },
+    {
+      "name": "FormField",
+      "file": "src/modules/auth/components/FormField",
+      "import_path": "",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "error",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ForgotPasswordPage",
+      "file": "src/modules/auth/pages/ForgotPasswordPage",
+      "import_path": ""
+    },
+    {
+      "name": "LoginPage",
+      "file": "src/modules/auth/pages/LoginPage",
+      "import_path": ""
+    },
+    {
+      "name": "ResetPasswordPage",
+      "file": "src/modules/auth/pages/ResetPasswordPage",
+      "import_path": ""
+    },
+    {
+      "name": "BackupsPage",
+      "file": "src/modules/backup/pages/BackupsPage",
+      "import_path": ""
+    },
+    {
+      "name": "InvoicesPage",
+      "file": "src/modules/billing/pages/InvoicesPage",
+      "import_path": ""
+    },
+    {
+      "name": "SubscriptionsPage",
+      "file": "src/modules/billing/pages/SubscriptionsPage",
+      "import_path": ""
+    },
+    {
+      "name": "CompanyQuickActions",
+      "file": "src/modules/companies/components/CompanyAdminActions",
+      "import_path": ""
+    },
+    {
+      "name": "MemberAccessButton",
+      "file": "src/modules/companies/components/CompanyAdminActions",
+      "import_path": ""
+    },
+    {
+      "name": "ConnectionRowActions",
+      "file": "src/modules/companies/components/CompanyAdminActions",
+      "import_path": ""
+    },
+    {
+      "name": "CompanyForm",
+      "file": "src/modules/companies/components/CompanyForm",
+      "import_path": ""
+    },
+    {
+      "name": "EnterCompanyButton",
+      "file": "src/modules/companies/components/EnterCompanyButton",
+      "import_path": ""
+    },
+    {
+      "name": "SensitiveActionDialog",
+      "file": "src/modules/companies/components/SensitiveActionDialog",
+      "import_path": ""
+    },
+    {
+      "name": "CompaniesListPage",
+      "file": "src/modules/companies/pages/CompaniesListPage",
+      "import_path": ""
+    },
+    {
+      "name": "CompanyDetailPage",
+      "file": "src/modules/companies/pages/CompanyDetailPage",
+      "import_path": ""
+    },
+    {
+      "name": "CompanyCreatePage",
+      "file": "src/modules/companies/pages/CompanyFormPages",
+      "import_path": ""
+    },
+    {
+      "name": "CompanyEditPage",
+      "file": "src/modules/companies/pages/CompanyFormPages",
+      "import_path": ""
+    },
+    {
+      "name": "ContactFormDialog",
+      "file": "src/modules/contacts/components/ContactFormDialog",
+      "import_path": ""
+    },
+    {
+      "name": "ContactsPage",
+      "file": "src/modules/contacts/pages/ContactsPage",
+      "import_path": ""
+    },
+    {
+      "name": "InternalChatPage",
+      "file": "src/modules/internal-chat/pages/InternalChatPage",
+      "import_path": ""
+    },
+    {
+      "name": "PlanFeatureList",
+      "file": "src/modules/plans/components/PlanFeatureList",
+      "import_path": ""
+    },
+    {
+      "name": "PlanForm",
+      "file": "src/modules/plans/components/PlanForm",
+      "import_path": ""
+    },
+    {
+      "name": "PlansListPage",
+      "file": "src/modules/plans/pages/PlanPages",
+      "import_path": ""
+    },
+    {
+      "name": "PlanCreatePage",
+      "file": "src/modules/plans/pages/PlanPages",
+      "import_path": ""
+    },
+    {
+      "name": "PlanDetailPage",
+      "file": "src/modules/plans/pages/PlanPages",
+      "import_path": ""
+    },
+    {
+      "name": "FilterBar",
+      "file": "src/modules/platform-admin/components/FilterBar",
+      "import_path": ""
+    },
+    {
+      "name": "SelectFilter",
+      "file": "src/modules/platform-admin/components/FilterBar",
+      "import_path": ""
+    },
+    {
+      "name": "TextFilter",
+      "file": "src/modules/platform-admin/components/FilterBar",
+      "import_path": ""
+    },
+    {
+      "name": "PlatformMetricCard",
+      "file": "src/modules/platform-admin/components/PlatformMetricCard",
+      "import_path": ""
+    },
+    {
+      "name": "UsageProgress",
+      "file": "src/modules/platform-admin/components/UsageProgress",
+      "import_path": ""
+    },
+    {
+      "name": "VpsHealthSection",
+      "file": "src/modules/platform-admin/components/VpsHealthSection",
+      "import_path": ""
+    },
+    {
+      "name": "CompanyStatusBadge",
+      "file": "src/modules/platform-admin/components/badges",
+      "import_path": ""
+    },
+    {
+      "name": "SubscriptionStatusBadge",
+      "file": "src/modules/platform-admin/components/badges",
+      "import_path": ""
+    },
+    {
+      "name": "InvoiceStatusBadge",
+      "file": "src/modules/platform-admin/components/badges",
+      "import_path": ""
+    },
+    {
+      "name": "AuditResultBadge",
+      "file": "src/modules/platform-admin/components/badges",
+      "import_path": ""
+    },
+    {
+      "name": "PlatformDashboardPage",
+      "file": "src/modules/platform-admin/pages/PlatformDashboardPage",
+      "import_path": ""
+    },
+    {
+      "name": "QueuesPage",
+      "file": "src/modules/queues/pages/QueuesPage",
+      "import_path": ""
+    },
+    {
+      "name": "QuickMessagePicker",
+      "file": "src/modules/quick-messages/components/QuickMessagePicker",
+      "import_path": ""
+    },
+    {
+      "name": "QuickMessagesPage",
+      "file": "src/modules/quick-messages/pages/QuickMessagesPage",
+      "import_path": ""
+    },
+    {
+      "name": "ClosingMessageCard",
+      "file": "src/modules/settings/ClosingMessageCard",
+      "import_path": ""
+    },
+    {
+      "name": "SettingsPage",
+      "file": "src/modules/settings/pages/SettingsPage",
+      "import_path": ""
+    },
+    {
+      "name": "SlaBadge",
+      "file": "src/modules/sla/components/SlaBadge",
+      "import_path": ""
+    },
+    {
+      "name": "SlaSettingsCard",
+      "file": "src/modules/sla/components/SlaSettingsCard",
+      "import_path": ""
+    },
+    {
+      "name": "SlaWatcher",
+      "file": "src/modules/sla/components/SlaWatcher",
+      "import_path": ""
+    },
+    {
+      "name": "AdminAlerts",
+      "file": "src/modules/tickets/components/AdminAlerts",
+      "import_path": ""
+    },
+    {
+      "name": "AudioRecorder",
+      "file": "src/modules/tickets/components/AudioRecorder",
+      "import_path": ""
+    },
+    {
+      "name": "CloseTicketDialog",
+      "file": "src/modules/tickets/components/CloseTicketDialog",
+      "import_path": ""
+    },
+    {
+      "name": "ImageEditorDialog",
+      "file": "src/modules/tickets/components/ImageEditorDialog",
+      "import_path": ""
+    },
+    {
+      "name": "IncomingNotifications",
+      "file": "src/modules/tickets/components/IncomingNotifications",
+      "import_path": ""
+    },
+    {
+      "name": "MessageMedia",
+      "file": "src/modules/tickets/components/MessageMedia",
+      "import_path": ""
+    },
+    {
+      "name": "TransferTicketDialog",
+      "file": "src/modules/tickets/components/TransferTicketDialog",
+      "import_path": ""
+    },
+    {
+      "name": "IncomingMessageTracker",
+      "file": "src/modules/tickets/incoming-message-tracker",
+      "import_path": ""
+    },
+    {
+      "name": "TicketsPage",
+      "file": "src/modules/tickets/pages/TicketsPage",
+      "import_path": ""
+    },
+    {
+      "name": "UsersPage",
+      "file": "src/modules/users/pages/UsersPage",
+      "import_path": ""
+    },
+    {
+      "name": "AccessDialog",
+      "file": "src/modules/users/pages/UsersPage",
+      "import_path": ""
+    },
+    {
+      "name": "UserFormDialog",
+      "file": "src/modules/users/pages/UsersPage",
+      "import_path": ""
+    },
+    {
+      "name": "ConnectionsPage",
+      "file": "src/modules/whatsapp/pages/ConnectionsPage",
+      "import_path": ""
+    },
+    {
+      "name": "StatusPublishPage",
+      "file": "src/modules/whatsapp/pages/StatusPublishPage",
+      "import_path": ""
+    },
+    {
+      "name": "ApiError",
+      "file": "src/shared/api/errors",
+      "import_path": ""
+    },
+    {
+      "name": "ConfirmDialog",
+      "file": "src/shared/components/ConfirmDialog",
+      "import_path": ""
+    },
+    {
+      "name": "DemoBanner",
+      "file": "src/shared/components/DemoBanner",
+      "import_path": ""
+    },
+    {
+      "name": "Field",
+      "file": "src/shared/components/Field",
+      "import_path": ""
+    },
+    {
+      "name": "FormSection",
+      "file": "src/shared/components/Field",
+      "import_path": ""
+    },
+    {
+      "name": "Pagination",
+      "file": "src/shared/components/Pagination",
+      "import_path": ""
+    },
+    {
+      "name": "DataUnavailable",
+      "file": "src/shared/components/QueryBoundary",
+      "import_path": ""
+    },
+    {
+      "name": "QueryError",
+      "file": "src/shared/components/QueryBoundary",
+      "import_path": ""
+    },
+    {
+      "name": "QueryBoundary",
+      "file": "src/shared/components/QueryBoundary",
+      "import_path": ""
+    },
+    {
+      "name": "AppLogo",
+      "file": "src/shared/components/brand",
+      "import_path": ""
+    },
+    {
+      "name": "AppName",
+      "file": "src/shared/components/brand",
+      "import_path": ""
+    },
+    {
+      "name": "MoneyDisplay",
+      "file": "src/shared/components/display",
+      "import_path": ""
+    },
+    {
+      "name": "DateDisplay",
+      "file": "src/shared/components/display",
+      "import_path": ""
+    },
+    {
+      "name": "PageHeader",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "LoadingState",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "EmptyState",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "ErrorState",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "AccessDenied",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "BackendUnavailable",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "PendingIntegration",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "ThemeToggle",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "LanguageSelector",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "PermissionGate",
+      "file": "src/shared/components/index",
+      "import_path": ""
+    },
+    {
+      "name": "OfflineNotice",
+      "file": "src/shared/pwa/OfflineNotice",
+      "import_path": ""
+    }
+  ],
+  "assets": [
+    {
+      "file": "src/assets/chatbotflex-logo.png",
+      "kind": "logo",
+      "format": "png"
+    }
+  ]
+}
