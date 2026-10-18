@@ -68,6 +68,7 @@ describe("Sair da empresa não desloga o superadmin", () => {
     expect(sessionStore.get().user?.role).toBe("superadmin");
     expect(sessionStore.get().user?.companyId).toBe("1");
     expect(window.sessionStorage.getItem("chatbotflex.platformSession")).toBeNull();
+    expect(window.localStorage.getItem("chatbotflex.accessToken")).toBeNull();
   });
 
   it("usa a resposta do servidor quando a saída tem sucesso", async () => {
