@@ -2,7 +2,7 @@
   "meta": {
     "name": "Chatflex",
     "package": "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "framework": "react",
     "css_framework": "tailwind",
     "starter_template": "custom_design_system_tailwind",
@@ -25,7 +25,7 @@
       "bunfig.toml": "89115995d9de72fdfc894e16b1e75297",
       "components.json": "30d3d035361ce807021f5c54620962e9",
       "eslint.config.js": "345bdd57e188e0e4525edcd00e5003f5",
-      "package.json": "9b809cbc8d33550bcc2e1222c1a2e715",
+      "package.json": "41fb5237ef370cdd4245c358ca303fb8",
       "public/favicon-16x16.png": "3256eaa3312143d9bfd4df7f73deec1a",
       "public/favicon-32x32.png": "88e250abd587e567eab0b386fb07b913",
       "public/favicon.ico": "87e27befd8f49039b6e3bfeef1372b77",
@@ -46,6 +46,8 @@
       "src/app/pages/NotFoundPage.tsx": "ce9e4045027a77b2e22b922f4fd0b302",
       "src/app/pages/StatusPage.tsx": "30fe9897bf4e8e1cf5988ebbd0270a59",
       "src/assets/chatbotflex-logo.png": "4baa64ac47784aafb54384a9ddbd8d57",
+      "src/assets/fonts/manrope-latin-wght-normal.woff2": "938c6e8019b69313372c47dbb7a7c930",
+      "src/assets/fonts/sora-latin-wght-normal.woff2": "0d0e5e4d2f9fef29f3aff5e8e0e659c4",
       "src/components/ui/accordion.tsx": "55f9dda62b4e3913c9b23e5015a86aef",
       "src/components/ui/alert-dialog.tsx": "96350e949e9b7b674545430a410ab89c",
       "src/components/ui/alert.tsx": "f993d7e96b1e25ce50e68ed97e11d2a8",
@@ -224,7 +226,7 @@
       "src/routes/403.tsx": "abe5f6febe507508acc7e40097508e7c",
       "src/routes/404.tsx": "b9a06e09fc25f308b05ed64220a1a559",
       "src/routes/README.md": "0044790c298aeb33868a7525d79f1585",
-      "src/routes/__root.tsx": "04a35e0fd8f9330c5fdeeb6ad6e022ed",
+      "src/routes/__root.tsx": "4fcb98c308e35403843764b6491d06ea",
       "src/routes/app.atendimento.tsx": "40fb6f94ee0328a5e0c3dbcf2674d632",
       "src/routes/app.chat-interno.tsx": "961309a96651ae45bb0f80ab430c2292",
       "src/routes/app.conexoes.tsx": "1d56f2c76bb8d19200395a5e176789f9",
@@ -255,7 +257,7 @@
       "src/routes/indisponivel.tsx": "9803f314fb7374cb925ff25a5643711c",
       "src/routes/login.tsx": "01a5e038f2c9155849c8afa727e1ed32",
       "src/routes/redefinir-senha.tsx": "f76cd7ec0a367861272095b076728087",
-      "src/server.ts": "c7bbc49bb70e318af618d92775ee0f27",
+      "src/server.ts": "01d83110cab6349fcc4da6a9b97cb9cb",
       "src/shared/api/api-status.ts": "b6e8ffaddd4de7c8adca29e5cfa4d856",
       "src/shared/api/client.ts": "1bacd4a8d3ee1ad3c7fdc205d458eb68",
       "src/shared/api/errors.ts": "2884d27b51e9d95bf6f3c052a36fb3c2",
@@ -311,7 +313,7 @@
       "src/shared/types/pagination.ts": "43e2340115e75598c51f2f385efba7a8",
       "src/shared/validation/document.ts": "dd427dbc8988970e6250f92502fc3f26",
       "src/start.ts": "0502f82c58afce5012b4c102e6fe2437",
-      "src/styles.css": "ac8bd0186571a839ade9f0ea53090a63",
+      "src/styles.css": "ada81810cdda4e954ea601e217d8aac7",
       "src/test/app-routing.test.tsx": "dda0393c89450a1e5b7874b424dca80d",
       "src/test/attendant-selection.test.ts": "02e9b504cc8013c86132862f531bfb80",
       "src/test/audio-format.test.ts": "cea78790ba1f3841c5d6e32cf63aeaeb",
@@ -542,12 +544,12 @@
     "typography": [
       {
         "name": "--font-display",
-        "raw": "\"Sora\", ui-sans-serif, system-ui, sans-serif",
+        "raw": "\"Sora Variable\", \"Sora\", ui-sans-serif, system-ui, sans-serif",
         "source": "src/styles.css"
       },
       {
         "name": "--font-sans",
-        "raw": "\"Manrope\", ui-sans-serif, system-ui, sans-serif",
+        "raw": "\"Manrope Variable\", \"Manrope\", ui-sans-serif, system-ui, sans-serif",
         "source": "src/styles.css"
       }
     ],
@@ -1613,6 +1615,16 @@
       "file": "src/assets/chatbotflex-logo.png",
       "kind": "logo",
       "format": "png"
+    },
+    {
+      "file": "src/assets/fonts/manrope-latin-wght-normal.woff2",
+      "kind": "font",
+      "format": "woff2"
+    },
+    {
+      "file": "src/assets/fonts/sora-latin-wght-normal.woff2",
+      "kind": "font",
+      "format": "woff2"
     }
   ]
 }
