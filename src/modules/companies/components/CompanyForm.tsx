@@ -59,12 +59,14 @@ export function CompanyForm({
       storageLimitMb: company?.storageLimitMb ?? 1024,
       status: company?.status ?? "onboarding",
       internalNotes: company?.internalNotes ?? "",
-      ...(mode === "create" ? { firstAdmin: { name: "", email: "", phone: "" } } : {}),
+      ...(mode === "create" ? { firstAdmin: { name: "", email: "", phone: "", password: "", confirmPassword: "" } } : {}),
     },
   });
   const { register, handleSubmit, control, formState, setValue, getValues } = form;
   const e = formState.errors;
-  const msg = (m?: string) => (m ? t(`common:${m}`) : undefined);
+  const msg = (m?: string) => (m ? t(
+    m === "validation.passwordMin" || m === "validation.passwordMismatch" ? `auth:${m}` : `common:${m}`,
+  ) : undefined);
   const [lookingUp, setLookingUp] = useState(false);
 
   const runCnpjLookup = async () => {
@@ -282,6 +284,20 @@ export function CompanyForm({
             error={msg(e.firstAdmin?.phone?.message)}
           >
             {(a) => <Input {...a} type="tel" {...register("firstAdmin.phone")} />}
+          </Field>
+          <Field
+            id="adminPassword"
+            label={t("companies.form.adminPassword")}
+            error={msg(e.firstAdmin?.password?.message)}
+          >
+            {(a) => <Input {...a} type="password" autoComplete="new-password" maxLength={128} {...register("firstAdmin.password")} />}
+          </Field>
+          <Field
+            id="adminConfirmPassword"
+            label={t("companies.form.adminConfirmPassword")}
+            error={msg(e.firstAdmin?.confirmPassword?.message)}
+          >
+            {(a) => <Input {...a} type="password" autoComplete="new-password" maxLength={128} {...register("firstAdmin.confirmPassword")} />}
           </Field>
         </FormSection>
       )}

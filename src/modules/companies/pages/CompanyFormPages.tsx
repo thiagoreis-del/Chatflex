@@ -24,6 +24,7 @@ export function CompanyCreatePage() {
           name: v.firstAdmin.name,
           email: v.firstAdmin.email,
           phone: v.firstAdmin.phone || undefined,
+          password: v.firstAdmin.password,
         },
       }),
     onSuccess: async (company) => {
