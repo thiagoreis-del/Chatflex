@@ -2,6 +2,26 @@
 @source "../src";
 @import "tw-animate-css";
 
+/*
+ * Fontes da marca self-hosted (Manrope corpo, Sora títulos).
+ * Declaradas aqui para que consumidores que herdam este CSS recebam as fontes
+ * sem depender de <link> externos no head do app.
+ */
+@font-face {
+  font-family: "Manrope Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("./assets/fonts/manrope-latin-wght-normal.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "Sora Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("./assets/fonts/sora-latin-wght-normal.woff2") format("woff2-variations");
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -10,8 +30,8 @@
  */
 
 @theme inline {
-  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora Variable", "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope Variable", "Manrope", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
