@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Concluído
+- Saída da empresa: restauração administrativa em memória retorna com sucesso, sem logout por estado antigo da tela.
 - Cadastro de empresa: senha inicial e confirmação validadas; senha enviada no campo exigido por POST /companies.
 - Etapa 1 — Abas de atendimento com cores/ícones/contadores, cabeçalho da conversa com Empresa/Conexão/Fila/Atendente e botão Finalizar em destaque.
 - Etapa 2 — PWA: manifesto, ícones, service worker (produção, NetworkFirst), aviso offline, rascunho e fila de envio offline de mensagens de texto.

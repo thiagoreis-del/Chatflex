@@ -62,11 +62,12 @@ describe("Sair da empresa não desloga o superadmin", () => {
     expect(tokenStore.get()).toBe("token-delegado");
     expect(sessionStore.get().user?.companyId).toBe("2");
 
-    await expect(exitCompany()).rejects.toThrow();
+    await expect(exitCompany()).resolves.toBeUndefined();
     // Sessão da plataforma restaurada localmente, sem deslogar.
     expect(tokenStore.get()).toBe("token-plataforma");
     expect(sessionStore.get().user?.role).toBe("superadmin");
     expect(sessionStore.get().user?.companyId).toBe("1");
+    expect(window.sessionStorage.getItem("chatbotflex.platformSession")).toBeNull();
   });
 
   it("usa a resposta do servidor quando a saída tem sucesso", async () => {
@@ -82,5 +83,40 @@ describe("Sair da empresa não desloga o superadmin", () => {
     await expect(exitCompany()).resolves.toBeUndefined();
     expect(tokenStore.get()).toBe("token-novo");
     expect(sessionStore.get().user?.companyId).toBe("1");
+  });
+
+  it("preserva a sessão original quando a resposta de saída não contém token", async () => {
+    mocks.apiRequest.mockImplementation((path: string) => {
+      if (path === "/auth/login") return Promise.resolve({ token: "original", user: platformUser });
+      if (path === "/companies/2/enter") return Promise.resolve({ token: "delegated", user: companyUser });
+      return Promise.resolve({ user: platformUser });
+    });
+    await login("super@notasflex.com.br", "senha");
+    await enterCompany("2");
+    await exitCompany();
+    expect(tokenStore.get()).toBe("original");
+    expect(sessionStore.get().user?.role).toBe("superadmin");
+  });
+
+  it("não trata uma resposta ainda delegada como retorno à plataforma", async () => {
+    mocks.apiRequest.mockImplementation((path: string) => {
+      if (path === "/auth/login") return Promise.resolve({ token: "original", user: platformUser });
+      return Promise.resolve({ token: "delegated", user: companyUser });
+    });
+    await login("super@notasflex.com.br", "senha");
+    await enterCompany("2");
+    await exitCompany();
+    expect(tokenStore.get()).toBe("original");
+    expect(sessionStore.get().user?.role).toBe("superadmin");
+  });
+
+  it("não concede acesso à plataforma sem uma sessão original autenticada", async () => {
+    mocks.apiRequest.mockImplementation((path: string) => {
+      if (path === "/auth/login") return Promise.resolve({ token: "company", user: companyUser });
+      return Promise.reject(new ApiError("forbidden", 403));
+    });
+    await login("admin@empresa.com.br", "senha");
+    await expect(exitCompany()).rejects.toThrow();
+    expect(sessionStore.get().user?.role).toBe("company_admin");
   });
 });

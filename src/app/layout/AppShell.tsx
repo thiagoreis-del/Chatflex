@@ -337,17 +337,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   const handleExit = async () => {
+    await router.options.context.queryClient.cancelQueries();
     try {
       await exitCompany();
       router.options.context.queryClient.clear();
       await navigate({ to: "/app/plataforma" });
     } catch {
-      if (user?.role === "superadmin") {
-        // O acesso original da plataforma foi restaurado localmente.
-        router.options.context.queryClient.clear();
-        await navigate({ to: "/app/plataforma" });
-        return;
-      }
       // Sem sessão da plataforma guardada (ex.: recarregou a página):
       // encerra a sessão delegada com segurança e leva ao login.
       toast.info(t("context.exitRelogin"));
