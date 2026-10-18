@@ -2,7 +2,7 @@
   "meta": {
     "name": "Chatflex",
     "package": "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "framework": "react",
     "css_framework": "tailwind",
     "starter_template": "custom_design_system_tailwind",
@@ -14,6 +14,7 @@
     "source_manifest": {
       "#enrichment": "343a401f0e3dbd26d581c0266bafe8dae3bfe2fda7e54577e688fa4259b579c4",
       ".github/workflows/ci.yml": "777ea6af5fe736b278685380cca75c57",
+      ".github/workflows/deploy.yml": "440db2e654761b9d89ce13d57f8e962d",
       ".gitignore": "2f01fb83ea81250941e8c2f2a9eb0d2f",
       ".lovable/meta.yaml": "954a981e8847ec1692669dbb04ae9ae9",
       ".lovable/project.json": "8a614b0de0ec719c6a3c839b39ebb7b9",
