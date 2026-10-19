@@ -33,7 +33,10 @@ import {
   Video,
   X,
   Zap,
+  Bell,
+  BellOff,
 } from "lucide-react";
+import { mutedKey, setMuted, useMutedContacts } from "../muted-contacts";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -573,6 +576,12 @@ export function TicketsPage() {
                                 )}
                               >
                                 {name}
+                                {mutedIds.includes(tk.contact.id) && (
+                                  <BellOff
+                                    className="ml-1 inline size-3 text-muted-foreground"
+                                    aria-label={t("mute.muted")}
+                                  />
+                                )}
                               </span>
                               <span
                                 className={cn(
@@ -1231,6 +1240,21 @@ function Conversation({
           </div>
         </div>
         <div className="flex shrink-0 items-center justify-end gap-0.5 sm:gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-pressed={muted}
+            aria-label={muted ? t("mute.unmute") : t("mute.mute")}
+            title={muted ? t("mute.unmute") : t("mute.mute")}
+            onClick={() => {
+              if (!muteKey) return;
+              setMuted(muteKey, ticket.contact.id, !muted);
+              toast.success(muted ? t("mute.unmutedToast") : t("mute.mutedToast"));
+            }}
+          >
+            {muted ? <BellOff className="size-4" /> : <Bell className="size-4" />}
+          </Button>
           <Button
             type="button"
             variant="ghost"
