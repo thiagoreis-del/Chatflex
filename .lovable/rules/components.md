@@ -666,6 +666,21 @@ import { MessageMedia } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-
 import { MoneyDisplay } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195"
 ```
 
+### NewTicketSuggestions
+
+```ts
+import { NewTicketSuggestions } from "@ws-workspace-01kn1ddjxef73vpxqhtt0ymq06/65971cb3-9c1d-4b5a-b3fe-3f1657143195"
+```
+
+**Props:**
+
+| Prop | Type | Default |
+|---|---|---|
+| `search` | string | `—` |
+| `activeContactIds` | any | `—` |
+| `userId` | number | `—` |
+| `onStarted` | function | `—` |
+
 ### NotFoundPage
 
 ```ts
