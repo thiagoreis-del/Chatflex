@@ -355,8 +355,8 @@ export const ACCEPTED_MEDIA =
 
 export interface CreateTicketInput {
   contactId: number;
-  userId?: number;
-  whatsappId?: number;
+  userId?: number | undefined;
+  whatsappId?: number | undefined;
 }
 
 /** Inicia um atendimento para um contato que não está em atendimento. */

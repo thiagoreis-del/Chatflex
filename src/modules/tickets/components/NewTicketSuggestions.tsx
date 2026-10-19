@@ -20,7 +20,7 @@ export interface NewTicketSuggestionsProps {
   search: string;
   /** IDs de contatos que já possuem atendimento aberto ou aguardando. */
   activeContactIds: Set<number>;
-  userId?: number;
+  userId?: number | undefined;
   onStarted: (ticket: Ticket) => void;
 }
 
