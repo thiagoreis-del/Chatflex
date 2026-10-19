@@ -204,5 +204,12 @@
     "started": "Atendimento iniciado.",
     "error": "Não foi possível iniciar o atendimento.",
     "searching": "Buscando contatos…"
+  },
+  "mute": {
+    "mute": "Silenciar notificações",
+    "unmute": "Reativar notificações",
+    "muted": "Silenciado",
+    "mutedToast": "Notificações silenciadas até você reativar",
+    "unmutedToast": "Notificações reativadas"
   }
 }

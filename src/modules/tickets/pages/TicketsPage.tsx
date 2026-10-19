@@ -33,7 +33,10 @@ import {
   Video,
   X,
   Zap,
+  Bell,
+  BellOff,
 } from "lucide-react";
+import { mutedKey, setMuted, useMutedContacts } from "../muted-contacts";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -138,6 +141,7 @@ export function TicketsPage() {
   const [tab, setTab] = useState<TicketTab>("open");
   const status: TicketStatus = tab === "groups" ? "open" : tab;
   const session = useSession();
+  const mutedIds = useMutedContacts(session.user ? mutedKey(session.user.companyId, session.user.id) : null);
   const qcl = useQueryClient();
   const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
   const [confirmClose, setConfirmClose] = useState(false);
@@ -573,6 +577,12 @@ export function TicketsPage() {
                                 )}
                               >
                                 {name}
+                                {mutedIds.includes(tk.contact.id) && (
+                                  <BellOff
+                                    className="ml-1 inline size-3 text-muted-foreground"
+                                    aria-label={t("mute.muted")}
+                                  />
+                                )}
                               </span>
                               <span
                                 className={cn(
@@ -702,6 +712,8 @@ function Conversation({
   const { t: tq } = useTranslation("quickMessages");
   const qc = useQueryClient();
   const session = useSession();
+  const muteKey = session.user ? mutedKey(session.user.companyId, session.user.id) : null;
+  const muted = useMutedContacts(muteKey).includes(ticket.contact.id);
   const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
   const myId = Number(session.user?.id) || null;
   // Admin pode responder em nome de qualquer usuário da empresa.
@@ -1231,6 +1243,21 @@ function Conversation({
           </div>
         </div>
         <div className="flex shrink-0 items-center justify-end gap-0.5 sm:gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-pressed={muted}
+            aria-label={muted ? t("mute.unmute") : t("mute.mute")}
+            title={muted ? t("mute.unmute") : t("mute.mute")}
+            onClick={() => {
+              if (!muteKey) return;
+              setMuted(muteKey, ticket.contact.id, !muted);
+              toast.success(muted ? t("mute.unmutedToast") : t("mute.mutedToast"));
+            }}
+          >
+            {muted ? <BellOff className="size-4" /> : <Bell className="size-4" />}
+          </Button>
           <Button
             type="button"
             variant="ghost"

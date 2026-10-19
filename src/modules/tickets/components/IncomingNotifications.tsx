@@ -18,17 +18,22 @@ import { useSession } from "@/shared/auth/session-store";
 import { socketClient } from "@/shared/socket/socket-client";
 import { incomingTicketsQuery, messagesQuery } from "../api";
 import { IncomingMessageTracker } from "../incoming-message-tracker";
+import { isMuted, mutedKey } from "../muted-contacts";
 import type { Message, Ticket } from "../types";
 
 export function IncomingNotifications() {
   const { user } = useSession();
   // Remounting isolates deduplication and asynchronous work when the session changes.
   return user ? (
-    <SessionNotifications key={`${user.companyId}:${user.id}`} companyId={user.companyId} />
+    <SessionNotifications
+      key={`${user.companyId}:${user.id}`}
+      companyId={user.companyId}
+      muteKey={mutedKey(user.companyId, user.id)}
+    />
   ) : null;
 }
 
-function SessionNotifications({ companyId }: { companyId: string }) {
+function SessionNotifications({ companyId, muteKey }: { companyId: string; muteKey: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -78,6 +83,9 @@ function SessionNotifications({ companyId }: { companyId: string }) {
   const notify = useRef<(message: Message, ticket?: Ticket) => void>(() => {});
   notify.current = (message, ticket) => {
     if (!tracker.current.accept(message)) return;
+    const owner = ticket ?? tickets.data?.find((x) => x.id === message.ticketId);
+    // Contato ou grupo silenciado: a mensagem chega no chat, mas sem som nem aviso.
+    if (isMuted(muteKey, owner?.contact?.id)) return;
     setCount((value) => value + 1);
     if (settings.current.sound) playSound();
     const title = t("notifications.newMessage", {
