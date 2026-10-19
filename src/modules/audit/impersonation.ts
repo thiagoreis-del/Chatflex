@@ -32,7 +32,7 @@ type Raw = { [k: string]: any } & Partial<
     | "action"
     | "ip"
     | "createdAt",
-    any
+    unknown
   >
 >;
 const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
