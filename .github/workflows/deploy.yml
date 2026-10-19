@@ -2,29 +2,103 @@ name: Deploy VPS
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   workflow_dispatch:
+permissions:
+  contents: read
 concurrency:
   group: deploy-vps
   cancel-in-progress: false
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Atualizar frontend na VPS
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.12'
+      - run: bun install --frozen-lockfile
+      - run: bun run test
+      - name: Compilar para a VPS
+        run: bun run build
+        env:
+          NITRO_PRESET: node-server
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://api.notasflex.com.br' }}
+          VITE_SOCKET_URL: ${{ vars.VITE_SOCKET_URL || 'https://api.notasflex.com.br' }}
+          VITE_APP_NAME: ${{ vars.VITE_APP_NAME || 'ChatbotFlex' }}
+          VITE_APP_URL: ${{ vars.VITE_APP_URL || 'https://chatbotflex.com.br' }}
+          VITE_USE_MOCKS: 'false'
+      - name: Empacotar versão e dependências
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test -s .output/server/index.mjs
+          mkdir -p deploy-artifact .output/public
+          node -e 'require("fs").writeFileSync(".output/public/deploy-version.json", JSON.stringify({commit: process.env.RELEASE_SHA}))'
+          # Nitro node-server pode manter imports externos. As dependências viajam
+          # junto com a versão; nenhuma instalação/compilação ocorre na VPS.
+          tar -czf deploy-artifact/release.tar.gz .output node_modules package.json
+          (cd deploy-artifact && sha256sum release.tar.gz > release.tar.gz.sha256)
+          cp scripts/deploy-vps.sh deploy-artifact/deploy-vps.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-vps
+          path: deploy-artifact/
+          retention-days: 7
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-vps
+          path: deploy-artifact
+      - name: Enviar pacote pronto
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          source: 'deploy-artifact/*'
+          target: /var/www/chatflex-frontend/deploy-incoming/${{ github.run_id }}-${{ github.run_attempt }}
+          strip_components: 1
+          timeout: 120s
+          command_timeout: 15m
+      - name: Ativar e verificar versão (com recuperação)
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+          RELEASE_ID: ${{ github.run_id }}-${{ github.run_attempt }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           command_timeout: 15m
+          envs: RELEASE_SHA,RELEASE_ID
           script: |
             set -e
-            cd /var/www/chatflex-frontend
-            git fetch origin main
-            git reset --hard origin/main
-            npm install --legacy-peer-deps
-            NITRO_PRESET=node-server npm run build
-            pm2 reload chatflex-frontend
-            sleep 3
-            curl -fsS -o /dev/null http://localhost:3001 && echo "Deploy OK"
+            bash "/var/www/chatflex-frontend/deploy-incoming/$RELEASE_ID/deploy-vps.sh"
+      - name: Confirmar versão pública na VPS
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+          APP_URL: ${{ vars.VITE_APP_URL || 'https://chatbotflex.com.br' }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            if curl -fsS --max-time 15 -H 'Cache-Control: no-cache' "$APP_URL/deploy-version.json?commit=$RELEASE_SHA" -o /tmp/deploy-version.json &&
+              node -e 'const v=JSON.parse(require("fs").readFileSync("/tmp/deploy-version.json"));process.exit(v.commit===process.env.RELEASE_SHA?0:1)'; then
+              echo "Versão pública confirmada: $RELEASE_SHA" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'Não foi possível confirmar a versão pública. O teste local passou; confira proxy/cache/DNS.' >&2
+          exit 1

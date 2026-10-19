@@ -1,5 +1,11 @@
 # Roadmap
 
+## Atualizações da VPS — opção 1
+- [x] Configurar compilação e testes no GitHub; envio do pacote pronto para a VPS.
+- [x] Implementar troca de versão com backup, verificação local e recuperação automática.
+- [x] Documentar requisitos e validar o script isoladamente (70 testes passaram; sem deploy remoto).
+- [ ] Confirmar primeira execução real — bloqueado por falta de acesso às execuções privadas do GitHub e ao ambiente SSH/PM2 da VPS neste editor.
+
 ## Documentação solicitada em 18/10/2026
 - [ ] Auditar o código em somente leitura e apresentar inventário.
 - [ ] Gerar documentação técnica e manuais em `docs/` com evidências e limitações.

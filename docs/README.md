@@ -50,4 +50,4 @@ Conteúdo em Markdown UTF-8, com links relativos, tabelas e diagramas Mermaid. C
 
 ## 5. Precaução de publicação
 
-O workflow existente dispara deploy em qualquer push para `main`, inclusive alterações somente de documentação. Esta tarefa não chama publicação, SSH ou execução de workflow. Para revisar sem atualizar a VPS, mantenha os documentos em branch de revisão e não faça merge em `main` antes de autorizar. A sincronização do editor com uma branch conectada pode acionar a automação já existente; este trabalho não altera essa configuração.
+Em 19/10/2026, o workflow foi atualizado para compilar no GitHub e enviar o pacote à VPS; alterações exclusivamente em Markdown ou `docs/` não disparam deploy. Mudanças de código sincronizadas com `main` ainda podem acionar a automação. Não foi executado SSH ou workflow remoto nesta tarefa; a primeira execução real permanece não verificada. Consulte [deploy.md](deploy.md) para requisitos, recuperação e limites da verificação.
