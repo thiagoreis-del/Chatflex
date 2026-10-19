@@ -15,11 +15,11 @@ interface AppMessagePayload {
 }
 
 /**
- * Intervalo de polling: rápido sem Socket; mais lento com Socket conectado,
- * como rede de segurança caso o servidor não envie eventos para esta sala.
+ * Socket conectado não garante entrega dos eventos de todas as salas.
+ * Mantém a consulta de segurança rápida mesmo quando o transporte está conectado.
  */
-export function useFallbackInterval(ms = 5000): number {
-  return useSocketStatus() === "connected" ? ms * 2 : ms;
+export function useFallbackInterval(ms = 3000): number {
+  return ms;
 }
 
 export function useTicketsRealtime(status: TicketStatus) {
@@ -30,10 +30,33 @@ export function useTicketsRealtime(status: TicketStatus) {
     if (socketStatus === "connected") void qc.invalidateQueries({ queryKey: ticketKeys.all });
   }, [qc, socketStatus]);
   useEffect(() => {
+    const refresh = () => void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("online", refresh);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [qc]);
+  useEffect(() => {
     const leaveTickets = socketClient.joinRoom("joinTickets", "leaveTickets", status);
     const leaveNotif = socketClient.joinRoom("joinNotification", "leaveNotification");
-    const invalidate = () => void qc.invalidateQueries({ queryKey: [...ticketKeys.all, "list"] });
-    const offTicket = socketClient.onCompany("ticket", invalidate);
+    const invalidate = () => {
+      void qc.invalidateQueries({ queryKey: [...ticketKeys.all, "list"] });
+      void qc.invalidateQueries({ queryKey: [...ticketKeys.all, "incoming"] });
+    };
+    const offTicket = socketClient.onCompany("ticket", (raw) => {
+      invalidate();
+      const payload = raw as { ticketId?: number; ticket?: { id?: number } } | null;
+      const ticketId = Number(payload?.ticketId ?? payload?.ticket?.id);
+      if (Number.isFinite(ticketId) && ticketId > 0)
+        void qc.invalidateQueries({ queryKey: ticketKeys.messages(ticketId) });
+    });
     const offMsg = socketClient.onCompany("appMessage", invalidate);
     const offContact = socketClient.onCompany("contact", invalidate);
     return () => {
