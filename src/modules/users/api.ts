@@ -46,15 +46,22 @@ export const allCompanyUsersQuery = () =>
           withQuery(ep.list, { search: "", searchParam: "", page, pageNumber: page }),
           { signal },
         );
-        const list = res.data ?? (res.users ?? []).map(({ queues, ...u }) => ({
-          ...u,
-          queueIds: u.queueIds ?? (queues ?? []).map((q) => q.id),
-        }));
+        const list =
+          res.data ??
+          (res.users ?? []).map(({ queues, ...u }) => ({
+            ...u,
+            queueIds: u.queueIds ?? (queues ?? []).map((q) => q.id),
+          }));
         const before = users.size;
         for (const user of list) users.set(user.id, user);
         const total = res.total ?? res.count;
-        if (!list.length || users.size === before || res.hasMore === false ||
-          (res.hasMore !== true && (total === undefined || users.size >= total))) break;
+        if (
+          !list.length ||
+          users.size === before ||
+          res.hasMore === false ||
+          (res.hasMore !== true && (total === undefined || users.size >= total))
+        )
+          break;
       }
       return [...users.values()].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
     },

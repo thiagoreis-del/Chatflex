@@ -139,7 +139,7 @@ async function fetchAllTickets(
  * Todas as páginas são percorridas, então gráficos e métricas contam
  * todos os atendimentos. O tempo de primeira resposta permanece nulo
  * até o servidor expor a métrica.
-  */
+ */
 export const operationalDashboardQuery = () =>
   queryOptions({
     queryKey: ticketKeys.operationalDashboard(),
@@ -160,7 +160,11 @@ export const operationalDashboardQuery = () =>
         list.length ? Math.round(list.reduce((a, b) => a + b, 0) / list.length) : null;
       const hourly = Array.from({ length: 24 }, (_, hour) => ({ hour, created: 0, closed: 0 }));
       const today = new Date().toDateString();
-      for (const tk of [...(pending.tickets ?? []), ...(open.tickets ?? []), ...(closed.tickets ?? [])]) {
+      for (const tk of [
+        ...(pending.tickets ?? []),
+        ...(open.tickets ?? []),
+        ...(closed.tickets ?? []),
+      ]) {
         const d = tk.createdAt ? new Date(tk.createdAt) : null;
         if (d && d.toDateString() === today) hourly[d.getHours()]!.created += 1;
       }
@@ -177,15 +181,25 @@ export const operationalDashboardQuery = () =>
         if (handle != null) handleTimes.push(handle);
         if (ticket.queue) {
           const q = byQueue.get(ticket.queue.id) ?? {
-            id: ticket.queue.id, name: ticket.queue.name, color: ticket.queue.color,
-            closedToday: 0, waiting: 0, waitMinutes: null, wait: [],
+            id: ticket.queue.id,
+            name: ticket.queue.name,
+            color: ticket.queue.color,
+            closedToday: 0,
+            waiting: 0,
+            waitMinutes: null,
+            wait: [],
           };
           q.closedToday += 1;
           byQueue.set(q.id, q);
         }
         if (!ticket.user) continue;
         const a = byAttendant.get(ticket.user.id) ?? {
-          id: ticket.user.id, name: ticket.user.name, closedToday: 0, open: 0, avgHandleMinutes: null, handle: [],
+          id: ticket.user.id,
+          name: ticket.user.name,
+          closedToday: 0,
+          open: 0,
+          avgHandleMinutes: null,
+          handle: [],
         };
         a.closedToday += 1;
         if (handle != null) a.handle.push(handle);
@@ -194,7 +208,12 @@ export const operationalDashboardQuery = () =>
       for (const ticket of open.tickets ?? []) {
         if (!ticket.user) continue;
         const a = byAttendant.get(ticket.user.id) ?? {
-          id: ticket.user.id, name: ticket.user.name, closedToday: 0, open: 0, avgHandleMinutes: null, handle: [],
+          id: ticket.user.id,
+          name: ticket.user.name,
+          closedToday: 0,
+          open: 0,
+          avgHandleMinutes: null,
+          handle: [],
         };
         a.open += 1;
         byAttendant.set(a.id, a);
@@ -206,8 +225,13 @@ export const operationalDashboardQuery = () =>
         if (w != null) waitNow.push(w);
         if (!ticket.queue) continue;
         const q = byQueue.get(ticket.queue.id) ?? {
-          id: ticket.queue.id, name: ticket.queue.name, color: ticket.queue.color,
-          closedToday: 0, waiting: 0, waitMinutes: null, wait: [],
+          id: ticket.queue.id,
+          name: ticket.queue.name,
+          color: ticket.queue.color,
+          closedToday: 0,
+          waiting: 0,
+          waitMinutes: null,
+          wait: [],
         };
         q.waiting += 1;
         if (w != null) q.wait.push(w);

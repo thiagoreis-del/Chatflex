@@ -105,22 +105,22 @@ export function TransferTicketDialog({
             ))}
           </div>
           {!refusing && (
-          <div className="space-y-2">
-            <Label>{t("transfer.user")}</Label>
-            <Select value={userId} onValueChange={setUserId} disabled={!queueId}>
-              <SelectTrigger aria-label={t("transfer.user")}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ANY}>{t("transfer.anyUser")}</SelectItem>
-                {eligible.map((u) => (
-                  <SelectItem key={u.id} value={String(u.id)}>
-                    {u.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label>{t("transfer.user")}</Label>
+              <Select value={userId} onValueChange={setUserId} disabled={!queueId}>
+                <SelectTrigger aria-label={t("transfer.user")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ANY}>{t("transfer.anyUser")}</SelectItem>
+                  {eligible.map((u) => (
+                    <SelectItem key={u.id} value={String(u.id)}>
+                      {u.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
           {!refusing && (
             <div className="space-y-2">
@@ -139,7 +139,10 @@ export function TransferTicketDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("transfer.cancel")}
           </Button>
-          <Button disabled={mutation.isPending || (!refusing && !queueId)} onClick={() => mutation.mutate()}>
+          <Button
+            disabled={mutation.isPending || (!refusing && !queueId)}
+            onClick={() => mutation.mutate()}
+          >
             {t(refusing ? "transfer.refuseSubmit" : "transfer.submit")}
           </Button>
         </DialogFooter>

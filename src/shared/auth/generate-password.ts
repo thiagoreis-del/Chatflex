@@ -8,7 +8,9 @@ export function generatePassword(length = 16): string {
   const randomIndex = (size: number) => {
     const limit = 256 - (256 % size);
     const byte = new Uint8Array(1);
-    do { globalThis.crypto.getRandomValues(byte); } while ((byte[0] ?? 256) >= limit);
+    do {
+      globalThis.crypto.getRandomValues(byte);
+    } while ((byte[0] ?? 256) >= limit);
     return (byte[0] ?? 0) % size;
   };
   const result = groups.map((group) => group.charAt(randomIndex(group.length)));

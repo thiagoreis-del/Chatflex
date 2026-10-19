@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -7,9 +8,11 @@
 >
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
+
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+
 - VPS deploy builds on the VPS via SSH (fetch exact commit, npm build with node-server preset, PM2 reload) and writes .output/public/deploy-version.json. Why: the GitHub-built artifact flow failed in Actions; the on-VPS build is the proven path.
 - System documentation lives in docs with source evidence and an explicit distinction between frontend implementation and verified external behavior. Why: manuals must remain maintainable without inventing backend contracts or exposing technical documents publicly.
 - The shared library barrel imports the canonical theme and exposes TooltipProvider. Why: consumers receive base styling and the provider needed for tooltip composition.

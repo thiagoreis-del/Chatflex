@@ -17,12 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { internalChatKeys } from "@/shared/api/query-keys";
@@ -114,7 +109,10 @@ export function InternalChatPage() {
             </Button>
           </div>
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" aria-hidden />
+            <Search
+              className="absolute left-2.5 top-2.5 size-4 text-muted-foreground"
+              aria-hidden
+            />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -138,49 +136,49 @@ export function InternalChatPage() {
         <div className="min-h-0 flex-1 overflow-y-auto">
           <QueryBoundary query={conversations}>
             {() =>
-            filtered.length === 0 ? (
-              <p className="p-4 text-center text-sm text-muted-foreground">{t("empty")}</p>
-            ) : (
-              <ul>
-                {filtered.map((c) => {
-                  const Icon = KIND_ICONS[c.kind];
-                  return (
-                    <li key={c.id}>
-                      <button
-                        type="button"
-                        onClick={() => setSelected(c)}
-                        className={cn(
-                          "flex w-full items-center gap-3 border-b px-3 py-3 text-left hover:bg-muted/50",
-                          selected?.id === c.id && "bg-muted",
-                        )}
-                      >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          <Icon className="size-4" aria-hidden />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="flex items-center justify-between gap-2">
-                            <span className="truncate text-sm font-semibold">{c.title}</span>
-                            <span className="shrink-0 text-[11px] text-muted-foreground">
-                              {time(c.updatedAt)}
-                            </span>
+              filtered.length === 0 ? (
+                <p className="p-4 text-center text-sm text-muted-foreground">{t("empty")}</p>
+              ) : (
+                <ul>
+                  {filtered.map((c) => {
+                    const Icon = KIND_ICONS[c.kind];
+                    return (
+                      <li key={c.id}>
+                        <button
+                          type="button"
+                          onClick={() => setSelected(c)}
+                          className={cn(
+                            "flex w-full items-center gap-3 border-b px-3 py-3 text-left hover:bg-muted/50",
+                            selected?.id === c.id && "bg-muted",
+                          )}
+                        >
+                          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <Icon className="size-4" aria-hidden />
                           </span>
-                          <span className="flex items-center justify-between gap-2">
-                            <span className="truncate text-xs text-muted-foreground">
-                              {c.lastMessage ?? t(`kinds.${c.kind}`)}
-                            </span>
-                            {c.unreadMessages > 0 && (
-                              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                                {c.unreadMessages > 99 ? "99+" : c.unreadMessages}
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-center justify-between gap-2">
+                              <span className="truncate text-sm font-semibold">{c.title}</span>
+                              <span className="shrink-0 text-[11px] text-muted-foreground">
+                                {time(c.updatedAt)}
                               </span>
-                            )}
+                            </span>
+                            <span className="flex items-center justify-between gap-2">
+                              <span className="truncate text-xs text-muted-foreground">
+                                {c.lastMessage ?? t(`kinds.${c.kind}`)}
+                              </span>
+                              {c.unreadMessages > 0 && (
+                                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                                  {c.unreadMessages > 99 ? "99+" : c.unreadMessages}
+                                </span>
+                              )}
+                            </span>
                           </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )
             }
           </QueryBoundary>
         </div>
@@ -318,43 +316,45 @@ function InternalConversationView({
       <div className="chat-messages min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:px-6">
         <QueryBoundary query={messages}>
           {() => (
-          <>
-          <ul className="space-y-1.5">
-            {(messages.data ?? []).map((m) => (
-              <li key={m.id} className={cn("flex", m.fromMe ? "justify-end" : "justify-start")}>
-                <div
-                  className={cn(
-                    "max-w-[85%] rounded-lg px-2.5 py-1.5 shadow-sm sm:max-w-[70%]",
-                    m.fromMe ? "chat-outgoing" : "bg-card",
-                  )}
-                >
-                  {!m.fromMe && m.sender?.name && (
-                    <p className="text-[11px] font-semibold text-primary">{m.sender.name}</p>
-                  )}
-                  {m.mediaUrl && (
-                    <a
-                      href={m.mediaUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mb-1 block text-xs font-medium underline"
+            <>
+              <ul className="space-y-1.5">
+                {(messages.data ?? []).map((m) => (
+                  <li key={m.id} className={cn("flex", m.fromMe ? "justify-end" : "justify-start")}>
+                    <div
+                      className={cn(
+                        "max-w-[85%] rounded-lg px-2.5 py-1.5 shadow-sm sm:max-w-[70%]",
+                        m.fromMe ? "chat-outgoing" : "bg-card",
+                      )}
                     >
-                      {m.mediaType?.startsWith("image/")
-                        ? tt("reply.image")
-                        : m.mediaType?.startsWith("audio/")
-                          ? tt("reply.audio")
-                          : m.mediaType?.startsWith("video/")
-                            ? tt("reply.video")
-                            : tt("reply.document")}
-                    </a>
-                  )}
-                  {m.body && <BodyWithMentions body={m.body} />}
-                  <p className="mt-0.5 text-right text-[10px] opacity-70">{time(m.createdAt)}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div ref={endRef} />
-          </>
+                      {!m.fromMe && m.sender?.name && (
+                        <p className="text-[11px] font-semibold text-primary">{m.sender.name}</p>
+                      )}
+                      {m.mediaUrl && (
+                        <a
+                          href={m.mediaUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mb-1 block text-xs font-medium underline"
+                        >
+                          {m.mediaType?.startsWith("image/")
+                            ? tt("reply.image")
+                            : m.mediaType?.startsWith("audio/")
+                              ? tt("reply.audio")
+                              : m.mediaType?.startsWith("video/")
+                                ? tt("reply.video")
+                                : tt("reply.document")}
+                        </a>
+                      )}
+                      {m.body && <BodyWithMentions body={m.body} />}
+                      <p className="mt-0.5 text-right text-[10px] opacity-70">
+                        {time(m.createdAt)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div ref={endRef} />
+            </>
           )}
         </QueryBoundary>
       </div>
@@ -533,9 +533,7 @@ function NewConversationDialog({
                     type={kind === "direct" ? "radio" : "checkbox"}
                     name="members"
                     checked={members.includes(u.id)}
-                    onChange={() =>
-                      kind === "direct" ? setMembers([u.id]) : toggleMember(u.id)
-                    }
+                    onChange={() => (kind === "direct" ? setMembers([u.id]) : toggleMember(u.id))}
                   />
                   <span className="truncate">{u.name}</span>
                 </label>

@@ -126,7 +126,9 @@ export function CompaniesListPage({
                 <dl className="grid grid-cols-3 gap-2 text-xs">
                   <div>
                     <dt className="text-muted-foreground">{t("companies.columns.dueDate")}</dt>
-                    <dd><DateDisplay value={c.dueDate} /></dd>
+                    <dd>
+                      <DateDisplay value={c.dueDate} />
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">{t("companies.columns.users")}</dt>
@@ -134,18 +136,28 @@ export function CompaniesListPage({
                   </div>
                   <div>
                     <dt className="text-muted-foreground">{t("companies.columns.connections")}</dt>
-                    <dd className="tabular-nums">{formatNumber(c.connectionsCount ?? c.connectionLimit)}</dd>
+                    <dd className="tabular-nums">
+                      {formatNumber(c.connectionsCount ?? c.connectionLimit)}
+                    </dd>
                   </div>
                 </dl>
                 <div className="flex flex-wrap items-center gap-1">
                   <EnterCompanyButton companyId={c.id} />
                   <Button asChild variant="ghost" size="icon" title={t("companies.manage")}>
-                    <Link to="/app/plataforma/empresas/$companyId" params={{ companyId: c.id }} aria-label={t("companies.manage")}>
+                    <Link
+                      to="/app/plataforma/empresas/$companyId"
+                      params={{ companyId: c.id }}
+                      aria-label={t("companies.manage")}
+                    >
                       <Settings2 className="size-4" aria-hidden />
                     </Link>
                   </Button>
                   <Button asChild variant="ghost" size="icon" title={t("common:actions.edit")}>
-                    <Link to="/app/plataforma/empresas/$companyId/editar" params={{ companyId: c.id }} aria-label={t("common:actions.edit")}>
+                    <Link
+                      to="/app/plataforma/empresas/$companyId/editar"
+                      params={{ companyId: c.id }}
+                      aria-label={t("common:actions.edit")}
+                    >
                       <Pencil className="size-4" aria-hidden />
                     </Link>
                   </Button>
@@ -161,8 +173,12 @@ export function CompaniesListPage({
                   <TableHead>{t("companies.columns.company")}</TableHead>
                   <TableHead>{t("companies.columns.status")}</TableHead>
                   <TableHead>{t("companies.columns.plan")}</TableHead>
-                  <TableHead className="hidden lg:table-cell">{t("companies.columns.dueDate")}</TableHead>
-                  <TableHead className="hidden xl:table-cell">{t("companies.columns.trialEndsAt")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("companies.columns.dueDate")}
+                  </TableHead>
+                  <TableHead className="hidden xl:table-cell">
+                    {t("companies.columns.trialEndsAt")}
+                  </TableHead>
                   <TableHead className="text-right">{t("companies.columns.users")}</TableHead>
                   <TableHead className="text-right">{t("companies.columns.connections")}</TableHead>
                   <TableHead className="text-right">{t("companies.columns.actions")}</TableHead>
@@ -210,12 +226,25 @@ export function CompaniesListPage({
                       <div className="flex items-center justify-end gap-0.5">
                         <EnterCompanyButton companyId={c.id} />
                         <Button asChild variant="ghost" size="icon" title={t("companies.manage")}>
-                          <Link to="/app/plataforma/empresas/$companyId" params={{ companyId: c.id }} aria-label={t("companies.manage")}>
+                          <Link
+                            to="/app/plataforma/empresas/$companyId"
+                            params={{ companyId: c.id }}
+                            aria-label={t("companies.manage")}
+                          >
                             <Settings2 className="size-4" aria-hidden />
                           </Link>
                         </Button>
-                        <Button asChild variant="ghost" size="icon" title={t("common:actions.edit")}>
-                          <Link to="/app/plataforma/empresas/$companyId/editar" params={{ companyId: c.id }} aria-label={t("common:actions.edit")}>
+                        <Button
+                          asChild
+                          variant="ghost"
+                          size="icon"
+                          title={t("common:actions.edit")}
+                        >
+                          <Link
+                            to="/app/plataforma/empresas/$companyId/editar"
+                            params={{ companyId: c.id }}
+                            aria-label={t("common:actions.edit")}
+                          >
                             <Pencil className="size-4" aria-hidden />
                           </Link>
                         </Button>

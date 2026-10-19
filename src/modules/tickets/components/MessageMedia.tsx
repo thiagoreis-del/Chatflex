@@ -58,7 +58,13 @@ export function MessageMedia({ message }: { message: Message }) {
   if (isAudioMedia(message.mediaType, url)) {
     if (failed) {
       return (
-        <a href={url} target="_blank" rel="noreferrer" download className="mb-1 block text-sm underline">
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          download
+          className="mb-1 block text-sm underline"
+        >
           {t("media.audioError")}
         </a>
       );

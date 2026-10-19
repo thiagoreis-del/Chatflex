@@ -113,7 +113,12 @@ export function applyProbeResult(
 export function markApiReachable(): void {
   const p = connectivityStore.get();
   // Evita re-render a cada requisição: só grava se mudou ou passou 5s.
-  if (p.api === "online" && p.internet === "online" && p.lastOkAt && Date.now() - p.lastOkAt < 5_000) {
+  if (
+    p.api === "online" &&
+    p.internet === "online" &&
+    p.lastOkAt &&
+    Date.now() - p.lastOkAt < 5_000
+  ) {
     return;
   }
   const wasDown = p.api !== "online";
@@ -158,10 +163,13 @@ function schedule() {
   if (!started) return;
   if (timer) clearTimeout(timer);
   const ok = connectivityStore.get().api === "online" && connectivityStore.get().failures === 0;
-  timer = setTimeout(async () => {
-    await probe();
-    schedule();
-  }, ok ? PROBE_INTERVAL_MS : RECOVERY_INTERVAL_MS);
+  timer = setTimeout(
+    async () => {
+      await probe();
+      schedule();
+    },
+    ok ? PROBE_INTERVAL_MS : RECOVERY_INTERVAL_MS,
+  );
 }
 
 function probeNow() {

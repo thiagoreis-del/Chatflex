@@ -6,12 +6,20 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { connectionsQuery } from "../api";
-import { mergeStatusFiles, publishStatusBatch, STATUS_MAX_PHOTOS, type StatusItem } from "../status";
+import {
+  mergeStatusFiles,
+  publishStatusBatch,
+  STATUS_MAX_PHOTOS,
+  type StatusItem,
+} from "../status";
 
 export function StatusPublishPage() {
   const { t } = useTranslation("whatsapp");
   const { data: connections = [] } = useQuery(connectionsQuery());
-  const connected = useMemo(() => connections.filter((c) => c.status === "CONNECTED"), [connections]);
+  const connected = useMemo(
+    () => connections.filter((c) => c.status === "CONNECTED"),
+    [connections],
+  );
   const [whatsappId, setWhatsappId] = useState<number | "">("");
   const [items, setItems] = useState<StatusItem[]>([]);
   const [progress, setProgress] = useState<number | null>(null);
@@ -57,7 +65,9 @@ export function StatusPublishPage() {
       </header>
 
       <section className="space-y-2 rounded-xl border bg-card p-4">
-        <label htmlFor="status-conn" className="text-sm font-medium">{t("status.connection")}</label>
+        <label htmlFor="status-conn" className="text-sm font-medium">
+          {t("status.connection")}
+        </label>
         {connected.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("status.noConnected")}</p>
         ) : (
@@ -71,7 +81,8 @@ export function StatusPublishPage() {
             <option value="">{t("status.selectConnection")}</option>
             {connected.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name}{c.number ? ` — ${c.number}` : ""}
+                {c.name}
+                {c.number ? ` — ${c.number}` : ""}
               </option>
             ))}
           </select>
@@ -80,7 +91,9 @@ export function StatusPublishPage() {
 
       <section className="space-y-4 rounded-xl border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-sm text-muted-foreground">{t("status.limit", { count: items.length })}</span>
+          <span className="text-sm text-muted-foreground">
+            {t("status.limit", { count: items.length })}
+          </span>
           <div className="flex gap-2">
             {items.length > 0 && (
               <Button variant="ghost" size="sm" disabled={busy} onClick={() => setItems([])}>
@@ -146,7 +159,11 @@ export function StatusPublishPage() {
           </div>
         )}
 
-        <Button className="w-full" disabled={busy || whatsappId === "" || !items.length} onClick={publish}>
+        <Button
+          className="w-full"
+          disabled={busy || whatsappId === "" || !items.length}
+          onClick={publish}
+        >
           <Send className="size-4" aria-hidden />
           {busy ? t("status.publishing", { percent: progress }) : t("status.publish")}
         </Button>

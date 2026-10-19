@@ -7,13 +7,24 @@
   "import": "Importar",
   "empty": "Nenhum contato encontrado.",
   "searchPlaceholder": "Buscar por nome, número ou e-mail…",
-  "table": { "name": "Nome", "number": "Número", "email": "E-mail", "tags": "Etiquetas", "actions": "Ações" },
+  "table": {
+    "name": "Nome",
+    "number": "Número",
+    "email": "E-mail",
+    "tags": "Etiquetas",
+    "actions": "Ações"
+  },
   "actions": { "edit": "Editar", "delete": "Excluir", "save": "Salvar", "cancel": "Cancelar" },
   "form": {
-    "name": "Nome", "nameRequired": "Informe um nome.",
-    "number": "Número (WhatsApp)", "numberRequired": "Informe o número com DDD.", "numberInvalid": "Número inválido. Use DDD, ex.: 11 98765-4321.",
-    "email": "E-mail", "emailInvalid": "Informe um e-mail válido.",
-    "tags": "Etiquetas", "tagsHint": "Separe por vírgulas. Ex.: cliente, vip",
+    "name": "Nome",
+    "nameRequired": "Informe um nome.",
+    "number": "Número (WhatsApp)",
+    "numberRequired": "Informe o número com DDD.",
+    "numberInvalid": "Número inválido. Use DDD, ex.: 11 98765-4321.",
+    "email": "E-mail",
+    "emailInvalid": "Informe um e-mail válido.",
+    "tags": "Etiquetas",
+    "tagsHint": "Separe por vírgulas. Ex.: cliente, vip",
     "duplicate": "Já existe um contato com este número: {{name}}."
   },
   "importDialog": {
@@ -29,6 +40,13 @@
     "done": "Importação concluída: {{ok}} criados, {{failed}} com erro.",
     "empty": "Nenhum contato válido no arquivo."
   },
-  "confirmDelete": { "title": "Excluir contato?", "description": "O contato “{{name}}” será removido." },
-  "toast": { "saved": "Contato salvo.", "deleted": "Contato excluído.", "error": "Não foi possível concluir a ação." }
+  "confirmDelete": {
+    "title": "Excluir contato?",
+    "description": "O contato “{{name}}” será removido."
+  },
+  "toast": {
+    "saved": "Contato salvo.",
+    "deleted": "Contato excluído.",
+    "error": "Não foi possível concluir a ação."
+  }
 }

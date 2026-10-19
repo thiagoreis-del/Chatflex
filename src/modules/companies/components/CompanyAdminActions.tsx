@@ -41,7 +41,11 @@ export function CompanyQuickActions({ company, compact }: { company: Company; co
     ]);
   const toggle = useMutation({
     mutationFn: () =>
-      runCompanyStatusAction(company.id, active ? "suspend" : "activate", "Ação rápida do superadmin"),
+      runCompanyStatusAction(
+        company.id,
+        active ? "suspend" : "activate",
+        "Ação rápida do superadmin",
+      ),
     onSuccess: async () => {
       toast.success(t("companyAdmin.done"));
       await refresh();
@@ -53,7 +57,8 @@ export function CompanyQuickActions({ company, compact }: { company: Company; co
     onSuccess: async () => {
       toast.success(t("companyAdmin.deleted"));
       await refresh();
-      if (!compact) await navigate({ to: "/app/plataforma/empresas", search: { page: 1, pageSize: 20 } });
+      if (!compact)
+        await navigate({ to: "/app/plataforma/empresas", search: { page: 1, pageSize: 20 } });
     },
     onError: () => toast.error(t("companyAdmin.error")),
   });
@@ -68,7 +73,11 @@ export function CompanyQuickActions({ company, compact }: { company: Company; co
         title={active ? t("companyAdmin.deactivate") : t("companyAdmin.activate")}
         aria-label={active ? t("companyAdmin.deactivate") : t("companyAdmin.activate")}
       >
-        {active ? <PowerOff className="size-4" aria-hidden /> : <Power className="size-4" aria-hidden />}
+        {active ? (
+          <PowerOff className="size-4" aria-hidden />
+        ) : (
+          <Power className="size-4" aria-hidden />
+        )}
         {!compact && (active ? t("companyAdmin.deactivate") : t("companyAdmin.activate"))}
       </Button>
       <Button
@@ -91,7 +100,9 @@ export function CompanyQuickActions({ company, compact }: { company: Company; co
         title={t(active ? "companyAdmin.deactivateTitle" : "companyAdmin.activateTitle", {
           name: company.tradeName,
         })}
-        description={t(active ? "companyAdmin.deactivateDescription" : "companyAdmin.activateDescription")}
+        description={t(
+          active ? "companyAdmin.deactivateDescription" : "companyAdmin.activateDescription",
+        )}
         confirmLabel={active ? t("companyAdmin.deactivate") : t("companyAdmin.activate")}
         onConfirm={() => {
           setConfirm(null);
@@ -194,7 +205,12 @@ export function ConnectionRowActions({
   });
   return (
     <div className="flex justify-end gap-1">
-      <Button size="sm" variant="ghost" onClick={() => setEditing(true)} aria-label={t("companyAdmin.connEdit")}>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => setEditing(true)}
+        aria-label={t("companyAdmin.connEdit")}
+      >
         <Pencil className="size-4" aria-hidden />
       </Button>
       <Button
@@ -219,7 +235,11 @@ export function ConnectionRowActions({
             </div>
             <div className="space-y-2">
               <Label htmlFor="conn-greeting">{t("companyAdmin.connGreeting")}</Label>
-              <Textarea id="conn-greeting" value={greeting} onChange={(e) => setGreeting(e.target.value)} />
+              <Textarea
+                id="conn-greeting"
+                value={greeting}
+                onChange={(e) => setGreeting(e.target.value)}
+              />
             </div>
             <div className="flex items-center gap-3">
               <Switch id="conn-default" checked={isDefault} onCheckedChange={setIsDefault} />

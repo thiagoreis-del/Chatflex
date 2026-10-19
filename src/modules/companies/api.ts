@@ -179,18 +179,21 @@ export const companyUsersQuery = (companyId: string) =>
     queryFn: async ({ signal }): Promise<CompanyMember[]> => {
       if (env.useMocks) return [];
       const res = await apiRequest<
-        (BackendSimpleUser & { companyId?: number })[] | { users?: (BackendSimpleUser & { companyId?: number })[] }
+        | (BackendSimpleUser & { companyId?: number })[]
+        | { users?: (BackendSimpleUser & { companyId?: number })[] }
       >(`/users/list?companyId=${encodeURIComponent(companyId)}`, { signal });
       const all = Array.isArray(res) ? res : (res?.users ?? []);
-      return all
-        // Defesa extra: se o backend devolver companyId, descarta registros de outra empresa.
-        .filter((u) => u.companyId == null || String(u.companyId) === companyId)
-        .map((u) => ({
-          id: String(u.id),
-          name: u.name,
-          email: u.email,
-          queues: (u.queues ?? []).map((q) => q.name),
-        }));
+      return (
+        all
+          // Defesa extra: se o backend devolver companyId, descarta registros de outra empresa.
+          .filter((u) => u.companyId == null || String(u.companyId) === companyId)
+          .map((u) => ({
+            id: String(u.id),
+            name: u.name,
+            email: u.email,
+            queues: (u.queues ?? []).map((q) => q.name),
+          }))
+      );
     },
     retry: false,
   });
@@ -275,7 +278,8 @@ export function updateCompanyLimits(
   companyId: string,
   body: { userLimit: number; connectionLimit: number; storageLimitMb: number; reason: string },
 ) {
-  if (env.useMocks) return apiRequest<Company>(ep.companyLimits(companyId), { method: "PATCH", body });
+  if (env.useMocks)
+    return apiRequest<Company>(ep.companyLimits(companyId), { method: "PATCH", body });
   return Promise.reject(
     new Error("No servidor atual os limites vêm do plano. Troque o plano da empresa."),
   );
@@ -288,7 +292,10 @@ export function deleteCompany(companyId: string) {
 }
 
 /** Define nova senha temporária para um usuário da empresa (PUT /users/:id). */
-export function resetMemberPassword(member: { id: string; name: string; email: string }, password: string) {
+export function resetMemberPassword(
+  member: { id: string; name: string; email: string },
+  password: string,
+) {
   return apiRequest<void>(`/users/${encodeURIComponent(member.id)}`, {
     method: "PUT",
     body: { name: member.name, email: member.email, password },

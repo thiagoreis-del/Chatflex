@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { audioExtension, isAudioMedia, isDangerousFile, pickAudioMime } from "@/modules/tickets/audio-format";
+import {
+  audioExtension,
+  isAudioMedia,
+  isDangerousFile,
+  pickAudioMime,
+} from "@/modules/tickets/audio-format";
 
 describe("audio format", () => {
   it("prefers OGG/Opus when supported", () => {

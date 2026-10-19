@@ -36,4 +36,5 @@ flowchart TD
 Fallback local não comprova conclusão remota da saída.
 
 ---
+
 [Voltar ao sumário](../README.md) · Documentação 1.0.0 · 18/10/2026

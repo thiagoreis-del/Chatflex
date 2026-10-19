@@ -7,8 +7,19 @@
   "created": "Backup solicitado com sucesso.",
   "listTitle": "Histórico de backups",
   "empty": "Nenhum backup encontrado.",
-  "columns": { "file": "Arquivo", "date": "Data", "size": "Tamanho", "status": "Situação", "actions": "Ações" },
-  "status": { "pending": "Na fila", "running": "Em andamento", "completed": "Concluído", "failed": "Falhou" },
+  "columns": {
+    "file": "Arquivo",
+    "date": "Data",
+    "size": "Tamanho",
+    "status": "Situação",
+    "actions": "Ações"
+  },
+  "status": {
+    "pending": "Na fila",
+    "running": "Em andamento",
+    "completed": "Concluído",
+    "failed": "Falhou"
+  },
   "download": "Baixar",
   "restore": "Restaurar",
   "restoreTitle": "Restaurar este backup?",

@@ -18,7 +18,12 @@ export function PublicPlans() {
     staleTime: 300_000,
     // Lista pública (sem login); se o servidor não expor, usa os planos padrão.
     queryFn: async () =>
-      (await apiRequest<Parameters<typeof fromBackendPlan>[0][]>("/plans/list", { anonymous: true, skipRefresh: true })).map(fromBackendPlan),
+      (
+        await apiRequest<Parameters<typeof fromBackendPlan>[0][]>("/plans/list", {
+          anonymous: true,
+          skipRefresh: true,
+        })
+      ).map(fromBackendPlan),
   });
   const plans = data ? toPublicPlans(data) : defaultPublicPlans;
   const items = ["unlimitedTickets", "unlimitedUsers", "unlimitedQueues", "support"] as const;
@@ -41,7 +46,9 @@ export function PublicPlans() {
             <h3 className="text-lg font-semibold">{p.name}</h3>
             <p className="mt-3 text-3xl font-extrabold">
               {formatCents(p.monthlyPrice)}
-              <span className="text-base font-medium text-muted-foreground">{t("plans.perMonth")}</span>
+              <span className="text-base font-medium text-muted-foreground">
+                {t("plans.perMonth")}
+              </span>
             </p>
             <ul className="mt-5 flex-1 space-y-2 text-sm">
               <li className="flex gap-2">

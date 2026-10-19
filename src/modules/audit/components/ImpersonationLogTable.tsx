@@ -40,7 +40,11 @@ export function ImpersonationLogTable({ companyId }: { companyId?: string }) {
       {q.isPending ? (
         <LoadingState />
       ) : q.error ? (
-        <QueryError error={q.error} contract={impersonationContract} onRetry={() => void q.refetch()} />
+        <QueryError
+          error={q.error}
+          contract={impersonationContract}
+          onRetry={() => void q.refetch()}
+        />
       ) : rows.length === 0 ? (
         <p className="rounded-lg border p-6 text-center text-sm text-muted-foreground">
           {t("audit.impersonation.empty")}

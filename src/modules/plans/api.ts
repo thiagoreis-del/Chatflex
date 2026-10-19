@@ -104,7 +104,9 @@ export const planQuery = (planId: string) =>
     queryKey: planKeys.detail(planId),
     queryFn: async ({ signal }) => {
       if (env.useMocks) return apiRequest<Plan>(ep.plan(planId), { signal });
-      return fromBackendPlan(await apiRequest<BackendPlan>(`/plans/${encodeURIComponent(planId)}`, { signal }));
+      return fromBackendPlan(
+        await apiRequest<BackendPlan>(`/plans/${encodeURIComponent(planId)}`, { signal }),
+      );
     },
   });
 
@@ -128,23 +130,36 @@ export async function updatePlan(planId: string, body: Partial<PlanInput>) {
 
 /** CONFIRMADO: DELETE /plans/:id. */
 export async function deletePlan(planId: string) {
-  return apiRequest<void>(
-    env.useMocks ? ep.plan(planId) : `/plans/${encodeURIComponent(planId)}`,
-    { method: "DELETE" },
-  );
+  return apiRequest<void>(env.useMocks ? ep.plan(planId) : `/plans/${encodeURIComponent(planId)}`, {
+    method: "DELETE",
+  });
 }
 
 const noFeatures = {
-  whatsapp: true, facebook: false, instagram: false, campaigns: false, internalChat: true,
-  integrations: false, artificialIntelligence: false, advancedReports: false,
-  externalApi: false, automations: false,
+  whatsapp: true,
+  facebook: false,
+  instagram: false,
+  campaigns: false,
+  internalChat: true,
+  integrations: false,
+  artificialIntelligence: false,
+  advancedReports: false,
+  externalApi: false,
+  automations: false,
 };
 
 /** Planos padrão por conexões WhatsApp (usuários/filas sem limite prático). Editáveis depois de criados. */
 const byConnections = (name: string, connections: number, monthlyPrice: number): PlanInput => ({
-  name, description: `${connections} conexão(ões) WhatsApp, atendimentos, usuários e filas ilimitados.`,
-  monthlyPrice, annualPrice: null, userLimit: 9999, connectionLimit: connections, queueLimit: 9999,
-  storageLimitMb: 0, trialDays: 15, active: true,
+  name,
+  description: `${connections} conexão(ões) WhatsApp, atendimentos, usuários e filas ilimitados.`,
+  monthlyPrice,
+  annualPrice: null,
+  userLimit: 9999,
+  connectionLimit: connections,
+  queueLimit: 9999,
+  storageLimitMb: 0,
+  trialDays: 15,
+  active: true,
   features: { ...noFeatures, campaigns: true, automations: true, advancedReports: true },
 });
 

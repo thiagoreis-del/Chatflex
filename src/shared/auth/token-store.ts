@@ -7,7 +7,11 @@ let accessToken: string | null = null;
 /** Incrementa a cada troca de token; detecta pedidos feitos com token antigo. */
 let generation = 0;
 
-try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* SSR / storage bloqueado */ }
+try {
+  window.localStorage.removeItem(STORAGE_KEY);
+} catch {
+  /* SSR / storage bloqueado */
+}
 
 export const tokenStore = {
   get: () => accessToken,

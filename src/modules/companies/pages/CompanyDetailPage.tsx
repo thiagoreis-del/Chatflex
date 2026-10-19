@@ -155,7 +155,9 @@ function ConnectionsPanel({ companyId }: { companyId: string }) {
                     <TableHead>
                       {t("platform:companies.detail.connectionColumns.default")}
                     </TableHead>
-                    <TableHead className="text-right">{t("platform:companyAdmin.actions")}</TableHead>
+                    <TableHead className="text-right">
+                      {t("platform:companyAdmin.actions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -255,7 +257,9 @@ function UsersPanel({
                     <TableHead>{t("platform:companies.detail.userColumns.name")}</TableHead>
                     <TableHead>{t("platform:companies.detail.userColumns.email")}</TableHead>
                     <TableHead>{t("platform:companies.detail.userColumns.queues")}</TableHead>
-                    <TableHead className="text-right">{t("platform:companyAdmin.actions")}</TableHead>
+                    <TableHead className="text-right">
+                      {t("platform:companyAdmin.actions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

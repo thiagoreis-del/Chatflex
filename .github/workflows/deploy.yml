@@ -3,8 +3,8 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
+      - "docs/**"
+      - "**/*.md"
   workflow_dispatch:
 permissions:
   contents: read

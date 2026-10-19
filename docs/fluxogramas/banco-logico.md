@@ -24,4 +24,5 @@ flowchart LR
 Consultar [limites e evidências necessárias](../banco-de-dados.md). Não preencher um ERD físico fictício para suprir a ausência do backend.
 
 ---
+
 [Voltar ao sumário](../README.md) · Documentação 1.0.0 · 18/10/2026

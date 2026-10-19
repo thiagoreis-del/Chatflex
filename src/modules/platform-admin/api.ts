@@ -55,7 +55,7 @@ interface RawInvoice {
   status?: string | null;
 }
 
-const arr = <T,>(v: unknown, key: string): T[] =>
+const arr = <T>(v: unknown, key: string): T[] =>
   Array.isArray(v) ? (v as T[]) : ((v as Record<string, T[]> | null)?.[key] ?? []);
 
 /** Monta os indicadores a partir de /companies/list, /plans/all, /whatsapp/all e /invoices/all. */
@@ -144,7 +144,11 @@ async function aggregateDashboard(signal: AbortSignal): Promise<PlatformDashboar
     dueSoon: dueSoon.sort(byDate("dueDate", 1)).slice(0, 6),
     overdueList: overdueList.sort(byDate("dueDate", 1)).slice(0, 6),
     recent: companies
-      .map((c) => ({ id: String(c.id), name: c.name ?? `#${c.id}`, createdAt: c.createdAt ?? null }))
+      .map((c) => ({
+        id: String(c.id),
+        name: c.name ?? `#${c.id}`,
+        createdAt: c.createdAt ?? null,
+      }))
       .sort(byDate("createdAt", -1))
       .slice(0, 6),
   };

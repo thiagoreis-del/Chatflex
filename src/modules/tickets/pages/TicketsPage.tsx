@@ -54,11 +54,7 @@ import { ticketKeys } from "@/shared/api/query-keys";
 import { ApiError } from "@/shared/api/errors";
 import { useSession } from "@/shared/auth/session-store";
 import { TransferTicketDialog } from "../components/TransferTicketDialog";
-import {
-  hideRefusedTicket,
-  restoreRefusedTicket,
-  useRefusedHiddenIds,
-} from "../refused";
+import { hideRefusedTicket, restoreRefusedTicket, useRefusedHiddenIds } from "../refused";
 import {
   addTicketTag,
   assignTicket,
@@ -141,7 +137,9 @@ export function TicketsPage() {
   const [tab, setTab] = useState<TicketTab>("open");
   const status: TicketStatus = tab === "groups" ? "open" : tab;
   const session = useSession();
-  const mutedIds = useMutedContacts(session.user ? mutedKey(session.user.companyId, session.user.id) : null);
+  const mutedIds = useMutedContacts(
+    session.user ? mutedKey(session.user.companyId, session.user.id) : null,
+  );
   const qcl = useQueryClient();
   const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
   const [confirmClose, setConfirmClose] = useState(false);
@@ -252,8 +250,14 @@ export function TicketsPage() {
     refetchInterval: fallback,
   }).data;
   const activeIdsOf = (l: Ticket[]) => l.map((x) => x.contact?.id);
-  const openIds = useQuery({ ...ticketsQuery({ status: "open", search: debouncedSearch }), select: activeIdsOf }).data;
-  const pendingIds = useQuery({ ...ticketsQuery({ status: "pending", search: debouncedSearch }), select: activeIdsOf }).data;
+  const openIds = useQuery({
+    ...ticketsQuery({ status: "open", search: debouncedSearch }),
+    select: activeIdsOf,
+  }).data;
+  const pendingIds = useQuery({
+    ...ticketsQuery({ status: "pending", search: debouncedSearch }),
+    select: activeIdsOf,
+  }).data;
   const activeContactIds = useMemo(
     () => new Set([...(openIds ?? []), ...(pendingIds ?? [])]),
     [openIds, pendingIds],
@@ -283,7 +287,9 @@ export function TicketsPage() {
       >
         <div className="space-y-2.5 border-b px-3 pb-2.5 pt-3">
           <div className="flex items-center justify-between gap-2">
-            <h1 className="font-display text-lg font-semibold tracking-tight">{t("sidebar.title")}</h1>
+            <h1 className="font-display text-lg font-semibold tracking-tight">
+              {t("sidebar.title")}
+            </h1>
             <div className="flex items-center gap-1">
               <Button
                 variant={showFilters || activeFilters > 0 ? "secondary" : "ghost"}
@@ -302,7 +308,12 @@ export function TicketsPage() {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-8" aria-label={t("sidebar.actions")}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    aria-label={t("sidebar.actions")}
+                  >
                     <MoreVertical className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -330,7 +341,10 @@ export function TicketsPage() {
             </div>
           </div>
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" aria-hidden />
+            <Search
+              className="absolute left-2.5 top-2.5 size-4 text-muted-foreground"
+              aria-hidden
+            />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -500,176 +514,191 @@ export function TicketsPage() {
               ))}
             </ul>
           ) : (
-          <QueryBoundary query={query} contract={ticketsContract}>
-            {(list) => {
-              const visible = list.filter((x) => !hiddenRefused.has(x.id) && matchesFilters(x));
-              if (visible.length === 0) {
-                const msg = debouncedSearch
-                  ? t("sidebar.noResults", { q: debouncedSearch })
-                  : activeFilters > 0
-                    ? t("sidebar.noFiltered")
-                    : t("empty");
-                return (
-                  <div className="flex flex-col items-center gap-2 px-6 py-12 text-center text-sm text-muted-foreground">
-                    {debouncedSearch ? <SearchX className="size-8" /> : <Inbox className="size-8" />}
-                    <p>{msg}</p>
-                    {(debouncedSearch || activeFilters > 0) && (
-                      <Button
-                        variant="link"
-                        size="sm"
-                        onClick={() => {
-                          setSearch("");
-                          clearFilters();
-                        }}
-                      >
-                        {t("sidebar.clearFilters")}
-                      </Button>
-                    )}
-                  </div>
-                );
-              }
-              return (
-                <ul className="divide-y divide-border/60">
-                  {visible.map((tk) => {
-                    const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
-                    const hl = sla?.highlight ? slaInfo?.state : undefined;
-                    const isSel = selected?.id === tk.id;
-                    const name = tk.contact.name || `+${tk.contact.number}`;
-                    const preview = stripSignature(tk.lastMessage ?? "");
-                    const waitMin =
-                      tk.status === "pending"
-                        ? Math.max(0, Math.floor((now - new Date(tk.updatedAt).getTime()) / 60000))
-                        : 0;
-                    return (
-                      <li key={tk.id}>
-                        <button
-                          type="button"
-                          onClick={() => setSelected(tk)}
-                          aria-current={isSel || undefined}
-                          className={cn(
-                            "flex w-full gap-3 border-l-[3px] border-l-transparent px-3 py-2.5 text-left transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none",
-                            hl === "urgent" && "border-l-warning bg-warning/5",
-                            hl === "violated" && "border-l-destructive bg-destructive/5",
-                            isSel && "border-l-primary bg-primary/10 hover:bg-primary/10",
-                          )}
+            <QueryBoundary query={query} contract={ticketsContract}>
+              {(list) => {
+                const visible = list.filter((x) => !hiddenRefused.has(x.id) && matchesFilters(x));
+                if (visible.length === 0) {
+                  const msg = debouncedSearch
+                    ? t("sidebar.noResults", { q: debouncedSearch })
+                    : activeFilters > 0
+                      ? t("sidebar.noFiltered")
+                      : t("empty");
+                  return (
+                    <div className="flex flex-col items-center gap-2 px-6 py-12 text-center text-sm text-muted-foreground">
+                      {debouncedSearch ? (
+                        <SearchX className="size-8" />
+                      ) : (
+                        <Inbox className="size-8" />
+                      )}
+                      <p>{msg}</p>
+                      {(debouncedSearch || activeFilters > 0) && (
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => {
+                            setSearch("");
+                            clearFilters();
+                          }}
                         >
-                          <div className="relative shrink-0">
-                            <div className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/25 to-primary/5 font-display text-base font-semibold uppercase text-primary">
-                              {tk.contact.isGroup || tk.isGroup ? (
-                                <Users className="size-5" />
-                              ) : (
-                                name.replace(/^\+/, "").charAt(0) || "#"
-                              )}
+                          {t("sidebar.clearFilters")}
+                        </Button>
+                      )}
+                    </div>
+                  );
+                }
+                return (
+                  <ul className="divide-y divide-border/60">
+                    {visible.map((tk) => {
+                      const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
+                      const hl = sla?.highlight ? slaInfo?.state : undefined;
+                      const isSel = selected?.id === tk.id;
+                      const name = tk.contact.name || `+${tk.contact.number}`;
+                      const preview = stripSignature(tk.lastMessage ?? "");
+                      const waitMin =
+                        tk.status === "pending"
+                          ? Math.max(
+                              0,
+                              Math.floor((now - new Date(tk.updatedAt).getTime()) / 60000),
+                            )
+                          : 0;
+                      return (
+                        <li key={tk.id}>
+                          <button
+                            type="button"
+                            onClick={() => setSelected(tk)}
+                            aria-current={isSel || undefined}
+                            className={cn(
+                              "flex w-full gap-3 border-l-[3px] border-l-transparent px-3 py-2.5 text-left transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none",
+                              hl === "urgent" && "border-l-warning bg-warning/5",
+                              hl === "violated" && "border-l-destructive bg-destructive/5",
+                              isSel && "border-l-primary bg-primary/10 hover:bg-primary/10",
+                            )}
+                          >
+                            <div className="relative shrink-0">
+                              <div className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/25 to-primary/5 font-display text-base font-semibold uppercase text-primary">
+                                {tk.contact.isGroup || tk.isGroup ? (
+                                  <Users className="size-5" />
+                                ) : (
+                                  name.replace(/^\+/, "").charAt(0) || "#"
+                                )}
+                              </div>
+                              <span
+                                className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full border-2 border-card bg-success text-success-foreground"
+                                title={tk.whatsapp?.name ?? t("unknownOrigin")}
+                              >
+                                <MessageCircle className="size-2" />
+                              </span>
                             </div>
-                            <span
-                              className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full border-2 border-card bg-success text-success-foreground"
-                              title={tk.whatsapp?.name ?? t("unknownOrigin")}
-                            >
-                              <MessageCircle className="size-2" />
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-baseline justify-between gap-2">
-                              <span
-                                className={cn(
-                                  "truncate text-sm",
-                                  tk.unreadMessages > 0 ? "font-semibold" : "font-medium",
-                                )}
-                              >
-                                {name}
-                                {mutedIds.includes(tk.contact.id) && (
-                                  <BellOff
-                                    className="ml-1 inline size-3 text-muted-foreground"
-                                    aria-label={t("mute.muted")}
-                                  />
-                                )}
-                              </span>
-                              <span
-                                className={cn(
-                                  "shrink-0 text-[11px]",
-                                  tk.unreadMessages > 0
-                                    ? "font-semibold text-primary"
-                                    : "text-muted-foreground",
-                                )}
-                              >
-                                {time(tk.updatedAt)}
-                              </span>
-                            </div>
-                            <div className="mt-0.5 flex items-center justify-between gap-2">
-                              <span
-                                className={cn(
-                                  "truncate text-[13px]",
-                                  tk.unreadMessages > 0
-                                    ? "text-foreground"
-                                    : "text-muted-foreground",
-                                )}
-                              >
-                                {preview || "\u00a0"}
-                              </span>
-                              {tk.unreadMessages > 0 && (
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-baseline justify-between gap-2">
                                 <span
-                                  className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground"
-                                  aria-label={t("sidebar.unread", { count: tk.unreadMessages })}
+                                  className={cn(
+                                    "truncate text-sm",
+                                    tk.unreadMessages > 0 ? "font-semibold" : "font-medium",
+                                  )}
                                 >
-                                  {tk.unreadMessages > 99 ? "99+" : tk.unreadMessages}
+                                  {name}
+                                  {mutedIds.includes(tk.contact.id) && (
+                                    <BellOff
+                                      className="ml-1 inline size-3 text-muted-foreground"
+                                      aria-label={t("mute.muted")}
+                                    />
+                                  )}
                                 </span>
-                              )}
-                            </div>
-                            <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1">
-                              {slaInfo && <SlaBadge info={slaInfo} />}
-                              <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-medium text-muted-foreground">
                                 <span
-                                  className="size-1.5 shrink-0 rounded-full"
-                                  style={{ backgroundColor: tk.queue?.color ?? "var(--muted-foreground)" }}
-                                />
-                                <span className="truncate">{tk.queue?.name ?? t("noQueue")}</span>
-                              </span>
-                              <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md bg-muted px-1.5 py-px text-[10px] text-muted-foreground">
-                                <Smartphone className="size-2.5 shrink-0" />
-                                <span className="truncate">{tk.whatsapp?.name ?? t("unknownOrigin")}</span>
-                              </span>
-                              {waitMin > 0 && (
-                                <span className="inline-flex items-center gap-0.5 rounded-md bg-warning/15 px-1.5 py-px text-[10px] font-medium text-foreground">
-                                  <Clock className="size-2.5" />
-                                  {waitMin >= 60 ? `${Math.floor(waitMin / 60)}h${waitMin % 60}m` : `${waitMin}m`}
+                                  className={cn(
+                                    "shrink-0 text-[11px]",
+                                    tk.unreadMessages > 0
+                                      ? "font-semibold text-primary"
+                                      : "text-muted-foreground",
+                                  )}
+                                >
+                                  {time(tk.updatedAt)}
                                 </span>
-                              )}
-                              <span className="ml-auto inline-flex min-w-0 items-center gap-0.5 truncate text-[10px] text-muted-foreground">
-                                <UserRound className="size-2.5 shrink-0" />
-                                <span className="truncate">{tk.user?.name ?? t("noAttendant")}</span>
-                              </span>
-                              {isAdmin && tk.status !== "closed" && (
+                              </div>
+                              <div className="mt-0.5 flex items-center justify-between gap-2">
                                 <span
-                                  role="button"
-                                  tabIndex={0}
-                                  aria-label={t("actions.refuse")}
-                                  title={t("actions.refuse")}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    refuseFromList.mutate(tk);
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === " ") {
-                                      e.preventDefault();
+                                  className={cn(
+                                    "truncate text-[13px]",
+                                    tk.unreadMessages > 0
+                                      ? "text-foreground"
+                                      : "text-muted-foreground",
+                                  )}
+                                >
+                                  {preview || "\u00a0"}
+                                </span>
+                                {tk.unreadMessages > 0 && (
+                                  <span
+                                    className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground"
+                                    aria-label={t("sidebar.unread", { count: tk.unreadMessages })}
+                                  >
+                                    {tk.unreadMessages > 99 ? "99+" : tk.unreadMessages}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1">
+                                {slaInfo && <SlaBadge info={slaInfo} />}
+                                <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                                  <span
+                                    className="size-1.5 shrink-0 rounded-full"
+                                    style={{
+                                      backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
+                                    }}
+                                  />
+                                  <span className="truncate">{tk.queue?.name ?? t("noQueue")}</span>
+                                </span>
+                                <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md bg-muted px-1.5 py-px text-[10px] text-muted-foreground">
+                                  <Smartphone className="size-2.5 shrink-0" />
+                                  <span className="truncate">
+                                    {tk.whatsapp?.name ?? t("unknownOrigin")}
+                                  </span>
+                                </span>
+                                {waitMin > 0 && (
+                                  <span className="inline-flex items-center gap-0.5 rounded-md bg-warning/15 px-1.5 py-px text-[10px] font-medium text-foreground">
+                                    <Clock className="size-2.5" />
+                                    {waitMin >= 60
+                                      ? `${Math.floor(waitMin / 60)}h${waitMin % 60}m`
+                                      : `${waitMin}m`}
+                                  </span>
+                                )}
+                                <span className="ml-auto inline-flex min-w-0 items-center gap-0.5 truncate text-[10px] text-muted-foreground">
+                                  <UserRound className="size-2.5 shrink-0" />
+                                  <span className="truncate">
+                                    {tk.user?.name ?? t("noAttendant")}
+                                  </span>
+                                </span>
+                                {isAdmin && tk.status !== "closed" && (
+                                  <span
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={t("actions.refuse")}
+                                    title={t("actions.refuse")}
+                                    onClick={(e) => {
                                       e.stopPropagation();
                                       refuseFromList.mutate(tk);
-                                    }
-                                  }}
-                                  className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive/40"
-                                >
-                                  <Undo2 className="size-3" />
-                                </span>
-                              )}
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        refuseFromList.mutate(tk);
+                                      }
+                                    }}
+                                    className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive/40"
+                                  >
+                                    <Undo2 className="size-3" />
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              );
-            }}
-          </QueryBoundary>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                );
+              }}
+            </QueryBoundary>
           )}
         </div>
       </aside>
@@ -720,7 +749,8 @@ function Conversation({
   const companyUsers = useQuery({ ...allCompanyUsersQuery(), enabled: isAdmin });
   const [replyAsId, setReplyAsId] = useState<number | null>(defaultReplyAsId);
   useEffect(() => setReplyAsId(defaultReplyAsId), [defaultReplyAsId]);
-  const replyAs = isAdmin && replyAsId ? companyUsers.data?.find((u) => u.id === replyAsId) : undefined;
+  const replyAs =
+    isAdmin && replyAsId ? companyUsers.data?.find((u) => u.id === replyAsId) : undefined;
   const senderId = replyAs?.id ?? myId;
   const senderName = (replyAs?.name ?? session.user?.name)?.trim();
   const msgFallback = useFallbackInterval();
@@ -736,7 +766,11 @@ function Conversation({
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const openContactEditor = async () => {
-    const base: Contact = { id: ticket.contact.id, name: ticket.contact.name, number: ticket.contact.number };
+    const base: Contact = {
+      id: ticket.contact.id,
+      name: ticket.contact.name,
+      number: ticket.contact.number,
+    };
     try {
       setEditingContact({ ...base, ...(await getContact(ticket.contact.id)) });
     } catch {
@@ -1167,11 +1201,15 @@ function Conversation({
             </span>
             <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
               {t("context.queue")}:{" "}
-              <span className="font-medium text-foreground">{ticket.queue?.name ?? t("noQueue")}</span>
+              <span className="font-medium text-foreground">
+                {ticket.queue?.name ?? t("noQueue")}
+              </span>
             </span>
             <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
               {t("attendant")}:{" "}
-              <span className="font-medium text-foreground">{ticket.user?.name ?? t("noAttendant")}</span>
+              <span className="font-medium text-foreground">
+                {ticket.user?.name ?? t("noAttendant")}
+              </span>
             </span>
           </div>
           <div className="mt-1 flex items-center gap-1 overflow-x-auto pb-0.5 [scrollbar-width:none] sm:flex-wrap">
@@ -1680,16 +1718,27 @@ function Conversation({
                 className="h-8 min-w-0 max-w-full rounded-md border bg-background px-2 text-xs text-foreground"
               >
                 <option value="">{t("composer.replyAsMe")}</option>
-                {(companyUsers.data ?? []).filter((u) => u.id !== myId).map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
+                {(companyUsers.data ?? [])
+                  .filter((u) => u.id !== myId)
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
+                  ))}
               </select>
               <span className="min-w-0 break-words text-xs text-muted-foreground">
                 {t("composer.signingAs", { name: senderName })}
               </span>
               {replyAsId !== null && (
-                <Button variant="ghost" size="icon" className="size-7 shrink-0" disabled={send.isPending}
-                  onClick={() => setReplyAsId(null)} aria-label={t("composer.replyAsMe")} title={t("composer.replyAsMe")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 shrink-0"
+                  disabled={send.isPending}
+                  onClick={() => setReplyAsId(null)}
+                  aria-label={t("composer.replyAsMe")}
+                  title={t("composer.replyAsMe")}
+                >
                   <Undo2 className="size-3.5" />
                 </Button>
               )}

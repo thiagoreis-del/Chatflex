@@ -32,8 +32,7 @@ export function OfflineNotice() {
             "Sem conexão com a internet. As mensagens serão enviadas quando a conexão voltar.",
         })
       : i18n.t("offline.backend", {
-          defaultValue:
-            "Servidor indisponível no momento. Tentando reconectar automaticamente…",
+          defaultValue: "Servidor indisponível no momento. Tentando reconectar automaticamente…",
         });
 
   return (

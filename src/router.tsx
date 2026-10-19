@@ -19,7 +19,12 @@ if (typeof window !== "undefined") {
   });
   window.addEventListener("unhandledrejection", (e) => {
     const msg = String((e.reason as Error | undefined)?.message ?? e.reason ?? "");
-    if (/Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(msg)) reloadOnce();
+    if (
+      /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(
+        msg,
+      )
+    )
+      reloadOnce();
   });
 }
 

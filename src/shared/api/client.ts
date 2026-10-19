@@ -221,7 +221,10 @@ export async function apiUpload<T>(path: string, form: FormData, opts: UploadOpt
 /** Baixa um arquivo autenticado (Blob). Renova o token uma vez se expirado. */
 export async function apiDownload(path: string): Promise<{ blob: Blob; filename: string | null }> {
   if (env.useMocks) {
-    return { blob: new Blob(["-- backup de demonstração\n"], { type: "application/sql" }), filename: "backup-demo.sql" };
+    return {
+      blob: new Blob(["-- backup de demonstração\n"], { type: "application/sql" }),
+      filename: "backup-demo.sql",
+    };
   }
   const run = async () => {
     const headers: Record<string, string> = {};
@@ -238,7 +241,11 @@ export async function apiDownload(path: string): Promise<{ blob: Blob; filename:
     markApiReachable();
     if (!res.ok) {
       let data: unknown;
-      try { data = await res.json(); } catch { data = undefined; }
+      try {
+        data = await res.json();
+      } catch {
+        data = undefined;
+      }
       throw new ApiError(kindFromStatus(res.status), res.status, data as ApiErrorBody);
     }
     const cd = res.headers.get("Content-Disposition") ?? "";

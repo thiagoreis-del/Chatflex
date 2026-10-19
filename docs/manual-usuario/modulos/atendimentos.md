@@ -5,6 +5,7 @@
 **Como acessar:** Menu Atendimentos → `/app/atendimento`.
 
 ## Campos e opções
+
 - Abas: Atendendo/abertos, Aguardando, Grupos e Finalizados.
 - Busca, conexão, atendente, não lidas e SLA quando habilitado; limpar filtros/atualizar.
 - Contato, telefone, conexão, fila, responsável e etiquetas no cabeçalho.
@@ -12,6 +13,7 @@
 - Administrador: escolher usuário de resposta da empresa; encerrar em lote e Recusar.
 
 ## Passo a passo
+
 1. Abra a aba e localize a conversa com busca/filtros.
 2. Selecione o atendimento. Em Aguardando, use Aceitar; em aberto sem responsável, assuma quando oferecido.
 3. Para responder, mantenha o atendimento aberto. Digite texto e use Enviar/Enter; Shift+Enter insere quebra de linha.
@@ -27,9 +29,11 @@
 13. Para retomar um finalizado, use Reabrir.
 
 ## Resultado esperado
+
 Mensagens são enviadas à API e o atendimento é atualizado após confirmação. Sucesso HTTP não é confirmação de entrega ou leitura no WhatsApp.
 
 ## Erros e soluções
+
 - Sem fila/sem destinatário elegível: transferência pode ficar indisponível; peça ao admin revisar vínculo.
 - Upload falhou parcialmente: veja arquivos restantes; não reenvie todos sem conferir os já enviados.
 - Falha de rede em texto: pode ir à fila local; não enviar cópias manualmente enquanto houver pendência.
@@ -38,6 +42,7 @@ Mensagens são enviadas à API e o atendimento é atualizado após confirmação
 - Encerrar em lote: conferir total de sucesso e falha; a operação não é única/transacional.
 
 ## Observações e limitações
+
 - Recusa oculta por usuário no navegador por sete dias; ticket continua no backend e pode aparecer a outros em Finalizados.
 - Pesquisa/histórico limita-se às mensagens retornadas; consulta normal não pagina todo o histórico.
 - Transferência usa usuários da primeira página; sem fila fica desabilitada. Qualquer atendente devolve a `pending`; não confundir com Recusar.
@@ -51,4 +56,5 @@ Mensagens são enviadas à API e o atendimento é atualizado após confirmação
 **Evidências:** `src/modules/tickets/pages/TicketsPage.tsx`, `api.ts`, `attendant-selection.ts`, `refused.ts`, `offline-outbox.ts`, `components/TransferTicketDialog.tsx`, `components/MessageMedia.tsx`.
 
 ---
+
 [Voltar ao sumário](../../README.md) · Documentação 1.0.0 · 18/10/2026

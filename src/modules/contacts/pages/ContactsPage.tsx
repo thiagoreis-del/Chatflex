@@ -30,12 +30,7 @@ import {
   QueryBoundary,
 } from "@/shared/components";
 import { contactKeys } from "@/shared/api/query-keys";
-import {
-  contactsContract,
-  contactsQuery,
-  createContact,
-  deleteContact,
-} from "../api";
+import { contactsContract, contactsQuery, createContact, deleteContact } from "../api";
 import { parseContactsCsv, type ImportRow } from "../import";
 import { ContactFormDialog } from "../components/ContactFormDialog";
 import type { Contact } from "../types";
@@ -100,64 +95,66 @@ export function ContactsPage() {
           ) : (
             <>
               <div className="overflow-x-auto rounded-xl border bg-card shadow-soft">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("table.name")}</TableHead>
-                    <TableHead>{t("table.number")}</TableHead>
-                    <TableHead>{t("table.email")}</TableHead>
-                    <TableHead>{t("table.tags")}</TableHead>
-                    <TableHead className="w-24 text-right">{t("table.actions")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {result.data.map((c) => (
-                    <TableRow key={c.id}>
-                      <TableCell>
-                        <button
-                          type="button"
-                          onClick={() => setForm(c)}
-                          className="flex min-w-0 items-center gap-3 text-left"
-                        >
-                          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                            {(c.name || "#").charAt(0).toUpperCase()}
-                          </span>
-                          <span className="truncate font-medium hover:underline">{c.name}</span>
-                        </button>
-                      </TableCell>
-                      <TableCell className="tabular-nums text-muted-foreground">+{c.number}</TableCell>
-                      <TableCell>{c.email ?? "—"}</TableCell>
-                      <TableCell>
-                        <span className="flex flex-wrap gap-1">
-                          {(c.tags ?? []).map((tag) => (
-                            <Badge key={tag} variant="secondary">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label={t("actions.edit")}
-                          onClick={() => setForm(c)}
-                        >
-                          <Pencil className="size-4" aria-hidden />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label={t("actions.delete")}
-                          onClick={() => setToDelete(c)}
-                        >
-                          <Trash2 className="size-4" aria-hidden />
-                        </Button>
-                      </TableCell>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("table.name")}</TableHead>
+                      <TableHead>{t("table.number")}</TableHead>
+                      <TableHead>{t("table.email")}</TableHead>
+                      <TableHead>{t("table.tags")}</TableHead>
+                      <TableHead className="w-24 text-right">{t("table.actions")}</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {result.data.map((c) => (
+                      <TableRow key={c.id}>
+                        <TableCell>
+                          <button
+                            type="button"
+                            onClick={() => setForm(c)}
+                            className="flex min-w-0 items-center gap-3 text-left"
+                          >
+                            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                              {(c.name || "#").charAt(0).toUpperCase()}
+                            </span>
+                            <span className="truncate font-medium hover:underline">{c.name}</span>
+                          </button>
+                        </TableCell>
+                        <TableCell className="tabular-nums text-muted-foreground">
+                          +{c.number}
+                        </TableCell>
+                        <TableCell>{c.email ?? "—"}</TableCell>
+                        <TableCell>
+                          <span className="flex flex-wrap gap-1">
+                            {(c.tags ?? []).map((tag) => (
+                              <Badge key={tag} variant="secondary">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={t("actions.edit")}
+                            onClick={() => setForm(c)}
+                          >
+                            <Pencil className="size-4" aria-hidden />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label={t("actions.delete")}
+                            onClick={() => setToDelete(c)}
+                          >
+                            <Trash2 className="size-4" aria-hidden />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
               <Pagination
                 page={result.page}
@@ -190,7 +187,6 @@ export function ContactsPage() {
     </div>
   );
 }
-
 
 function ImportDialog({ onClose, onDone }: { onClose: () => void; onDone: () => unknown }) {
   const { t } = useTranslation("contacts");

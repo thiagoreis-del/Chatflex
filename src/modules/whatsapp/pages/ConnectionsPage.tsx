@@ -75,7 +75,11 @@ function useConnectionsRealtime() {
   useEffect(() => {
     socketClient.connect();
     const apply = (payload: unknown) => {
-      const p = payload as { action?: string; session?: WhatsAppConnection; whatsapp?: WhatsAppConnection } | null;
+      const p = payload as {
+        action?: string;
+        session?: WhatsAppConnection;
+        whatsapp?: WhatsAppConnection;
+      } | null;
       const item = p?.session ?? p?.whatsapp;
       if (item && typeof item.id === "number") {
         qc.setQueryData<WhatsAppConnection>(whatsappKeys.detail(item.id), (old) =>
@@ -171,14 +175,19 @@ export function ConnectionsPage() {
                       </span>
                       <div className="min-w-0 [overflow-wrap:anywhere]">
                         <CardTitle className="text-base">{c.name}</CardTitle>
-                        <p className="text-xs text-muted-foreground">{formatNumber(c.number) ?? t("noNumber")}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatNumber(c.number) ?? t("noNumber")}
+                        </p>
                       </div>
                     </div>
                     {c.isDefault && <Badge variant="outline">{t("default")}</Badge>}
                   </CardHeader>
                   <CardContent>
                     <Badge variant={statusVariant[c.status]} className="gap-1.5">
-                      <span className={`size-2 rounded-full ${statusDot[c.status] ?? "bg-muted-foreground"}`} aria-hidden />
+                      <span
+                        className={`size-2 rounded-full ${statusDot[c.status] ?? "bg-muted-foreground"}`}
+                        aria-hidden
+                      />
                       {t(`status.${c.status}`, { defaultValue: c.status })}
                     </Badge>
                   </CardContent>
