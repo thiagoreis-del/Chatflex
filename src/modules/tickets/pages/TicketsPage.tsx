@@ -141,6 +141,7 @@ export function TicketsPage() {
   const [tab, setTab] = useState<TicketTab>("open");
   const status: TicketStatus = tab === "groups" ? "open" : tab;
   const session = useSession();
+  const mutedIds = useMutedContacts(session.user ? mutedKey(session.user.companyId, session.user.id) : null);
   const qcl = useQueryClient();
   const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
   const [confirmClose, setConfirmClose] = useState(false);
@@ -711,6 +712,8 @@ function Conversation({
   const { t: tq } = useTranslation("quickMessages");
   const qc = useQueryClient();
   const session = useSession();
+  const muteKey = session.user ? mutedKey(session.user.companyId, session.user.id) : null;
+  const muted = useMutedContacts(muteKey).includes(ticket.contact.id);
   const isAdmin = session.user?.role === "superadmin" || session.user?.role === "company_admin";
   const myId = Number(session.user?.id) || null;
   // Admin pode responder em nome de qualquer usuário da empresa.
