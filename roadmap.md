@@ -2,8 +2,8 @@
 
 ## Atualização dos atendimentos — 19/10/2026
 
-- [ ] Verificar atraso, corrigir atualização automática e validar regressões.
-- [ ] Confirmar atualização em sessão real — depende de acesso autenticado ao backend externo.
+- [x] Corrigir atualização automática: consulta a cada 3 segundos, recuperação ao voltar à janela e invalidação por eventos; 13 testes passaram e preview compilou.
+- [ ] Confirmar atualização em sessão real — bloqueado por ausência de sessão autenticada do backend externo; publicação desta correção na VPS não confirmada.
 
 ## Atualizações da VPS — opção 1
 
