@@ -81,6 +81,7 @@ import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
 import { contactKeys } from "@/shared/api/query-keys";
 import { MessageMedia } from "../components/MessageMedia";
+import { NewTicketSuggestions } from "../components/NewTicketSuggestions";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
@@ -246,6 +247,13 @@ export function TicketsPage() {
     select: (l: Ticket[]) => l.filter((x) => !hiddenRefused.has(x.id)).length,
     refetchInterval: fallback,
   }).data;
+  const activeIdsOf = (l: Ticket[]) => l.map((x) => x.contact?.id);
+  const openIds = useQuery({ ...ticketsQuery({ status: "open", search: debouncedSearch }), select: activeIdsOf }).data;
+  const pendingIds = useQuery({ ...ticketsQuery({ status: "pending", search: debouncedSearch }), select: activeIdsOf }).data;
+  const activeContactIds = useMemo(
+    () => new Set([...(openIds ?? []), ...(pendingIds ?? [])]),
+    [openIds, pendingIds],
+  );
   const counts: Partial<Record<TicketTab, number | undefined>> = {
     open: openCount,
     pending: pendingCount,
@@ -462,6 +470,18 @@ export function TicketsPage() {
           />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
+          {tab !== "groups" && openIds && pendingIds && (
+            <NewTicketSuggestions
+              search={debouncedSearch}
+              activeContactIds={activeContactIds}
+              userId={session.user?.id ? Number(session.user.id) : undefined}
+              onStarted={(tk) => {
+                setTab("open");
+                setSearch("");
+                setSelected(tk);
+              }}
+            />
+          )}
           {query.isPending ? (
             <ul aria-busy className="divide-y">
               {Array.from({ length: 6 }).map((_, i) => (

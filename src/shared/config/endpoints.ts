@@ -178,6 +178,8 @@ export const ticketEndpoints = {
 
 export const ticketContracts = [
   { method: "GET", path: "/tickets", confirmed: true },
+  /** Novo atendimento: { contactId, status, userId, whatsappId }. CONTRATO PENDENTE. */
+  { method: "POST", path: "/tickets", confirmed: false },
   /** Também usado na transferência: { queueId, userId, status, msgTransfer, isTransfered }. */
   { method: "PUT", path: "/tickets/:id", confirmed: true },
   { method: "GET", path: "/tags/list", confirmed: true },

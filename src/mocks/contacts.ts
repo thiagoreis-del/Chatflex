@@ -79,3 +79,9 @@ export function contactsMock(path: string, opts: RequestOptions): unknown {
   db.splice(db.indexOf(item), 1);
   return undefined;
 }
+
+/** Usado pelo mock de atendimento ao iniciar uma conversa. */
+export function contactSummary(id: number) {
+  const c = db.find((x) => x.id === id);
+  return { id, name: c?.name ?? "", number: c?.number ?? "" };
+}

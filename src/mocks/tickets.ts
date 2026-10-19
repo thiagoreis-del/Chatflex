@@ -1,6 +1,7 @@
 import type { RequestOptions } from "@/shared/api/client";
 import { ApiError } from "@/shared/api/errors";
 import type { Message, Ticket, TicketStatus, TicketTag } from "@/modules/tickets/types";
+import { contactSummary as mockContactById } from "./contacts";
 import { queues as teamQueues, users as teamUsers } from "./team";
 
 const ago = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
@@ -138,6 +139,26 @@ export function ticketsMock(path: string, opts: RequestOptions): unknown {
   const id = Number(parts[1]);
 
   if (parts[0] === "tags") return tagOptions;
+  if (parts[0] === "tickets" && !parts[1] && method === "POST") {
+    const b = opts.body as { contactId: number; userId?: number; whatsappId?: number };
+    const known = tickets.find((t) => t.contact.id === b.contactId)?.contact;
+    const contact = known ?? mockContactById(b.contactId);
+    const u = teamUsers.find((x) => x.id === b.userId);
+    const created: Ticket = {
+      id: Math.max(...tickets.map((t) => t.id)) + 1,
+      status: "open",
+      lastMessage: "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      unreadMessages: 0,
+      contact,
+      queue: null,
+      user: u ? { id: u.id, name: u.name } : null,
+      whatsapp: { id: b.whatsappId ?? 1, name: "Comercial" },
+    };
+    tickets.push(created);
+    return created;
+  }
   if (parts[0] === "tickets" && !parts[1]) {
     const status = url.searchParams.get("status") as TicketStatus | null;
     const search = (url.searchParams.get("search") ?? "").toLowerCase();
