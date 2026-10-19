@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
-- VPS releases are compiled/tested on GitHub with the Node preset and shipped with dependencies; the existing PM2 entry resolves through .output to an immutable release with local commit verification and rollback. Why: avoids building on the VPS and preserves a recoverable previous version without changing backend services.
+- VPS deploy builds on the VPS via SSH (fetch exact commit, npm build with node-server preset, PM2 reload) and writes .output/public/deploy-version.json. Why: the GitHub-built artifact flow failed in Actions; the on-VPS build is the proven path.
 - System documentation lives in docs with source evidence and an explicit distinction between frontend implementation and verified external behavior. Why: manuals must remain maintainable without inventing backend contracts or exposing technical documents publicly.
 - The shared library barrel imports the canonical theme and exposes TooltipProvider. Why: consumers receive base styling and the provider needed for tooltip composition.
 - Delegated company exit resolves after restoring the original authenticated platform session; its backup is memory-only and successful server exit must return a non-delegated superadmin. Why: avoids stale UI logout and never persists or invents administrative credentials.
