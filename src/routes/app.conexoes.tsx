@@ -5,8 +5,7 @@ import { can } from "@/shared/permissions/catalog";
 import { pageMeta } from "@/shared/config/meta";
 
 export const Route = createFileRoute("/app/conexoes")({
-  head: () =>
-    pageMeta("whatsapp:meta.title", "whatsapp:meta.description", { noindex: true }),
+  head: () => pageMeta("whatsapp:meta.title", "whatsapp:meta.description", { noindex: true }),
   beforeLoad: () => {
     if (!can(sessionStore.get().user, "module.connections")) throw redirect({ to: "/403" });
   },

@@ -20,7 +20,15 @@ import { companyKeys, planKeys } from "@/shared/api/query-keys";
 import { errorMessageKey } from "@/shared/errors/handle-error";
 import { CompanyStatusBadge } from "@/modules/platform-admin/components/badges";
 import { companiesQuery, companyContracts } from "@/modules/companies/api";
-import { createPlan, deletePlan, suggestedPlans, planContracts, planQuery, plansQuery, updatePlan } from "../api";
+import {
+  createPlan,
+  deletePlan,
+  suggestedPlans,
+  planContracts,
+  planQuery,
+  plansQuery,
+  updatePlan,
+} from "../api";
 import { PlanForm } from "../components/PlanForm";
 import { planFeatureKeys } from "../types";
 
@@ -82,18 +90,18 @@ export function PlansListPage() {
         description={t("plans.subtitle")}
         actions={
           <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            disabled={seed.isPending || !q.data}
-            onClick={() => seed.mutate((q.data ?? []).map((p) => p.name))}
-          >
-            <Sparkles className="size-4" aria-hidden /> {t("plans.seed")}
-          </Button>
-          <Button asChild>
-            <Link to="/app/plataforma/planos/novo">
-              <Plus className="size-4" aria-hidden /> {t("plans.new")}
-            </Link>
-          </Button>
+            <Button
+              variant="outline"
+              disabled={seed.isPending || !q.data}
+              onClick={() => seed.mutate((q.data ?? []).map((p) => p.name))}
+            >
+              <Sparkles className="size-4" aria-hidden /> {t("plans.seed")}
+            </Button>
+            <Button asChild>
+              <Link to="/app/plataforma/planos/novo">
+                <Plus className="size-4" aria-hidden /> {t("plans.new")}
+              </Link>
+            </Button>
           </div>
         }
       />

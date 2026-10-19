@@ -220,7 +220,11 @@ function QueueFormDialog({
               {t("actions.save")}
             </Button>
           </DialogFooter>
-          {saveError && <p role="alert" className="text-sm text-destructive">{saveError}</p>}
+          {saveError && (
+            <p role="alert" className="text-sm text-destructive">
+              {saveError}
+            </p>
+          )}
         </form>
       </DialogContent>
     </Dialog>

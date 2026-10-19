@@ -10,7 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { ConfirmDialog, DateDisplay, LoadingState, PageHeader, QueryError } from "@/shared/components";
+import {
+  ConfirmDialog,
+  DateDisplay,
+  LoadingState,
+  PageHeader,
+  QueryError,
+} from "@/shared/components";
 import { notifyError } from "@/shared/errors/handle-error";
 import {
   backupsQuery,
@@ -120,7 +126,10 @@ export function BackupsPage() {
                   value={schedule.frequency}
                   disabled={!schedule.enabled}
                   onChange={(e) =>
-                    setSchedule({ ...schedule, frequency: e.target.value as BackupSchedule["frequency"] })
+                    setSchedule({
+                      ...schedule,
+                      frequency: e.target.value as BackupSchedule["frequency"],
+                    })
                   }
                 >
                   <option value="daily">{t("schedule.daily")}</option>
@@ -150,12 +159,19 @@ export function BackupsPage() {
                   value={schedule.retention}
                   disabled={!schedule.enabled}
                   onChange={(e) =>
-                    setSchedule({ ...schedule, retention: Math.max(1, Number(e.target.value) || 1) })
+                    setSchedule({
+                      ...schedule,
+                      retention: Math.max(1, Number(e.target.value) || 1),
+                    })
                   }
                 />
               </div>
             </div>
-            <Button variant="outline" onClick={() => save.mutate(schedule)} disabled={save.isPending}>
+            <Button
+              variant="outline"
+              onClick={() => save.mutate(schedule)}
+              disabled={save.isPending}
+            >
               {t("schedule.save")}
             </Button>
           </CardContent>
@@ -249,7 +265,11 @@ export function BackupsPage() {
       >
         <div className="space-y-1.5">
           <Label htmlFor="bk-confirm">{t("restoreConfirmLabel")}</Label>
-          <Input id="bk-confirm" value={confirmWord} onChange={(e) => setConfirmWord(e.target.value)} />
+          <Input
+            id="bk-confirm"
+            value={confirmWord}
+            onChange={(e) => setConfirmWord(e.target.value)}
+          />
         </div>
       </ConfirmDialog>
     </div>

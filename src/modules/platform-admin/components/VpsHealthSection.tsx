@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Activity, Cpu, Database, Globe, HardDrive, MemoryStick, Radio, Server, Smartphone } from "lucide-react";
+import {
+  Activity,
+  Cpu,
+  Database,
+  Globe,
+  HardDrive,
+  MemoryStick,
+  Radio,
+  Server,
+  Smartphone,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConnectivity } from "@/shared/connectivity/connectivity";
 import { useSocketStatus } from "@/shared/socket/socket-client";
@@ -120,7 +130,15 @@ function ConnectivityBadge({
 }
 
 /** Mini-gráfico do histórico real coletado nesta sessão do painel. */
-function Sparkline({ samples, pick, level }: { samples: MetricsSample[]; pick: (s: MetricsSample) => number | null; level: HealthLevel }) {
+function Sparkline({
+  samples,
+  pick,
+  level,
+}: {
+  samples: MetricsSample[];
+  pick: (s: MetricsSample) => number | null;
+  level: HealthLevel;
+}) {
   const { t } = useTranslation("platform");
   const points = samples.map(pick).filter((v): v is number => v != null);
   if (points.length < 2) {
@@ -130,12 +148,24 @@ function Sparkline({ samples, pick, level }: { samples: MetricsSample[]; pick: (
   const h = 24;
   const step = w / (points.length - 1);
   const d = points
-    .map((v, i) => `${i === 0 ? "M" : "L"}${(i * step).toFixed(1)},${(h - (Math.min(100, v) / 100) * h).toFixed(1)}`)
+    .map(
+      (v, i) =>
+        `${i === 0 ? "M" : "L"}${(i * step).toFixed(1)},${(h - (Math.min(100, v) / 100) * h).toFixed(1)}`,
+    )
     .join(" ");
   const stroke =
-    level === "danger" ? "var(--destructive)" : level === "warning" ? "var(--warning)" : "var(--success)";
+    level === "danger"
+      ? "var(--destructive)"
+      : level === "warning"
+        ? "var(--warning)"
+        : "var(--success)";
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 h-6 w-full" preserveAspectRatio="none" aria-hidden>
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className="mt-2 h-6 w-full"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
       <path d={d} fill="none" stroke={stroke} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -301,7 +331,10 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
           label={t("vps.connections")}
           icon={<Smartphone className="size-4" />}
           percent={Math.min(100, (online / VPS_LIMITS.activeConnections) * 100)}
-          detail={t("vps.connectionsDetail", { count: online, limit: VPS_LIMITS.activeConnections })}
+          detail={t("vps.connectionsDetail", {
+            count: online,
+            limit: VPS_LIMITS.activeConnections,
+          })}
           level={connLevel}
         />
       </div>
@@ -315,15 +348,27 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
           <div className="mt-2 grid gap-3 sm:grid-cols-3">
             <div>
               <p className="text-xs text-muted-foreground">{t("vps.cpu")}</p>
-              <Sparkline samples={history} pick={(s) => s.cpu} level={levelOf(cpuPct, VPS_LIMITS.cpuPercent)} />
+              <Sparkline
+                samples={history}
+                pick={(s) => s.cpu}
+                level={levelOf(cpuPct, VPS_LIMITS.cpuPercent)}
+              />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">{t("vps.memory")}</p>
-              <Sparkline samples={history} pick={(s) => s.memory} level={levelOf(health.memory.usedPercent, VPS_LIMITS.memoryPercent)} />
+              <Sparkline
+                samples={history}
+                pick={(s) => s.memory}
+                level={levelOf(health.memory.usedPercent, VPS_LIMITS.memoryPercent)}
+              />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">{t("vps.disk")}</p>
-              <Sparkline samples={history} pick={(s) => s.disk} level={diskPct != null ? levelOf(diskPct, VPS_LIMITS.diskPercent) : "ok"} />
+              <Sparkline
+                samples={history}
+                pick={(s) => s.disk}
+                level={diskPct != null ? levelOf(diskPct, VPS_LIMITS.diskPercent) : "ok"}
+              />
             </div>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
@@ -377,7 +422,9 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
                     : "bg-muted text-muted-foreground",
               )}
             >
-              {tc(`connectivity.${socketStatus === "connected" ? "connected" : socketStatus === "reconnecting" || socketStatus === "connecting" ? "reconnecting" : socketStatus === "disabled" ? "disabled" : "disconnected"}`)}
+              {tc(
+                `connectivity.${socketStatus === "connected" ? "connected" : socketStatus === "reconnecting" || socketStatus === "connecting" ? "reconnecting" : socketStatus === "disabled" ? "disabled" : "disconnected"}`,
+              )}
             </span>
           </li>
           <li className="flex items-center justify-between gap-2">
@@ -391,9 +438,7 @@ export function VpsHealthSection({ dashboard }: { dashboard: PlatformDashboard |
                 online > 0 ? "bg-success/15 text-success" : "bg-muted text-muted-foreground",
               )}
             >
-              {online > 0
-                ? tc("connectivity.connected")
-                : tc("connectivity.disconnected")}
+              {online > 0 ? tc("connectivity.connected") : tc("connectivity.disconnected")}
             </span>
           </li>
         </ul>

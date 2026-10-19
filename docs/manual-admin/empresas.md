@@ -5,10 +5,12 @@
 **Como acessar:** Plataforma → Empresas; lista, Nova empresa, detalhe e Editar.
 
 ## Campos e opções
+
 Cadastro: razão social, fantasia, CPF/CNPJ, e-mail, telefone, responsável, plano, teste 0–365 dias, limites, status, observações (até 2.000), primeiro admin (nome/e-mail/telefone/senha/confirmar).
 Filtros: busca, status, plano e página. Detalhe: visão geral, usuários, conexões, limites, assinatura, recursos, faturas e auditoria.
 
 ## Passo a passo
+
 1. Busque a empresa e confira filtros.
 2. Nova empresa: preencha obrigatórios; consulta CNPJ (14 dígitos) pode preencher dados, que devem ser revisados.
 3. Selecione plano ativo; limites/teste são preenchidos do plano. Confira senha gerada (8–128) e confirmação.
@@ -21,12 +23,15 @@ Filtros: busca, status, plano e página. Detalhe: visão geral, usuários, conex
 10. Sair da empresa tenta restaurar superadmin não delegado; backup da sessão original é apenas em memória, perdido ao recarregar.
 
 ## Resultado esperado
+
 Empresa recebida da API; alterações são normalizadas no frontend. Entrada não cria privilégio local: depende de token/usuário válidos retornados.
 
 ## Erros e soluções
+
 Plano indisponível → revisar cadastro; CPF/CNPJ/e-mail/telefone inválidos → corrigir. Ampliar limites falha no modo real porque limites vêm do plano. Reativar com vencimento passado pode continuar inadimplente; revisar vencimento sem confundir status.
 
 ## Observações e limitações
+
 **Campos sem persistência separada no adaptador real:** razão/fantasia viram um name; responsável, notas, limites individuais e telefone do primeiro admin não são enviados; status de criação é true; e-mail enviado prioriza primeiro admin. Editar pode exigir preencher responsável novamente, embora não o salve.
 Cancelamento/suspensão enviam status=false; não há cancelamento financeiro distinto. Motivo digitado é descartado no payload real. Encerrar teste define vencimento ontem. Consumo real indisponível usa -1. Filtros status/plano são pós-paginação, mantendo count global. Lista de conexões de outras empresas é recebida globalmente e filtrada no cliente: servidor deve autorizar adequadamente. Novo usuário no detalhe inclui companyId, mas lista de filas não explicita companyId. Fallback de saída em memória não comprova encerramento/auditoria remoto.
 
@@ -34,4 +39,5 @@ Cancelamento/suspensão enviam status=false; não há cancelamento financeiro di
 **Evidências:** `src/modules/companies/{api,schemas,types}.ts`, `components/CompanyForm.tsx`, `components/SensitiveActionDialog.tsx`, `pages/CompanyDetailPage.tsx`, `src/shared/auth/auth-service.ts`.
 
 ---
+
 [Voltar ao sumário](../README.md) · Documentação 1.0.0 · 18/10/2026

@@ -49,7 +49,8 @@ describe("Sair da empresa não desloga o superadmin", () => {
 
   it("restaura a sessão original da plataforma quando o servidor falha", async () => {
     mocks.apiRequest.mockImplementation((path: string, opts?: { body?: unknown }) => {
-      if (path === "/auth/login") return Promise.resolve({ token: "token-plataforma", user: platformUser });
+      if (path === "/auth/login")
+        return Promise.resolve({ token: "token-plataforma", user: platformUser });
       if (path === "/companies/2/enter")
         return Promise.resolve({ token: "token-delegado", user: companyUser });
       if (path === "/companies/exit")
@@ -73,9 +74,12 @@ describe("Sair da empresa não desloga o superadmin", () => {
 
   it("usa a resposta do servidor quando a saída tem sucesso", async () => {
     mocks.apiRequest.mockImplementation((path: string) => {
-      if (path === "/auth/login") return Promise.resolve({ token: "token-plataforma", user: platformUser });
-      if (path === "/companies/2/enter") return Promise.resolve({ token: "token-delegado", user: companyUser });
-      if (path === "/companies/exit") return Promise.resolve({ token: "token-novo", user: platformUser });
+      if (path === "/auth/login")
+        return Promise.resolve({ token: "token-plataforma", user: platformUser });
+      if (path === "/companies/2/enter")
+        return Promise.resolve({ token: "token-delegado", user: companyUser });
+      if (path === "/companies/exit")
+        return Promise.resolve({ token: "token-novo", user: platformUser });
       throw new Error(`rota inesperada: ${path}`);
     });
 
@@ -89,7 +93,8 @@ describe("Sair da empresa não desloga o superadmin", () => {
   it("preserva a sessão original quando a resposta de saída não contém token", async () => {
     mocks.apiRequest.mockImplementation((path: string) => {
       if (path === "/auth/login") return Promise.resolve({ token: "original", user: platformUser });
-      if (path === "/companies/2/enter") return Promise.resolve({ token: "delegated", user: companyUser });
+      if (path === "/companies/2/enter")
+        return Promise.resolve({ token: "delegated", user: companyUser });
       return Promise.resolve({ user: platformUser });
     });
     await login("super@notasflex.com.br", "senha");

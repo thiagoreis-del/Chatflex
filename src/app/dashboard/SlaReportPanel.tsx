@@ -23,7 +23,8 @@ export function SlaReportPanel() {
   const { t } = useTranslation("dashboard");
   const q = useQuery({
     queryKey: ["sla", "report", "today"],
-    queryFn: ({ signal }) => apiRequest<SlaReport>(`${slaEndpoints.report}?period=today`, { signal }),
+    queryFn: ({ signal }) =>
+      apiRequest<SlaReport>(`${slaEndpoints.report}?period=today`, { signal }),
     retry: false,
     refetchInterval: 60_000,
   });
@@ -54,7 +55,10 @@ export function SlaReportPanel() {
                   </span>
                   <span className="shrink-0 text-destructive">
                     {t("slaReport.minutes", { count: v.waitedMinutes })} ·{" "}
-                    {new Date(v.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(v.createdAt).toLocaleTimeString("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </span>
                 </li>
               ))}

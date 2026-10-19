@@ -17,4 +17,3 @@ The full machine-readable catalog lives in this library's `design-system.json` (
 
 - `@/design-system/{slug}/assets/fonts/manrope-latin-wght-normal.woff2` (woff2)
 - `@/design-system/{slug}/assets/fonts/sora-latin-wght-normal.woff2` (woff2)
-

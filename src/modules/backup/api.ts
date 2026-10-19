@@ -28,7 +28,12 @@ export interface BackupOverview {
   schedule: BackupSchedule;
 }
 
-const defaultSchedule: BackupSchedule = { enabled: false, frequency: "daily", time: "03:00", retention: 7 };
+const defaultSchedule: BackupSchedule = {
+  enabled: false,
+  frequency: "daily",
+  time: "03:00",
+  retention: 7,
+};
 
 function normalizeStatus(v: unknown): BackupStatus {
   const s = String(v ?? "").toLowerCase();
@@ -42,7 +47,9 @@ function normalizeBackup(raw: Loose): Backup {
   const size = raw["sizeBytes"] ?? raw["size"] ?? raw["fileSize"];
   return {
     id: String(raw["id"] ?? raw["filename"] ?? raw["name"] ?? ""),
-    filename: String(raw["filename"] ?? raw["fileName"] ?? raw["name"] ?? `backup-${raw["id"] ?? ""}`),
+    filename: String(
+      raw["filename"] ?? raw["fileName"] ?? raw["name"] ?? `backup-${raw["id"] ?? ""}`,
+    ),
     sizeBytes: typeof size === "number" ? size : size ? Number(size) || null : null,
     status: normalizeStatus(raw["status"]),
     createdAt: (raw["createdAt"] ?? raw["created_at"] ?? raw["date"] ?? null) as string | null,
@@ -72,7 +79,9 @@ export const backupsQuery = () =>
     queryKey: ["backups"],
     queryFn: async () => normalizeOverview(await apiRequest<unknown>(backupEndpoints.list)),
     refetchInterval: (q) =>
-      q.state.data?.backups.some((b) => b.status === "running" || b.status === "pending") ? 5000 : false,
+      q.state.data?.backups.some((b) => b.status === "running" || b.status === "pending")
+        ? 5000
+        : false,
   });
 
 export const createBackup = () => apiRequest<unknown>(backupEndpoints.list, { method: "POST" });

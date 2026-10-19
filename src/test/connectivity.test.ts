@@ -70,7 +70,8 @@ describe("connectivity: tráfego real evita aviso preso", () => {
   it("resposta real recente da API impede declarar offline por sondas falhas", () => {
     const now = 1_000_000;
     let state: Connectivity = { ...base, api: "online", internet: "online", lastOkAt: now - 5_000 };
-    for (let i = 0; i < FAILURE_THRESHOLD + 2; i++) state = applyProbeResult(state, false, "x", now);
+    for (let i = 0; i < FAILURE_THRESHOLD + 2; i++)
+      state = applyProbeResult(state, false, "x", now);
     expect(state.api).toBe("online");
     expect(bannerKind(state)).toBeNull();
   });

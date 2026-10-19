@@ -2,7 +2,18 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Copy, KeyRound, Lock, MessageCircle, Pencil, Plus, Search, Trash2, Unlock, Wand2 } from "lucide-react";
+import {
+  Copy,
+  KeyRound,
+  Lock,
+  MessageCircle,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  Unlock,
+  Wand2,
+} from "lucide-react";
 import { env } from "@/shared/config/env";
 import { accessMessage, generatePassword, whatsappLink, type AccessData } from "../access";
 import { Button } from "@/components/ui/button";
@@ -340,7 +351,11 @@ export function UserFormDialog({
     onSuccess: async () => {
       toast.success(t("toast.saved"));
       void onSaved();
-      const a = { company: companyName ?? env.appName, email: data.email, password: data.password ?? "" };
+      const a = {
+        company: companyName ?? env.appName,
+        email: data.email,
+        password: data.password ?? "",
+      };
       if (a.password && after === "copy") await copyAccess(a, t("toast.copied")).catch(() => {});
       if (a.password && after === "whatsapp")
         window.open(whatsappLink(accessMessage(a)), "_blank", "noopener");
@@ -488,11 +503,21 @@ export function UserFormDialog({
             </Button>
             {data.password ? (
               <>
-                <Button type="submit" variant="outline" disabled={save.isPending} onClick={() => setAfter("copy")}>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  disabled={save.isPending}
+                  onClick={() => setAfter("copy")}
+                >
                   <Copy className="size-4" aria-hidden />
                   {t("users.form.saveCopy")}
                 </Button>
-                <Button type="submit" variant="outline" disabled={save.isPending} onClick={() => setAfter("whatsapp")}>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  disabled={save.isPending}
+                  onClick={() => setAfter("whatsapp")}
+                >
                   <MessageCircle className="size-4" aria-hidden />
                   {t("users.form.saveWhatsapp")}
                 </Button>

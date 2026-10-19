@@ -12,7 +12,9 @@ export const quickMessagesQuery = (companyId?: string) =>
     queryFn: async ({ signal }) => {
       const all: QuickMessage[] = [];
       for (let page = 1; page <= 50; page++) {
-        const res = await apiRequest<unknown>(`${ep.base}?searchParam=&pageNumber=${page}`, { signal });
+        const res = await apiRequest<unknown>(`${ep.base}?searchParam=&pageNumber=${page}`, {
+          signal,
+        });
         if (Array.isArray(res)) return filterByCompany(res as QuickMessage[], companyId);
         const r = (res ?? {}) as { records?: QuickMessage[]; hasMore?: boolean };
         all.push(...(r.records ?? []));

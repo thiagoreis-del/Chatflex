@@ -99,31 +99,73 @@ export function PlatformDashboardPage() {
           {section(
             t("dashboard.sections.companies"),
             <>
-              {card(t("dashboard.metrics.active"), <Building2 className="size-4" />, n(d?.companies.active))}
-              {card(t("dashboard.metrics.trial"), <FlaskConical className="size-4" />, n(d?.companies.trial))}
-              {card(t("dashboard.metrics.overdue"), <CalendarX className="size-4" />, n(d?.companies.overdue), "warning")}
-              {card(t("dashboard.metrics.suspended"), <Ban className="size-4" />, n(d?.companies.suspended), "danger")}
+              {card(
+                t("dashboard.metrics.active"),
+                <Building2 className="size-4" />,
+                n(d?.companies.active),
+              )}
+              {card(
+                t("dashboard.metrics.trial"),
+                <FlaskConical className="size-4" />,
+                n(d?.companies.trial),
+              )}
+              {card(
+                t("dashboard.metrics.overdue"),
+                <CalendarX className="size-4" />,
+                n(d?.companies.overdue),
+                "warning",
+              )}
+              {card(
+                t("dashboard.metrics.suspended"),
+                <Ban className="size-4" />,
+                n(d?.companies.suspended),
+                "danger",
+              )}
             </>,
           )}
           {section(
             t("dashboard.sections.operation"),
             <>
               {card(t("dashboard.metrics.users"), <Users className="size-4" />, n(d?.usersTotal))}
-              {card(t("dashboard.metrics.connections"), <Smartphone className="size-4" />, n(d?.connectionsContracted))}
-              {card(t("dashboard.metrics2.online"), <Wifi className="size-4" />, n(d?.connectionsOnline))}
-              {card(t("dashboard.metrics2.offline"), <WifiOff className="size-4" />, n(offline), "warning")}
+              {card(
+                t("dashboard.metrics.connections"),
+                <Smartphone className="size-4" />,
+                n(d?.connectionsContracted),
+              )}
+              {card(
+                t("dashboard.metrics2.online"),
+                <Wifi className="size-4" />,
+                n(d?.connectionsOnline),
+              )}
+              {card(
+                t("dashboard.metrics2.offline"),
+                <WifiOff className="size-4" />,
+                n(offline),
+                "warning",
+              )}
             </>,
           )}
           {section(
             t("dashboard.sections.finance"),
             <>
-              {card(t("dashboard.metrics.revenue"), <Wallet className="size-4" />, d ? <MoneyDisplay cents={d.monthlyRevenueInCents} /> : null)}
+              {card(
+                t("dashboard.metrics.revenue"),
+                <Wallet className="size-4" />,
+                d ? <MoneyDisplay cents={d.monthlyRevenueInCents} /> : null,
+              )}
               {card(
                 t("dashboard.metrics2.forecast"),
                 <TrendingUp className="size-4" />,
-                d?.forecastRevenueInCents !== undefined ? <MoneyDisplay cents={d.forecastRevenueInCents} /> : null,
+                d?.forecastRevenueInCents !== undefined ? (
+                  <MoneyDisplay cents={d.forecastRevenueInCents} />
+                ) : null,
               )}
-              {card(t("dashboard.metrics.pendingInvoices"), <Receipt className="size-4" />, n(d?.pendingInvoices), "warning")}
+              {card(
+                t("dashboard.metrics.pendingInvoices"),
+                <Receipt className="size-4" />,
+                n(d?.pendingInvoices),
+                "warning",
+              )}
               {card(
                 t("dashboard.metrics.delinquency"),
                 <TrendingDown className="size-4" />,
@@ -143,7 +185,10 @@ export function PlatformDashboardPage() {
                 icon={<AlertTriangle className="size-4 text-destructive" />}
                 items={d.overdueList}
                 meta={(c) => {
-                  const days = Math.max(1, Math.floor((Date.now() - new Date(c.dueDate ?? 0).getTime()) / DAY));
+                  const days = Math.max(
+                    1,
+                    Math.floor((Date.now() - new Date(c.dueDate ?? 0).getTime()) / DAY),
+                  );
                   return t("dashboard.daysLate", { count: days });
                 }}
               />
@@ -154,7 +199,9 @@ export function PlatformDashboardPage() {
                 items={d.dueSoon}
                 meta={(c) => {
                   const days = Math.ceil((new Date(c.dueDate ?? 0).getTime() - Date.now()) / DAY);
-                  return days <= 0 ? t("dashboard.today") : t("dashboard.daysLeft", { count: days });
+                  return days <= 0
+                    ? t("dashboard.today")
+                    : t("dashboard.daysLeft", { count: days });
                 }}
               />
               <CompanyList
@@ -179,7 +226,9 @@ export function PlatformDashboardPage() {
             {loading ? null : !d ? (
               <PlatformMetricCard label="" icon={null} unavailable contract={dashboardContract} />
             ) : d.usageByPlan.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">{t("dashboard.usageByPlanEmpty")}</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                {t("dashboard.usageByPlanEmpty")}
+              </p>
             ) : (
               <ul className="mt-4 space-y-3">
                 {(() => {

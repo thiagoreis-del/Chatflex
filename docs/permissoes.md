@@ -1,14 +1,14 @@
 # 5. Permissões
 
-| Área | agent | company_admin | superadmin |
-|---|---|---|---|
-| Dashboard, Atendimento, Contatos, Respostas rápidas, Chat interno | Sim pela guarda | Sim | Sim |
-| Status | Padrão sim via catálogo | Sim | Sim |
-| Conexões | Padrão não via catálogo | Sim | Sim |
-| Usuários, Filas, Configurações | Não pela guarda | Sim | Sim |
-| Plataforma/Empresas/Planos/Faturas/Assinaturas/Auditoria/Backups | Não | Não | Sim |
-| Transferência | Padrão sim; elegibilidade depende da fila | Sim | Sim |
-| Encerrar em lote/recusar/assinatura de colega | Não nos controles administrativos | Sim | Sim |
+| Área                                                              | agent                                     | company_admin | superadmin |
+| ----------------------------------------------------------------- | ----------------------------------------- | ------------- | ---------- |
+| Dashboard, Atendimento, Contatos, Respostas rápidas, Chat interno | Sim pela guarda                           | Sim           | Sim        |
+| Status                                                            | Padrão sim via catálogo                   | Sim           | Sim        |
+| Conexões                                                          | Padrão não via catálogo                   | Sim           | Sim        |
+| Usuários, Filas, Configurações                                    | Não pela guarda                           | Sim           | Sim        |
+| Plataforma/Empresas/Planos/Faturas/Assinaturas/Auditoria/Backups  | Não                                       | Não           | Sim        |
+| Transferência                                                     | Padrão sim; elegibilidade depende da fila | Sim           | Sim        |
+| Encerrar em lote/recusar/assinatura de colega                     | Não nos controles administrativos         | Sim           | Sim        |
 
 hasRole concede bypass ao superadmin. can concede todos ao superadmin; para os demais, permissões recebidas contendo ponto substituem os defaults. hasPermission faz comparação literal, sem todos os defaults de can. Não confundir esses mecanismos.
 
@@ -21,4 +21,5 @@ Normalização aceita role interna reconhecida, depois super=true, depois profil
 **Fontes:** src/shared/permissions/{permissions,catalog,route-guards}.ts; src/shared/auth/normalize-user.ts; src/routes/*.tsx.
 
 ---
+
 [Voltar ao sumário](README.md) · Documentação 1.0.0 · 18/10/2026

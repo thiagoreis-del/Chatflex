@@ -15,7 +15,9 @@ import { incomingTicketsQuery } from "../api";
 export function AdminAlerts() {
   const { user } = useSession();
   const isAdmin = user?.role === "superadmin" || user?.role === "company_admin";
-  return user && isAdmin ? <CompanyAdminAlerts key={user.companyId} companyId={user.companyId} /> : null;
+  return user && isAdmin ? (
+    <CompanyAdminAlerts key={user.companyId} companyId={user.companyId} />
+  ) : null;
 }
 
 function CompanyAdminAlerts({ companyId }: { companyId: string }) {

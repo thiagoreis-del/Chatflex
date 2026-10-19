@@ -10,12 +10,12 @@ Auditoria de leitura do código do frontend, rotas, formulários, adaptadores de
 
 **Não foram acessados:** código-fonte do backend externo, PostgreSQL, Redis, painel da VPS, contas autenticadas ou sessões WhatsApp. Nenhum endpoint de escrita foi executado. Contratos declarados como confirmados no código não equivalem a testes de produção nesta auditoria.
 
-| Classificação | Significado |
-|---|---|
-| Implementado | Código, tela e ação identificados no frontend. Não certifica funcionamento em produção. |
-| Parcialmente implementado | Parte identificada, com dependência, limitação ou fluxo incompleto comprovado. |
-| Não implementado | Apenas reserva de pasta/README, sem tela ou ação identificada. |
-| Não verificado | Depende de evidência que não está no repositório ou não foi acessada. |
+| Classificação             | Significado                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------- |
+| Implementado              | Código, tela e ação identificados no frontend. Não certifica funcionamento em produção. |
+| Parcialmente implementado | Parte identificada, com dependência, limitação ou fluxo incompleto comprovado.          |
+| Não implementado          | Apenas reserva de pasta/README, sem tela ou ação identificada.                          |
+| Não verificado            | Depende de evidência que não está no repositório ou não foi acessada.                   |
 
 ## 2. Sumário
 

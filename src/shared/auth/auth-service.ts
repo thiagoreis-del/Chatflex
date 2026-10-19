@@ -171,7 +171,11 @@ function forgetPlatformSession() {
 }
 
 // Remove credenciais legadas, mas nunca as lê nem as restaura de storage.
-try { window.sessionStorage.removeItem(PLATFORM_SESSION_KEY); } catch { /* SSR / storage bloqueado */ }
+try {
+  window.sessionStorage.removeItem(PLATFORM_SESSION_KEY);
+} catch {
+  /* SSR / storage bloqueado */
+}
 
 /** Superadmin: troca o token pelo acesso delegado à empresa (auditado no servidor). */
 export async function enterCompany(companyId: string) {
@@ -189,7 +193,10 @@ export async function enterCompany(companyId: string) {
  */
 export async function exitCompany() {
   try {
-    const res = await apiRequest<LoginResponse>(endpoints.auth.exitCompany, { method: "POST", skipRefresh: true });
+    const res = await apiRequest<LoginResponse>(endpoints.auth.exitCompany, {
+      method: "POST",
+      skipRefresh: true,
+    });
     const user = normalizeUser(res.user);
     if (user.role !== "superadmin" || user.impersonated) {
       throw new Error("Resposta não restaurou a sessão da plataforma");

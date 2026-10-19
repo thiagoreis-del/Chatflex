@@ -2,11 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload } from "@/shared/api/client";
 import { internalChatKeys } from "@/shared/api/query-keys";
 import { withQuery } from "@/shared/config/endpoints";
-import type {
-  CreateConversationInput,
-  InternalConversation,
-  InternalMessage,
-} from "./types";
+import type { CreateConversationInput, InternalConversation, InternalMessage } from "./types";
 
 /**
  * Chat interno por empresa.
@@ -20,7 +16,7 @@ export const internalChatEndpoints = {
   member: (id: number, userId: number) => `/internal-chat/conversations/${id}/members/${userId}`,
 } as const;
 
-const asArray = <T,>(res: unknown): T[] => {
+const asArray = <T>(res: unknown): T[] => {
   if (Array.isArray(res)) return res as T[];
   const r = (res ?? {}) as { records?: T[]; data?: T[] };
   return r.records ?? r.data ?? [];

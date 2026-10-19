@@ -16,7 +16,25 @@ export interface ImpersonationLog {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Raw = { [k: string]: any } & Partial<Record<"id"|"logs"|"data"|"superUser"|"user"|"company"|"superUserName"|"name"|"superUserId"|"companyId"|"companyName"|"action"|"ip"|"createdAt", any>>;
+type Raw = { [k: string]: any } & Partial<
+  Record<
+    | "id"
+    | "logs"
+    | "data"
+    | "superUser"
+    | "user"
+    | "company"
+    | "superUserName"
+    | "name"
+    | "superUserId"
+    | "companyId"
+    | "companyName"
+    | "action"
+    | "ip"
+    | "createdAt",
+    any
+  >
+>;
 const str = (v: unknown) => (v === null || v === undefined ? "" : String(v));
 
 export function normalizeImpersonationLogs(res: unknown): ImpersonationLog[] {

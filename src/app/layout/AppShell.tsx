@@ -129,7 +129,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
           </ul>
         </div>
       )}
-      {(
+      {
         <div>
           <SectionTitle label={t("nav.operation.section")} />
           <div className="mb-2 flex items-center gap-2 px-3">
@@ -138,122 +138,120 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
             </span>
             <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full border border-sidebar-border bg-sidebar-accent/50 px-2 py-0.5 text-[11px] font-medium text-sidebar-foreground/90">
               <span className="size-1.5 shrink-0 rounded-full bg-sidebar-primary" aria-hidden />
-              <span className="truncate">
-                {user?.companyName ?? user?.companyId}
-              </span>
+              <span className="truncate">{user?.companyName ?? user?.companyId}</span>
             </span>
           </div>
-        <ul className="space-y-1">
-          <li>
-            <Link
-              to="/app/atendimento"
-              onClick={onNavigate}
-              className={linkClass}
-              activeProps={activeLink}
-            >
-              <MessagesSquare className="size-4" aria-hidden />
-              {t("nav.modules.tickets")}
-            </Link>
-          </li>
-          {can(user, "module.connections") && (
-          <li>
-            <Link
-              to="/app/conexoes"
-              onClick={onNavigate}
-              className={linkClass}
-              activeProps={activeLink}
-            >
-              <Smartphone className="size-4" aria-hidden />
-              {t("nav.modules.whatsapp")}
-            </Link>
-          </li>
-          )}
-          {can(user, "module.status") && (
-          <li>
-            <Link
-              to="/app/status"
-              onClick={onNavigate}
-              className={linkClass}
-              activeProps={activeLink}
-            >
-              <ImagePlus className="size-4" aria-hidden />
-              {t("nav.modules.whatsappStatus")}
-            </Link>
-          </li>
-          )}
-          <li>
-            <Link
-              to="/app/contatos"
-              onClick={onNavigate}
-              className={linkClass}
-              activeProps={activeLink}
-            >
-              <Users className="size-4" aria-hidden />
-              {t("nav.modules.contacts")}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/app/respostas-rapidas"
-              onClick={onNavigate}
-              className={linkClass}
-              activeProps={activeLink}
-            >
-              <Zap className="size-4" aria-hidden />
-              {t("nav.modules.quickMessages")}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/app/chat-interno"
-              onClick={onNavigate}
-              className={linkClass}
-              activeProps={activeLink}
-            >
-              <UsersRound className="size-4" aria-hidden />
-              {t("nav.modules.internalChat")}
-            </Link>
-          </li>
-          {(isSuperadmin || hasRole("company_admin")) && (
-            <>
+          <ul className="space-y-1">
+            <li>
+              <Link
+                to="/app/atendimento"
+                onClick={onNavigate}
+                className={linkClass}
+                activeProps={activeLink}
+              >
+                <MessagesSquare className="size-4" aria-hidden />
+                {t("nav.modules.tickets")}
+              </Link>
+            </li>
+            {can(user, "module.connections") && (
               <li>
                 <Link
-                  to="/app/usuarios"
+                  to="/app/conexoes"
                   onClick={onNavigate}
                   className={linkClass}
                   activeProps={activeLink}
                 >
-                  <UserCog className="size-4" aria-hidden />
-                  {t("nav.modules.users")}
+                  <Smartphone className="size-4" aria-hidden />
+                  {t("nav.modules.whatsapp")}
                 </Link>
               </li>
+            )}
+            {can(user, "module.status") && (
               <li>
                 <Link
-                  to="/app/filas"
+                  to="/app/status"
                   onClick={onNavigate}
                   className={linkClass}
                   activeProps={activeLink}
                 >
-                  <ListOrdered className="size-4" aria-hidden />
-                  {t("nav.modules.queues")}
+                  <ImagePlus className="size-4" aria-hidden />
+                  {t("nav.modules.whatsappStatus")}
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/app/configuracoes"
-                  onClick={onNavigate}
-                  className={linkClass}
-                  activeProps={activeLink}
-                >
-                  <Settings className="size-4" aria-hidden />
-                  {t("nav.modules.settings")}
-                </Link>
-              </li>
-            </>
-          )}
-        </ul>
-      </div>
-      )}
+            )}
+            <li>
+              <Link
+                to="/app/contatos"
+                onClick={onNavigate}
+                className={linkClass}
+                activeProps={activeLink}
+              >
+                <Users className="size-4" aria-hidden />
+                {t("nav.modules.contacts")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/app/respostas-rapidas"
+                onClick={onNavigate}
+                className={linkClass}
+                activeProps={activeLink}
+              >
+                <Zap className="size-4" aria-hidden />
+                {t("nav.modules.quickMessages")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/app/chat-interno"
+                onClick={onNavigate}
+                className={linkClass}
+                activeProps={activeLink}
+              >
+                <UsersRound className="size-4" aria-hidden />
+                {t("nav.modules.internalChat")}
+              </Link>
+            </li>
+            {(isSuperadmin || hasRole("company_admin")) && (
+              <>
+                <li>
+                  <Link
+                    to="/app/usuarios"
+                    onClick={onNavigate}
+                    className={linkClass}
+                    activeProps={activeLink}
+                  >
+                    <UserCog className="size-4" aria-hidden />
+                    {t("nav.modules.users")}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/app/filas"
+                    onClick={onNavigate}
+                    className={linkClass}
+                    activeProps={activeLink}
+                  >
+                    <ListOrdered className="size-4" aria-hidden />
+                    {t("nav.modules.queues")}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/app/configuracoes"
+                    onClick={onNavigate}
+                    className={linkClass}
+                    activeProps={activeLink}
+                  >
+                    <Settings className="size-4" aria-hidden />
+                    {t("nav.modules.settings")}
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+      }
       {!isSuperadmin && (
         <div>
           <SectionTitle label={t("nav.soon")} />

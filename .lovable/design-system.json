@@ -6,10 +6,7 @@
     "framework": "react",
     "css_framework": "tailwind",
     "starter_template": "custom_design_system_tailwind",
-    "theme_files": [
-      "src/shared/theme/theme.ts",
-      "src/styles.css"
-    ],
+    "theme_files": ["src/shared/theme/theme.ts", "src/styles.css"],
     "source_type": "local",
     "source_manifest": {
       "#enrichment": "69bb271bb2ac4ff40ed67c40f6ac785c97992663dd733a9fcdac0af45f51071c",
@@ -747,12 +744,7 @@
         {
           "name": "variant",
           "type": "enum",
-          "values": [
-            "default",
-            "secondary",
-            "destructive",
-            "outline"
-          ],
+          "values": ["default", "secondary", "destructive", "outline"],
           "default": "default"
         }
       ]
@@ -765,25 +757,13 @@
         {
           "name": "variant",
           "type": "enum",
-          "values": [
-            "default",
-            "destructive",
-            "outline",
-            "secondary",
-            "ghost",
-            "link"
-          ],
+          "values": ["default", "destructive", "outline", "secondary", "ghost", "link"],
           "default": "default"
         },
         {
           "name": "size",
           "type": "enum",
-          "values": [
-            "default",
-            "sm",
-            "lg",
-            "icon"
-          ],
+          "values": ["default", "sm", "lg", "icon"],
           "default": "default"
         },
         {
@@ -1051,12 +1031,7 @@
         {
           "name": "side",
           "type": "enum",
-          "values": [
-            "top",
-            "bottom",
-            "left",
-            "right"
-          ],
+          "values": ["top", "bottom", "left", "right"],
           "default": "right"
         }
       ]

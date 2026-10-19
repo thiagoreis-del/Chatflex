@@ -15,7 +15,8 @@ export interface PendingMessage {
   createdAt: string;
 }
 
-const draftKey = (companyId: string, ticketId: number) => `${DRAFT_PREFIX}:${companyId}:${ticketId}`;
+const draftKey = (companyId: string, ticketId: number) =>
+  `${DRAFT_PREFIX}:${companyId}:${ticketId}`;
 const outboxKey = (companyId: string) => `${OUTBOX_PREFIX}:${companyId}`;
 
 export function loadDraft(companyId: string, ticketId: number): string {

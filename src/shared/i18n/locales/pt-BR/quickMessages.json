@@ -9,7 +9,12 @@
   "edit": "Editar resposta",
   "search": "Buscar por atalho ou texto",
   "empty": "Nenhuma resposta rápida encontrada.",
-  "table": { "shortcode": "Atalho", "message": "Mensagem", "scope": "Visibilidade", "actions": "Ações" },
+  "table": {
+    "shortcode": "Atalho",
+    "message": "Mensagem",
+    "scope": "Visibilidade",
+    "actions": "Ações"
+  },
   "scope": { "all": "Toda a empresa", "mine": "Somente eu" },
   "form": {
     "shortcode": "Atalho",
@@ -20,7 +25,18 @@
     "geral": "Disponível para toda a empresa"
   },
   "actions": { "edit": "Editar", "delete": "Excluir", "save": "Salvar", "cancel": "Cancelar" },
-  "confirmDelete": { "title": "Excluir resposta rápida?", "description": "O atalho /{{name}} será removido." },
-  "toast": { "saved": "Resposta salva.", "deleted": "Resposta excluída.", "error": "Não foi possível concluir. Verifique se o atalho já existe." },
-  "picker": { "open": "Respostas rápidas", "empty": "Nenhum atalho encontrado.", "hint": "Digite / no campo de mensagem" }
+  "confirmDelete": {
+    "title": "Excluir resposta rápida?",
+    "description": "O atalho /{{name}} será removido."
+  },
+  "toast": {
+    "saved": "Resposta salva.",
+    "deleted": "Resposta excluída.",
+    "error": "Não foi possível concluir. Verifique se o atalho já existe."
+  },
+  "picker": {
+    "open": "Respostas rápidas",
+    "empty": "Nenhum atalho encontrado.",
+    "hint": "Digite / no campo de mensagem"
+  }
 }

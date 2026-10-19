@@ -2,14 +2,40 @@ import { useEffect, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { CheckCircle2, Clock3, Hourglass, Inbox, MessagesSquare, Timer, Users, Layers } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock3,
+  Hourglass,
+  Inbox,
+  MessagesSquare,
+  Timer,
+  Users,
+  Layers,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { socketClient } from "@/shared/socket/socket-client";
 import { operationalDashboardQuery } from "@/modules/tickets/api";
 
-function Metric({ icon, title, value, hint }: { icon: ReactNode; title: string; value: ReactNode; hint?: string | undefined }) {
+function Metric({
+  icon,
+  title,
+  value,
+  hint,
+}: {
+  icon: ReactNode;
+  title: string;
+  value: ReactNode;
+  hint?: string | undefined;
+}) {
   return (
     <section className="min-w-0 rounded-2xl border bg-card p-4 shadow-soft sm:p-5">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -34,7 +60,10 @@ export function OperationsPanel() {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const refresh = () => {
       clearTimeout(timer);
-      timer = setTimeout(() => void qc.invalidateQueries({ queryKey: ticketKeys.operationalDashboard() }), 2000);
+      timer = setTimeout(
+        () => void qc.invalidateQueries({ queryKey: ticketKeys.operationalDashboard() }),
+        2000,
+      );
     };
     const off = socketClient.onCompany("ticket", refresh);
     return () => {
@@ -51,34 +80,67 @@ export function OperationsPanel() {
     created: { label: t("hourly.created"), color: "var(--primary)" },
     closed: { label: t("hourly.closed"), color: "var(--muted-foreground)" },
   } satisfies ChartConfig;
-  const startHour = d ? Math.min(8, ...d.hourly.filter((h) => h.created || h.closed).map((h) => h.hour)) : 8;
-  const chart = (d?.hourly ?? []).filter((h) => h.hour >= startHour).map((h) => ({ ...h, label: `${h.hour}h` }));
+  const startHour = d
+    ? Math.min(8, ...d.hourly.filter((h) => h.created || h.closed).map((h) => h.hour))
+    : 8;
+  const chart = (d?.hourly ?? [])
+    .filter((h) => h.hour >= startHour)
+    .map((h) => ({ ...h, label: `${h.hour}h` }));
 
   return (
     <>
       <section aria-labelledby="indicadores">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="indicadores" className="text-lg font-semibold">{t("indicators.title")}</h2>
+            <h2 id="indicadores" className="text-lg font-semibold">
+              {t("indicators.title")}
+            </h2>
             <p className="text-sm text-muted-foreground">{t("indicators.description")}</p>
           </div>
           <Badge variant="outline">{t("indicators.updatedEveryMinute")}</Badge>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
-          <Metric icon={<Inbox className="size-4" />} title={t("indicators.waiting")} value={num(d?.pending)} />
-          <Metric icon={<MessagesSquare className="size-4" />} title={t("indicators.open")} value={num(d?.open)} />
-          <Metric icon={<CheckCircle2 className="size-4" />} title={t("indicators.closed")} value={num(d?.closedToday)} />
-          <Metric icon={<Hourglass className="size-4" />} title={t("indicators.tme")} value={mins(d?.waitMinutes)} hint={t("indicators.tmeHint")} />
-          <Metric icon={<Timer className="size-4" />} title={t("indicators.tma")} value={mins(d?.handleMinutes)} hint={t("indicators.tmaHint")} />
+          <Metric
+            icon={<Inbox className="size-4" />}
+            title={t("indicators.waiting")}
+            value={num(d?.pending)}
+          />
+          <Metric
+            icon={<MessagesSquare className="size-4" />}
+            title={t("indicators.open")}
+            value={num(d?.open)}
+          />
+          <Metric
+            icon={<CheckCircle2 className="size-4" />}
+            title={t("indicators.closed")}
+            value={num(d?.closedToday)}
+          />
+          <Metric
+            icon={<Hourglass className="size-4" />}
+            title={t("indicators.tme")}
+            value={mins(d?.waitMinutes)}
+            hint={t("indicators.tmeHint")}
+          />
+          <Metric
+            icon={<Timer className="size-4" />}
+            title={t("indicators.tma")}
+            value={mins(d?.handleMinutes)}
+            hint={t("indicators.tmaHint")}
+          />
           <Metric
             icon={<Clock3 className="size-4" />}
             title={t("indicators.firstResponse")}
             value={mins(d?.firstResponseMinutes)}
-            hint={d && d.firstResponseMinutes == null ? t("indicators.firstResponsePending") : undefined}
+            hint={
+              d && d.firstResponseMinutes == null ? t("indicators.firstResponsePending") : undefined
+            }
           />
         </div>
         {q.error && (
-          <p role="alert" className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+          <p
+            role="alert"
+            className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+          >
             {t("indicators.loadError")}
           </p>
         )}
@@ -116,10 +178,18 @@ export function OperationsPanel() {
               <table className="w-full table-fixed text-xs sm:text-sm">
                 <thead className="bg-muted/60 text-left text-muted-foreground">
                   <tr>
-                    <th className="w-[40%] px-2 py-2 font-medium sm:px-3">{t("attendants.name")}</th>
-                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("attendants.open")}</th>
-                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("attendants.closedToday")}</th>
-                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("attendants.tma")}</th>
+                    <th className="w-[40%] px-2 py-2 font-medium sm:px-3">
+                      {t("attendants.name")}
+                    </th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">
+                      {t("attendants.open")}
+                    </th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">
+                      {t("attendants.closedToday")}
+                    </th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">
+                      {t("attendants.tma")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -127,8 +197,12 @@ export function OperationsPanel() {
                     <tr key={a.id} className="border-t">
                       <td className="break-words px-2 py-2 font-medium sm:px-3">{a.name}</td>
                       <td className="px-2 py-2 text-right sm:px-3 tabular-nums">{a.open}</td>
-                      <td className="px-2 py-2 text-right sm:px-3 font-semibold tabular-nums">{a.closedToday}</td>
-                      <td className="px-2 py-2 text-right sm:px-3 tabular-nums">{a.avgHandleMinutes == null ? "—" : `${a.avgHandleMinutes} min`}</td>
+                      <td className="px-2 py-2 text-right sm:px-3 font-semibold tabular-nums">
+                        {a.closedToday}
+                      </td>
+                      <td className="px-2 py-2 text-right sm:px-3 tabular-nums">
+                        {a.avgHandleMinutes == null ? "—" : `${a.avgHandleMinutes} min`}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -152,8 +226,12 @@ export function OperationsPanel() {
                 <thead className="bg-muted/60 text-left text-muted-foreground">
                   <tr>
                     <th className="w-[40%] px-2 py-2 font-medium sm:px-3">{t("queues.name")}</th>
-                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("queues.waiting")}</th>
-                    <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("queues.closedToday")}</th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">
+                      {t("queues.waiting")}
+                    </th>
+                    <th className="px-2 py-2 text-right sm:px-3 font-medium">
+                      {t("queues.closedToday")}
+                    </th>
                     <th className="px-2 py-2 text-right sm:px-3 font-medium">{t("queues.tme")}</th>
                   </tr>
                 </thead>
@@ -161,12 +239,20 @@ export function OperationsPanel() {
                   {d.queues.map((x) => (
                     <tr key={x.id} className="border-t">
                       <td className="break-words px-2 py-2 font-medium sm:px-3">
-                        <span className="mr-2 inline-block size-2.5 rounded-full" style={{ backgroundColor: x.color }} aria-hidden />
+                        <span
+                          className="mr-2 inline-block size-2.5 rounded-full"
+                          style={{ backgroundColor: x.color }}
+                          aria-hidden
+                        />
                         {x.name}
                       </td>
                       <td className="px-2 py-2 text-right sm:px-3 tabular-nums">{x.waiting}</td>
-                      <td className="px-2 py-2 text-right sm:px-3 font-semibold tabular-nums">{x.closedToday}</td>
-                      <td className="px-2 py-2 text-right sm:px-3 tabular-nums">{x.waitMinutes == null ? "—" : `${x.waitMinutes} min`}</td>
+                      <td className="px-2 py-2 text-right sm:px-3 font-semibold tabular-nums">
+                        {x.closedToday}
+                      </td>
+                      <td className="px-2 py-2 text-right sm:px-3 tabular-nums">
+                        {x.waitMinutes == null ? "—" : `${x.waitMinutes} min`}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -175,7 +261,9 @@ export function OperationsPanel() {
           )}
         </section>
       </div>
-      {d?.attendantsPartial && <p className="text-xs text-muted-foreground">{t("attendants.partial")}</p>}
+      {d?.attendantsPartial && (
+        <p className="text-xs text-muted-foreground">{t("attendants.partial")}</p>
+      )}
     </>
   );
 }

@@ -377,8 +377,24 @@ export function platformMock(fullPath: string, opts: RequestOptions): unknown {
       );
     case "impersonation-logs":
       return companies.slice(0, 2).flatMap((c, i) => [
-        { id: `imp-${i}-e`, superUserName: "Superadministrador", companyId: c.id, companyName: c.tradeName, action: "enter", ip: "127.0.0.1", createdAt: iso(-i - 1) },
-        { id: `imp-${i}-x`, superUserName: "Superadministrador", companyId: c.id, companyName: c.tradeName, action: "exit", ip: "127.0.0.1", createdAt: iso(-i - 0.9) },
+        {
+          id: `imp-${i}-e`,
+          superUserName: "Superadministrador",
+          companyId: c.id,
+          companyName: c.tradeName,
+          action: "enter",
+          ip: "127.0.0.1",
+          createdAt: iso(-i - 1),
+        },
+        {
+          id: `imp-${i}-x`,
+          superUserName: "Superadministrador",
+          companyId: c.id,
+          companyName: c.tradeName,
+          action: "exit",
+          ip: "127.0.0.1",
+          createdAt: iso(-i - 0.9),
+        },
       ]);
   }
   throw new ApiError("notFound", 404);

@@ -26,13 +26,23 @@ export interface ImportRow {
  * Lê um CSV/texto com colunas nome;numero;email;etiquetas.
  * Aceita separador `;` ou `,` e linha de cabeçalho opcional.
  */
-export function parseContactsCsv(text: string, skipReasons: { invalidNumber: string; noName: string }): ImportRow[] {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+export function parseContactsCsv(
+  text: string,
+  skipReasons: { invalidNumber: string; noName: string },
+): ImportRow[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
   const firstLine = lines[0];
   if (!firstLine) return [];
   const sep = firstLine.includes(";") ? ";" : ",";
   const first = firstLine.toLowerCase();
-  const hasHeader = first.includes("nome") || first.includes("name") || first.includes("numero") || first.includes("número");
+  const hasHeader =
+    first.includes("nome") ||
+    first.includes("name") ||
+    first.includes("numero") ||
+    first.includes("número");
   const rows = hasHeader ? lines.slice(1) : lines;
 
   return rows.map((line) => {
@@ -43,7 +53,10 @@ export function parseContactsCsv(text: string, skipReasons: { invalidNumber: str
       name,
       number: normalized || number,
       email,
-      tags: tagsText.split("|").map((s) => s.trim()).filter(Boolean),
+      tags: tagsText
+        .split("|")
+        .map((s) => s.trim())
+        .filter(Boolean),
     };
     let skip: string | undefined;
     if (!name) skip = skipReasons.noName;

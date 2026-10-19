@@ -42,9 +42,7 @@ function parseEntries(raw: string | null): RefusedEntry[] {
 
 /** IDs de atendimentos recusados e ocultos para o usuário. */
 export function getRefusedHiddenIds(userId: string): Set<number> {
-  return new Set(
-    parseEntries(window.localStorage.getItem(storageKey(userId))).map((e) => e.id),
-  );
+  return new Set(parseEntries(window.localStorage.getItem(storageKey(userId))).map((e) => e.id));
 }
 
 function writeEntries(userId: string, entries: RefusedEntry[]) {

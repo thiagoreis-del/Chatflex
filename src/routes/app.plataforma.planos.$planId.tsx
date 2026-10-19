@@ -3,7 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PlanDetailPage } from "@/modules/plans/pages/PlanPages";
 
 export const Route = createFileRoute("/app/plataforma/planos/$planId")({
-  head: () => pageMeta("platform:plans.form.detailMeta", "platform:plans.subtitle", { noindex: true }),
+  head: () =>
+    pageMeta("platform:plans.form.detailMeta", "platform:plans.subtitle", { noindex: true }),
   component: RouteComponent,
 });
 

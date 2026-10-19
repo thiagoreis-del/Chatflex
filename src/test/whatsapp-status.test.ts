@@ -5,7 +5,10 @@ const img = (n: number) => new File(["x"], `f${n}.jpg`, { type: "image/jpeg" });
 
 describe("lote de Status", () => {
   it("aceita no máximo 20 fotos", () => {
-    const r = mergeStatusFiles([], Array.from({ length: 25 }, (_, i) => img(i)));
+    const r = mergeStatusFiles(
+      [],
+      Array.from({ length: 25 }, (_, i) => img(i)),
+    );
     expect(r.items).toHaveLength(20);
     expect(r.overflow).toBe(5);
   });

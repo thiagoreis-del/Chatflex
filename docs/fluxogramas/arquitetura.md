@@ -21,4 +21,5 @@ flowchart LR
 Nenhum fluxo remoto foi executado. Setas tracejadas são dependências externas, não comprovação de serviços instalados.
 
 ---
+
 [Voltar ao sumário](../README.md) · Documentação 1.0.0 · 18/10/2026
