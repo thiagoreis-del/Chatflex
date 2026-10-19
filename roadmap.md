@@ -1,5 +1,10 @@
 # Roadmap
 
+## Atualizações da VPS — opção 1
+- [ ] Compilar e testar no GitHub; enviar somente o pacote pronto para a VPS.
+- [ ] Trocar a versão com backup, verificação local e recuperação automática.
+- [ ] Documentar requisitos e validar a automação sem executar deploy remoto.
+
 ## Documentação solicitada em 18/10/2026
 - [ ] Auditar o código em somente leitura e apresentar inventário.
 - [ ] Gerar documentação técnica e manuais em `docs/` com evidências e limitações.
