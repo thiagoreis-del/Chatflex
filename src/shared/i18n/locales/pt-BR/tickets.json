@@ -195,5 +195,14 @@
     "unread": "{{count}} não lidas",
     "refresh": "Atualizar lista",
     "priority": "Prioridade"
+  },
+  "newTicket": {
+    "title": "Contatos sem atendimento",
+    "start": "Iniciar atendimento",
+    "starting": "Iniciando…",
+    "connection": "WhatsApp de envio",
+    "started": "Atendimento iniciado.",
+    "error": "Não foi possível iniciar o atendimento.",
+    "searching": "Buscando contatos…"
   }
 }

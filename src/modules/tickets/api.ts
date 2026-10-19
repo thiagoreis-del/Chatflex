@@ -352,3 +352,13 @@ export const sendMediaMessage = (
 export const MAX_MEDIA_BYTES = 16 * 1024 * 1024;
 export const ACCEPTED_MEDIA =
   "image/*,audio/*,video/*,application/pdf,.jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.csv,.ods,.ppt,.pptx,.zip,.rar,.7z,.mp3,.wav,.ogg,.m4a,.mp4,.mov,.webm,.xml,.json";
+
+export interface CreateTicketInput {
+  contactId: number;
+  userId?: number;
+  whatsappId?: number;
+}
+
+/** Inicia um atendimento para um contato que não está em atendimento. */
+export const createTicket = (input: CreateTicketInput) =>
+  apiRequest<Ticket>(ep.list, { method: "POST", body: { status: "open", ...input } });
