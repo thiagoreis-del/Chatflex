@@ -23,7 +23,7 @@ function fixture(failHealth = false) {
   executable("pm2", `if [[ "$1" == jlist ]]; then printf '%s' '${JSON.stringify([{ name: "chatflex-frontend", pm2_env: { pm_exec_path: join(app, ".output/server/index.mjs") } }])}'; else echo reload >> '${join(root, "reloads")}'; fi`);
   executable("curl", failHealth ? "exit 22" : `output=''\nwhile [[ $# -gt 0 ]]; do if [[ "$1" == '-o' ]]; then output="$2"; shift; fi; shift; done\nif [[ "$output" != /dev/null ]]; then printf '%s' '{"commit":"${sha}"}' > "$output"; fi`);
   executable("sleep", "exit 0");
-  return { root, app, sha, env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, APP_DIR: app, RELEASE_ID: "12-1", RELEASE_SHA: sha } };
+  return { root, app, sha, env: { ...process.env, PATH: `${bin}:${process.env["PATH"]}`, APP_DIR: app, RELEASE_ID: "12-1", RELEASE_SHA: sha } };
 }
 
 describe("deploy VPS com pacote compilado", () => {
