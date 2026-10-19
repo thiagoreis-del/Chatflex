@@ -1,5 +1,10 @@
 # Roadmap
 
+## Atualização dos atendimentos — 19/10/2026
+
+- [ ] Verificar atraso, corrigir atualização automática e validar regressões.
+- [ ] Confirmar atualização em sessão real — depende de acesso autenticado ao backend externo.
+
 ## Atualizações da VPS — opção 1
 
 - [x] Configurar compilação e testes no GitHub; envio do pacote pronto para a VPS.
