@@ -177,6 +177,8 @@ export function TicketsPage() {
   const query = useQuery({
     ...(listOpts as ReturnType<typeof groupTicketsQuery>),
     refetchInterval: fallback,
+    // Continua atualizando com a aba em segundo plano (atendente em outra janela).
+    refetchIntervalInBackground: true,
   });
   const closeable = (query.data ?? []).filter(
     (x) =>
@@ -757,7 +759,11 @@ function Conversation({
   const senderName = (replyAs?.name ?? session.user?.name)?.trim();
   const msgFallback = useFallbackInterval();
   useMessagesRealtime(ticket.id);
-  const messages = useQuery({ ...messagesQuery(ticket.id), refetchInterval: msgFallback });
+  const messages = useQuery({
+    ...messagesQuery(ticket.id),
+    refetchInterval: msgFallback,
+    refetchIntervalInBackground: true,
+  });
   const companyId = String(session.user?.companyId ?? "");
   const [text, setText] = useState(() => loadDraft(companyId, ticket.id));
   // Rascunho preservado por conversa (sobrevive a queda de conexão/recarga).
