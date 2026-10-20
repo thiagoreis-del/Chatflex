@@ -53,6 +53,7 @@
     "attachGallery": "Fotos e vídeos",
     "attachCamera": "Câmera",
     "attachDocument": "Documento",
+    "attachContact": "Contato",
     "addMore": "Adicionar mais arquivos",
     "dropHere": "Solte os arquivos para anexar",
     "uploading": "Enviando arquivo {{current}} de {{total}} · {{percent}}%",
@@ -119,6 +120,7 @@
     "uploadCanceled": "Envio cancelado. Os arquivos continuam anexados.",
     "attachUnavailable": "Não é possível anexar arquivos em nota interna ou durante um envio.",
     "fileBlocked": "Tipo de arquivo bloqueado por segurança.",
+    "contactShared": "Contato compartilhado.",
     "queued": "Sem conexão. A mensagem será enviada automaticamente quando a internet voltar."
   },
   "privateBadge": "Nota interna · só a equipe vê",
@@ -204,6 +206,11 @@
     "started": "Atendimento iniciado.",
     "error": "Não foi possível iniciar o atendimento.",
     "searching": "Buscando contatos…"
+  },
+  "shareContact": {
+    "title": "Compartilhar contato",
+    "description": "Escolha um contato para enviar nome, telefone e link do WhatsApp.",
+    "empty": "Nenhum contato encontrado."
   },
   "mute": {
     "mute": "Silenciar notificações",

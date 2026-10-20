@@ -35,6 +35,7 @@ import {
   Zap,
   Bell,
   BellOff,
+  Contact as ContactIcon,
 } from "lucide-react";
 import { mutedKey, setMuted, useMutedContacts } from "../muted-contacts";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,7 @@ import { contactKeys } from "@/shared/api/query-keys";
 import { MessageMedia } from "../components/MessageMedia";
 import { NewTicketSuggestions } from "../components/NewTicketSuggestions";
 import { AudioRecorder } from "../components/AudioRecorder";
+import { ShareContactDialog, contactCardText } from "../components/ShareContactDialog";
 import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
@@ -861,6 +863,18 @@ function Conversation({
   }, [messages.data?.length]);
 
   const [closeOpen, setCloseOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareContact = useMutation({
+    mutationFn: (c: Contact) => {
+      const card = contactCardText(c);
+      return sendMessage(ticket.id, senderName ? `*${senderName}:*\n${card}` : card);
+    },
+    onSuccess: () => {
+      toast.success(t("toast.contactShared"));
+      void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: () => toast.error(t("toast.sendError")),
+  });
   const closeWithMessage = useMutation({
     mutationFn: async (msg: string | null) => {
       if (msg) {
@@ -1827,8 +1841,20 @@ function Conversation({
                   <FileText className="size-4 text-primary" />
                   {t("composer.attachDocument")}
                 </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setShareOpen(true)}>
+                  <ContactIcon className="size-4 text-primary" />
+                  {t("composer.attachContact")}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <ShareContactDialog
+              open={shareOpen}
+              onOpenChange={setShareOpen}
+              onPick={(c) => {
+                setShareOpen(false);
+                shareContact.mutate(c);
+              }}
+            />
             <input ref={fileRef} type="file" multiple className="hidden" onChange={pickFile} />
             <input
               ref={galleryRef}
