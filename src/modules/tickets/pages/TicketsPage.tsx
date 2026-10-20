@@ -1849,6 +1849,7 @@ function Conversation({
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
             <textarea
+              ref={inputRef}
               rows={2}
               disabled={send.isPending}
               value={text}
