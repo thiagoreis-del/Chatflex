@@ -1000,6 +1000,8 @@ function Conversation({
       setReplyTo(null);
       followLatest.current = true;
       setText("");
+      // O cursor volta para o campo de mensagem logo após o envio.
+      requestAnimationFrame(() => inputRef.current?.focus());
       clearDraft(companyId, ticket.id);
       setFiles([]);
       setActive(0);
