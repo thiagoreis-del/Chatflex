@@ -61,8 +61,8 @@
   },
   "audio": {
     "start": "Gravar áudio",
-    "stop": "Parar gravação",
-    "cancel": "Cancelar gravação",
+    "stop": "Parar e enviar áudio",
+    "cancel": "Excluir gravação",
     "recording": "Gravando áudio",
     "unsupported": "Este navegador não permite gravar áudio",
     "errors": {

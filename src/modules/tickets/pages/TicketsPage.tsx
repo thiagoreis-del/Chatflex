@@ -1881,7 +1881,10 @@ function Conversation({
                 recording: t("audio.recording"),
                 unsupported: t("audio.unsupported"),
               }}
-              onReady={selectFile}
+              onReady={(audio) => {
+                // Gravou e parou: envia direto, sem etapa de confirmação.
+                if (!send.isPending) send.mutate({ body: "", media: [audio] });
+              }}
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
             <textarea
