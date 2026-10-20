@@ -121,6 +121,8 @@
       "actions": "Ações"
     },
     "manage": "Gerenciar",
+    "connectionConfigured": "Configurada",
+    "connectionNotConfigured": "Não configurada",
     "access": "Acessar empresa",
     "detail": {
       "meta": "Detalhes da empresa",
