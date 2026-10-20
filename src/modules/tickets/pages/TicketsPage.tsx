@@ -1001,7 +1001,17 @@ function Conversation({
       followLatest.current = true;
       setText("");
       // O cursor volta para o campo de mensagem logo após o envio.
-      requestAnimationFrame(() => inputRef.current?.focus());
+      // O campo fica desabilitado durante o envio; tenta de novo se ainda estiver.
+      const refocus = (attempt = 0) => {
+        requestAnimationFrame(() => {
+          const input = inputRef.current;
+          if (!input) return;
+          input.focus();
+          if (document.activeElement !== input && attempt < 5)
+            setTimeout(() => refocus(attempt + 1), 50);
+        });
+      };
+      refocus();
       clearDraft(companyId, ticket.id);
       setFiles([]);
       setActive(0);
