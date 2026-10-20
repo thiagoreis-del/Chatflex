@@ -82,6 +82,7 @@ export const companiesQuery = (filters: CompanyFilters) =>
       let data = res.companies.map(fromBackendCompany);
       if (filters.status) data = data.filter((c) => c.status === filters.status);
       if (filters.planId) data = data.filter((c) => c.planId === filters.planId);
+      data = await enrichCompanySummaries(data, signal);
       return { data, page: filters.page, pageSize: 20, total: res.count };
     },
   });

@@ -30,6 +30,8 @@ export interface Company {
   planName?: string;
   usersCount?: number;
   connectionsCount?: number;
+  /** true quando a empresa tem ao menos uma conexão WhatsApp CONNECTED. */
+  connectionConfigured?: boolean;
   internalNotes?: string;
 }
 
