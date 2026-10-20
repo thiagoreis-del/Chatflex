@@ -139,6 +139,23 @@ export function CompaniesListPage({
                     <dd className="tabular-nums">
                       {formatNumber(c.connectionsCount ?? c.connectionLimit)}
                     </dd>
+                    {c.connectionConfigured !== undefined && (
+                      <dd
+                        className={
+                          c.connectionConfigured
+                            ? "flex items-center gap-1 text-emerald-600 dark:text-emerald-400"
+                            : "flex items-center gap-1 text-muted-foreground"
+                        }
+                      >
+                        <span
+                          className={`inline-block size-1.5 rounded-full ${c.connectionConfigured ? "bg-emerald-500" : "bg-muted-foreground/50"}`}
+                          aria-hidden
+                        />
+                        {c.connectionConfigured
+                          ? t("companies.connectionConfigured")
+                          : t("companies.connectionNotConfigured")}
+                      </dd>
+                    )}
                   </div>
                 </dl>
                 <div className="flex flex-wrap items-center gap-1">
@@ -221,6 +238,23 @@ export function CompaniesListPage({
                       {c.connectionsCount !== undefined
                         ? `${formatNumber(c.connectionsCount)} / ${formatNumber(c.connectionLimit)}`
                         : formatNumber(c.connectionLimit)}
+                      {c.connectionConfigured !== undefined && (
+                        <p
+                          className={
+                            c.connectionConfigured
+                              ? "flex items-center justify-end gap-1 text-xs font-normal text-emerald-600 dark:text-emerald-400"
+                              : "flex items-center justify-end gap-1 text-xs font-normal text-muted-foreground"
+                          }
+                        >
+                          <span
+                            className={`inline-block size-1.5 rounded-full ${c.connectionConfigured ? "bg-emerald-500" : "bg-muted-foreground/50"}`}
+                            aria-hidden
+                          />
+                          {c.connectionConfigured
+                            ? t("companies.connectionConfigured")
+                            : t("companies.connectionNotConfigured")}
+                        </p>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-0.5">
