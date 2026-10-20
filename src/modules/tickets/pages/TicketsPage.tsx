@@ -919,6 +919,7 @@ function Conversation({
   const uploadAbort = useRef<AbortController | null>(null);
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const urls = useMemo(
@@ -999,6 +1000,18 @@ function Conversation({
       setReplyTo(null);
       followLatest.current = true;
       setText("");
+      // O cursor volta para o campo de mensagem logo após o envio.
+      // O campo fica desabilitado durante o envio; tenta de novo se ainda estiver.
+      const refocus = (attempt = 0) => {
+        requestAnimationFrame(() => {
+          const input = inputRef.current;
+          if (!input) return;
+          input.focus();
+          if (document.activeElement !== input && attempt < 5)
+            setTimeout(() => refocus(attempt + 1), 50);
+        });
+      };
+      refocus();
       clearDraft(companyId, ticket.id);
       setFiles([]);
       setActive(0);
@@ -1846,6 +1859,7 @@ function Conversation({
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
             <textarea
+              ref={inputRef}
               rows={2}
               disabled={send.isPending}
               value={text}
