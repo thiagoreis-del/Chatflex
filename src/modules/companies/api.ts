@@ -69,6 +69,38 @@ function addDays(days: number): string {
 
 const realPath = (id: string) => `/companies/${encodeURIComponent(id)}`;
 
+/**
+ * Enriquece a listagem do superadmin com dados reais por empresa:
+ * - usuários cadastrados via GET /users/list?companyId=X (contrato confirmado);
+ * - conexões e estado via GET /whatsapp/all?session=0 (global, filtrado no cliente).
+ * Falhas individuais não derrubam a listagem: o campo fica indefinido.
+ */
+async function enrichCompanySummaries(data: Company[], signal: AbortSignal): Promise<Company[]> {
+  if (!data.length) return data;
+  const whatsapps = await apiRequest<BackendWhatsapp[]>("/whatsapp/all?session=0", {
+    signal,
+  }).catch(() => [] as BackendWhatsapp[]);
+  const usersResults = await Promise.allSettled(
+    data.map((c) =>
+      apiRequest<(BackendSimpleUser & { companyId?: number })[] | { users?: BackendSimpleUser[] }>(
+        `/users/list?companyId=${encodeURIComponent(c.id)}`,
+        { signal },
+      ),
+    ),
+  );
+  return data.map((c, i) => {
+    const conns = whatsapps.filter((w) => String(w.companyId) === c.id);
+    const u = usersResults[i];
+    const users = u?.status === "fulfilled" ? (Array.isArray(u.value) ? u.value : (u.value?.users ?? [])) : null;
+    return {
+      ...c,
+      connectionsCount: conns.length,
+      connectionConfigured: conns.some((w) => String(w.status ?? "").toUpperCase() === "CONNECTED"),
+      ...(users && { usersCount: users.length }),
+    };
+  });
+}
+
 export const companiesQuery = (filters: CompanyFilters) =>
   queryOptions({
     queryKey: companyKeys.list(filters),
