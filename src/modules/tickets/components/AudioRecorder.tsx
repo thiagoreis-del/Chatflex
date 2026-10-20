@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, Square, X } from "lucide-react";
+import { Mic, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { audioExtension, pickAudioMime } from "../audio-format";
 
@@ -127,11 +127,11 @@ export function AudioRecorder({
       <span className="min-w-12 font-mono tabular-nums" aria-label={labels.recording}>
         {formatDuration(seconds)}
       </span>
-      <Button type="button" variant="ghost" size="icon" aria-label={labels.stop} onClick={stop}>
-        <Square className="size-3 fill-current" />
+      <Button type="button" variant="ghost" size="icon" aria-label={labels.stop} title={labels.stop} onClick={stop}>
+        <Send className="size-4" />
       </Button>
-      <Button type="button" variant="ghost" size="icon" aria-label={labels.cancel} onClick={cancel}>
-        <X className="size-4" />
+      <Button type="button" variant="ghost" size="icon" aria-label={labels.cancel} title={labels.cancel} onClick={cancel}>
+        <Trash2 className="size-4" />
       </Button>
     </div>
   );
