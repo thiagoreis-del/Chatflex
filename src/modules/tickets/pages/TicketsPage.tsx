@@ -1028,10 +1028,13 @@ function Conversation({
       }
       setUpload(null);
     },
-    onSuccess: () => {
-      setReplyTo(null);
+    onSuccess: (_data, v) => {
       followLatest.current = true;
-      setText("");
+      // Áudio enviado direto: preserva o texto digitado, o rascunho e a resposta citada.
+      if (!v.keepComposer) {
+        setReplyTo(null);
+        setText("");
+      }
       // O cursor volta para o campo de mensagem logo após o envio.
       // O campo fica desabilitado durante o envio; tenta de novo se ainda estiver.
       const refocus = (attempt = 0) => {
@@ -1044,9 +1047,11 @@ function Conversation({
         });
       };
       refocus();
-      clearDraft(companyId, ticket.id);
-      setFiles([]);
-      setActive(0);
+      if (!v.keepComposer) {
+        clearDraft(companyId, ticket.id);
+        setFiles([]);
+        setActive(0);
+      }
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
     onError: (e, v) => {
@@ -1901,7 +1906,8 @@ function Conversation({
               }}
               onReady={(audio) => {
                 // Gravou e parou: envia direto, sem etapa de confirmação.
-                if (!send.isPending) send.mutate({ body: "", media: [audio] });
+                if (!send.isPending)
+                  send.mutate({ body: "", media: [audio], keepComposer: true });
               }}
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
