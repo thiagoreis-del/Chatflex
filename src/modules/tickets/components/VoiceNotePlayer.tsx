@@ -190,7 +190,7 @@ export function VoiceNotePlayer({
   const progress = duration > 0 ? Math.min(1, currentTime / duration) : 0;
   const activeBars = Math.round(progress * bars.length);
   const senderName = sender?.name?.trim();
-  const senderColor = senderName ? attendantBadgeColor(sender) : null;
+  const senderColor = senderName ? attendantBadgeColor(sender ?? undefined) : null;
 
   return (
     <div
