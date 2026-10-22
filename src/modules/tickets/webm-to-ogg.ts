@@ -202,7 +202,7 @@ export async function toWhatsappVoice(file: File): Promise<File> {
     const ogg = webmOpusToOgg(new Uint8Array(await file.arrayBuffer()));
     if (!ogg) return file;
     const name = file.name.replace(/\.webm$/i, "") + ".ogg";
-    return new File([ogg], name, { type: "audio/ogg" });
+    return new File([ogg as Uint8Array<ArrayBuffer>], name, { type: "audio/ogg" });
   } catch {
     return file;
   }
