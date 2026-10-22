@@ -10,7 +10,7 @@
 - [x] Configurar compilação e testes no GitHub; envio do pacote pronto para a VPS.
 - [x] Implementar troca de versão com backup, verificação local e recuperação automática.
 - [x] Documentar requisitos e validar o script isoladamente (70 testes passaram; sem deploy remoto).
-- [ ] Confirmar primeira execução real — bloqueado por falta de acesso às execuções privadas do GitHub e ao ambiente SSH/PM2 da VPS neste editor.
+- [x] Confirmar execução real: deploy automático confirmado em 22/10/2026 — commit `8293b43` chegou à VPS via workflow `deploy.yml` (CSS publicado já contém as classes exclusivas do commit) sem ação manual.
 
 ## Documentação solicitada em 18/10/2026
 
