@@ -42,3 +42,10 @@ export const parseVCard = (body: string): ParsedVCard | null => {
   if (!name && !phone) return null;
   return { name: name || phone || "", phone };
 };
+
+/** Extrai todos os contatos de uma mensagem (o WhatsApp permite enviar vários juntos). */
+export const parseVCards = (body: string): ParsedVCard[] => {
+  if (!isVCard(body)) return [];
+  const blocks = body.split(/(?=BEGIN:VCARD)/i).filter((b) => isVCard(b));
+  return blocks.map(parseVCard).filter((c): c is ParsedVCard => c !== null);
+};
