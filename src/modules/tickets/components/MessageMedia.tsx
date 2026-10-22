@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { Message } from "../types";
 import { isAudioMedia } from "../audio-format";
+import { VoiceNotePlayer } from "./VoiceNotePlayer";
 
 export function isImage(m: Pick<Message, "mediaType" | "mediaUrl">) {
   return m.mediaType === "image" || /\.(png|jpe?g|gif|webp)(\?|$)/i.test(m.mediaUrl ?? "");
@@ -94,12 +95,9 @@ export function MessageMedia({ message }: { message: Message }) {
       );
     }
     return (
-      <audio
-        controls
-        preload="metadata"
-        src={url}
-        aria-label={t("media.audio")}
-        className="max-w-full"
+      <VoiceNotePlayer
+        url={url}
+        fromMe={message.fromMe}
         onError={() => setFailed(true)}
       />
     );
