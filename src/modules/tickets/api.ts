@@ -400,7 +400,7 @@ export async function createTicket(
   let full: Partial<Ticket> | undefined;
   if (created?.id) {
     try {
-      full = (await apiRequest<MessagesResponse>(ep.messages(created.id)))?.ticket as
+      full = (await apiRequest<{ ticket?: Partial<Ticket> }>(ep.messages(created.id)))?.ticket as
         | Partial<Ticket>
         | undefined;
     } catch {
