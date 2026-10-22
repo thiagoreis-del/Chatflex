@@ -46,7 +46,7 @@ export interface Message {
   /** Nota interna: visível só para a equipe, não é enviada ao cliente. */
   isPrivate?: boolean;
   /** Backend inclui o ticket com o atendente responsável (`ticket.user`). */
-  ticket?: { user?: { id: number; name: string } | null } | null;
+  ticket?: { user?: { id: number; name: string; color?: string | null } | null } | null;
   /** Mensagem citada (resposta), devolvida pelo backend quando suportado. */
   quotedMsg?: Partial<Message> | null;
 }

@@ -265,6 +265,7 @@ export function VoiceNotePlayer({
       <span className="shrink-0 text-xs tabular-nums opacity-80">
         {formatAudioTime(playing || currentTime > 0 ? currentTime : duration)}
       </span>
+      </div>
     </div>
   );
 }
