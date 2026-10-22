@@ -3,13 +3,14 @@ import { Mic, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { audioExtension, pickAudioMime } from "../audio-format";
 import { toWhatsappVoice } from "../webm-to-ogg";
+import { isSilentRecording, samplePeak } from "../audio-level";
 
 function formatDuration(seconds: number) {
   const minutes = Math.floor(seconds / 60);
   return `${String(minutes).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-export type RecorderError = "permission" | "unsupported" | "recorder" | "empty";
+export type RecorderError = "permission" | "unsupported" | "recorder" | "empty" | "silent";
 
 export function AudioRecorder({
   disabled,
@@ -28,8 +29,47 @@ export function AudioRecorder({
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const cancelledRef = useRef(false);
+  // Mede o volume durante a gravação para não enviar áudio mudo.
+  const meterRef = useRef<{ ctx: AudioContext; timer: number; peak: number } | null>(null);
+
+  const stopMeter = (): number | null => {
+    const meter = meterRef.current;
+    meterRef.current = null;
+    if (!meter) return null;
+    window.clearInterval(meter.timer);
+    void meter.ctx.close?.();
+    return meter.peak;
+  };
+
+  const startMeter = (stream: MediaStream) => {
+    try {
+      const Ctor =
+        window.AudioContext ??
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctor) return;
+      const ctx = new Ctor();
+      void ctx.resume?.();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 2048;
+      ctx.createMediaStreamSource(stream).connect(analyser);
+      const buffer = new Float32Array(analyser.fftSize);
+      const meter = { ctx, peak: 0, timer: 0 };
+      meter.timer = window.setInterval(() => {
+        // Contexto suspenso não mede nada: não bloqueia o envio.
+        if (ctx.state !== "running") return;
+        analyser.getFloatTimeDomainData(buffer);
+        meter.peak = Math.max(meter.peak, samplePeak(buffer));
+        measuredRef.current = true;
+      }, 100);
+      meterRef.current = meter;
+    } catch {
+      meterRef.current = null;
+    }
+  };
+  const measuredRef = useRef(false);
 
   const release = () => {
+    stopMeter();
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     recorderRef.current = null;
@@ -75,7 +115,11 @@ export function AudioRecorder({
         onError("recorder");
       };
       recorder.onstop = () => {
-        if (!cancelledRef.current) {
+        const measured = measuredRef.current;
+        const peak = stopMeter();
+        if (!cancelledRef.current && isSilentRecording(measured ? peak : null)) {
+          onError("silent");
+        } else if (!cancelledRef.current) {
           const type = (recorder.mimeType || mimeType || "audio/webm").split(";")[0]!;
           const blob = new Blob(chunksRef.current, { type });
           // Gravações vazias (ou < 1 KB) não são enviadas.
@@ -89,6 +133,8 @@ export function AudioRecorder({
         setRecording(false);
         release();
       };
+      measuredRef.current = false;
+      startMeter(stream);
       recorder.start(250);
       setRecording(true);
     } catch {
