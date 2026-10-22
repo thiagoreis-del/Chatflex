@@ -671,7 +671,7 @@ export function TicketsPage() {
                                     {tk.user?.name ?? t("noAttendant")}
                                   </span>
                                 </span>
-                                {isAdmin && tk.status !== "closed" && (
+                                {tk.status !== "closed" && (
                                   <span
                                     role="button"
                                     tabIndex={0}
@@ -1359,7 +1359,7 @@ function Conversation({
           >
             <Search className="size-4" />
           </Button>
-          {isAdmin && ticket.status !== "closed" && (
+          {ticket.status !== "closed" && (
             <Button
               type="button"
               variant="ghost"
