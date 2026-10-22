@@ -386,15 +386,17 @@ export function TicketsPage() {
                   >
                     <span className="flex items-center gap-1.5">
                       <Icon className="size-4 shrink-0 sm:size-5" aria-hidden />
-                      {c !== undefined && c > 0 && (
+                      {s !== "closed" && (
                         <span
                           className={cn(
-                            "min-w-5 rounded-md px-1 text-[10px] font-bold leading-4 tabular-nums sm:text-[11px]",
-                            active ? "bg-background/90 text-foreground" : "bg-background/70",
+                            "min-w-7 rounded-full px-1.5 text-sm font-extrabold leading-6 tabular-nums sm:text-base",
+                            active
+                              ? "bg-background text-foreground shadow-sm"
+                              : "bg-background text-current shadow-sm ring-1 ring-current/20",
                           )}
-                          aria-label={String(c)}
+                          aria-label={String(c ?? 0)}
                         >
-                          {c > 99 ? "99+" : c}
+                          {c === undefined ? "–" : c > 99 ? "99+" : c}
                         </span>
                       )}
                     </span>
