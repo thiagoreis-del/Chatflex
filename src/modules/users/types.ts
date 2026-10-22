@@ -6,6 +6,8 @@ export interface CompanyUser {
   email: string;
   profile: UserProfile;
   queueIds: number[];
+  /** Cor escolhida no cadastro (chave da paleta); ausente = cor automática. CONTRATO PENDENTE no backend. */
+  color?: string;
   /** CONTRATO PENDENTE: bloqueio de acesso (backend deve impedir login e revogar sessões). */
   blocked?: boolean;
 }
