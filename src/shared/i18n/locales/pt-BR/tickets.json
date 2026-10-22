@@ -102,6 +102,8 @@
     "image": "Imagem enviada",
     "close": "Fechar",
     "audio": "Áudio recebido",
+    "play": "Reproduzir áudio",
+    "pause": "Pausar áudio",
     "video": "Vídeo recebido",
     "audioError": "Não foi possível reproduzir este áudio aqui. Toque para baixar."
   },
