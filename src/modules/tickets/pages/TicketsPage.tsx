@@ -50,6 +50,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { attendantBadgeColor } from "../attendant-color";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { ApiError } from "@/shared/api/errors";
@@ -1271,7 +1272,12 @@ function Conversation({
             </span>
             <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
               {t("attendant")}:{" "}
-              <span className="font-medium text-foreground">
+              <span
+                className={cn(
+                  "font-medium",
+                  ticket.user ? attendantBadgeColor(ticket.user).badge.split(" ")[1] : "text-foreground",
+                )}
+              >
                 {ticket.user?.name ?? t("noAttendant")}
               </span>
             </span>
