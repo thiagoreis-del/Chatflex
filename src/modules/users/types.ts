@@ -17,6 +17,8 @@ export interface CompanyUserInput {
   email: string;
   profile: UserProfile;
   queueIds: number[];
+  /** Cor opcional do atendente (chave da paleta). */
+  color?: string;
   blocked?: boolean;
   /** Só superadmin: cria o usuário em outra empresa (backend valida `super`). */
   companyId?: number;
