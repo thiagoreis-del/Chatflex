@@ -51,7 +51,16 @@
       "color": "Cor do atendente",
       "colorAuto": "Automática",
       "colorHint": "Opcional: escolha uma cor fixa para identificar o atendente no Atendimento. Sem escolha, a cor é atribuída automaticamente.",
-      "colorName": "Cor {{color}}",
+      "colors": {
+        "sky": "Azul",
+        "emerald": "Verde",
+        "violet": "Roxo",
+        "amber": "Âmbar",
+        "rose": "Rosa",
+        "teal": "Turquesa",
+        "indigo": "Índigo",
+        "orange": "Laranja"
+      },
       "password": "Senha temporária",
       "passwordHint": "Deixe em branco para manter a senha atual.",
       "profile": "Perfil",

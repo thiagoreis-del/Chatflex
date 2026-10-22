@@ -495,8 +495,8 @@ export function UserFormDialog({
                   key={c.key}
                   type="button"
                   aria-pressed={data.color === c.key}
-                  aria-label={t("users.form.colorName", { color: c.key })}
-                  title={t("users.form.colorName", { color: c.key })}
+                  aria-label={t(`users.form.colors.${c.key}`)}
+                  title={t(`users.form.colors.${c.key}`)}
                   onClick={() => setData({ ...data, color: c.key })}
                   className={cn(
                     "size-7 shrink-0 rounded-full transition-transform hover:scale-110",
