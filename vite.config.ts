@@ -25,6 +25,8 @@ export default defineConfig({
         manifest: false, // manifesto servido de public/manifest.webmanifest
         workbox: {
           navigateFallback: "/index.html",
+          // Decodificador de áudio do Safari é grande e carregado só sob demanda.
+          globIgnores: ["**/opus-*.js"],
           navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
           runtimeCaching: [
             {
