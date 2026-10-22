@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { attendantBadgeColor } from "@/shared/attendant-color";
 import {
   WAVEFORM_BARS,
   downsamplePeaks,
@@ -71,10 +72,13 @@ async function decodeAudio(url: string): Promise<Decoded | null> {
 export function VoiceNotePlayer({
   url,
   fromMe,
+  sender,
   onError,
 }: {
   url: string;
   fromMe?: boolean;
+  /** Atendente que enviou o áudio; quando presente, mostra avatar e nome. */
+  sender?: { id?: number | null; name?: string | null; color?: string | null } | null;
   onError: () => void;
 }) {
   const { t } = useTranslation("tickets");
