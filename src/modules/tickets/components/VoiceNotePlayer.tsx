@@ -9,7 +9,7 @@ import {
   formatAudioTime,
 } from "../waveform";
 
-type Decoded = { channels: Float32Array[]; sampleRate: number };
+type Decoded = { channels: [Float32Array, ...Float32Array[]]; sampleRate: number };
 
 function audioContextCtor(): typeof AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -44,7 +44,7 @@ async function decodeAudio(url: string): Promise<Decoded | null> {
       const channels = Array.from({ length: decoded.numberOfChannels }, (_, i) =>
         decoded.getChannelData(i),
       );
-      return { channels, sampleRate: decoded.sampleRate };
+      return { channels: channels as Decoded["channels"], sampleRate: decoded.sampleRate };
     } catch {
       // segue para o decodificador próprio
     } finally {
@@ -58,7 +58,7 @@ async function decodeAudio(url: string): Promise<Decoded | null> {
     const out = await decoder.decodeFile(new Uint8Array(bytes));
     decoder.free();
     if (!out.channelData.length || !out.samplesDecoded) return null;
-    return { channels: out.channelData, sampleRate: out.sampleRate };
+    return { channels: out.channelData as Decoded["channels"], sampleRate: out.sampleRate };
   } catch {
     return null;
   }
