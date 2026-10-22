@@ -665,12 +665,23 @@ export function TicketsPage() {
                                       : `${waitMin}m`}
                                   </span>
                                 )}
-                                <span className="ml-auto inline-flex min-w-0 items-center gap-0.5 truncate text-[10px] text-muted-foreground">
-                                  <UserRound className="size-2.5 shrink-0" />
-                                  <span className="truncate">
-                                    {tk.user?.name ?? t("noAttendant")}
+                                {tk.user ? (
+                                  <span
+                                    title={t("attendant") + ": " + tk.user.name}
+                                    className="ml-auto inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border border-primary/25 bg-primary/10 px-1.5 py-px text-[10px] font-semibold text-primary"
+                                  >
+                                    <UserRound className="size-2.5 shrink-0" />
+                                    <span className="truncate">{tk.user.name}</span>
                                   </span>
-                                </span>
+                                ) : (
+                                  <span
+                                    title={t("noAttendant")}
+                                    className="ml-auto inline-flex items-center gap-1 truncate rounded-md border border-warning/40 bg-warning/10 px-1.5 py-px text-[10px] font-semibold text-warning-foreground"
+                                  >
+                                    <UserRound className="size-2.5 shrink-0" />
+                                    <span className="truncate">{t("noAttendant")}</span>
+                                  </span>
+                                )}
                                 {tk.status !== "closed" && (
                                   <span
                                     role="button"
