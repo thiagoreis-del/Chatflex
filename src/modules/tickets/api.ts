@@ -384,5 +384,40 @@ export interface CreateTicketInput {
 }
 
 /** Inicia um atendimento para um contato que não está em atendimento. */
-export const createTicket = (input: CreateTicketInput) =>
-  apiRequest<Ticket>(ep.list, { method: "POST", body: { status: "open", ...input } });
+/**
+ * O backend pode responder ao POST sem as associações (contato, conexão, fila).
+ * Buscamos o ticket completo pela rota de mensagens; se falhar, completamos com o mínimo seguro.
+ */
+export async function createTicket(
+  input: CreateTicketInput,
+  fallbackContact?: Ticket["contact"],
+): Promise<Ticket> {
+  const raw = (await apiRequest<Partial<Ticket> & { ticket?: Partial<Ticket> }>(ep.list, {
+    method: "POST",
+    body: { status: "open", ...input },
+  })) as Partial<Ticket> & { ticket?: Partial<Ticket> };
+  const created = (raw?.ticket ?? raw) as Partial<Ticket>;
+  let full: Partial<Ticket> | undefined;
+  if (created?.id) {
+    try {
+      full = (await apiRequest<MessagesResponse>(ep.messages(created.id)))?.ticket as
+        | Partial<Ticket>
+        | undefined;
+    } catch {
+      full = undefined;
+    }
+  }
+  const t = { ...created, ...(full ?? {}) } as Partial<Ticket>;
+  return {
+    ...t,
+    id: Number(t.id),
+    status: t.status ?? "open",
+    lastMessage: t.lastMessage ?? "",
+    updatedAt: t.updatedAt ?? new Date().toISOString(),
+    unreadMessages: t.unreadMessages ?? 0,
+    contact: t.contact ?? fallbackContact ?? { id: input.contactId, name: "", number: "" },
+    queue: t.queue ?? null,
+    user: t.user ?? null,
+    whatsapp: t.whatsapp ?? null,
+  } as Ticket;
+}

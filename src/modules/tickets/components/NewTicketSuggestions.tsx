@@ -43,8 +43,13 @@ export function NewTicketSuggestions({
   const chosen = whatsappId || (list[0] ? String(list[0].id) : "");
 
   const start = useMutation({
-    mutationFn: (contactId: number) =>
-      createTicket({ contactId, userId, whatsappId: chosen ? Number(chosen) : undefined }),
+    mutationFn: (contactId: number) => {
+      const c = contacts.data?.data.find((x) => x.id === contactId);
+      return createTicket(
+        { contactId, userId, whatsappId: chosen ? Number(chosen) : undefined },
+        c ? { id: c.id, name: c.name, number: c.number } : undefined,
+      );
+    },
     onSuccess: (ticket) => {
       toast.success(t("newTicket.started"));
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
