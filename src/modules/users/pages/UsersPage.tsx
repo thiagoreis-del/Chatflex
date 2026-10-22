@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { attendantColorOptions } from "@/shared/attendant-color";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -337,6 +339,7 @@ export function UserFormDialog({
     email: editing?.email ?? "",
     profile: editing?.profile ?? "user",
     queueIds: editing?.queueIds ?? [],
+    color: editing?.color,
     blocked: editing?.blocked ?? false,
     password: editing ? "" : generatePassword(),
   });
@@ -467,6 +470,45 @@ export function UserFormDialog({
               </Select>
             </div>
           </div>
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">{t("users.form.color")}</legend>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                aria-pressed={!data.color}
+                onClick={() => setData({ ...data, color: undefined })}
+                className={cn(
+                  "flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium",
+                  !data.color
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground",
+                )}
+              >
+                <span
+                  className="size-3 rounded-full border border-dashed border-current opacity-70"
+                  aria-hidden
+                />
+                {t("users.form.colorAuto")}
+              </button>
+              {attendantColorOptions.map((c) => (
+                <button
+                  key={c.key}
+                  type="button"
+                  aria-pressed={data.color === c.key}
+                  aria-label={t("users.form.colorName", { color: c.key })}
+                  title={t("users.form.colorName", { color: c.key })}
+                  onClick={() => setData({ ...data, color: c.key })}
+                  className={cn(
+                    "size-7 shrink-0 rounded-full transition-transform hover:scale-110",
+                    c.dot,
+                    data.color === c.key &&
+                      "ring-2 ring-ring ring-offset-2 ring-offset-background",
+                  )}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">{t("users.form.colorHint")}</p>
+          </fieldset>
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium">{t("users.form.queues")}</legend>
             {queues.length === 0 ? (

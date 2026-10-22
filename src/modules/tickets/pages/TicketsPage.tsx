@@ -50,7 +50,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { attendantBadgeColor } from "../attendant-color";
+import { attendantBadgeColor } from "@/shared/attendant-color";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { ApiError } from "@/shared/api/errors";
