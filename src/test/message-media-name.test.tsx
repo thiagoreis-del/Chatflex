@@ -34,7 +34,7 @@ describe("Message media file name", () => {
         })}
       />,
     );
-    const chip = screen.getByRole("link", { name: "media.download" });
+    const chip = screen.getByRole("button", { name: "media.download" });
     expect(chip).toHaveTextContent("proposta-orcamento.pdf");
     expect(chip.textContent).not.toContain("Thiago");
   });
