@@ -15,8 +15,8 @@ export const parseLocation = (body: string | null | undefined): ParsedLocation |
   if (degrees) return build(Number(degrees[1]), Number(degrees[2]));
   const maps = MAPS_URL.exec(body);
   if (maps) {
-    const coords = LATLNG.exec(maps[1]);
-    if (coords) return build(Number(coords[1]), Number(coords[2]));
+    const coords = maps[1] ? LATLNG.exec(maps[1]) : null;
+    if (coords?.[1] && coords[2]) return build(Number(coords[1]), Number(coords[2]));
     return { lat: 0, lng: 0, mapsUrl: maps[0] };
   }
   return null;
