@@ -2,6 +2,7 @@ import { createFileRoute, isRedirect, Outlet, redirect } from "@tanstack/react-r
 import { AppShell } from "@/app/layout/AppShell";
 import { LoadingState } from "@/shared/components";
 import { ensureSession } from "@/shared/auth/auth-service";
+import { isApiError } from "@/shared/api/errors";
 import { pageMeta } from "@/shared/config/meta";
 
 /**
@@ -17,7 +18,12 @@ export const Route = createFileRoute("/app")({
       if (!ok) throw redirect({ to: "/login", search: { redirect: location.href } });
     } catch (error) {
       if (isRedirect(error)) throw error;
-      throw redirect({ to: "/indisponivel" });
+      // Só falha real de rede indica servidor indisponível; sessão inválida,
+      // expirada ou recusada pelo servidor volta para o login.
+      if (isApiError(error) && error.kind === "network") {
+        throw redirect({ to: "/indisponivel" });
+      }
+      throw redirect({ to: "/login", search: { redirect: location.href } });
     }
   },
   pendingComponent: () => <LoadingState className="min-h-screen" />,
