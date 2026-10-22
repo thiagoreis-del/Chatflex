@@ -476,7 +476,7 @@ export function UserFormDialog({
               <button
                 type="button"
                 aria-pressed={!data.color}
-                onClick={() => setData({ ...data, color: undefined })}
+                onClick={() => setData({ ...data, color: null })}
                 className={cn(
                   "flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium",
                   !data.color
