@@ -82,6 +82,8 @@ import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
 import { contactKeys } from "@/shared/api/query-keys";
 import { MessageMedia } from "../components/MessageMedia";
+import { ContactCard } from "../components/ContactCard";
+import { isVCard } from "../vcard";
 import { NewTicketSuggestions } from "../components/NewTicketSuggestions";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ShareContactDialog, contactCardText } from "../components/ShareContactDialog";
@@ -816,6 +818,7 @@ function Conversation({
   };
   const quoteLabel = (m: Partial<Message>) => {
     const body = m.fromMe && m.body ? stripSignature(m.body) : m.body;
+    if (body && isVCard(body)) return t("reply.contact");
     if (body && !(m.mediaUrl && !m.mediaType?.startsWith("image"))) return body;
     const kind = m.mediaType?.split("/")[0];
     if (kind === "image") return t("reply.image");
@@ -1534,10 +1537,14 @@ function Conversation({
                         </button>
                       )}
                       <MessageMedia message={m} />
-                      {displayBody(m) && (
-                        <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
-                          {displayBody(m)}
-                        </p>
+                      {displayBody(m) && isVCard(displayBody(m)) ? (
+                        <ContactCard body={displayBody(m)!} />
+                      ) : (
+                        displayBody(m) && (
+                          <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                            {displayBody(m)}
+                          </p>
+                        )
                       )}
                       <p
                         className={cn(
