@@ -13,7 +13,7 @@ function UnavailableRoute() {
   const navigate = useNavigate();
   return (
     <StatusPage>
-      <BackendUnavailable onRetry={() => void navigate({ to: "/app/dashboard" })} />
+      <BackendUnavailable onRetry={() => void navigate({ to: "/login" })} />
     </StatusPage>
   );
 }
