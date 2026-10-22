@@ -1,14 +1,10 @@
 import { UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { parseVCard } from "../vcard";
+import type { ParsedVCard } from "../vcard";
 
 /** Cartão de contato compartilhado (vCard), no estilo do WhatsApp. */
-export function ContactCard({ body }: { body: string }) {
+export function ContactCard({ contact }: { contact: ParsedVCard }) {
   const { t } = useTranslation("tickets");
-  const contact = parseVCard(body);
-  if (!contact) {
-    return <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{body}</p>;
-  }
   const initial = (contact.name || "?").trim().charAt(0).toUpperCase();
   return (
     <div className="flex min-w-52 items-center gap-3 rounded-md bg-background/60 px-3 py-2.5">
