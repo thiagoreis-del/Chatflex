@@ -157,10 +157,15 @@
     "audio": "🎤 Áudio",
     "document": "📄 Documento",
     "contact": "👤 Contato",
+    "location": "📍 Localização",
     "notLoaded": "A mensagem original não está carregada nesta conversa."
   },
   "contactCard": {
     "label": "Contato compartilhado"
+  },
+  "locationCard": {
+    "label": "Localização compartilhada",
+    "open": "Abrir no mapa"
   },
   "conversationSearch": "Buscar nesta conversa",
   "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa.",

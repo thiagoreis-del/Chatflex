@@ -83,7 +83,9 @@ import type { Contact } from "@/modules/contacts/types";
 import { contactKeys } from "@/shared/api/query-keys";
 import { MessageMedia } from "../components/MessageMedia";
 import { ContactCard } from "../components/ContactCard";
-import { isVCard } from "../vcard";
+import { LocationCard } from "../components/LocationCard";
+import { isVCard, parseVCards } from "../vcard";
+import { parseLocation } from "../location";
 import { NewTicketSuggestions } from "../components/NewTicketSuggestions";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ShareContactDialog, contactCardText } from "../components/ShareContactDialog";
@@ -819,6 +821,7 @@ function Conversation({
   const quoteLabel = (m: Partial<Message>) => {
     const body = m.fromMe && m.body ? stripSignature(m.body) : m.body;
     if (body && isVCard(body)) return t("reply.contact");
+    if (body && parseLocation(body)) return t("reply.location");
     if (body && !(m.mediaUrl && !m.mediaType?.startsWith("image"))) return body;
     const kind = m.mediaType?.split("/")[0];
     if (kind === "image") return t("reply.image");
@@ -1538,7 +1541,13 @@ function Conversation({
                       )}
                       <MessageMedia message={m} />
                       {displayBody(m) && isVCard(displayBody(m)) ? (
-                        <ContactCard body={displayBody(m)!} />
+                        <div className="flex flex-col gap-1.5">
+                          {parseVCards(displayBody(m)!).map((contact, i) => (
+                            <ContactCard key={i} contact={contact} />
+                          ))}
+                        </div>
+                      ) : displayBody(m) && parseLocation(displayBody(m)) ? (
+                        <LocationCard location={parseLocation(displayBody(m))!} />
                       ) : (
                         displayBody(m) && (
                           <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
