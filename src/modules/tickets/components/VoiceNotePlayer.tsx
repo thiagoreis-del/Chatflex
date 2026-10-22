@@ -189,14 +189,33 @@ export function VoiceNotePlayer({
 
   const progress = duration > 0 ? Math.min(1, currentTime / duration) : 0;
   const activeBars = Math.round(progress * bars.length);
+  const senderName = sender?.name?.trim();
+  const senderColor = senderName ? attendantBadgeColor(sender) : null;
 
   return (
     <div
       className={cn(
-        "mb-1 flex w-64 max-w-full items-center gap-2 rounded-2xl px-3 py-2",
+        "mb-1 flex w-64 max-w-full flex-col gap-1 rounded-2xl px-3 py-2",
         fromMe ? "bg-primary-foreground/10" : "bg-muted/50",
       )}
     >
+      {senderName && senderColor && (
+        <div className="flex items-center gap-1.5">
+          <span
+            className={cn(
+              "flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white",
+              senderColor.dot,
+            )}
+            aria-hidden
+          >
+            {senderName.charAt(0).toUpperCase()}
+          </span>
+          <span className={cn("truncate text-xs font-semibold", senderColor.text)}>
+            {senderName}
+          </span>
+        </div>
+      )}
+      <div className="flex items-center gap-2">
       {!nativeFailed && (
         <audio
           ref={audioRef}
