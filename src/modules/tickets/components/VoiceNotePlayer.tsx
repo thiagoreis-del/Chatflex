@@ -9,19 +9,56 @@ import {
   formatAudioTime,
 } from "../waveform";
 
-/** Decodifica o áudio e extrai as amplitudes; falha silenciosa → forma de reserva. */
-async function extractPeaks(url: string): Promise<number[] | null> {
+type Decoded = { channels: [Float32Array, ...Float32Array[]]; sampleRate: number };
+
+function audioContextCtor(): typeof AudioContext | null {
+  if (typeof window === "undefined") return null;
+  return (
+    window.AudioContext ??
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext ??
+    null
+  );
+}
+
+/**
+ * Decodifica o áudio. Usa o decodificador do navegador e, se ele não
+ * suportar OGG/Opus (iPhone/Safari), um decodificador próprio.
+ */
+async function decodeAudio(url: string): Promise<Decoded | null> {
+  let bytes: ArrayBuffer;
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
-    const buffer = await res.arrayBuffer();
-    const ctx = new AudioContext();
+    bytes = await res.arrayBuffer();
+  } catch {
+    return null;
+  }
+  const Ctor = audioContextCtor();
+  if (Ctor) {
+    const ctx = new Ctor();
     try {
-      const decoded = await ctx.decodeAudioData(buffer);
-      return downsamplePeaks(decoded.getChannelData(0), WAVEFORM_BARS);
+      const decoded = await new Promise<AudioBuffer>((resolve, reject) => {
+        const p = ctx.decodeAudioData(bytes.slice(0), resolve, reject);
+        if (p && typeof p.then === "function") p.then(resolve, reject);
+      });
+      const channels = Array.from({ length: decoded.numberOfChannels }, (_, i) =>
+        decoded.getChannelData(i),
+      );
+      return { channels: channels as Decoded["channels"], sampleRate: decoded.sampleRate };
+    } catch {
+      // segue para o decodificador próprio
     } finally {
-      void ctx.close();
+      void ctx.close?.();
     }
+  }
+  try {
+    const { OggOpusDecoder } = await import("ogg-opus-decoder");
+    const decoder = new OggOpusDecoder();
+    await decoder.ready;
+    const out = await decoder.decodeFile(new Uint8Array(bytes));
+    decoder.free();
+    if (!out.channelData.length || !out.samplesDecoded) return null;
+    return { channels: out.channelData as Decoded["channels"], sampleRate: out.sampleRate };
   } catch {
     return null;
   }
@@ -46,28 +83,107 @@ export function VoiceNotePlayer({
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  // Quando o <audio> não toca o formato (Safari/iOS), toca pelo Web Audio.
+  const [nativeFailed, setNativeFailed] = useState(false);
+  const decodedRef = useRef<Promise<Decoded | null> | null>(null);
+  const webRef = useRef<{ ctx: AudioContext; src: AudioBufferSourceNode; raf: number } | null>(
+    null,
+  );
+
+  const getDecoded = () => {
+    if (!decodedRef.current) decodedRef.current = decodeAudio(url);
+    return decodedRef.current;
+  };
 
   useEffect(() => {
     let cancelled = false;
-    void extractPeaks(url).then((peaks) => {
-      if (!cancelled && peaks && peaks.some((p) => p > 0)) setBars(peaks);
+    decodedRef.current = null;
+    void getDecoded().then((d) => {
+      if (cancelled || !d) return;
+      const peaks = downsamplePeaks(d.channels[0], WAVEFORM_BARS);
+      if (peaks.some((p) => p > 0)) setBars(peaks);
+      const secs = d.channels[0].length / d.sampleRate;
+      setDuration((cur) => (Number.isFinite(cur) && cur > 0 ? cur : secs));
     });
     return () => {
       cancelled = true;
+      stopWeb();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
+  const stopWeb = () => {
+    const w = webRef.current;
+    if (!w) return;
+    webRef.current = null;
+    cancelAnimationFrame(w.raf);
+    try {
+      w.src.onended = null;
+      w.src.stop();
+    } catch {
+      // já parado
+    }
+    void w.ctx.close?.();
+  };
+
+  const playWeb = async () => {
+    const Ctor = audioContextCtor();
+    if (!Ctor) return onError();
+    // Cria o contexto dentro do toque do usuário (exigência do iOS).
+    const ctx = new Ctor();
+    void ctx.resume?.();
+    const d = await getDecoded();
+    if (!d) {
+      void ctx.close?.();
+      return onError();
+    }
+    const buffer = ctx.createBuffer(d.channels.length, d.channels[0].length, d.sampleRate);
+    d.channels.forEach((ch, i) => buffer.getChannelData(i).set(ch));
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    const offset = currentTime < buffer.duration ? currentTime : 0;
+    const startedAt = ctx.currentTime - offset;
+    const tick = () => {
+      if (!webRef.current) return;
+      setCurrentTime(ctx.currentTime - startedAt);
+      webRef.current.raf = requestAnimationFrame(tick);
+    };
+    src.onended = () => {
+      const finished = ctx.currentTime - startedAt >= buffer.duration - 0.05;
+      stopWeb();
+      setPlaying(false);
+      if (finished) setCurrentTime(0);
+    };
+    src.start(0, offset);
+    webRef.current = { ctx, src, raf: requestAnimationFrame(tick) };
+    setDuration(buffer.duration);
+    setPlaying(true);
+  };
+
   const toggle = () => {
+    if (nativeFailed) {
+      if (playing) {
+        stopWeb();
+        setPlaying(false);
+      } else {
+        void playWeb();
+      }
+      return;
+    }
     const audio = audioRef.current;
     if (!audio) return;
     if (playing) {
       audio.pause();
     } else {
-      void audio.play().catch(() => onError());
+      void audio.play().catch(() => {
+        setNativeFailed(true);
+        void playWeb();
+      });
     }
   };
 
-  const progress = duration > 0 ? currentTime / duration : 0;
+  const progress = duration > 0 ? Math.min(1, currentTime / duration) : 0;
   const activeBars = Math.round(progress * bars.length);
 
   return (
@@ -77,22 +193,28 @@ export function VoiceNotePlayer({
         fromMe ? "bg-primary-foreground/10" : "bg-muted/50",
       )}
     >
-      <audio
-        ref={audioRef}
-        preload="metadata"
-        src={url}
-        aria-label={t("media.audio")}
-        className="hidden"
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onEnded={() => {
-          setPlaying(false);
-          setCurrentTime(0);
-        }}
-        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-        onError={onError}
-      />
+      {!nativeFailed && (
+        <audio
+          ref={audioRef}
+          preload="metadata"
+          src={url}
+          aria-label={t("media.audio")}
+          className="hidden"
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={() => {
+            setPlaying(false);
+            setCurrentTime(0);
+          }}
+          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+          onLoadedMetadata={(e) => {
+            const d = e.currentTarget.duration;
+            if (Number.isFinite(d) && d > 0) setDuration(d);
+          }}
+          onError={() => setNativeFailed(true)}
+        />
+      )}
+
       <button
         type="button"
         onClick={toggle}
