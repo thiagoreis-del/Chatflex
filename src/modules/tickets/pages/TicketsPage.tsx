@@ -668,7 +668,10 @@ export function TicketsPage() {
                                 {tk.user ? (
                                   <span
                                     title={t("attendant") + ": " + tk.user.name}
-                                    className="ml-auto inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border border-primary/25 bg-primary/10 px-1.5 py-px text-[10px] font-semibold text-primary"
+                                    className={cn(
+                                      "ml-auto inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-semibold",
+                                      attendantBadgeColor(tk.user).badge,
+                                    )}
                                   >
                                     <UserRound className="size-2.5 shrink-0" />
                                     <span className="truncate">{tk.user.name}</span>
