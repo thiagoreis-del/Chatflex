@@ -34,8 +34,36 @@ describe("Message media file name", () => {
         })}
       />,
     );
-    const chip = screen.getByRole("link", { name: "media.download" });
+    const chip = screen.getByRole("button", { name: "media.download" });
     expect(chip).toHaveTextContent("proposta-orcamento.pdf");
     expect(chip.textContent).not.toContain("Thiago");
+  });
+
+  it("clicking a PDF downloads it with the real file name instead of opening a tab", async () => {
+    const url = "https://api.example.com/public/company1/contrato.pdf";
+    const blob = new Blob(["pdf"], { type: "application/pdf" });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(blob) });
+    vi.stubGlobal("fetch", fetchMock);
+    const createObjectURL = vi.fn().mockReturnValue("blob:mock");
+    const revokeObjectURL = vi.fn();
+    vi.stubGlobal("URL", Object.assign(URL, { createObjectURL, revokeObjectURL }));
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
+
+    render(
+      <MessageMedia message={mediaMessage({ mediaUrl: url, mediaType: "application" })} />,
+    );
+    screen.getByRole("button", { name: "media.download" }).click();
+    await vi.waitFor(() => expect(clickSpy).toHaveBeenCalled());
+
+    expect(fetchMock).toHaveBeenCalledWith(url);
+    expect(openSpy).not.toHaveBeenCalled();
+    const anchor = clickSpy.mock.instances[0] as HTMLAnchorElement;
+    expect(anchor.download).toBe("contrato.pdf");
+    expect(anchor.href).toBe("blob:mock");
+
+    clickSpy.mockRestore();
+    openSpy.mockRestore();
+    vi.unstubAllGlobals();
   });
 });
