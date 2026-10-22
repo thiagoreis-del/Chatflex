@@ -98,7 +98,7 @@ export function MessageMedia({ message }: { message: Message }) {
       <VoiceNotePlayer
         url={url}
         fromMe={message.fromMe}
-        sender={message.fromMe ? message.ticket?.user : null}
+        sender={message.fromMe ? (message.ticket?.user ?? null) : null}
         onError={() => setFailed(true)}
       />
     );
