@@ -19,11 +19,11 @@ const PALETTE: AttendantBadgeColor[] = [
 /** Cor estável para um atendente: preferência pelo id; sem id, deriva do nome. */
 export function attendantBadgeColor(user?: { id?: number | null; name?: string | null }): AttendantBadgeColor {
   const key = user?.id ?? user?.name;
-  if (key == null || key === "") return PALETTE[0];
+  if (key == null || key === "") return PALETTE[0] ?? PALETTE[PALETTE.length - 1]!;
   let hash = 0;
   const source = String(key);
   for (let i = 0; i < source.length; i++) {
     hash = (hash * 31 + source.charCodeAt(i)) >>> 0;
   }
-  return PALETTE[hash % PALETTE.length];
+  return PALETTE[hash % PALETTE.length] ?? PALETTE[0]!;
 }
