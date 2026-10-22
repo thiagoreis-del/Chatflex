@@ -958,7 +958,16 @@ function Conversation({
   const audioPreview = file?.type.startsWith("audio/") ? urls[active] : null;
 
   const send = useMutation({
-    mutationFn: async ({ body, media }: { body: string; media: File[] }) => {
+    mutationFn: async ({
+      body,
+      media,
+      keepComposer,
+    }: {
+      body: string;
+      media: File[];
+      /** Envio direto de áudio: não limpa o texto digitado nem o rascunho salvo. */
+      keepComposer?: boolean;
+    }) => {
       // Conversa aberta sem responsável: o atendente logado assume antes de responder.
       // Admin respondendo como outro usuário: o ticket passa para esse usuário.
       if (senderId && (!ticket.user || (replyAs && ticket.user.id !== senderId))) {
@@ -1008,18 +1017,24 @@ function Conversation({
         } catch (error) {
           setUpload(null);
           // Mantém os arquivos que faltaram para o atendente tentar de novo.
-          setFiles(media.slice(i));
-          setActive(0);
-          if (i > 0) setText("");
+          // Áudio enviado direto não entra na caixa de anexos (há texto digitado).
+          if (!keepComposer) {
+            setFiles(media.slice(i));
+            setActive(0);
+            if (i > 0) setText("");
+          }
           throw error;
         }
       }
       setUpload(null);
     },
-    onSuccess: () => {
-      setReplyTo(null);
+    onSuccess: (_data, v) => {
       followLatest.current = true;
-      setText("");
+      // Áudio enviado direto: preserva o texto digitado, o rascunho e a resposta citada.
+      if (!v.keepComposer) {
+        setReplyTo(null);
+        setText("");
+      }
       // O cursor volta para o campo de mensagem logo após o envio.
       // O campo fica desabilitado durante o envio; tenta de novo se ainda estiver.
       const refocus = (attempt = 0) => {
@@ -1032,9 +1047,11 @@ function Conversation({
         });
       };
       refocus();
-      clearDraft(companyId, ticket.id);
-      setFiles([]);
-      setActive(0);
+      if (!v.keepComposer) {
+        clearDraft(companyId, ticket.id);
+        setFiles([]);
+        setActive(0);
+      }
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
     onError: (e, v) => {
@@ -1889,7 +1906,8 @@ function Conversation({
               }}
               onReady={(audio) => {
                 // Gravou e parou: envia direto, sem etapa de confirmação.
-                if (!send.isPending) send.mutate({ body: "", media: [audio] });
+                if (!send.isPending)
+                  send.mutate({ body: "", media: [audio], keepComposer: true });
               }}
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />
