@@ -61,6 +61,7 @@
     "input-otp": "^1.4.2",
     "js-yaml": "^4.3.2",
     "lucide-react": "^0.575.0",
+    "ogg-opus-decoder": "^1.7.5",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
