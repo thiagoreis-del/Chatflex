@@ -77,12 +77,12 @@ export const deleteUser = (id: number) => apiRequest<void>(ep.detail(id), { meth
 export const setUserBlocked = (u: CompanyUser, blocked: boolean) =>
   apiRequest<CompanyUser>(ep.detail(u.id), {
     method: "PUT",
-    body: { name: u.name, email: u.email, profile: u.profile, queueIds: u.queueIds, blocked },
+    body: { name: u.name, email: u.email, profile: u.profile, queueIds: u.queueIds, color: u.color, blocked },
   });
 
 /** Redefinição: grava nova senha temporária (o backend aplica o hash). */
 export const resetUserPassword = (u: CompanyUser, password: string) =>
   apiRequest<CompanyUser>(ep.detail(u.id), {
     method: "PUT",
-    body: { name: u.name, email: u.email, profile: u.profile, queueIds: u.queueIds, password },
+    body: { name: u.name, email: u.email, profile: u.profile, queueIds: u.queueIds, color: u.color, password },
   });
