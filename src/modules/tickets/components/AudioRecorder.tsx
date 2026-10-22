@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Mic, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { audioExtension, pickAudioMime } from "../audio-format";
+import { toWhatsappVoice } from "../webm-to-ogg";
 
 function formatDuration(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -79,7 +80,10 @@ export function AudioRecorder({
           const blob = new Blob(chunksRef.current, { type });
           // Gravações vazias (ou < 1 KB) não são enviadas.
           if (blob.size < 1024) onError("empty");
-          else onReady(new File([blob], `audio-${Date.now()}.${audioExtension(type)}`, { type }));
+          else
+            void toWhatsappVoice(
+              new File([blob], `audio-${Date.now()}.${audioExtension(type)}`, { type }),
+            ).then(onReady);
         }
         chunksRef.current = [];
         setRecording(false);
