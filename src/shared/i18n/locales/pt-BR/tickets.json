@@ -156,7 +156,11 @@
     "video": "🎥 Vídeo",
     "audio": "🎤 Áudio",
     "document": "📄 Documento",
+    "contact": "👤 Contato",
     "notLoaded": "A mensagem original não está carregada nesta conversa."
+  },
+  "contactCard": {
+    "label": "Contato compartilhado"
   },
   "conversationSearch": "Buscar nesta conversa",
   "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa.",
