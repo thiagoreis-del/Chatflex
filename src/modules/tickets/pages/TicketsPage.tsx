@@ -958,7 +958,16 @@ function Conversation({
   const audioPreview = file?.type.startsWith("audio/") ? urls[active] : null;
 
   const send = useMutation({
-    mutationFn: async ({ body, media }: { body: string; media: File[] }) => {
+    mutationFn: async ({
+      body,
+      media,
+      keepComposer,
+    }: {
+      body: string;
+      media: File[];
+      /** Envio direto de áudio: não limpa o texto digitado nem o rascunho salvo. */
+      keepComposer?: boolean;
+    }) => {
       // Conversa aberta sem responsável: o atendente logado assume antes de responder.
       // Admin respondendo como outro usuário: o ticket passa para esse usuário.
       if (senderId && (!ticket.user || (replyAs && ticket.user.id !== senderId))) {
@@ -1008,9 +1017,12 @@ function Conversation({
         } catch (error) {
           setUpload(null);
           // Mantém os arquivos que faltaram para o atendente tentar de novo.
-          setFiles(media.slice(i));
-          setActive(0);
-          if (i > 0) setText("");
+          // Áudio enviado direto não entra na caixa de anexos (há texto digitado).
+          if (!keepComposer) {
+            setFiles(media.slice(i));
+            setActive(0);
+            if (i > 0) setText("");
+          }
           throw error;
         }
       }
