@@ -1275,7 +1275,7 @@ function Conversation({
               <span
                 className={cn(
                   "font-medium",
-                  ticket.user ? attendantBadgeColor(ticket.user).badge.split(" ")[1] : "text-foreground",
+                  ticket.user ? attendantBadgeColor(ticket.user).text : "text-foreground",
                 )}
               >
                 {ticket.user?.name ?? t("noAttendant")}
