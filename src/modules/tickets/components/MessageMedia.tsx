@@ -119,13 +119,11 @@ export function MessageMedia({ message }: { message: Message }) {
   // Sempre o nome real do arquivo; a legenda (body) é exibida à parte na bolha.
   const name = fileNameFromUrl(url);
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noreferrer"
-      download
+    <button
+      type="button"
+      onClick={() => void downloadFile(url, name)}
       className={cn(
-        "mb-1 flex items-center gap-3 rounded-lg border px-3 py-2 transition-colors",
+        "mb-1 flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors",
         message.fromMe
           ? "border-primary-foreground/30 hover:bg-primary-foreground/10"
           : "bg-muted/50 hover:bg-muted",
@@ -135,6 +133,6 @@ export function MessageMedia({ message }: { message: Message }) {
       <FileText className="size-6 shrink-0" aria-hidden />
       <span className="min-w-0 flex-1 truncate font-medium">{name}</span>
       <Download className="size-4 shrink-0" aria-hidden />
-    </a>
+    </button>
   );
 }
