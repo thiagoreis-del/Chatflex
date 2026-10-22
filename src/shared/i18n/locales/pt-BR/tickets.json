@@ -69,7 +69,8 @@
       "permission": "Permissão do microfone negada. Libere o acesso no navegador.",
       "unsupported": "Este navegador não permite gravar áudio. Use Chrome, Edge ou Firefox atualizados.",
       "recorder": "A gravação falhou. Tente gravar novamente.",
-      "empty": "O áudio ficou vazio e não foi enviado."
+      "empty": "O áudio ficou vazio e não foi enviado.",
+      "silent": "O microfone não captou som e o áudio não foi enviado. Confira se o microfone certo está selecionado e não está mudo."
     }
   },
   "imageEditor": {
