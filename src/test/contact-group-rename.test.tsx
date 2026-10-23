@@ -4,8 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 
-const updateContact = vi.fn().mockResolvedValue({});
-const createContact = vi.fn().mockResolvedValue({});
+const { updateContact, createContact } = vi.hoisted(() => ({
+  updateContact: vi.fn().mockResolvedValue({}),
+  createContact: vi.fn().mockResolvedValue({}),
+}));
 vi.mock("@/modules/contacts/api", () => ({ updateContact, createContact }));
 
 import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
