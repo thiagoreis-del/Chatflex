@@ -62,10 +62,10 @@ export function ContactFormDialog({
     };
     setErrors(next);
     if (Object.values(next).some(Boolean)) return;
-    const dup =
-      !isGroup &&
-      !!normalized &&
-      existing.find((c) => c.id !== editing?.id && normalizeNumber(c.number) === normalized);
+    let dup: Contact | undefined;
+    if (!isGroup && normalized) {
+      dup = existing.find((c) => c.id !== editing?.id && normalizeNumber(c.number) === normalized);
+    }
     if (dup) {
       setDuplicate(dup);
       return;
