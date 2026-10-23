@@ -3,6 +3,7 @@ import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import { sessionStore } from "@/shared/auth/session-store";
+import { normalizePdfFile } from "@/shared/upload/pdf-file";
 import type {
   Message,
   Ticket,
@@ -361,14 +362,14 @@ export async function removeTicketTag(ticket: Ticket, tagId: number): Promise<Ti
 }
 
 /** Contrato confirmado: multipart com campo `medias` (multer array) e `body` como legenda. */
-export const sendMediaMessage = (
+export const sendMediaMessage = async (
   ticketId: number,
   file: File,
   caption = "",
   opts: UploadOptions = {},
 ) => {
   const form = new FormData();
-  form.append("medias", file);
+  form.append("medias", await normalizePdfFile(file));
   form.append("body", caption);
   return apiUpload<Message | undefined>(ep.messages(ticketId), form, opts);
 };

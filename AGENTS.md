@@ -13,6 +13,8 @@
 
 ## Architecture rules
 
+- Ticket and internal-chat uploads identify PDFs from their header and normalize filename/MIME through the shared upload helper. Why: extensionless PDFs must not arrive as generic BIN attachments.
+
 - Conversation day separators use the message timestamp in the viewer's local calendar timezone, matching message times; compute boundaries after search filtering. Why: dates stay consistent and filtered results retain their day context without changing message order.
 
 - VPS deploy builds on the VPS via SSH (fetch exact commit, npm build with node-server preset, PM2 reload) and writes .output/public/deploy-version.json. Why: the GitHub-built artifact flow failed in Actions; the on-VPS build is the proven path.
