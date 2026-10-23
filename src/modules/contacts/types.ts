@@ -4,6 +4,8 @@ export interface Contact {
   number: string;
   email?: string | null;
   tags?: string[];
+  /** Contato é um grupo do WhatsApp: número é opcional (JID interno). */
+  isGroup?: boolean | undefined;
   createdAt?: string;
   updatedAt?: string;
 }
