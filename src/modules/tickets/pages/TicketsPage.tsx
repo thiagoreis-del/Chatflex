@@ -1412,7 +1412,8 @@ function Conversation({
               <span className="hidden sm:inline">{t("actions.transfer")}</span>
             </Button>
           )}
-          {ticket.status === "pending" && (
+          {/* Grupos ficam com status "group" no backend; aceitar muda para "open". */}
+          {(ticket.status === "pending" || (ticket.status as string) === "group") && (
             <Button size="sm" onClick={() => status.mutate("open")} disabled={status.isPending}>
               {t("actions.accept")}
             </Button>
