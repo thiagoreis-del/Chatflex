@@ -21,6 +21,7 @@
     "number": "Número (WhatsApp)",
     "numberRequired": "Informe o número com DDD.",
     "numberInvalid": "Número inválido. Use DDD, ex.: 11 98765-4321.",
+    "numberGroupHint": "Grupo: o número é opcional. Para renomear, basta alterar o nome.",
     "email": "E-mail",
     "emailInvalid": "Informe um e-mail válido.",
     "tags": "Etiquetas",

@@ -30,6 +30,8 @@ export function ContactFormDialog({
 }) {
   const { t } = useTranslation("contacts");
   const editing = value !== "new" ? value : null;
+  // Grupos não exigem número: renomear só precisa do nome.
+  const isGroup = editing?.isGroup === true;
   const [data, setData] = useState<ContactInput>({
     name: editing?.name ?? "",
     number: editing?.number ?? "",
@@ -55,14 +57,15 @@ export function ContactFormDialog({
     const normalized = normalizeNumber(data.number);
     const next = {
       name: !data.name.trim(),
-      number: !data.number.trim() || !isValidNumber(data.number),
+      number: !isGroup && (!data.number.trim() || !isValidNumber(data.number)),
       email: !!data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email),
     };
     setErrors(next);
     if (Object.values(next).some(Boolean)) return;
-    const dup = existing.find(
-      (c) => c.id !== editing?.id && normalizeNumber(c.number) === normalized,
-    );
+    const dup =
+      !isGroup &&
+      !!normalized &&
+      existing.find((c) => c.id !== editing?.id && normalizeNumber(c.number) === normalized);
     if (dup) {
       setDuplicate(dup);
       return;
@@ -99,14 +102,19 @@ export function ContactFormDialog({
                 setDuplicate(null);
               }}
               onBlur={() => {
+                if (isGroup) return; // não normaliza JID de grupo
                 const n = normalizeNumber(data.number);
                 if (n) setData((d) => ({ ...d, number: n }));
               }}
             />
-            {errors.number && (
-              <p className="text-xs text-destructive">
-                {data.number.trim() ? t("form.numberInvalid") : t("form.numberRequired")}
-              </p>
+            {isGroup ? (
+              <p className="text-xs text-muted-foreground">{t("form.numberGroupHint")}</p>
+            ) : (
+              errors.number && (
+                <p className="text-xs text-destructive">
+                  {data.number.trim() ? t("form.numberInvalid") : t("form.numberRequired")}
+                </p>
+              )
             )}
             {duplicate && (
               <p className="text-xs text-destructive">

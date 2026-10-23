@@ -799,6 +799,7 @@ function Conversation({
       id: ticket.contact.id,
       name: ticket.contact.name,
       number: ticket.contact.number,
+      isGroup: ticket.contact.isGroup,
     };
     try {
       setEditingContact({ ...base, ...(await getContact(ticket.contact.id)) });
