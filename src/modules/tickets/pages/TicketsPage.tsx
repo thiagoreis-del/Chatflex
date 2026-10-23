@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { messageDateLabel, messageDayKey, startsMessageDay } from "../message-date";
 import { useFallbackInterval, useMessagesRealtime, useTicketsRealtime } from "../realtime";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -1491,9 +1492,22 @@ function Conversation({
                     !conversationSearch ||
                     m.body.toLocaleLowerCase().includes(conversationSearch.toLocaleLowerCase()),
                 )
-                .map((m) => (
+                .map((m, index, visibleMessages) => (
+                  <Fragment key={m.id}>
+                    {startsMessageDay(m.createdAt, visibleMessages[index - 1]?.createdAt) && (
+                      <div className="flex justify-center py-2">
+                        <time
+                          dateTime={messageDayKey(m.createdAt) ?? undefined}
+                          className="max-w-full rounded-md border border-border bg-card px-3 py-1.5 text-center text-xs font-semibold text-muted-foreground shadow-sm"
+                        >
+                          {messageDateLabel(m.createdAt, {
+                            today: t("dates.today"),
+                            yesterday: t("dates.yesterday"),
+                          })}
+                        </time>
+                      </div>
+                    )}
                   <div
-                    key={m.id}
                     id={`msg-${m.id}`}
                     onContextMenu={(event) => {
                       if (ticket.status !== "open" || m.isPrivate) return;
@@ -1587,6 +1601,7 @@ function Conversation({
                       </button>
                     )}
                   </div>
+                  </Fragment>
                 ))}
               <div ref={endRef} />
             </>
