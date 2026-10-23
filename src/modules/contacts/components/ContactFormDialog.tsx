@@ -43,7 +43,20 @@ export function ContactFormDialog({
   const [duplicate, setDuplicate] = useState<Contact | null>(null);
 
   const save = useMutation({
-    mutationFn: () => (editing ? updateContact(editing.id, data) : createContact(data)),
+    mutationFn: () => {
+      if (!editing) return createContact(data);
+      // Grupo com número em branco: não envia número vazio (o backend rejeita);
+      // mantém o identificador atual do grupo ou omite o campo.
+      if (isGroup && !data.number.trim()) {
+        const { number: _omit, ...rest } = data;
+        const keep = editing.number?.trim();
+        return updateContact(
+          editing.id,
+          (keep ? { ...rest, number: keep } : rest) as ContactInput,
+        );
+      }
+      return updateContact(editing.id, data);
+    },
     onSuccess: () => {
       toast.success(t("toast.saved"));
       void onSaved();
