@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload } from "@/shared/api/client";
 import { internalChatKeys } from "@/shared/api/query-keys";
 import { withQuery } from "@/shared/config/endpoints";
+import { normalizePdfFile } from "@/shared/upload/pdf-file";
 import type { CreateConversationInput, InternalConversation, InternalMessage } from "./types";
 
 /**
@@ -53,9 +54,9 @@ export const sendInternalMessage = (conversationId: number, body: string, ticket
     body: { body, ...(ticketId ? { ticketId } : {}) },
   });
 
-export const sendInternalMedia = (conversationId: number, file: File, caption: string) => {
+export const sendInternalMedia = async (conversationId: number, file: File, caption: string) => {
   const form = new FormData();
-  form.append("medias", file);
+  form.append("medias", await normalizePdfFile(file));
   if (caption) form.append("body", caption);
   return apiUpload<InternalMessage>(internalChatEndpoints.messages(conversationId), form);
 };
