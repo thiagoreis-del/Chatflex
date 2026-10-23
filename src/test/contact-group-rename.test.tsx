@@ -13,7 +13,10 @@ vi.mock("@/modules/contacts/api", () => ({ updateContact, createContact }));
 import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
 import type { Contact } from "@/modules/contacts/types";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 const renderDialog = (value: Contact | "new", existing: Contact[] = []) => {
   const client = new QueryClient();
@@ -29,11 +32,12 @@ const submit = () => {
 };
 
 describe("Group contact rename does not require a number", () => {
-  it("saves a group with no number at all", () => {
+  it("saves a group with no number at all", async () => {
     const group: Contact = { id: 7, name: "Equipe Vendas", number: "", isGroup: true };
     renderDialog(group);
     fireEvent.change(screen.getByLabelText("form.name"), { target: { value: "Equipe Comercial" } });
     submit();
+    await vi.waitFor(() => expect(updateContact).toHaveBeenCalled());
     expect(updateContact).toHaveBeenCalledWith(7, {
       name: "Equipe Comercial",
       number: "",
@@ -42,15 +46,17 @@ describe("Group contact rename does not require a number", () => {
     });
   });
 
-  it("keeps the number required for a regular contact", () => {
+  it("keeps the number required for a regular contact", async () => {
     renderDialog({ id: 3, name: "Ana", number: "" });
     submit();
+    await new Promise((r) => setTimeout(r, 0));
     expect(updateContact).not.toHaveBeenCalled();
   });
 
-  it("still requires a name for a group", () => {
+  it("still requires a name for a group", async () => {
     renderDialog({ id: 7, name: "", number: "", isGroup: true });
     submit();
+    await new Promise((r) => setTimeout(r, 0));
     expect(updateContact).not.toHaveBeenCalled();
   });
 });
