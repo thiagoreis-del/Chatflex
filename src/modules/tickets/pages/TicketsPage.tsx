@@ -85,7 +85,7 @@ import { MessageMedia } from "../components/MessageMedia";
 import { ContactCard } from "../components/ContactCard";
 import { LocationCard } from "../components/LocationCard";
 import { isVCard, parseVCards } from "../vcard";
-import { parseLocation } from "../location";
+import { parseLocation, locationText } from "../location";
 import { NewTicketSuggestions } from "../components/NewTicketSuggestions";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ShareContactDialog, contactCardText } from "../components/ShareContactDialog";
