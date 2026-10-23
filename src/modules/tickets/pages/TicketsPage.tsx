@@ -821,7 +821,7 @@ function Conversation({
   const quoteLabel = (m: Partial<Message>) => {
     const body = m.fromMe && m.body ? stripSignature(m.body) : m.body;
     if (body && isVCard(body)) return t("reply.contact");
-    if (body && parseLocation(body)) return t("reply.location");
+    if (body && parseLocation(body)) return locationText(body) || t("reply.location");
     if (body && !(m.mediaUrl && !m.mediaType?.startsWith("image"))) return body;
     const kind = m.mediaType?.split("/")[0];
     if (kind === "image") return t("reply.image");
@@ -1547,7 +1547,14 @@ function Conversation({
                           ))}
                         </div>
                       ) : displayBody(m) && parseLocation(displayBody(m)) ? (
-                        <LocationCard location={parseLocation(displayBody(m))!} />
+                        <div className="flex flex-col gap-1.5">
+                          {locationText(displayBody(m)) && (
+                            <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                              {locationText(displayBody(m))}
+                            </p>
+                          )}
+                          <LocationCard location={parseLocation(displayBody(m))!} />
+                        </div>
                       ) : (
                         displayBody(m) && (
                           <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
