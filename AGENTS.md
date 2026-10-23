@@ -13,6 +13,8 @@
 
 ## Architecture rules
 
+- Conversation day separators use the message timestamp in the viewer's local calendar timezone, matching message times; compute boundaries after search filtering. Why: dates stay consistent and filtered results retain their day context without changing message order.
+
 - VPS deploy builds on the VPS via SSH (fetch exact commit, npm build with node-server preset, PM2 reload) and writes .output/public/deploy-version.json. Why: the GitHub-built artifact flow failed in Actions; the on-VPS build is the proven path.
 - System documentation lives in docs with source evidence and an explicit distinction between frontend implementation and verified external behavior. Why: manuals must remain maintainable without inventing backend contracts or exposing technical documents publicly.
 - The shared library barrel imports the canonical theme and exposes TooltipProvider. Why: consumers receive base styling and the provider needed for tooltip composition.

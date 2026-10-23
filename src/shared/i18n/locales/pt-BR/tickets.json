@@ -4,6 +4,10 @@
     "description": "Converse com seus clientes pelo WhatsApp."
   },
   "title": "Atendimento",
+  "dates": {
+    "today": "Hoje",
+    "yesterday": "Ontem"
+  },
   "search": "Buscar por nome ou número",
   "connectionFilter": "WhatsApp de origem",
   "allConnections": "Todos os WhatsApps",
