@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseLocation } from "@/modules/tickets/location";
+import { parseLocation, locationText } from "@/modules/tickets/location";
 
 describe("location", () => {
   it("extrai coordenadas do formato degreesLatitude/degreesLongitude", () => {
