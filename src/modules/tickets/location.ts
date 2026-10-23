@@ -22,6 +22,14 @@ export const parseLocation = (body: string | null | undefined): ParsedLocation |
   return null;
 };
 
+/** Texto da mensagem sem o link de mapa — vazio quando a mensagem é só localização. */
+export const locationText = (body: string | null | undefined): string => {
+  if (!body) return "";
+  const maps = MAPS_URL.exec(body);
+  if (!maps) return "";
+  return body.replace(maps[0], "").trim();
+};
+
 const build = (lat: number, lng: number): ParsedLocation | null => {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
   if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
