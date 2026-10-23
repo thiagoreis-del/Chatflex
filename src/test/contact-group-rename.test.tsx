@@ -40,7 +40,6 @@ describe("Group contact rename does not require a number", () => {
     await vi.waitFor(() => expect(updateContact).toHaveBeenCalled());
     expect(updateContact).toHaveBeenCalledWith(7, {
       name: "Equipe Comercial",
-      number: "",
       email: "",
       tags: [],
     });
