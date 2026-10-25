@@ -171,5 +171,16 @@
     "disabled": "Desativado",
     "lastChecked": "Última verificação: {{time}}",
     "socketNote": "Queda do WebSocket não afeta o envio: o sistema usa verificação periódica como reserva."
+  },
+  "group": {
+    "title": "Uma solução do Grupo NotasFlex.",
+    "toggle": "Conheça as soluções do Grupo NotasFlex",
+    "newTab": "(abre em nova aba)",
+    "companies": {
+      "notasflex": "Emissor de notas fiscais para simplificar a rotina da sua empresa.",
+      "pontoflex": "Controle de ponto digital para acompanhar jornadas e facilitar a gestão da equipe.",
+      "chatbotflex": "Atendimento por WhatsApp com vários usuários em um único número.",
+      "avisaconta": "Avisos e gerenciamento dos seus boletos diretamente no seu e-mail."
+    }
   }
 }

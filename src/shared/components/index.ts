@@ -15,3 +15,4 @@ export { PermissionGate } from "@/shared/permissions/PermissionGate";
 export { MoneyDisplay, DateDisplay } from "./display";
 export { QueryBoundary, QueryError, DataUnavailable } from "./QueryBoundary";
 export { Pagination } from "./Pagination";
+export { GroupFooter } from "./GroupFooter";
