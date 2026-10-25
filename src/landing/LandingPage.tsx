@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { ListOrdered, Users, History, ShieldCheck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppLogo, AppName, DemoBanner, ThemeToggle } from "@/shared/components";
+import { AppLogo, AppName, DemoBanner, GroupFooter, ThemeToggle } from "@/shared/components";
 import { PublicPlans } from "./PublicPlans";
 
 const benefits = [
@@ -94,9 +94,12 @@ export function LandingPage() {
       </main>
 
       <footer className="border-t">
-        <p className="mx-auto max-w-6xl px-4 py-6 text-sm text-muted-foreground sm:px-8">
-          {t("footer", { year: new Date().getFullYear() })}
-        </p>
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8">
+          <GroupFooter variant="footer" />
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("footer", { year: new Date().getFullYear() })}
+          </p>
+        </div>
       </footer>
     </div>
   );
