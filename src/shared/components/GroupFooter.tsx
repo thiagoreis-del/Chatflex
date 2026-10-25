@@ -10,6 +10,7 @@ const companies = [
   { key: "chatbotflex", name: "ChatbotFlex", href: "https://chatbotflex.com.br/" },
   { key: "avisaconta", name: "AvisaConta", href: "https://avisaconta.com.br/" },
   { key: "comprasflex", name: "ComprasFlex", href: "https://comprasflex.com.br/" },
+  { key: "fiscalnotasflex", name: "Fiscal NotasFlex", href: "https://fiscalnotasflex.com.br/" },
 ] as const;
 
 /**
