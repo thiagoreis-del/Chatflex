@@ -9,6 +9,7 @@ const companies = [
   { key: "pontoflex", name: "PontoFlex Digital", href: "https://www.pontoflexdigital.com.br/" },
   { key: "chatbotflex", name: "ChatbotFlex", href: "https://chatbotflex.com.br/" },
   { key: "avisaconta", name: "AvisaConta", href: "https://avisaconta.com.br/" },
+  { key: "comprasflex", name: "ComprasFlex", href: "https://comprasflex.com.br/" },
 ] as const;
 
 /** Seção institucional discreta do Grupo NotasFlex, expansível e fechada por padrão. */
