@@ -38,6 +38,7 @@ import {
   AppName,
   ConfirmDialog,
   DemoBanner,
+  GroupFooter,
   LanguageSelector,
   ThemeToggle,
 } from "@/shared/components";
@@ -281,6 +282,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
         <AppName className="text-lg" />
       </div>
       <SidebarNav onNavigate={onNavigate} />
+      <GroupFooter className="mt-auto border-t border-sidebar-border pt-3" />
     </div>
   );
 }
