@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
@@ -81,6 +81,22 @@ export const ticketsQuery = (filters: TicketFilters) =>
         })
       )?.tickets ?? [],
   });
+
+/** Páginas antigas de Finalizados (a partir da 2ª), carregadas sob demanda e sem polling. */
+export const closedOlderTicketsQuery = (search: string) =>
+  infiniteQueryOptions({
+    queryKey: [...ticketKeys.all, "closed-older", search],
+    initialPageParam: 2,
+    queryFn: async ({ pageParam, signal }) =>
+      apiRequest<TicketsResponse>(
+        withQuery(ep.list, { ...scope(), status: "closed", search, pageNumber: pageParam }),
+        { signal },
+      ),
+    getNextPageParam: (last, _all, page) =>
+      last?.hasMore && last.tickets?.length ? page + 1 : undefined,
+  });
+
+
 
 /** Session-wide notification fallback, including pages beyond the visible list. */
 export const incomingTicketsQuery = (companyId: string) =>

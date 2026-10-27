@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { messageDateLabel, messageDayKey, startsMessageDay } from "../message-date";
 import { useFallbackInterval, useMessagesRealtime, useTicketsRealtime } from "../realtime";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
@@ -73,6 +73,7 @@ import {
   closeTicketsBulk,
   transferTicket,
   updateTicketStatus,
+  closedOlderTicketsQuery,
 } from "../api";
 import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../types";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
@@ -185,6 +186,13 @@ export function TicketsPage() {
     refetchInterval: fallback,
     // Continua atualizando com a aba em segundo plano (atendente em outra janela).
     refetchIntervalInBackground: true,
+  });
+  // Finalizados antigos: só carrega ao clicar em "Carregar mais"; reinicia ao trocar busca/aba.
+  const [olderOn, setOlderOn] = useState(false);
+  useEffect(() => setOlderOn(false), [tab, debouncedSearch]);
+  const older = useInfiniteQuery({
+    ...closedOlderTicketsQuery(debouncedSearch),
+    enabled: tab === "closed" && olderOn,
   });
   const closeable = (query.data ?? []).filter(
     (x) =>
@@ -527,7 +535,17 @@ export function TicketsPage() {
             </ul>
           ) : (
             <QueryBoundary query={query} contract={ticketsContract}>
-              {(list) => {
+              {(firstPage) => {
+                const seen = new Set(firstPage.map((x) => x.id));
+                const list =
+                  tab === "closed" && olderOn
+                    ? [
+                        ...firstPage,
+                        ...(older.data?.pages ?? [])
+                          .flatMap((p) => p?.tickets ?? [])
+                          .filter((x) => !seen.has(x.id) && !x.contact?.isGroup && !x.isGroup),
+                      ]
+                    : firstPage;
                 const visible = list.filter((x) => !hiddenRefused.has(x.id) && matchesFilters(x));
                 if (visible.length === 0) {
                   const msg = debouncedSearch
@@ -721,6 +739,25 @@ export function TicketsPage() {
                         </li>
                       );
                     })}
+                    {tab === "closed" &&
+                      (older.hasNextPage || !olderOn) &&
+                      list.length > 0 && (
+                        <li className="flex justify-center p-3">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={older.isFetchingNextPage}
+                            onClick={() => {
+                              if (!olderOn) setOlderOn(true);
+                              else void older.fetchNextPage();
+                            }}
+                          >
+                            {older.isFetchingNextPage || (olderOn && older.isPending)
+                              ? t("sidebar.loadingMore")
+                              : t("sidebar.loadMore")}
+                          </Button>
+                        </li>
+                      )}
                   </ul>
                 );
               }}

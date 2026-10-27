@@ -198,6 +198,8 @@
   },
   "sidebar": {
     "title": "Atendimentos",
+    "loadMore": "Carregar mais",
+    "loadingMore": "Carregando…",
     "actions": "Ações",
     "filters": "Filtros",
     "clearFilters": "Limpar filtros",
