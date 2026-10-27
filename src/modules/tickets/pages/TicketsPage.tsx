@@ -26,6 +26,8 @@ import {
   Pencil,
   Plus,
   Reply,
+  Copy,
+  Forward,
   Search,
   Smile,
   Undo2,
@@ -94,6 +96,7 @@ import { ShareContactDialog, contactCardText } from "../components/ShareContactD
 import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
+import { ForwardMessageDialog } from "../components/ForwardMessageDialog";
 import { useConnectivity } from "@/shared/connectivity/connectivity";
 import { closingMessageQuery } from "@/modules/settings/closing-message";
 import { computeSla, slaConfigQuery, type SlaState } from "@/modules/sla/sla";
@@ -831,6 +834,7 @@ function Conversation({
     return () => clearTimeout(id);
   }, [companyId, ticket.id, text]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [forwarding, setForwarding] = useState<Message | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const openContactEditor = async () => {
     const base: Contact = {
@@ -1626,16 +1630,40 @@ function Conversation({
                         {time(m.createdAt)}
                       </p>
                     </div>
-                    {ticket.status === "open" && !m.isPrivate && (
-                      <button
-                        type="button"
-                        aria-label={t("reply.action")}
-                        title={t("reply.action")}
-                        onClick={() => setReplyTo(m)}
-                        className="shrink-0 rounded-full p-1.5 text-muted-foreground opacity-60 hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100"
-                      >
-                        <Reply className="size-4" />
-                      </button>
+                    {!m.isPrivate && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            aria-label={t("messageMenu.label")}
+                            title={t("messageMenu.label")}
+                            className="shrink-0 rounded-full p-1.5 text-muted-foreground opacity-60 hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
+                          >
+                            <MoreVertical className="size-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align={m.fromMe ? "end" : "start"}>
+                          {ticket.status === "open" && (
+                            <DropdownMenuItem onSelect={() => setReplyTo(m)}>
+                              <Reply className="size-4" /> {t("reply.action")}
+                            </DropdownMenuItem>
+                          )}
+                          {m.body?.trim() && (
+                            <DropdownMenuItem
+                              onSelect={() => {
+                                void navigator.clipboard
+                                  ?.writeText(m.body)
+                                  .then(() => toast.success(t("messageMenu.copied")));
+                              }}
+                            >
+                              <Copy className="size-4" /> {t("messageMenu.copy")}
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onSelect={() => setForwarding(m)}>
+                            <Forward className="size-4" /> {t("forward.action")}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     )}
                   </div>
                   </Fragment>
