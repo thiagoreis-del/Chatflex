@@ -73,6 +73,7 @@ import {
   closeTicketsBulk,
   transferTicket,
   updateTicketStatus,
+  closedOlderTicketsQuery,
 } from "../api";
 import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../types";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
