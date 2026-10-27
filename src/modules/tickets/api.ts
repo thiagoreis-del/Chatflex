@@ -438,3 +438,21 @@ export async function createTicket(
     whatsapp: t.whatsapp ?? null,
   } as Ticket;
 }
+
+/**
+ * Encaminha uma mensagem para outro atendimento reenviando o conteúdo
+ * (sem endpoint de encaminhamento confirmado no backend).
+ */
+export async function forwardMessage(message: Message, targetTicketId: number) {
+  const body = message.body?.trim() ?? "";
+  if (message.mediaUrl) {
+    const res = await fetch(message.mediaUrl);
+    if (!res.ok) throw new Error(`media ${res.status}`);
+    const blob = await res.blob();
+    const name = decodeURIComponent(message.mediaUrl.split("/").pop()?.split("?")[0] || "arquivo");
+    const file = new File([blob], name, { type: blob.type || "application/octet-stream" });
+    const caption = body && body !== name ? body : "";
+    return sendMediaMessage(targetTicketId, file, caption);
+  }
+  return sendMessage(targetTicketId, body);
+}
