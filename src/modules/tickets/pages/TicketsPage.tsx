@@ -1669,6 +1669,11 @@ function Conversation({
                   </Fragment>
                 ))}
               <div ref={endRef} />
+              <ForwardMessageDialog
+                message={forwarding}
+                currentTicketId={ticket.id}
+                onClose={() => setForwarding(null)}
+              />
             </>
           )}
         </QueryBoundary>
