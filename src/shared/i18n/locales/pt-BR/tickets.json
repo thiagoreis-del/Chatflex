@@ -236,5 +236,19 @@
     "muted": "Silenciado",
     "mutedToast": "Notificações silenciadas até você reativar",
     "unmutedToast": "Notificações reativadas"
+  },
+  "forward": {
+    "action": "Encaminhar",
+    "title": "Encaminhar mensagem",
+    "search": "Buscar atendimento aberto",
+    "loading": "Carregando…",
+    "empty": "Nenhum atendimento aberto encontrado",
+    "done": "Mensagem encaminhada",
+    "failed": "Não foi possível encaminhar"
+  },
+  "messageMenu": {
+    "label": "Opções da mensagem",
+    "copy": "Copiar",
+    "copied": "Copiado"
   }
 }
