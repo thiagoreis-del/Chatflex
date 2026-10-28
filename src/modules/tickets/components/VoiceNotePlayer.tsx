@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pause, Play } from "lucide-react";
+import { Check, Download, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { attendantBadgeColor } from "@/shared/attendant-color";
 import {
@@ -9,6 +9,8 @@ import {
   fallbackWaveform,
   formatAudioTime,
 } from "../waveform";
+import { isDownloaded, markDownloaded } from "../downloaded-media";
+import { downloadFile, fileNameFromUrl } from "./MessageMedia";
 
 type Decoded = { channels: [Float32Array, ...Float32Array[]]; sampleRate: number };
 
