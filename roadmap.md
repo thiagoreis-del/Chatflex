@@ -1,5 +1,10 @@
 # Roadmap
 
+## Contatos compartilhados — 28/10/2026
+
+- [ ] Adicionar Conversar em cada contato compartilhado, reutilizando atendimento existente ou iniciando pela conexão escolhida.
+- [ ] Validar regras de número, reutilização e criação; teste real depende de sessão do backend externo.
+
 ## Atualização dos atendimentos — 19/10/2026
 
 - [x] Corrigir atualização automática: consulta a cada 3 segundos, recuperação ao voltar à janela e invalidação por eventos; 13 testes passaram e preview compilou.
