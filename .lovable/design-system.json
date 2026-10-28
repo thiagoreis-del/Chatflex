@@ -1657,6 +1657,22 @@
       "name": "OfflineNotice",
       "file": "src/shared/pwa/OfflineNotice",
       "import_path": ""
+    },
+    {
+      "name": "ContactCard",
+      "file": "src/modules/tickets/components/ContactCard",
+      "import_path": "",
+      "usage": "Show a shared vCard contact in a conversation. Supply onConversationStarted to enable Conversar using the signed-in company's connected WhatsApp accounts.",
+      "examples": [
+        {
+          "label": "Shared contact with conversation action",
+          "code": "<ContactCard contact={{ name: 'Maria', phone: '+5511987654321' }} onConversationStarted={selectTicket} />"
+        }
+      ],
+      "antipatterns": [
+        "Do not invent a country code or open a fuzzy phone match.",
+        "Do not reassign an existing conversation or bypass backend company permissions."
+      ]
     }
   ],
   "assets": [
