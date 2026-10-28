@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Download, FileText } from "lucide-react";
+import { Check, Download, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { Message } from "../types";
 import { isAudioMedia } from "../audio-format";
+import { isDownloaded, markDownloaded } from "../downloaded-media";
 import { VoiceNotePlayer } from "./VoiceNotePlayer";
 
 export function isImage(m: Pick<Message, "mediaType" | "mediaUrl">) {
@@ -47,6 +48,7 @@ export function MessageMedia({ message }: { message: Message }) {
   const { t } = useTranslation("tickets");
   const [open, setOpen] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [downloaded, setDownloaded] = useState(() => isDownloaded(message.mediaUrl ?? ""));
   const url = message.mediaUrl;
   if (!url) return null;
 
