@@ -1,4 +1,5 @@
 import { contactsQuery, createContact } from "@/modules/contacts/api";
+import { QueryClient } from "@tanstack/react-query";
 import { createTicket, ticketsQuery } from "./api";
 import type { ParsedVCard } from "./vcard";
 import type { Ticket } from "./types";
@@ -20,10 +21,10 @@ export async function startSharedContactConversation(
   if (!number || !Number.isSafeInteger(whatsappId) || whatsappId <= 0) {
     throw new Error("Invalid shared contact or connection");
   }
-  const signal = new AbortController().signal;
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   for (const status of ["open", "pending"] as const) {
     const options = ticketsQuery({ status, search: number });
-    const tickets = await options.queryFn({ signal } as Parameters<typeof options.queryFn>[0]);
+    const tickets = await client.fetchQuery(options);
     const existing = tickets.find((ticket) =>
       !ticket.isGroup && !ticket.contact.isGroup &&
       sharedContactNumber(ticket.contact.number) === number && ticket.whatsapp?.id === whatsappId,
@@ -34,7 +35,7 @@ export async function startSharedContactConversation(
   let resolved;
   while (true) {
     const options = contactsQuery({ search: number, page });
-    const result = await options.queryFn({ signal } as Parameters<typeof options.queryFn>[0]);
+    const result = await client.fetchQuery(options);
     resolved = result.data.find((item) => !item.isGroup && sharedContactNumber(item.number) === number);
     if (resolved || !result.data.length || page * result.pageSize >= result.total) break;
     page += 1;
