@@ -191,6 +191,14 @@ export function VoiceNotePlayer({
     }
   };
 
+  const saveOffline = () => {
+    if (downloaded) return;
+    void downloadFile(url, fileNameFromUrl(url)).then(() => {
+      markDownloaded(url);
+      setDownloaded(true);
+    });
+  };
+
   const progress = duration > 0 ? Math.min(1, currentTime / duration) : 0;
   const activeBars = Math.round(progress * bars.length);
   const senderName = sender?.name?.trim();
