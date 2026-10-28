@@ -13,6 +13,8 @@
 
 ## Architecture rules
 
+- Shared-contact conversation actions resolve exact normalized phone numbers through session-scoped contact/ticket APIs and preserve existing ticket ownership. Why: prevents fuzzy-search matches and unintended reassignment across users or companies.
+
 - Ticket and internal-chat uploads identify PDFs from their header and normalize filename/MIME through the shared upload helper. Why: extensionless PDFs must not arrive as generic BIN attachments.
 
 - Conversation day separators use the message timestamp in the viewer's local calendar timezone, matching message times; compute boundaries after search filtering. Why: dates stay consistent and filtered results retain their day context without changing message order.

@@ -160,6 +160,7 @@ export { SlaWatcher } from "./modules/sla/components/SlaWatcher";
 export { AdminAlerts } from "./modules/tickets/components/AdminAlerts";
 export { AudioRecorder } from "./modules/tickets/components/AudioRecorder";
 export { CloseTicketDialog } from "./modules/tickets/components/CloseTicketDialog";
+export { ContactCard, type ContactCardProps } from "./modules/tickets/components/ContactCard";
 export { ImageEditorDialog } from "./modules/tickets/components/ImageEditorDialog";
 export { IncomingNotifications } from "./modules/tickets/components/IncomingNotifications";
 export { MessageMedia } from "./modules/tickets/components/MessageMedia";
