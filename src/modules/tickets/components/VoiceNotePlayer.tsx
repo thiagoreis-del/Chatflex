@@ -105,6 +105,7 @@ export function VoiceNotePlayer({
   useEffect(() => {
     let cancelled = false;
     decodedRef.current = null;
+    setDownloaded(isDownloaded(url));
     void getDecoded().then((d) => {
       if (cancelled || !d) return;
       const peaks = downsamplePeaks(d.channels[0], WAVEFORM_BARS);
