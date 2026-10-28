@@ -6,43 +6,13 @@ import { cn } from "@/lib/utils";
 import type { Message } from "../types";
 import { isAudioMedia } from "../audio-format";
 import { isDownloaded, markDownloaded } from "../downloaded-media";
+import { downloadFile, fileNameFromUrl } from "../media-file";
 import { VoiceNotePlayer } from "./VoiceNotePlayer";
 
 export function isImage(m: Pick<Message, "mediaType" | "mediaUrl">) {
   return m.mediaType === "image" || /\.(png|jpe?g|gif|webp)(\?|$)/i.test(m.mediaUrl ?? "");
 }
 
-export function fileNameFromUrl(url: string) {
-  try {
-    return decodeURIComponent(new URL(url).pathname.split("/").pop() ?? "") || url;
-  } catch {
-    return url;
-  }
-}
-
-/**
- * Baixa o arquivo como Blob e salva com o nome real.
- * O atributo `download` é ignorado em URLs de outra origem (API),
- * então o clique abriria o PDF numa aba em vez de baixar.
- */
-export async function downloadFile(url: string, filename: string) {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(String(res.status));
-    const blob = await res.blob();
-    const objectUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = objectUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(objectUrl), 30_000);
-  } catch {
-    // Sem acesso ao conteúdo (ex.: CORS): abre em nova aba como antes.
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-}
 
 export function MessageMedia({ message }: { message: Message }) {
   const { t } = useTranslation("tickets");
