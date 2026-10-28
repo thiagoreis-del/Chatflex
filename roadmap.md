@@ -1,5 +1,10 @@
 # Roadmap
 
+## Selo verde de arquivo baixado — 28/10/2026
+
+- [x] Registrar arquivos salvos no dispositivo (localStorage) e exibir selo verde "Baixado para ouvir offline" em áudios e documentos; botão de salvar no player de voz; 8 testes passaram.
+- [ ] Confirmar selo em conversa real e persistência após recarregar — requer sessão autenticada do backend externo.
+
 ## Contatos compartilhados — 28/10/2026
 
 - [x] Adicionar Conversar em cada contato compartilhado, reutilizando atendimento existente ou iniciando pela conexão escolhida.
