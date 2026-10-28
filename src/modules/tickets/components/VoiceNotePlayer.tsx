@@ -277,6 +277,24 @@ export function VoiceNotePlayer({
       <span className="shrink-0 text-xs tabular-nums opacity-80">
         {formatAudioTime(playing || currentTime > 0 ? currentTime : duration)}
       </span>
+      {downloaded ? (
+        <span
+          className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
+          title={t("media.downloaded")}
+          aria-label={t("media.downloaded")}
+        >
+          <Check className="size-3" strokeWidth={3} aria-hidden />
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={saveOffline}
+          aria-label={t("media.saveOffline")}
+          className="flex size-6 shrink-0 items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100"
+        >
+          <Download className="size-4" aria-hidden />
+        </button>
+      )}
       </div>
     </div>
   );
