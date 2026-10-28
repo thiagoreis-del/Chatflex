@@ -112,7 +112,9 @@
     "video": "Vídeo recebido",
     "audioError": "Não foi possível reproduzir este áudio aqui. Toque para baixar.",
     "saveOffline": "Salvar no dispositivo para ouvir offline",
-    "downloaded": "Baixado para ouvir offline"
+    "downloaded": "Baixado para ouvir offline",
+    "downloadImage": "Baixar imagem",
+    "imageSaved": "Imagem salva no dispositivo"
   },
   "toast": {
     "accepted": "Atendimento aceito.",

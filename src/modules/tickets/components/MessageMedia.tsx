@@ -23,6 +23,11 @@ export function MessageMedia({ message }: { message: Message }) {
   if (!url) return null;
 
   if (isImage(message)) {
+    const download = () =>
+      void downloadFile(url, fileNameFromUrl(url)).then(() => {
+        markDownloaded(url);
+        setDownloaded(true);
+      });
     return (
       <>
         <button
@@ -38,14 +43,46 @@ export function MessageMedia({ message }: { message: Message }) {
             className="max-h-64 w-full max-w-xs object-contain"
           />
         </button>
+        <div className="mb-1 flex items-center gap-1">
+          {downloaded ? (
+            <span
+              className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-emerald-600 dark:text-emerald-400"
+              title={t("media.imageSaved")}
+            >
+              <Check className="size-3.5" strokeWidth={3} aria-hidden />
+              {t("media.imageSaved")}
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={download}
+              className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label={t("media.downloadImage")}
+            >
+              <Download className="size-3.5" aria-hidden />
+              {t("media.downloadImage")}
+            </button>
+          )}
+        </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-w-3xl p-2">
             <DialogTitle className="sr-only">{message.body || t("media.image")}</DialogTitle>
             <img
               src={url}
               alt={message.body || t("media.image")}
-              className="max-h-[80vh] w-full rounded object-contain"
+              className="max-h-[75vh] w-full rounded object-contain"
             />
+            <div className="flex justify-center pt-1">
+              <button
+                type="button"
+                onClick={download}
+                className="flex items-center gap-1.5 rounded-md border bg-background px-3 py-1.5 text-sm transition-colors hover:bg-muted"
+                aria-label={t("media.downloadImage")}
+              >
+                <Download className="size-4" aria-hidden />
+                {t("media.downloadImage")}
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
       </>
