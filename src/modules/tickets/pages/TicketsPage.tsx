@@ -781,6 +781,12 @@ export function TicketsPage() {
             defaultReplyAsId={selectedReplyUserId(attendantFilter, isAdmin)}
             onBack={() => setSelected(null)}
             onChange={setSelected}
+            onConversationStarted={(tk) => {
+              setTab(tk.status === "pending" ? "pending" : "open");
+              setSearch("");
+              clearFilters();
+              setSelected(tk);
+            }}
           />
         ) : (
           <div className="m-auto">
@@ -797,11 +803,13 @@ function Conversation({
   defaultReplyAsId,
   onBack,
   onChange,
+  onConversationStarted,
 }: {
   ticket: Ticket;
   defaultReplyAsId: number | null;
   onBack: () => void;
   onChange: (t: Ticket | null) => void;
+  onConversationStarted: (ticket: Ticket) => void;
 }) {
   const { t } = useTranslation("tickets");
   const { t: tq } = useTranslation("quickMessages");
@@ -1600,7 +1608,7 @@ function Conversation({
                       {displayBody(m) && isVCard(displayBody(m)) ? (
                         <div className="flex flex-col gap-1.5">
                           {parseVCards(displayBody(m)!).map((contact, i) => (
-                            <ContactCard key={i} contact={contact} />
+                            <ContactCard key={i} contact={contact} onConversationStarted={onConversationStarted} />
                           ))}
                         </div>
                       ) : displayBody(m) && parseLocation(displayBody(m)) ? (

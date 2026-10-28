@@ -165,7 +165,10 @@
     "notLoaded": "A mensagem original não está carregada nesta conversa."
   },
   "contactCard": {
-    "label": "Contato compartilhado"
+    "label": "Contato compartilhado",
+    "chat": "Conversar",
+    "noConnection": "Nenhum WhatsApp conectado disponível.",
+    "connectionError": "Não foi possível carregar os WhatsApps."
   },
   "locationCard": {
     "label": "Localização compartilhada",
