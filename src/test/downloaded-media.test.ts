@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach, vi } from "vitest";
 import { isDownloaded, markDownloaded } from "@/modules/tickets/downloaded-media";
 
 describe("selo de arquivo baixado para ouvir offline", () => {
