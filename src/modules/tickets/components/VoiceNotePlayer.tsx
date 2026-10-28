@@ -91,6 +91,7 @@ export function VoiceNotePlayer({
   const [duration, setDuration] = useState(0);
   // Quando o <audio> não toca o formato (Safari/iOS), toca pelo Web Audio.
   const [nativeFailed, setNativeFailed] = useState(false);
+  const [downloaded, setDownloaded] = useState(() => isDownloaded(url));
   const decodedRef = useRef<Promise<Decoded | null> | null>(null);
   const webRef = useRef<{ ctx: AudioContext; src: AudioBufferSourceNode; raf: number } | null>(
     null,
