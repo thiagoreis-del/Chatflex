@@ -4,7 +4,8 @@ import type { Message } from "@/modules/tickets/types";
 
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 
-import { MessageMedia, fileNameFromUrl } from "@/modules/tickets/components/MessageMedia";
+import { MessageMedia } from "@/modules/tickets/components/MessageMedia";
+import { fileNameFromUrl } from "@/modules/tickets/media-file";
 
 afterEach(cleanup);
 
