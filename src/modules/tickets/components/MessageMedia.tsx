@@ -122,7 +122,12 @@ export function MessageMedia({ message }: { message: Message }) {
   return (
     <button
       type="button"
-      onClick={() => void downloadFile(url, name)}
+      onClick={() =>
+        void downloadFile(url, name).then(() => {
+          markDownloaded(url);
+          setDownloaded(true);
+        })
+      }
       className={cn(
         "mb-1 flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors",
         message.fromMe
@@ -133,7 +138,17 @@ export function MessageMedia({ message }: { message: Message }) {
     >
       <FileText className="size-6 shrink-0" aria-hidden />
       <span className="min-w-0 flex-1 truncate font-medium">{name}</span>
-      <Download className="size-4 shrink-0" aria-hidden />
+      {downloaded ? (
+        <span
+          className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
+          title={t("media.downloaded")}
+          aria-label={t("media.downloaded")}
+        >
+          <Check className="size-3.5" strokeWidth={3} aria-hidden />
+        </span>
+      ) : (
+        <Download className="size-4 shrink-0" aria-hidden />
+      )}
     </button>
   );
 }
