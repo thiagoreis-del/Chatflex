@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pause, Play } from "lucide-react";
+import { Check, Download, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { attendantBadgeColor } from "@/shared/attendant-color";
 import {
@@ -9,6 +9,8 @@ import {
   fallbackWaveform,
   formatAudioTime,
 } from "../waveform";
+import { isDownloaded, markDownloaded } from "../downloaded-media";
+import { downloadFile, fileNameFromUrl } from "../media-file";
 
 type Decoded = { channels: [Float32Array, ...Float32Array[]]; sampleRate: number };
 
@@ -89,6 +91,7 @@ export function VoiceNotePlayer({
   const [duration, setDuration] = useState(0);
   // Quando o <audio> não toca o formato (Safari/iOS), toca pelo Web Audio.
   const [nativeFailed, setNativeFailed] = useState(false);
+  const [downloaded, setDownloaded] = useState(() => isDownloaded(url));
   const decodedRef = useRef<Promise<Decoded | null> | null>(null);
   const webRef = useRef<{ ctx: AudioContext; src: AudioBufferSourceNode; raf: number } | null>(
     null,
@@ -102,6 +105,7 @@ export function VoiceNotePlayer({
   useEffect(() => {
     let cancelled = false;
     decodedRef.current = null;
+    setDownloaded(isDownloaded(url));
     void getDecoded().then((d) => {
       if (cancelled || !d) return;
       const peaks = downsamplePeaks(d.channels[0], WAVEFORM_BARS);
@@ -187,6 +191,14 @@ export function VoiceNotePlayer({
     }
   };
 
+  const saveOffline = () => {
+    if (downloaded) return;
+    void downloadFile(url, fileNameFromUrl(url)).then(() => {
+      markDownloaded(url);
+      setDownloaded(true);
+    });
+  };
+
   const progress = duration > 0 ? Math.min(1, currentTime / duration) : 0;
   const activeBars = Math.round(progress * bars.length);
   const senderName = sender?.name?.trim();
@@ -265,6 +277,24 @@ export function VoiceNotePlayer({
       <span className="shrink-0 text-xs tabular-nums opacity-80">
         {formatAudioTime(playing || currentTime > 0 ? currentTime : duration)}
       </span>
+      {downloaded ? (
+        <span
+          className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
+          title={t("media.downloaded")}
+          aria-label={t("media.downloaded")}
+        >
+          <Check className="size-3" strokeWidth={3} aria-hidden />
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={saveOffline}
+          aria-label={t("media.saveOffline")}
+          className="flex size-6 shrink-0 items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100"
+        >
+          <Download className="size-4" aria-hidden />
+        </button>
+      )}
       </div>
     </div>
   );

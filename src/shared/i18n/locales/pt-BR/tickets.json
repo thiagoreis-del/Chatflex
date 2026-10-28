@@ -110,7 +110,9 @@
     "play": "Reproduzir áudio",
     "pause": "Pausar áudio",
     "video": "Vídeo recebido",
-    "audioError": "Não foi possível reproduzir este áudio aqui. Toque para baixar."
+    "audioError": "Não foi possível reproduzir este áudio aqui. Toque para baixar.",
+    "saveOffline": "Salvar no dispositivo para ouvir offline",
+    "downloaded": "Baixado para ouvir offline"
   },
   "toast": {
     "accepted": "Atendimento aceito.",
