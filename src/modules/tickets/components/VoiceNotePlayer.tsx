@@ -10,7 +10,7 @@ import {
   formatAudioTime,
 } from "../waveform";
 import { isDownloaded, markDownloaded } from "../downloaded-media";
-import { downloadFile, fileNameFromUrl } from "./MessageMedia";
+import { downloadFile, fileNameFromUrl } from "../media-file";
 
 type Decoded = { channels: [Float32Array, ...Float32Array[]]; sampleRate: number };
 
