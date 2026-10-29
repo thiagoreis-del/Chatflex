@@ -1,8 +1,3 @@
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
-4748a31480ce245f2cb6e6e52bd728e3561d837e
--encodedCommand
-dAByAGUAZQA=
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
 import { ticketKeys } from "@/shared/api/query-keys";
