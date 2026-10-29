@@ -22,6 +22,8 @@ import {
   DatabaseBackup,
   UsersRound,
   ImagePlus,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -69,6 +71,8 @@ const activeLink = {
   className: "bg-sidebar-accent text-sidebar-accent-foreground",
   "aria-current": "page" as const,
 };
+
+const DESKTOP_MENU_STORAGE_KEY = "chatflex.desktop-menu-open";
 
 /** Cabeçalho de seção do menu: marcador de cor, rótulo e filete decorativo. */
 function SectionTitle({ label }: { label: string }) {
@@ -329,7 +333,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopOpen, setDesktopOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.localStorage.getItem(DESKTOP_MENU_STORAGE_KEY) !== "false";
+  });
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const toggleDesktopMenu = () => {
+    setDesktopOpen((open) => {
+      const next = !open;
+      window.localStorage.setItem(DESKTOP_MENU_STORAGE_KEY, String(next));
+      return next;
+    });
+  };
 
   const handleLogout = async () => {
     await logout(router.options.context.queryClient);
@@ -413,13 +429,32 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       )}
       <div className="flex min-h-0 flex-1">
-        <aside className="hidden w-64 shrink-0 lg:block">
+        <aside
+          aria-hidden={!desktopOpen}
+          className={desktopOpen ? "hidden w-64 shrink-0 lg:block" : "hidden"}
+        >
           <div className="h-full">
             <SidebarBody />
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="z-30 grid h-16 shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 border-b bg-background/85 px-2 backdrop-blur sm:flex sm:gap-2 sm:px-6">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="hidden size-10 shrink-0 lg:inline-flex"
+              onClick={toggleDesktopMenu}
+              aria-label={t(desktopOpen ? "actions.closeMenu" : "actions.openMenu")}
+              aria-expanded={desktopOpen}
+              title={t(desktopOpen ? "actions.closeMenu" : "actions.openMenu")}
+            >
+              {desktopOpen ? (
+                <PanelLeftClose className="size-5" aria-hidden />
+              ) : (
+                <PanelLeftOpen className="size-5" aria-hidden />
+              )}
+            </Button>
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button
