@@ -3,7 +3,7 @@
 ## Fotos dos contatos — 29/10/2026
 
 - [x] Mostrar fotos já recebidas nos contatos da lista e cabeçalho de conversa, com iniciais quando ausentes ou indisponíveis.
-- [ ] Validar testes e carregamento da prévia.
+- [x] Validar cinco testes e compilação da prévia; sem erro de execução, acesso às conversas redireciona para indisponibilidade do backend externo.
 - [ ] Confirmar fotos em conversa real — requer sessão autenticada do backend externo e campo profilePicUrl nas respostas de tickets.
 
 ## Selo verde de arquivo baixado — 28/10/2026
