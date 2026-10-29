@@ -4,6 +4,7 @@
 
 - [x] Mostrar fotos já recebidas nos contatos da lista e cabeçalho de conversa, com iniciais quando ausentes ou indisponíveis.
 - [x] Validar cinco testes e compilação da prévia; sem erro de execução, acesso às conversas redireciona para indisponibilidade do backend externo.
+- [x] Confirmar versão publicada em chatbotflex.com.br: arquivo de atendimentos HTTP 200 contém fotos e iniciais na lista e cabeçalho; cinco testes passaram. Acesso às conversas redireciona ao login, sem erro de execução.
 - [ ] Confirmar fotos em conversa real — requer sessão autenticada do backend externo e campo profilePicUrl nas respostas de tickets.
 
 ## Selo verde de arquivo baixado — 28/10/2026
