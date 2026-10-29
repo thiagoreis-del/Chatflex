@@ -39,4 +39,16 @@ describe("ticket message history", () => {
       message("3", "2026-10-29T11:00:00.000Z"),
     ]);
   });
+
+  it("ignora mensagens sem id em vez de derrubar a conversa", () => {
+    const broken = { ...message("x", "2026-10-29T10:00:00.000Z"), id: undefined } as unknown as Message;
+    const nulo = { ...message("y", "2026-10-29T11:00:00.000Z"), id: null } as unknown as Message;
+
+    expect(
+      mergeMessagePages([
+        [broken, message("2", "2026-10-29T12:00:00.000Z")],
+        [message("1", "2026-10-29T09:00:00.000Z"), nulo],
+      ]).map((item) => item.id),
+    ).toEqual(["1", "2"]);
+  });
 });
