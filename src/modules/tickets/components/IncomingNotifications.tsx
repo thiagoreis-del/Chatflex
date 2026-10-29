@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "@/shared/auth/session-store";
 import { socketClient } from "@/shared/socket/socket-client";
-import { incomingTicketsQuery, messagesQuery } from "../api";
+import { incomingTicketsQuery, latestMessagesQuery } from "../api";
 import { IncomingMessageTracker } from "../incoming-message-tracker";
 import { isMuted, mutedKey } from "../muted-contacts";
 import type { Message, Ticket } from "../types";
@@ -162,7 +162,10 @@ function SessionNotifications({ companyId, muteKey }: { companyId: string; muteK
         await Promise.all(
           changed.slice(i, i + 5).map(async (ticket) => {
             try {
-              const messages = await qc.fetchQuery({ ...messagesQuery(ticket.id), staleTime: 0 });
+              const messages = await qc.fetchQuery({
+                ...latestMessagesQuery(ticket.id),
+                staleTime: 0,
+              });
               if (!cancelled) for (const message of messages) notify.current(message, ticket);
             } catch {
               // Retry unchanged tickets after a temporary messages failure.

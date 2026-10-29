@@ -74,6 +74,24 @@ async function fetchAllMessages(ticketId: number, signal?: AbortSignal): Promise
   return mergeMessagePages(pages);
 }
 
+/**
+ * Depois que o histórico completo está no cache, o polling consulta somente a
+ * página recente. Isso mantém mensagens novas/atualizadas sem reler todo o
+ * histórico a cada três segundos.
+ */
+async function refreshMessages(
+  ticketId: number,
+  cached: Message[] | undefined,
+  signal?: AbortSignal,
+): Promise<Message[]> {
+  if (!cached?.length) return fetchAllMessages(ticketId, signal);
+  const result = await apiRequest<MessagesResponse>(
+    withQuery(ep.messages(ticketId), { pageNumber: 1 }),
+    { signal },
+  );
+  return mergeMessagePages([cached, result?.messages ?? []]);
+}
+
 export interface AttendantMetric {
   id: number;
   name: string;
@@ -353,8 +371,21 @@ export async function closeTicketsBulk(ids: number[]) {
 export const messagesQuery = (ticketId: number) =>
   queryOptions({
     queryKey: ticketKeys.messages(ticketId),
-    queryFn: ({ signal }) => fetchAllMessages(ticketId, signal),
+    queryFn: ({ signal, client }) =>
+      refreshMessages(ticketId, client.getQueryData<Message[]>(ticketKeys.messages(ticketId)), signal),
     // Polling de fallback é definido na tela conforme o status do Socket.
+  });
+
+/** Notificações precisam somente das mensagens recentes, nunca do histórico inteiro. */
+export const latestMessagesQuery = (ticketId: number) =>
+  queryOptions({
+    queryKey: [...ticketKeys.messages(ticketId), "latest"],
+    queryFn: async ({ signal }) =>
+      (
+        await apiRequest<MessagesResponse>(withQuery(ep.messages(ticketId), { pageNumber: 1 }), {
+          signal,
+        })
+      )?.messages ?? [],
   });
 
 export const tagOptionsQuery = () =>
