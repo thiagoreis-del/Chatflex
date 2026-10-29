@@ -37,11 +37,16 @@ interface MessagesResponse {
 export function mergeMessagePages(pages: Message[][]): Message[] {
   const byId = new Map<string, Message>();
   for (const page of pages) {
-    for (const message of page) byId.set(message.id, message);
+    for (const message of page) {
+      // Mensagens sem id (registros quebrados do backend) não podem derrubar
+      // a conversa inteira: são ignoradas na mesclagem.
+      if (message?.id === undefined || message?.id === null) continue;
+      byId.set(String(message.id), message);
+    }
   }
   return [...byId.values()].sort((a, b) => {
     const byDate = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    return byDate || a.id.localeCompare(b.id);
+    return byDate || String(a.id).localeCompare(String(b.id));
   });
 }
 
