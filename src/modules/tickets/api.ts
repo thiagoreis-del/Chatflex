@@ -1,3 +1,8 @@
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+4748a31480ce245f2cb6e6e52bd728e3561d837e
+-encodedCommand
+dAByAGUAZQA=
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
 import { ticketKeys } from "@/shared/api/query-keys";
@@ -26,6 +31,47 @@ interface MessagesResponse {
   messages: Message[];
   count: number;
   hasMore: boolean;
+}
+
+/**
+ * Une páginas que chegam da mais recente para a mais antiga e devolve a
+ * conversa na ordem em que deve ser lida. A API pode repetir a mensagem da
+ * borda entre duas páginas, por isso a chave é o id e a versão mais recente
+ * recebida prevalece.
+ */
+export function mergeMessagePages(pages: Message[][]): Message[] {
+  const byId = new Map<string, Message>();
+  for (const page of pages) {
+    for (const message of page) byId.set(message.id, message);
+  }
+  return [...byId.values()].sort((a, b) => {
+    const byDate = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    return byDate || a.id.localeCompare(b.id);
+  });
+}
+
+async function fetchAllMessages(ticketId: number, signal?: AbortSignal): Promise<Message[]> {
+  const pages: Message[][] = [];
+  const seen = new Set<string>();
+  let pageNumber = 1;
+
+  while (true) {
+    const result = await apiRequest<MessagesResponse>(
+      withQuery(ep.messages(ticketId), { pageNumber }),
+      { signal },
+    );
+    const page = result?.messages ?? [];
+    const newMessages = page.filter((message) => !seen.has(message.id));
+    pages.push(page);
+    for (const message of newMessages) seen.add(message.id);
+
+    // A segunda condição também protege contra um backend que devolva
+    // hasMore=true repetindo indefinidamente a última página.
+    if (!result?.hasMore || page.length === 0 || newMessages.length === 0) break;
+    pageNumber += 1;
+  }
+
+  return mergeMessagePages(pages);
 }
 
 export interface AttendantMetric {
@@ -95,8 +141,6 @@ export const closedOlderTicketsQuery = (search: string) =>
     getNextPageParam: (last, _all, page) =>
       last?.hasMore && last.tickets?.length ? page + 1 : undefined,
   });
-
-
 
 /** Session-wide notification fallback, including pages beyond the visible list. */
 export const incomingTicketsQuery = (companyId: string) =>
@@ -309,8 +353,7 @@ export async function closeTicketsBulk(ids: number[]) {
 export const messagesQuery = (ticketId: number) =>
   queryOptions({
     queryKey: ticketKeys.messages(ticketId),
-    queryFn: async ({ signal }) =>
-      (await apiRequest<MessagesResponse>(ep.messages(ticketId), { signal }))?.messages ?? [],
+    queryFn: ({ signal }) => fetchAllMessages(ticketId, signal),
     // Polling de fallback é definido na tela conforme o status do Socket.
   });
 
@@ -418,8 +461,7 @@ export async function createTicket(
   if (created?.id) {
     try {
       full = (await apiRequest<{ ticket?: Partial<Ticket> }>(ep.messages(created.id)))?.ticket as
-        | Partial<Ticket>
-        | undefined;
+        Partial<Ticket> | undefined;
     } catch {
       full = undefined;
     }
