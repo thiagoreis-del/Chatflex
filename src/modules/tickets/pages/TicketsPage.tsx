@@ -50,6 +50,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { contactInitials, contactPhotoUrl } from "@/modules/contacts/contact-photo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -608,13 +610,17 @@ export function TicketsPage() {
                             )}
                           >
                             <div className="relative shrink-0">
-                              <div className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/25 to-primary/5 font-display text-base font-semibold uppercase text-primary">
-                                {tk.contact.isGroup || tk.isGroup ? (
-                                  <Users className="size-5" />
-                                ) : (
-                                  name.replace(/^\+/, "").charAt(0) || "#"
-                                )}
-                              </div>
+                              <Avatar className="size-11">
+                                <AvatarImage
+                                  src={contactPhotoUrl(tk.contact.profilePicUrl)}
+                                  alt=""
+                                  className="object-cover"
+                                  referrerPolicy="no-referrer"
+                                />
+                                <AvatarFallback className="bg-primary/10 font-display text-base font-semibold text-primary">
+                                  {contactInitials(name)}
+                                </AvatarFallback>
+                              </Avatar>
                               <span
                                 className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full border-2 border-card bg-success text-success-foreground"
                                 title={tk.whatsapp?.name ?? t("unknownOrigin")}
@@ -1290,9 +1296,17 @@ function Conversation({
         >
           <ArrowLeft className="size-4" />
         </Button>
-        <div className="flex size-9 shrink-0 items-center justify-center self-center rounded-full bg-primary/10 font-semibold text-primary sm:size-11 sm:text-lg">
-          {(ticket.contact.name || "#").charAt(0).toUpperCase()}
-        </div>
+        <Avatar className="size-9 self-center sm:size-11">
+          <AvatarImage
+            src={contactPhotoUrl(ticket.contact.profilePicUrl)}
+            alt=""
+            className="object-cover"
+            referrerPolicy="no-referrer"
+          />
+          <AvatarFallback className="bg-primary/10 font-semibold text-primary sm:text-lg">
+            {contactInitials(ticket.contact.name || ticket.contact.number)}
+          </AvatarFallback>
+        </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2">
             <p className="truncate font-semibold leading-tight">

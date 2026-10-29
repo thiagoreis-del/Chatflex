@@ -13,6 +13,8 @@
 
 ## Architecture rules
 
+- Conversation avatars use only contact photo URLs returned by the session-scoped backend, resolved through the shared contact-photo helper, with initials on missing or failed images. Why: reuse available WhatsApp photos without inventing lookup endpoints or crossing company boundaries.
+
 - Shared-contact conversation actions resolve exact normalized phone numbers through session-scoped contact/ticket APIs and preserve existing ticket ownership. Why: prevents fuzzy-search matches and unintended reassignment across users or companies.
 
 - Ticket and internal-chat uploads identify PDFs from their header and normalize filename/MIME through the shared upload helper. Why: extensionless PDFs must not arrive as generic BIN attachments.
