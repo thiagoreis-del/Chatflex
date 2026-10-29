@@ -249,20 +249,63 @@
 }
 .chat-messages {
   background-color: #efeae2;
-  background-image: radial-gradient(#d6d0c5 0.7px, transparent 0.7px);
-  background-size: 20px 20px;
+  background-image:
+    linear-gradient(rgb(239 234 226 / 0.86), rgb(239 234 226 / 0.86)), url("/chat-pattern.svg");
+  background-size:
+    auto,
+    320px 320px;
+  background-attachment: local;
 }
 .chat-outgoing {
   background: #d9fdd3;
   color: #182229;
 }
+.chat-bubble {
+  position: relative;
+  box-shadow: 0 1px 1px rgb(11 20 26 / 0.13);
+}
+.chat-bubble-incoming::before,
+.chat-bubble-outgoing::before {
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  content: "";
+  border-style: solid;
+}
+.chat-bubble-incoming::before {
+  left: -8px;
+  border-width: 0 9px 10px 0;
+  border-color: transparent var(--card) transparent transparent;
+}
+.chat-bubble-outgoing::before {
+  right: -8px;
+  border-width: 0 0 10px 9px;
+  border-color: transparent transparent transparent #d9fdd3;
+}
+.message-document {
+  min-width: min(18rem, 72vw);
+}
+.message-voice {
+  color: #54656f;
+}
 .dark .chat-messages {
   background-color: #0b141a;
-  background-image: radial-gradient(#1d2b33 0.7px, transparent 0.7px);
+  background-image:
+    linear-gradient(rgb(11 20 26 / 0.91), rgb(11 20 26 / 0.91)), url("/chat-pattern.svg");
+  background-size:
+    auto,
+    320px 320px;
 }
 .dark .chat-outgoing {
   background: #005c4b;
   color: #e9edef;
+}
+.dark .chat-bubble-outgoing::before {
+  border-color: transparent transparent transparent #005c4b;
+}
+.dark .message-voice {
+  color: #d1d7db;
 }
 
 /* Celular: conversa em tela cheia, como no WhatsApp. */

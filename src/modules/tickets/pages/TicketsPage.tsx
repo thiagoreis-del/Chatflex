@@ -742,25 +742,23 @@ export function TicketsPage() {
                         </li>
                       );
                     })}
-                    {tab === "closed" &&
-                      (older.hasNextPage || !olderOn) &&
-                      list.length > 0 && (
-                        <li className="flex justify-center p-3">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={older.isFetchingNextPage}
-                            onClick={() => {
-                              if (!olderOn) setOlderOn(true);
-                              else void older.fetchNextPage();
-                            }}
-                          >
-                            {older.isFetchingNextPage || (olderOn && older.isPending)
-                              ? t("sidebar.loadingMore")
-                              : t("sidebar.loadMore")}
-                          </Button>
-                        </li>
-                      )}
+                    {tab === "closed" && (older.hasNextPage || !olderOn) && list.length > 0 && (
+                      <li className="flex justify-center p-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={older.isFetchingNextPage}
+                          onClick={() => {
+                            if (!olderOn) setOlderOn(true);
+                            else void older.fetchNextPage();
+                          }}
+                        >
+                          {older.isFetchingNextPage || (olderOn && older.isPending)
+                            ? t("sidebar.loadingMore")
+                            : t("sidebar.loadMore")}
+                        </Button>
+                      </li>
+                    )}
                   </ul>
                 );
               }}
@@ -1556,124 +1554,129 @@ function Conversation({
                         </time>
                       </div>
                     )}
-                  <div
-                    id={`msg-${m.id}`}
-                    onContextMenu={(event) => {
-                      if (ticket.status !== "open" || m.isPrivate) return;
-                      event.preventDefault();
-                      setReplyTo(m);
-                    }}
-                    className={cn(
-                      "group flex min-w-0 items-center gap-1",
-                      m.fromMe ? "flex-row-reverse" : "flex-row",
-                    )}
-                  >
                     <div
+                      id={`msg-${m.id}`}
+                      onContextMenu={(event) => {
+                        if (ticket.status !== "open" || m.isPrivate) return;
+                        event.preventDefault();
+                        setReplyTo(m);
+                      }}
                       className={cn(
-                        "min-w-0 max-w-[90%] rounded-lg px-3 py-2 text-sm shadow-sm transition-shadow sm:max-w-[75%]",
-                        highlightId === m.id && "ring-2 ring-primary",
-                        m.isPrivate
-                          ? "rounded-br-sm border border-dashed border-warning bg-warning/15 text-foreground"
-                          : m.fromMe
-                            ? "chat-outgoing rounded-br-sm"
-                            : "rounded-bl-sm bg-card",
+                        "group flex min-w-0 items-center gap-1",
+                        m.fromMe ? "flex-row-reverse" : "flex-row",
                       )}
                     >
-                      {m.isPrivate && (
-                        <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          <Lock className="size-3" aria-hidden />
-                          {t("privateBadge")}
-                        </p>
-                      )}
-                      {(m.fromMe || m.isPrivate) && (m.ticket?.user?.name ?? ticket.user?.name) && (
-                        <p className="mb-1 truncate text-xs font-semibold text-foreground/80">
-                          {m.ticket?.user?.name ?? ticket.user?.name}
-                        </p>
-                      )}
-                      {m.quotedMsg && (
-                        <button
-                          type="button"
-                          onClick={() => m.quotedMsg?.id && jumpTo(String(m.quotedMsg.id))}
-                          className="mb-1 block w-full rounded border-l-4 border-primary bg-muted/60 px-2 py-1 text-left text-xs"
-                        >
-                          <span className="block font-semibold text-primary">
-                            {m.quotedMsg.fromMe ? t("reply.you") : ticket.contact.name}
-                          </span>
-                          <span className="line-clamp-2 text-muted-foreground">
-                            {quoteLabel(m.quotedMsg)}
-                          </span>
-                        </button>
-                      )}
-                      <MessageMedia message={m} />
-                      {displayBody(m) && isVCard(displayBody(m)) ? (
-                        <div className="flex flex-col gap-1.5">
-                          {parseVCards(displayBody(m)!).map((contact, i) => (
-                            <ContactCard key={i} contact={contact} onConversationStarted={onConversationStarted} />
-                          ))}
-                        </div>
-                      ) : displayBody(m) && parseLocation(displayBody(m)) ? (
-                        <div className="flex flex-col gap-1.5">
-                          {locationText(displayBody(m)) && (
-                            <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
-                              {locationText(displayBody(m))}
-                            </p>
-                          )}
-                          <LocationCard location={parseLocation(displayBody(m))!} />
-                        </div>
-                      ) : (
-                        displayBody(m) && (
-                          <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
-                            {displayBody(m)}
-                          </p>
-                        )
-                      )}
-                      <p
+                      <div
                         className={cn(
-                          "mt-1 text-right text-[10px]",
-                          m.fromMe && !m.isPrivate
-                            ? "text-muted-foreground"
-                            : "text-muted-foreground",
+                          "chat-bubble min-w-0 max-w-[90%] rounded-lg px-2.5 py-1.5 text-sm shadow-sm transition-shadow sm:max-w-[75%]",
+                          highlightId === m.id && "ring-2 ring-primary",
+                          m.isPrivate
+                            ? "rounded-br-sm border border-dashed border-warning bg-warning/15 text-foreground"
+                            : m.fromMe
+                              ? "chat-outgoing chat-bubble-outgoing rounded-tr-none"
+                              : "chat-bubble-incoming rounded-tl-none bg-card",
                         )}
                       >
-                        {time(m.createdAt)}
-                      </p>
-                    </div>
-                    {!m.isPrivate && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                        {m.isPrivate && (
+                          <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            <Lock className="size-3" aria-hidden />
+                            {t("privateBadge")}
+                          </p>
+                        )}
+                        {(m.fromMe || m.isPrivate) &&
+                          (m.ticket?.user?.name ?? ticket.user?.name) && (
+                            <p className="mb-1 truncate text-xs font-semibold text-foreground/80">
+                              {m.ticket?.user?.name ?? ticket.user?.name}
+                            </p>
+                          )}
+                        {m.quotedMsg && (
                           <button
                             type="button"
-                            aria-label={t("messageMenu.label")}
-                            title={t("messageMenu.label")}
-                            className="shrink-0 rounded-full p-1.5 text-muted-foreground opacity-60 hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
+                            onClick={() => m.quotedMsg?.id && jumpTo(String(m.quotedMsg.id))}
+                            className="mb-1 block w-full rounded border-l-4 border-primary bg-muted/60 px-2 py-1 text-left text-xs"
                           >
-                            <MoreVertical className="size-4" />
+                            <span className="block font-semibold text-primary">
+                              {m.quotedMsg.fromMe ? t("reply.you") : ticket.contact.name}
+                            </span>
+                            <span className="line-clamp-2 text-muted-foreground">
+                              {quoteLabel(m.quotedMsg)}
+                            </span>
                           </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align={m.fromMe ? "end" : "start"}>
-                          {ticket.status === "open" && (
-                            <DropdownMenuItem onSelect={() => setReplyTo(m)}>
-                              <Reply className="size-4" /> {t("reply.action")}
-                            </DropdownMenuItem>
+                        )}
+                        <MessageMedia message={m} />
+                        {displayBody(m) && isVCard(displayBody(m)) ? (
+                          <div className="flex flex-col gap-1.5">
+                            {parseVCards(displayBody(m)!).map((contact, i) => (
+                              <ContactCard
+                                key={i}
+                                contact={contact}
+                                onConversationStarted={onConversationStarted}
+                              />
+                            ))}
+                          </div>
+                        ) : displayBody(m) && parseLocation(displayBody(m)) ? (
+                          <div className="flex flex-col gap-1.5">
+                            {locationText(displayBody(m)) && (
+                              <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                                {locationText(displayBody(m))}
+                              </p>
+                            )}
+                            <LocationCard location={parseLocation(displayBody(m))!} />
+                          </div>
+                        ) : (
+                          displayBody(m) && (
+                            <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                              {displayBody(m)}
+                            </p>
+                          )
+                        )}
+                        <p
+                          className={cn(
+                            "mt-1 text-right text-[10px]",
+                            m.fromMe && !m.isPrivate
+                              ? "text-muted-foreground"
+                              : "text-muted-foreground",
                           )}
-                          {m.body?.trim() && (
-                            <DropdownMenuItem
-                              onSelect={() => {
-                                void navigator.clipboard
-                                  ?.writeText(m.body)
-                                  .then(() => toast.success(t("messageMenu.copied")));
-                              }}
+                        >
+                          {time(m.createdAt)}
+                        </p>
+                      </div>
+                      {!m.isPrivate && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              aria-label={t("messageMenu.label")}
+                              title={t("messageMenu.label")}
+                              className="shrink-0 rounded-full p-1.5 text-muted-foreground opacity-60 hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
                             >
-                              <Copy className="size-4" /> {t("messageMenu.copy")}
+                              <MoreVertical className="size-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align={m.fromMe ? "end" : "start"}>
+                            {ticket.status === "open" && (
+                              <DropdownMenuItem onSelect={() => setReplyTo(m)}>
+                                <Reply className="size-4" /> {t("reply.action")}
+                              </DropdownMenuItem>
+                            )}
+                            {m.body?.trim() && (
+                              <DropdownMenuItem
+                                onSelect={() => {
+                                  void navigator.clipboard
+                                    ?.writeText(m.body)
+                                    .then(() => toast.success(t("messageMenu.copied")));
+                                }}
+                              >
+                                <Copy className="size-4" /> {t("messageMenu.copy")}
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem onSelect={() => setForwarding(m)}>
+                              <Forward className="size-4" /> {t("forward.action")}
                             </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem onSelect={() => setForwarding(m)}>
-                            <Forward className="size-4" /> {t("forward.action")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </div>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
                   </Fragment>
                 ))}
               <div ref={endRef} />
@@ -2046,8 +2049,7 @@ function Conversation({
               }}
               onReady={(audio) => {
                 // Gravou e parou: envia direto, sem etapa de confirmação.
-                if (!send.isPending)
-                  send.mutate({ body: "", media: [audio], keepComposer: true });
+                if (!send.isPending) send.mutate({ body: "", media: [audio], keepComposer: true });
               }}
               onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
             />

@@ -3,12 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Check, Download, Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { attendantBadgeColor } from "@/shared/attendant-color";
-import {
-  WAVEFORM_BARS,
-  downsamplePeaks,
-  fallbackWaveform,
-  formatAudioTime,
-} from "../waveform";
+import { WAVEFORM_BARS, downsamplePeaks, fallbackWaveform, formatAudioTime } from "../waveform";
 import { isDownloaded, markDownloaded } from "../downloaded-media";
 import { downloadFile, fileNameFromUrl } from "../media-file";
 
@@ -205,12 +200,7 @@ export function VoiceNotePlayer({
   const senderColor = senderName ? attendantBadgeColor(sender ?? undefined) : null;
 
   return (
-    <div
-      className={cn(
-        "mb-1 flex w-64 max-w-full flex-col gap-1 rounded-2xl px-3 py-2",
-        fromMe ? "bg-primary-foreground/10" : "bg-muted/50",
-      )}
-    >
+    <div className={cn("message-voice mb-1 flex w-72 max-w-full flex-col gap-1 px-1 py-0.5")}>
       {senderName && senderColor && (
         <div className="flex items-center gap-1.5">
           <span
@@ -228,73 +218,73 @@ export function VoiceNotePlayer({
         </div>
       )}
       <div className="flex items-center gap-2">
-      {!nativeFailed && (
-        <audio
-          ref={audioRef}
-          preload="metadata"
-          src={url}
-          aria-label={t("media.audio")}
-          className="hidden"
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onEnded={() => {
-            setPlaying(false);
-            setCurrentTime(0);
-          }}
-          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-          onLoadedMetadata={(e) => {
-            const d = e.currentTarget.duration;
-            if (Number.isFinite(d) && d > 0) setDuration(d);
-          }}
-          onError={() => setNativeFailed(true)}
-        />
-      )}
-
-      <button
-        type="button"
-        onClick={toggle}
-        aria-label={playing ? t("media.pause") : t("media.play")}
-        className="flex size-8 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-80"
-      >
-        {playing ? (
-          <Pause className="size-5 fill-current" aria-hidden />
-        ) : (
-          <Play className="size-5 fill-current" aria-hidden />
-        )}
-      </button>
-      <div className="flex h-8 min-w-0 flex-1 items-center gap-[2px]" aria-hidden>
-        {bars.map((v, i) => (
-          <span
-            key={i}
-            className={cn(
-              "w-[3px] shrink-0 rounded-full transition-colors",
-              i < activeBars ? "bg-current" : "bg-current opacity-35",
-            )}
-            style={{ height: `${Math.max(3, v * 28)}px` }}
+        {!nativeFailed && (
+          <audio
+            ref={audioRef}
+            preload="metadata"
+            src={url}
+            aria-label={t("media.audio")}
+            className="hidden"
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onEnded={() => {
+              setPlaying(false);
+              setCurrentTime(0);
+            }}
+            onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+            onLoadedMetadata={(e) => {
+              const d = e.currentTarget.duration;
+              if (Number.isFinite(d) && d > 0) setDuration(d);
+            }}
+            onError={() => setNativeFailed(true)}
           />
-        ))}
-      </div>
-      <span className="shrink-0 text-xs tabular-nums opacity-80">
-        {formatAudioTime(playing || currentTime > 0 ? currentTime : duration)}
-      </span>
-      {downloaded ? (
-        <span
-          className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
-          title={t("media.downloaded")}
-          aria-label={t("media.downloaded")}
-        >
-          <Check className="size-3" strokeWidth={3} aria-hidden />
-        </span>
-      ) : (
+        )}
+
         <button
           type="button"
-          onClick={saveOffline}
-          aria-label={t("media.saveOffline")}
-          className="flex size-6 shrink-0 items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100"
+          onClick={toggle}
+          aria-label={playing ? t("media.pause") : t("media.play")}
+          className="flex size-9 shrink-0 items-center justify-center rounded-full text-[#00a884] transition-colors hover:bg-black/5 dark:text-[#00a884] dark:hover:bg-white/5"
         >
-          <Download className="size-4" aria-hidden />
+          {playing ? (
+            <Pause className="size-5 fill-current" aria-hidden />
+          ) : (
+            <Play className="size-5 fill-current" aria-hidden />
+          )}
         </button>
-      )}
+        <div className="flex h-8 min-w-0 flex-1 items-center gap-[2px]" aria-hidden>
+          {bars.map((v, i) => (
+            <span
+              key={i}
+              className={cn(
+                "w-[3px] shrink-0 rounded-full transition-colors",
+                i < activeBars ? "bg-[#00a884]" : "bg-[#aebac1] opacity-75",
+              )}
+              style={{ height: `${Math.max(3, v * 28)}px` }}
+            />
+          ))}
+        </div>
+        <span className="shrink-0 text-xs tabular-nums opacity-80">
+          {formatAudioTime(playing || currentTime > 0 ? currentTime : duration)}
+        </span>
+        {downloaded ? (
+          <span
+            className="flex size-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
+            title={t("media.downloaded")}
+            aria-label={t("media.downloaded")}
+          >
+            <Check className="size-3" strokeWidth={3} aria-hidden />
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={saveOffline}
+            aria-label={t("media.saveOffline")}
+            className="flex size-6 shrink-0 items-center justify-center rounded-full opacity-60 transition-opacity hover:opacity-100"
+          >
+            <Download className="size-4" aria-hidden />
+          </button>
+        )}
       </div>
     </div>
   );

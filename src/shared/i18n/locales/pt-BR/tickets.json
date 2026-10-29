@@ -104,6 +104,9 @@
   "media": {
     "open": "Abrir",
     "download": "Baixar arquivo",
+    "file": "ARQ",
+    "document": "Documento {{extension}}",
+    "pdfDocument": "Documento PDF",
     "image": "Imagem enviada",
     "close": "Fechar",
     "audio": "Áudio recebido",

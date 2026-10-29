@@ -13,7 +13,6 @@ export function isImage(m: Pick<Message, "mediaType" | "mediaUrl">) {
   return m.mediaType === "image" || /\.(png|jpe?g|gif|webp)(\?|$)/i.test(m.mediaUrl ?? "");
 }
 
-
 export function MessageMedia({ message }: { message: Message }) {
   const { t } = useTranslation("tickets");
   const [open, setOpen] = useState(false);
@@ -126,6 +125,8 @@ export function MessageMedia({ message }: { message: Message }) {
 
   // Sempre o nome real do arquivo; a legenda (body) é exibida à parte na bolha.
   const name = fileNameFromUrl(url);
+  const extension = name.split(".").pop()?.toUpperCase() || t("media.file");
+  const isPdf = extension === "PDF";
   return (
     <button
       type="button"
@@ -136,15 +137,31 @@ export function MessageMedia({ message }: { message: Message }) {
         })
       }
       className={cn(
-        "mb-1 flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors",
+        "message-document mb-1 flex min-h-16 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
         message.fromMe
-          ? "border-primary-foreground/30 hover:bg-primary-foreground/10"
-          : "bg-muted/50 hover:bg-muted",
+          ? "bg-black/[0.045] hover:bg-black/[0.075] dark:bg-white/[0.06] dark:hover:bg-white/[0.1]"
+          : "bg-black/[0.035] hover:bg-black/[0.065] dark:bg-white/[0.06] dark:hover:bg-white/[0.1]",
       )}
       aria-label={t("media.download")}
     >
-      <FileText className="size-6 shrink-0" aria-hidden />
-      <span className="min-w-0 flex-1 truncate font-medium">{name}</span>
+      <span
+        className={cn(
+          "relative flex size-10 shrink-0 items-center justify-center rounded-md text-white shadow-sm",
+          isPdf ? "bg-[#e40046]" : "bg-[#667781]",
+        )}
+        aria-hidden
+      >
+        <FileText className="size-6" strokeWidth={2.2} />
+        <span className="absolute bottom-0.5 text-[7px] font-extrabold leading-none">
+          {extension}
+        </span>
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[13px] font-semibold leading-5">{name}</span>
+        <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
+          {isPdf ? t("media.pdfDocument") : t("media.document", { extension })}
+        </span>
+      </span>
       {downloaded ? (
         <span
           className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
