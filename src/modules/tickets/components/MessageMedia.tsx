@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import type { Message } from "../types";
 import { isAudioMedia } from "../audio-format";
 import { isDownloaded, markDownloaded } from "../downloaded-media";
-import { downloadFile, fileNameFromUrl } from "../media-file";
+import { displayFileName, downloadFile, fileNameFromUrl } from "../media-file";
 import { VoiceNotePlayer } from "./VoiceNotePlayer";
 
 export function isImage(m: Pick<Message, "mediaType" | "mediaUrl">) {
@@ -124,14 +124,15 @@ export function MessageMedia({ message }: { message: Message }) {
   }
 
   // Sempre o nome real do arquivo; a legenda (body) é exibida à parte na bolha.
-  const name = fileNameFromUrl(url);
+  const downloadName = fileNameFromUrl(url);
+  const name = displayFileName(downloadName);
   const extension = name.split(".").pop()?.toUpperCase() || t("media.file");
   const isPdf = extension === "PDF";
   return (
     <button
       type="button"
       onClick={() =>
-        void downloadFile(url, name).then(() => {
+        void downloadFile(url, downloadName).then(() => {
           markDownloaded(url);
           setDownloaded(true);
         })
@@ -156,12 +157,7 @@ export function MessageMedia({ message }: { message: Message }) {
           {extension}
         </span>
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13px] font-semibold leading-5">{name}</span>
-        <span className="block text-[10px] uppercase tracking-wide text-muted-foreground">
-          {isPdf ? t("media.pdfDocument") : t("media.document", { extension })}
-        </span>
-      </span>
+      <span className="min-w-0 flex-1 truncate text-[13px] font-semibold leading-5">{name}</span>
       {downloaded ? (
         <span
           className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"

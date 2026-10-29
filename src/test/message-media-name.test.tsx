@@ -5,7 +5,7 @@ import type { Message } from "@/modules/tickets/types";
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 
 import { MessageMedia } from "@/modules/tickets/components/MessageMedia";
-import { fileNameFromUrl } from "@/modules/tickets/media-file";
+import { displayFileName, fileNameFromUrl } from "@/modules/tickets/media-file";
 
 afterEach(cleanup);
 
@@ -23,6 +23,25 @@ describe("Message media file name", () => {
     expect(fileNameFromUrl("https://api.example.com/public/company1/proposta-orcamento.pdf")).toBe(
       "proposta-orcamento.pdf",
     );
+  });
+
+  it("shows only the friendly file name when the upload adds numeric identifiers", () => {
+    const storedName = "1793295959621_Joao_Matheus_Bonato_1793295959621.pdf";
+    expect(displayFileName(storedName)).toBe("Joao Matheus Bonato.pdf");
+
+    render(
+      <MessageMedia
+        message={mediaMessage({
+          mediaUrl: `https://api.example.com/public/company1/${storedName}`,
+          mediaType: "application",
+        })}
+      />,
+    );
+
+    const chip = screen.getByRole("button", { name: "media.download" });
+    expect(chip).toHaveTextContent("Joao Matheus Bonato.pdf");
+    expect(chip.textContent).not.toContain("1793295959621");
+    expect(chip.textContent).not.toContain("media.pdfDocument");
   });
 
   it("shows the file name even when the body only carries the sender signature", () => {

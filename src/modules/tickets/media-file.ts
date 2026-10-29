@@ -29,3 +29,21 @@ export function fileNameFromUrl(url: string) {
     return url;
   }
 }
+
+/**
+ * Converte o nome interno criado pelo upload em um nome amigável.
+ * Ex.: 1793295959621_Joao_Matheus_Bonato_1793295959621.pdf
+ * vira Joao Matheus Bonato.pdf.
+ */
+export function displayFileName(filename: string) {
+  const dot = filename.lastIndexOf(".");
+  const extension = dot > 0 ? filename.slice(dot) : "";
+  const stem = dot > 0 ? filename.slice(0, dot) : filename;
+  const cleaned = stem
+    .replace(/^\d{10,}[_-]+/, "")
+    .replace(/[_-]+\d{10,}$/, "")
+    .replace(/_+/g, " ")
+    .trim();
+
+  return `${cleaned || stem}${extension}`;
+}
