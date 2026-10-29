@@ -4,6 +4,8 @@ export interface TicketContact {
   id: number;
   name: string;
   number: string;
+  /** Foto do contato disponibilizada pelo WhatsApp através do backend. */
+  profilePicUrl?: string | null;
   /** Backend marca contatos de grupo do WhatsApp. */
   isGroup?: boolean;
 }
