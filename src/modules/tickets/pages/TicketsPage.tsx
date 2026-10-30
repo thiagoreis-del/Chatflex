@@ -116,6 +116,7 @@ import {
   removeFromOutbox,
   saveDraft,
 } from "../offline-outbox";
+import { deduplicateActiveTickets } from "../ticket-identity";
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -183,8 +184,12 @@ export function TicketsPage() {
       ? groupTicketsQuery(debouncedSearch)
       : {
           ...ticketsQuery({ status, search: debouncedSearch }),
-          select: (l: Ticket[]) =>
-            l.filter((x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id)),
+          select: (l: Ticket[]) => {
+            const visible = l.filter(
+              (x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id),
+            );
+            return status === "closed" ? visible : deduplicateActiveTickets(visible);
+          },
         };
   const query = useQuery({
     ...(listOpts as ReturnType<typeof groupTicketsQuery>),
@@ -257,14 +262,15 @@ export function TicketsPage() {
     (!slaOn || slaFilter === "all" || computeSla(x, sla!, now).state === slaFilter);
   const notGroup = (l: Ticket[]) =>
     l.filter((x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id));
+  const activeOnly = (l: Ticket[]) => deduplicateActiveTickets(notGroup(l));
   const openCount = useQuery({
     ...ticketsQuery({ status: "open", search: debouncedSearch }),
-    select: (l: Ticket[]) => notGroup(l).length,
+    select: (l: Ticket[]) => activeOnly(l).length,
     refetchInterval: fallback,
   }).data;
   const pendingCount = useQuery({
     ...ticketsQuery({ status: "pending", search: debouncedSearch }),
-    select: (l: Ticket[]) => notGroup(l).length,
+    select: (l: Ticket[]) => activeOnly(l).length,
     refetchInterval: fallback,
   }).data;
   const groupsCount = useQuery({
