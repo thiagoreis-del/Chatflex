@@ -32,7 +32,11 @@ export const getRouter = () => {
   // Consultas exibem o erro na própria página (QueryBoundary); mutações notificam por aviso.
   const queryClient = new QueryClient({
     mutationCache: new MutationCache({ onError: notifyError }),
-    defaultOptions: { queries: { retry: shouldRetry, refetchOnWindowFocus: false } },
+    // staleTime evita refetch a cada troca de menu; quem precisa de frescor tem
+    // refetchInterval próprio (Atendimento, Conexões) ou invalidação por socket.
+    defaultOptions: {
+      queries: { retry: shouldRetry, refetchOnWindowFocus: false, staleTime: 30_000 },
+    },
   });
 
   const router = createRouter({
