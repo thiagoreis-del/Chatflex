@@ -28,6 +28,7 @@ vi.mock("@/shared/socket/socket-client", () => ({
 vi.mock("@/modules/tickets/api", () => ({
   incomingTicketsQuery: () => ({}),
   messagesQuery: () => ({}),
+  latestMessagesQuery: () => ({}),
 }));
 vi.mock("react-i18next", () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock("sonner", () => ({
