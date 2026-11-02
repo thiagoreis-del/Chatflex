@@ -16,6 +16,16 @@ describe("location", () => {
     expect(parseLocation(body)?.mapsUrl).toBe("https://www.google.com/maps?q=-26.9123,-49.0712");
   });
 
+  it("reconhece o link google.com/maps usado no envio do painel", () => {
+    const body = "NOTASFLEX\nhttps://www.google.com/maps?q=-24.9307,-53.4361";
+    expect(parseLocation(body)).toEqual({
+      lat: -24.9307,
+      lng: -53.4361,
+      mapsUrl: "https://www.google.com/maps?q=-24.9307,-53.4361",
+    });
+    expect(locationText(body)).toBe("NOTASFLEX");
+  });
+
   it("preserva o texto ao redor de um link de mapa no meio da mensagem", () => {
     const body =
       "Estou nesse endereço, o portão é azul, toque duas vezes: https://maps.app.goo.gl/abc123";

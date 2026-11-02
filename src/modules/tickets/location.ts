@@ -5,7 +5,7 @@ export interface ParsedLocation {
 }
 
 const MAPS_URL =
-  /https?:\/\/(?:www\.)?(?:maps\.google\.[a-z.]+\/[^\s]*[?&]q=|maps\.app\.goo\.gl\/|goo\.gl\/maps\/)([^\s&]+)/i;
+  /https?:\/\/(?:www\.)?(?:google\.[a-z.]+\/maps\/?|maps\.google\.[a-z.]+\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/)[^\s|]*/i;
 const DEGREES =
   /degreesLatitude:\s*(-?\d+(?:\.\d+)?)[\s\S]*?degreesLongitude:\s*(-?\d+(?:\.\d+)?)/i;
 const LATLNG = /(-?\d{1,2}\.\d{4,})\s*[,;]\s*(-?\d{1,3}\.\d{4,})/;
@@ -18,7 +18,13 @@ export const parseLocation = (body: string | null | undefined): ParsedLocation |
   if (degrees) return build(Number(degrees[1]), Number(degrees[2]));
   const maps = MAPS_URL.exec(body);
   if (maps) {
-    const coords = maps[1] ? LATLNG.exec(maps[1]) : null;
+    let decodedUrl = maps[0];
+    try {
+      decodedUrl = decodeURIComponent(decodedUrl);
+    } catch {
+      // URL malformada ainda pode ser aberta; apenas não decodifica coordenadas.
+    }
+    const coords = LATLNG.exec(decodedUrl);
     if (coords?.[1] && coords[2]) return build(Number(coords[1]), Number(coords[2]));
     return { lat: 0, lng: 0, mapsUrl: maps[0] };
   }
