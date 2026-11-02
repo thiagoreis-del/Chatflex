@@ -58,6 +58,8 @@
     "attachCamera": "Câmera",
     "attachDocument": "Documento",
     "attachContact": "Contato",
+    "attachLocation": "Localização atual",
+    "gettingLocation": "Obtendo localização…",
     "addMore": "Adicionar mais arquivos",
     "dropHere": "Solte os arquivos para anexar",
     "uploading": "Enviando arquivo {{current}} de {{total}} · {{percent}}%",
@@ -179,7 +181,10 @@
   },
   "locationCard": {
     "label": "Localização compartilhada",
-    "open": "Abrir no mapa"
+    "open": "Abrir no mapa",
+    "mapTitle": "Prévia da localização no mapa",
+    "unsupported": "Este navegador não permite obter sua localização.",
+    "permissionError": "Não foi possível obter a localização. Libere a permissão do navegador e tente novamente."
   },
   "conversationSearch": "Buscar nesta conversa",
   "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa.",

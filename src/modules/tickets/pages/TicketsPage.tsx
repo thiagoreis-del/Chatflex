@@ -22,6 +22,7 @@ import {
   FileText,
   Image as ImageIcon,
   Lock,
+  MapPin,
   Paperclip,
   Pencil,
   Plus,
@@ -1017,6 +1018,7 @@ function Conversation({
   const [active, setActive] = useState(0);
   const file = files[active] ?? null;
   const [imageEditorOpen, setImageEditorOpen] = useState(false);
+  const [locationPending, setLocationPending] = useState(false);
   const [upload, setUpload] = useState<{ index: number; total: number; percent: number } | null>(
     null,
   );
@@ -1158,6 +1160,26 @@ function Conversation({
       });
     },
   });
+
+  const sendCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error(t("locationCard.unsupported"));
+      return;
+    }
+    setLocationPending(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setLocationPending(false);
+        const url = `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`;
+        send.mutate({ body: url, media: [] });
+      },
+      () => {
+        setLocationPending(false);
+        toast.error(t("locationCard.permissionError"));
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 30_000 },
+    );
+  };
 
   // Reenvia mensagens de texto enfileiradas quando a conexão volta.
   // Cada item tem id único e só sai da fila após confirmação do backend,
@@ -2030,6 +2052,13 @@ function Conversation({
                 <DropdownMenuItem onSelect={() => setShareOpen(true)}>
                   <ContactIcon className="size-4 text-primary" />
                   {t("composer.attachContact")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={locationPending}
+                  onSelect={sendCurrentLocation}
+                >
+                  <MapPin className="size-4 text-primary" />
+                  {t(locationPending ? "composer.gettingLocation" : "composer.attachLocation")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

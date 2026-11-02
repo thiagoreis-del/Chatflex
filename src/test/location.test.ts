@@ -13,18 +13,14 @@ describe("location", () => {
 
   it("extrai coordenadas de link do Google Maps", () => {
     const body = "https://maps.google.com/?q=-26.9123,-49.0712";
-    expect(parseLocation(body)?.mapsUrl).toBe(
-      "https://www.google.com/maps?q=-26.9123,-49.0712",
-    );
+    expect(parseLocation(body)?.mapsUrl).toBe("https://www.google.com/maps?q=-26.9123,-49.0712");
   });
 
   it("preserva o texto ao redor de um link de mapa no meio da mensagem", () => {
     const body =
       "Estou nesse endereço, o portão é azul, toque duas vezes: https://maps.app.goo.gl/abc123";
     expect(parseLocation(body)).not.toBeNull();
-    expect(locationText(body)).toBe(
-      "Estou nesse endereço, o portão é azul, toque duas vezes:",
-    );
+    expect(locationText(body)).toBe("Estou nesse endereço, o portão é azul, toque duas vezes:");
   });
 
   it("não sobra texto quando a mensagem é só o link ou coordenadas", () => {
@@ -36,6 +32,16 @@ describe("location", () => {
   it("mantém link encurtado mesmo sem coordenadas", () => {
     const body = "https://maps.app.goo.gl/abc123";
     expect(parseLocation(body)?.mapsUrl).toBe("https://maps.app.goo.gl/abc123");
+  });
+
+  it("oculta miniatura Base64 serializada pelo backend e usa suas coordenadas", () => {
+    const body = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB|-24.92140,-53.42470";
+    expect(parseLocation(body)).toEqual({
+      lat: -24.9214,
+      lng: -53.4247,
+      mapsUrl: "https://www.google.com/maps?q=-24.9214,-53.4247",
+    });
+    expect(locationText(body)).toBe("");
   });
 
   it("rejeita coordenadas inválidas e texto comum", () => {
