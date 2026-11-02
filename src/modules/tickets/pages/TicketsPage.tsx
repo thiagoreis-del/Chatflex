@@ -1048,11 +1048,14 @@ function Conversation({
       body,
       media,
       keepComposer,
+      skipSignature,
     }: {
       body: string;
       media: File[];
       /** Envio direto de áudio: não limpa o texto digitado nem o rascunho salvo. */
       keepComposer?: boolean;
+      /** Conteúdo estruturado já possui sua própria identificação. */
+      skipSignature?: boolean;
     }) => {
       // Conversa aberta sem responsável: o atendente logado assume antes de responder.
       // Admin respondendo como outro usuário: o ticket passa para esse usuário.
@@ -1066,7 +1069,7 @@ function Conversation({
       const myName = senderName;
       const signFor = (text: string, item: File | null) => {
         const isAudio = item?.type.startsWith("audio/");
-        if (isPrivate || !myName || isAudio) return text;
+        if (isPrivate || skipSignature || !myName || isAudio) return text;
         if (text) return `*${myName}:*\n${text}`;
         return item ? `*${myName}:*` : text;
       };
@@ -1189,7 +1192,8 @@ function Conversation({
     const success = ({ coords }: GeolocationPosition) => {
       setLocationPending(false);
       const url = `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`;
-      send.mutate({ body: url, media: [] });
+      const companyName = session.user?.companyName?.trim() || t("locationCard.label");
+      send.mutate({ body: `${companyName}\n${url}`, media: [], skipSignature: true });
     };
     const fail = (error: GeolocationPositionError, approximate = false) => {
       // Computadores sem GPS frequentemente falham na alta precisão, mas
@@ -1695,12 +1699,10 @@ function Conversation({
                           </div>
                         ) : displayBody(m) && parseLocation(displayBody(m)) ? (
                           <div className="flex flex-col gap-1.5">
-                            {locationText(displayBody(m)) && (
-                              <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
-                                {locationText(displayBody(m))}
-                              </p>
-                            )}
-                            <LocationCard location={parseLocation(displayBody(m))!} />
+                            <LocationCard
+                              location={parseLocation(displayBody(m))!}
+                              label={locationText(displayBody(m))}
+                            />
                           </div>
                         ) : (
                           displayBody(m) && (

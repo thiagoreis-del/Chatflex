@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { ParsedLocation } from "../location";
 
 /** Cartão de localização compartilhada, com link para abrir no mapa. */
-export function LocationCard({ location }: { location: ParsedLocation }) {
+export function LocationCard({ location, label }: { location: ParsedLocation; label?: string }) {
   const { t } = useTranslation("tickets");
   const previewUrl =
     location.lat !== 0
@@ -35,7 +35,7 @@ export function LocationCard({ location }: { location: ParsedLocation }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-semibold text-foreground">
-            {t("locationCard.label")}
+            {label || t("locationCard.label")}
           </span>
           {location.lat !== 0 && (
             <span className="block truncate text-xs text-muted-foreground">
