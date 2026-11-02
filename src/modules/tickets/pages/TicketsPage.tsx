@@ -1182,7 +1182,7 @@ function Conversation({
         }
       ).featurePolicy;
     if (locationPolicy && !locationPolicy.allowsFeature("geolocation")) {
-      toast.error(t("locationCard.previewBlocked"));
+      toast.error(t("locationCard.environmentBlocked"));
       return;
     }
     setLocationPending(true);

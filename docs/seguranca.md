@@ -6,7 +6,7 @@
 - Guardas de sessão e papéis no frontend, com backend responsável pela autorização real.
 - Geração de senha por CSPRNG com rejection sampling, 16 caracteres por padrão; senha gerada apenas em memória de formulário.
 - Tratamento central de erros; limpeza de token, sessão, QueryClient e Socket no logout.
-- `src/server.ts` adiciona X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, HSTS e Permissions-Policy limitando câmera/geolocalização e permitindo microfone da própria origem.
+- `src/server.ts` adiciona X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, HSTS e Permissions-Policy bloqueando câmera e permitindo geolocalização/microfone somente na própria origem.
 - Páginas autenticadas e sensíveis usam metadados noindex, que **não substituem controle de acesso**.
 - Atualização de dependências/overrides registrada no manifesto; esta tarefa não executou nova varredura de vulnerabilidades.
 
