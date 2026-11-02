@@ -184,7 +184,10 @@
     "open": "Abrir no mapa",
     "mapTitle": "Prévia da localização no mapa",
     "unsupported": "Este navegador não permite obter sua localização.",
-    "permissionError": "Não foi possível obter a localização. Libere a permissão do navegador e tente novamente."
+    "permissionError": "A permissão de localização está bloqueada. Libere-a nas configurações deste site e tente novamente.",
+    "previewBlocked": "A prévia do Lovable bloqueia a localização. Abra o sistema publicado em uma aba própria para compartilhar sua posição.",
+    "secureContext": "A localização só funciona em uma conexão segura HTTPS.",
+    "unavailable": "O dispositivo não conseguiu determinar a localização. Ative a localização do Windows ou do celular e tente novamente."
   },
   "conversationSearch": "Buscar nesta conversa",
   "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa.",

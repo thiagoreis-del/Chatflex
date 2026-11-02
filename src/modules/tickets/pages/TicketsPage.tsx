@@ -1166,19 +1166,56 @@ function Conversation({
       toast.error(t("locationCard.unsupported"));
       return;
     }
+    if (!window.isSecureContext) {
+      toast.error(t("locationCard.secureContext"));
+      return;
+    }
+    const locationPolicy = (
+      document as Document & {
+        permissionsPolicy?: { allowsFeature: (feature: string) => boolean };
+        featurePolicy?: { allowsFeature: (feature: string) => boolean };
+      }
+    ).permissionsPolicy ??
+      (
+        document as Document & {
+          featurePolicy?: { allowsFeature: (feature: string) => boolean };
+        }
+      ).featurePolicy;
+    if (locationPolicy && !locationPolicy.allowsFeature("geolocation")) {
+      toast.error(t("locationCard.previewBlocked"));
+      return;
+    }
     setLocationPending(true);
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setLocationPending(false);
-        const url = `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`;
-        send.mutate({ body: url, media: [] });
-      },
-      () => {
-        setLocationPending(false);
-        toast.error(t("locationCard.permissionError"));
-      },
-      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 30_000 },
-    );
+    const success = ({ coords }: GeolocationPosition) => {
+      setLocationPending(false);
+      const url = `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`;
+      send.mutate({ body: url, media: [] });
+    };
+    const fail = (error: GeolocationPositionError, approximate = false) => {
+      // Computadores sem GPS frequentemente falham na alta precisão, mas
+      // conseguem uma posição aproximada pela rede Wi-Fi.
+      if (!approximate && error.code !== error.PERMISSION_DENIED) {
+        navigator.geolocation.getCurrentPosition(success, (retryError) => fail(retryError, true), {
+          enableHighAccuracy: false,
+          timeout: 30_000,
+          maximumAge: 300_000,
+        });
+        return;
+      }
+      setLocationPending(false);
+      toast.error(
+        t(
+          error.code === error.PERMISSION_DENIED
+            ? "locationCard.permissionError"
+            : "locationCard.unavailable",
+        ),
+      );
+    };
+    navigator.geolocation.getCurrentPosition(success, fail, {
+      enableHighAccuracy: true,
+      timeout: 12_000,
+      maximumAge: 30_000,
+    });
   };
 
   // Reenvia mensagens de texto enfileiradas quando a conexão volta.
