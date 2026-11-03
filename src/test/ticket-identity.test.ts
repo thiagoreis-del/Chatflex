@@ -33,6 +33,32 @@ describe("ticket conversation identity", () => {
     expect(ticketConversationKey(first)).not.toBe(ticketConversationKey(second));
   });
 
+  it("une a forma brasileira com e sem o nono dígito", () => {
+    const oldFormat = ticket({
+      id: 10,
+      contact: { id: 1, name: "Alliance", number: "554532211234" },
+    });
+    const newFormat = ticket({
+      id: 11,
+      updatedAt: "2026-10-30T12:01:00.000Z",
+      contact: { id: 2, name: "Alliance Contabilidade", number: "5545932211234" },
+    });
+    expect(deduplicateActiveTickets([oldFormat, newFormat])).toEqual([newFormat]);
+  });
+
+  it("une identidade parcial quando só um registro informa a conexão", () => {
+    const partial = ticket({ id: 10, whatsapp: null });
+    const complete = ticket({ id: 11, updatedAt: "2026-10-30T12:01:00.000Z" });
+    expect(deduplicateActiveTickets([partial, complete])).toEqual([complete]);
+  });
+
+  it("não atribui identidade parcial quando há mais de uma conexão possível", () => {
+    const partial = ticket({ id: 10, whatsapp: null });
+    const first = ticket({ id: 11, whatsapp: { id: 7, name: "Notasflex" } });
+    const second = ticket({ id: 12, whatsapp: { id: 8, name: "Comercial" } });
+    expect(deduplicateActiveTickets([partial, first, second])).toHaveLength(3);
+  });
+
   it("não agrupa grupos nem números inválidos", () => {
     const groupA = ticket({ id: 10, isGroup: true });
     const groupB = ticket({ id: 11, isGroup: true });
