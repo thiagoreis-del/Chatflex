@@ -21,7 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { internalChatKeys } from "@/shared/api/query-keys";
-import { useSession } from "@/shared/auth/session-store";
+import { sessionStore, useSession } from "@/shared/auth/session-store";
 import { usersQuery } from "@/modules/users/api";
 import { queuesQuery } from "@/modules/queues/api";
 import { AudioRecorder } from "@/modules/tickets/components/AudioRecorder";
