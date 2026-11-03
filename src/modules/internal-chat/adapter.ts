@@ -52,7 +52,7 @@ export function messageFromRecord(record: ChatMessageRecord, userId: number, com
     !/[\\/\u0000]/.test(filename) && filename !== "." && filename !== ".."
     ? `${env.apiUrl}${internalChatEndpoints.media(companyId, filename)}` : null;
   const mediaUrl = record.mediaUrl || scopedUrl;
-  const extension = (record.mediaName || filename || mediaUrl || "").split("?")[0].split(".").pop()?.toLowerCase();
+  const extension = (record.mediaName || filename || mediaUrl || "").split("?")[0]?.split(".").pop()?.toLowerCase();
   const mediaType = extension && ["ogg", "opus", "webm", "mp3", "m4a", "wav", "aac"].includes(extension)
     ? "audio" : extension && ["png", "jpg", "jpeg", "gif", "webp"].includes(extension)
       ? "image" : extension && ["mp4", "mov"].includes(extension) ? "video" : "document";
