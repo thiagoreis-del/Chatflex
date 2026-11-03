@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -21,13 +21,15 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ticketKeys } from "@/shared/api/query-keys";
-import { usersQuery } from "@/modules/users/api";
+import { allCompanyUsersQuery } from "@/modules/users/api";
+import { queuesQuery } from "@/modules/queues/api";
 import { transferTicket, updateTicketStatus } from "../api";
 import { hideRefusedTicket, restoreRefusedTicket } from "../refused";
 import type { Ticket } from "../types";
 import { useSession } from "@/shared/auth/session-store";
 
 const ANY = "any";
+const NO_QUEUE = "none";
 
 export function TransferTicketDialog({
   ticket,
@@ -43,16 +45,28 @@ export function TransferTicketDialog({
   const { t } = useTranslation("tickets");
   const session = useSession();
   const qc = useQueryClient();
-  const users = useQuery({ ...usersQuery({ search: "", page: 1 }), enabled: open });
-  const [queueId] = useState<string>(ticket.queue ? String(ticket.queue.id) : "");
+  const users = useQuery({ ...allCompanyUsersQuery(), enabled: open });
+  const queues = useQuery({ ...queuesQuery(), enabled: open });
+  const initialQueueId = ticket.queue ? String(ticket.queue.id) : NO_QUEUE;
+  const [queueId, setQueueId] = useState<string>(initialQueueId);
   const [userId, setUserId] = useState<string>(ANY);
   const [note, setNote] = useState("");
   const [mode, setMode] = useState<"forward" | "refuse">("forward");
   const refusing = mode === "refuse";
 
-  const eligible = (users.data?.data ?? []).filter(
-    (u) => !queueId || u.queueIds.includes(Number(queueId)),
+  useEffect(() => {
+    if (!open) return;
+    setQueueId(initialQueueId);
+    setUserId(ANY);
+    setNote("");
+    setMode("forward");
+  }, [initialQueueId, open, ticket.id]);
+
+  const eligible = (users.data ?? []).filter(
+    (u) => !u.blocked && (queueId === NO_QUEUE || u.queueIds.includes(Number(queueId))),
   );
+  const selectedUser = eligible.find((u) => String(u.id) === userId);
+  const selectedQueue = (queues.data ?? []).find((q) => String(q.id) === queueId);
 
   const mutation = useMutation({
     mutationFn: () => {
@@ -62,7 +76,7 @@ export function TransferTicketDialog({
         return updateTicketStatus(ticket.id, "closed");
       }
       return transferTicket(ticket.id, {
-        queueId: Number(queueId),
+        ...(queueId === NO_QUEUE ? {} : { queueId: Number(queueId) }),
         userId: userId === ANY ? null : Number(userId),
         ...(note.trim() ? { note: note.trim() } : {}),
       });
@@ -105,8 +119,32 @@ export function TransferTicketDialog({
           </div>
           {!refusing && (
             <div className="space-y-2">
+              <Label>{t("transfer.queue")}</Label>
+              <Select
+                value={queueId}
+                onValueChange={(value) => {
+                  setQueueId(value);
+                  setUserId(ANY);
+                }}
+              >
+                <SelectTrigger aria-label={t("transfer.queue")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_QUEUE}>{t("transfer.noQueue")}</SelectItem>
+                  {(queues.data ?? []).map((queue) => (
+                    <SelectItem key={queue.id} value={String(queue.id)}>
+                      {queue.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {!refusing && (
+            <div className="space-y-2">
               <Label>{t("transfer.user")}</Label>
-              <Select value={userId} onValueChange={setUserId} disabled={!queueId}>
+              <Select value={userId} onValueChange={setUserId}>
                 <SelectTrigger aria-label={t("transfer.user")}>
                   <SelectValue />
                 </SelectTrigger>
@@ -119,6 +157,9 @@ export function TransferTicketDialog({
                   ))}
                 </SelectContent>
               </Select>
+              {eligible.length === 0 && (
+                <p className="text-xs text-destructive">{t("transfer.noEligibleUsers")}</p>
+              )}
             </div>
           )}
           {!refusing && (
@@ -133,13 +174,22 @@ export function TransferTicketDialog({
               />
             </div>
           )}
+          {!refusing && (
+            <div className="rounded-lg border bg-muted/40 px-3 py-2 text-sm">
+              <span className="text-muted-foreground">{t("transfer.destination")}: </span>
+              <strong>
+                {selectedUser?.name ?? t("transfer.anyUser")}
+                {selectedQueue ? ` · ${selectedQueue.name}` : ` · ${t("transfer.noQueue")}`}
+              </strong>
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             {t("transfer.cancel")}
           </Button>
           <Button
-            disabled={mutation.isPending || (!refusing && !queueId)}
+            disabled={mutation.isPending || (!refusing && userId === ANY && eligible.length === 0)}
             onClick={() => mutation.mutate()}
           >
             {t(refusing ? "transfer.refuseSubmit" : "transfer.submit")}

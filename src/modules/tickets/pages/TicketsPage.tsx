@@ -172,6 +172,7 @@ export function TicketsPage() {
     return () => clearInterval(id);
   }, [slaOn]);
   const [selected, setSelected] = useState<Ticket | null>(null);
+  const [transferTarget, setTransferTarget] = useState<Ticket | null>(null);
   const hiddenRefused = useRefusedHiddenIds(String(session.user?.id ?? ""));
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
@@ -223,22 +224,6 @@ export function TicketsPage() {
     setUnreadOnly(false);
     setSlaFilter("all");
   };
-  // Recusar encerra o atendimento (não volta para a fila) e o tira da lista do atendente.
-  const refuseFromList = useMutation({
-    mutationFn: (tk: Ticket) => {
-      hideRefusedTicket(String(session.user?.id ?? ""), tk.id);
-      return updateTicketStatus(tk.id, "closed");
-    },
-    onSuccess: (tk) => {
-      toast.success(t("toast.refused"));
-      if (selected?.id === tk.id) setSelected(null);
-      void qcl.invalidateQueries({ queryKey: ticketKeys.all });
-    },
-    onError: (_e, tk) => {
-      restoreRefusedTicket(String(session.user?.id ?? ""), tk.id);
-      toast.error(t("toast.transferError"));
-    },
-  });
   const connections = Array.from(
     new Map(
       (query.data ?? []).filter((x) => x.whatsapp).map((x) => [x.whatsapp!.id, x.whatsapp!]),
@@ -731,22 +716,22 @@ export function TicketsPage() {
                                   <span
                                     role="button"
                                     tabIndex={0}
-                                    aria-label={t("actions.refuse")}
-                                    title={t("actions.refuse")}
+                                    aria-label={t("actions.transfer")}
+                                    title={t("actions.transfer")}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      refuseFromList.mutate(tk);
+                                      setTransferTarget(tk);
                                     }}
                                     onKeyDown={(e) => {
                                       if (e.key === "Enter" || e.key === " ") {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        refuseFromList.mutate(tk);
+                                        setTransferTarget(tk);
                                       }
                                     }}
-                                    className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive/40"
+                                    className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
                                   >
-                                    <Undo2 className="size-3" />
+                                    <ArrowRightLeft className="size-3" />
                                   </span>
                                 )}
                               </div>
@@ -805,6 +790,19 @@ export function TicketsPage() {
           </div>
         )}
       </section>
+      {transferTarget && (
+        <TransferTicketDialog
+          ticket={transferTarget}
+          open
+          onOpenChange={(open) => {
+            if (!open) setTransferTarget(null);
+          }}
+          onDone={(ticket) => {
+            if (selected?.id === transferTarget.id) setSelected(ticket);
+            setTransferTarget(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -1173,12 +1171,13 @@ function Conversation({
       toast.error(t("locationCard.secureContext"));
       return;
     }
-    const locationPolicy = (
-      document as Document & {
-        permissionsPolicy?: { allowsFeature: (feature: string) => boolean };
-        featurePolicy?: { allowsFeature: (feature: string) => boolean };
-      }
-    ).permissionsPolicy ??
+    const locationPolicy =
+      (
+        document as Document & {
+          permissionsPolicy?: { allowsFeature: (feature: string) => boolean };
+          featurePolicy?: { allowsFeature: (feature: string) => boolean };
+        }
+      ).permissionsPolicy ??
       (
         document as Document & {
           featurePolicy?: { allowsFeature: (feature: string) => boolean };
@@ -2092,10 +2091,7 @@ function Conversation({
                   <ContactIcon className="size-4 text-primary" />
                   {t("composer.attachContact")}
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  disabled={locationPending}
-                  onSelect={sendCurrentLocation}
-                >
+                <DropdownMenuItem disabled={locationPending} onSelect={sendCurrentLocation}>
                   <MapPin className="size-4 text-primary" />
                   {t(locationPending ? "composer.gettingLocation" : "composer.attachLocation")}
                 </DropdownMenuItem>
