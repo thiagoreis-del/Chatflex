@@ -25,6 +25,7 @@ import { sessionStore, useSession } from "@/shared/auth/session-store";
 import { usersQuery } from "@/modules/users/api";
 import { queuesQuery } from "@/modules/queues/api";
 import { AudioRecorder } from "@/modules/tickets/components/AudioRecorder";
+import { MessageMedia } from "@/modules/tickets/components/MessageMedia";
 import { useFallbackInterval } from "@/modules/tickets/realtime";
 import {
   addInternalMember,
@@ -330,20 +331,11 @@ function InternalConversationView({
                         <p className="text-[11px] font-semibold text-primary">{m.sender.name}</p>
                       )}
                       {m.mediaUrl && (
-                        <a
-                          href={m.mediaUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mb-1 block text-xs font-medium underline"
-                        >
-                          {m.mediaType?.startsWith("image/")
-                            ? tt("reply.image")
-                            : m.mediaType?.startsWith("audio/")
-                              ? tt("reply.audio")
-                              : m.mediaType?.startsWith("video/")
-                                ? tt("reply.video")
-                                : tt("reply.document")}
-                        </a>
+                        <MessageMedia message={{
+                          id: m.id, ticketId: 0, body: m.body, fromMe: m.fromMe,
+                          createdAt: m.createdAt, mediaUrl: m.mediaUrl, mediaType: m.mediaType ?? null,
+                          ticket: { user: m.sender ?? null },
+                        }} />
                       )}
                       {!m.mediaUrl && m.mediaName && <p className="text-xs">{m.mediaName}</p>}
                       {m.body && <BodyWithMentions body={m.body} />}

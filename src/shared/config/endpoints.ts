@@ -155,6 +155,7 @@ export const queueEndpoints = {
 /** Confirmed in the supplied chatRoutes.ts and ChatController.ts. */
 export const internalChatEndpoints = {
   conversations: "/chats",
+  media: (companyId: number, filename: string) => `/public/company${companyId}/${encodeURIComponent(filename)}`,
   detail: (id: number) => `/chats/${id}`,
   messages: (id: number) => `/chats/${id}/messages`,
 } as const;

@@ -13,7 +13,7 @@
 
 ## Architecture rules
 
-- Internal chat adapts the verified `/chats` controller contract in its API layer; queue-only contracts and media URL construction stay unsupported until verified. Why: avoids invented endpoints and payloads; server-side company/membership enforcement remains mandatory.
+- Internal chat adapts the verified `/chats` controller contract and resolves filename-only mediaPath through `/public/company{sessionCompanyId}/`; queue-only contracts stay unsupported. Why: matches the verified upload/static configuration without guessing another company's folder; server-side company/membership enforcement remains mandatory.
 
 - Conversation polling loads the complete paginated history only when its cache is empty, then refreshes page one and merges by message ID; background notifications use a separate latest-page cache. Why: preserves history while avoiding repeated full-history requests every three seconds.
 
