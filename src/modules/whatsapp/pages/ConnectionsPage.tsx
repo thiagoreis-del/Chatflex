@@ -1,9 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
-import { CheckCircle2, Pencil, Plus, QrCode, Smartphone, Trash2, Unplug } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Pencil,
+  Plus,
+  QrCode,
+  Smartphone,
+  Trash2,
+  Unplug,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +50,7 @@ import {
   whatsappContract,
 } from "../api";
 import type { WhatsAppConnection, WhatsAppInput, WhatsAppStatus } from "../types";
+import { isConnectionDown } from "../connection-health";
 
 const statusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructive" | "outline"> = {
   CONNECTED: "default",
@@ -49,7 +59,7 @@ const statusVariant: Record<WhatsAppStatus, "default" | "secondary" | "destructi
   OPENING: "secondary",
   PAIRING: "secondary",
   PENDING: "secondary",
-  TIMEOUT: "outline",
+  TIMEOUT: "destructive",
 };
 
 const statusDot: Record<WhatsAppStatus, string> = {
@@ -59,7 +69,7 @@ const statusDot: Record<WhatsAppStatus, string> = {
   OPENING: "bg-accent-foreground animate-pulse",
   PAIRING: "bg-accent-foreground animate-pulse",
   PENDING: "bg-accent-foreground animate-pulse",
-  TIMEOUT: "bg-muted-foreground",
+  TIMEOUT: "bg-destructive",
 };
 
 function formatNumber(n?: string | null): string | null {
@@ -118,6 +128,25 @@ export function ConnectionsPage() {
   const [qrId, setQrId] = useState<number | null>(null);
   const [toDelete, setToDelete] = useState<WhatsAppConnection | null>(null);
   const [toDisconnect, setToDisconnect] = useState<WhatsAppConnection | null>(null);
+  const previousStatuses = useRef(new Map<number, WhatsAppStatus>());
+  const connectionList = query.data ?? [];
+  const downConnections = connectionList.filter((connection) =>
+    isConnectionDown(connection.status),
+  );
+
+  useEffect(() => {
+    if (!query.data) return;
+    for (const connection of query.data) {
+      const previous = previousStatuses.current.get(connection.id);
+      if (previous === "CONNECTED" && isConnectionDown(connection.status)) {
+        toast.error(t("alerts.fallenTitle"), {
+          description: t("alerts.fallenBody", { name: connection.name }),
+          duration: 10_000,
+        });
+      }
+      previousStatuses.current.set(connection.id, connection.status);
+    }
+  }, [query.data, t]);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: whatsappKeys.all });
   const onError = (error: unknown) =>
@@ -160,79 +189,112 @@ export function ConnectionsPage() {
           </Button>
         }
       />
+      {downConnections.length > 0 && (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-xl border border-destructive/50 bg-destructive/10 p-4 text-destructive"
+        >
+          <AlertTriangle className="mt-0.5 size-5 shrink-0" aria-hidden />
+          <div>
+            <p className="font-semibold">{t("alerts.bannerTitle")}</p>
+            <p className="text-sm">
+              {t("alerts.bannerBody", {
+                count: downConnections.length,
+                names: downConnections.map((connection) => connection.name).join(", "),
+              })}
+            </p>
+          </div>
+        </div>
+      )}
       <QueryBoundary query={query} contract={whatsappContract}>
         {(list) =>
           list.length === 0 ? (
             <EmptyState title={t("empty")} />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {list.map((c) => (
-                <Card key={c.id}>
-                  <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 space-y-0">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                        <Smartphone className="size-5" aria-hidden />
-                      </span>
-                      <div className="min-w-0 [overflow-wrap:anywhere]">
-                        <CardTitle className="text-base">{c.name}</CardTitle>
-                        <p className="text-xs text-muted-foreground">
-                          {formatNumber(c.number) ?? t("noNumber")}
-                        </p>
+              {list.map((c) => {
+                const down = isConnectionDown(c.status);
+                return (
+                  <Card
+                    key={c.id}
+                    className={
+                      down
+                        ? "border-destructive/60 bg-destructive/5 ring-1 ring-destructive/20"
+                        : ""
+                    }
+                  >
+                    <CardHeader className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 space-y-0">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span
+                          className={`grid size-10 shrink-0 place-items-center rounded-lg ${
+                            down
+                              ? "bg-destructive/15 text-destructive"
+                              : "bg-primary/10 text-primary"
+                          }`}
+                        >
+                          <Smartphone className="size-5" aria-hidden />
+                        </span>
+                        <div className="min-w-0 [overflow-wrap:anywhere]">
+                          <CardTitle className="text-base">{c.name}</CardTitle>
+                          <p className="text-xs text-muted-foreground">
+                            {formatNumber(c.number) ?? t("noNumber")}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    {c.isDefault && <Badge variant="outline">{t("default")}</Badge>}
-                  </CardHeader>
-                  <CardContent>
-                    <Badge variant={statusVariant[c.status]} className="gap-1.5">
-                      <span
-                        className={`size-2 rounded-full ${statusDot[c.status] ?? "bg-muted-foreground"}`}
-                        aria-hidden
-                      />
-                      {t(`status.${c.status}`, { defaultValue: c.status })}
-                    </Badge>
-                  </CardContent>
-                  <CardFooter className="flex flex-wrap gap-2">
-                    {c.status === "CONNECTED" ? (
-                      <Button size="sm" variant="outline" onClick={() => setToDisconnect(c)}>
-                        <Unplug className="size-4" aria-hidden />
-                        {t("actions.disconnect")}
-                      </Button>
-                    ) : c.status === "qrcode" ? (
-                      <Button size="sm" onClick={() => setQrId(c.id)}>
-                        <QrCode className="size-4" aria-hidden />
-                        {t("actions.showQr")}
-                      </Button>
-                    ) : (
+                      {c.isDefault && <Badge variant="outline">{t("default")}</Badge>}
+                    </CardHeader>
+                    <CardContent>
+                      <Badge variant={statusVariant[c.status]} className="gap-1.5">
+                        <span
+                          className={`size-2 rounded-full ${statusDot[c.status] ?? "bg-muted-foreground"}`}
+                          aria-hidden
+                        />
+                        {t(`connectionStatus.${c.status}`, { defaultValue: c.status })}
+                      </Badge>
+                    </CardContent>
+                    <CardFooter className="flex flex-wrap gap-2">
+                      {c.status === "CONNECTED" ? (
+                        <Button size="sm" variant="outline" onClick={() => setToDisconnect(c)}>
+                          <Unplug className="size-4" aria-hidden />
+                          {t("actions.disconnect")}
+                        </Button>
+                      ) : c.status === "qrcode" ? (
+                        <Button size="sm" onClick={() => setQrId(c.id)}>
+                          <QrCode className="size-4" aria-hidden />
+                          {t("actions.showQr")}
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          disabled={connect.isPending}
+                          onClick={() => connect.mutate(c.id)}
+                        >
+                          <QrCode className="size-4" aria-hidden />
+                          {c.status === "DISCONNECTED" || c.status === "TIMEOUT"
+                            ? t("actions.reconnect")
+                            : t("actions.connect")}
+                        </Button>
+                      )}
                       <Button
-                        size="sm"
-                        disabled={connect.isPending}
-                        onClick={() => connect.mutate(c.id)}
+                        size="icon"
+                        variant="ghost"
+                        aria-label={t("actions.edit")}
+                        onClick={() => setForm(c)}
                       >
-                        <QrCode className="size-4" aria-hidden />
-                        {c.status === "DISCONNECTED" || c.status === "TIMEOUT"
-                          ? t("actions.reconnect")
-                          : t("actions.connect")}
+                        <Pencil className="size-4" aria-hidden />
                       </Button>
-                    )}
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label={t("actions.edit")}
-                      onClick={() => setForm(c)}
-                    >
-                      <Pencil className="size-4" aria-hidden />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label={t("actions.delete")}
-                      onClick={() => setToDelete(c)}
-                    >
-                      <Trash2 className="size-4" aria-hidden />
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        aria-label={t("actions.delete")}
+                        onClick={() => setToDelete(c)}
+                      >
+                        <Trash2 className="size-4" aria-hidden />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
             </div>
           )
         }

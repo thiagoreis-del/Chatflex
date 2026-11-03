@@ -10,6 +10,21 @@
   "empty": "Nenhuma conexão cadastrada ainda.",
   "default": "Padrão",
   "noNumber": "Sem número vinculado",
+  "connectionStatus": {
+    "CONNECTED": "Conectado",
+    "DISCONNECTED": "Desconectado",
+    "qrcode": "Aguardando QR Code",
+    "OPENING": "Conectando",
+    "PAIRING": "Pareando",
+    "PENDING": "Iniciando",
+    "TIMEOUT": "Conexão expirada"
+  },
+  "alerts": {
+    "bannerTitle": "Atenção: conexão do WhatsApp indisponível",
+    "bannerBody": "{{count}} conexão(ões) precisa(m) ser reconectada(s): {{names}}.",
+    "fallenTitle": "A conexão do WhatsApp caiu",
+    "fallenBody": "{{name}} foi desconectada. Reconecte para continuar recebendo mensagens."
+  },
   "status": {
     "meta": {
       "title": "Publicar Status",
