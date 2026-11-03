@@ -292,7 +292,7 @@ function InternalConversationView({
             {conversation.participants.map((p) => p.name).join(", ")}
           </p>
         </div>
-        {conversation.kind !== "direct" && (
+        {conversation.kind !== "direct" && conversation.ownerId === Number(sessionStore.get().user?.id) && (
           <Button
             variant="ghost"
             size="icon"
@@ -345,6 +345,7 @@ function InternalConversationView({
                                 : tt("reply.document")}
                         </a>
                       )}
+                      {!m.mediaUrl && m.mediaName && <p className="text-xs">{m.mediaName}</p>}
                       {m.body && <BodyWithMentions body={m.body} />}
                       <p className="mt-0.5 text-right text-[10px] opacity-70">
                         {time(m.createdAt)}
@@ -484,6 +485,7 @@ function NewConversationDialog({
               <button
                 key={k}
                 type="button"
+                disabled={k === "queue"}
                 onClick={() => setKind(k)}
                 className={cn(
                   "min-h-11 rounded-md px-2 text-xs font-semibold",
