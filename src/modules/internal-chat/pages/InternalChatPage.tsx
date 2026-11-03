@@ -333,7 +333,7 @@ function InternalConversationView({
                       {m.mediaUrl && (
                         <MessageMedia message={{
                           id: m.id, ticketId: 0, body: m.body, fromMe: m.fromMe,
-                          createdAt: m.createdAt, mediaUrl: m.mediaUrl, mediaType: m.mediaType,
+                          createdAt: m.createdAt, mediaUrl: m.mediaUrl, mediaType: m.mediaType ?? null,
                           ticket: { user: m.sender ?? null },
                         }} />
                       )}
