@@ -34,7 +34,7 @@ export function LocationCard({ location, label }: { location: ParsedLocation; la
           <MapPin className="size-5" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-foreground">
+          <span className="block whitespace-pre-wrap break-words text-sm font-semibold text-foreground">
             {label || t("locationCard.label")}
           </span>
           {location.lat !== 0 && (

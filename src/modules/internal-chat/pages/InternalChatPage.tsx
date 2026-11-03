@@ -21,10 +21,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { cn } from "@/lib/utils";
 import { EmptyState, QueryBoundary } from "@/shared/components";
 import { internalChatKeys } from "@/shared/api/query-keys";
-import { useSession } from "@/shared/auth/session-store";
+import { sessionStore, useSession } from "@/shared/auth/session-store";
 import { usersQuery } from "@/modules/users/api";
 import { queuesQuery } from "@/modules/queues/api";
 import { AudioRecorder } from "@/modules/tickets/components/AudioRecorder";
+import { MessageMedia } from "@/modules/tickets/components/MessageMedia";
 import { useFallbackInterval } from "@/modules/tickets/realtime";
 import {
   addInternalMember,
@@ -292,7 +293,7 @@ function InternalConversationView({
             {conversation.participants.map((p) => p.name).join(", ")}
           </p>
         </div>
-        {conversation.kind !== "direct" && (
+        {conversation.kind !== "direct" && conversation.ownerId === Number(sessionStore.get().user?.id) && (
           <Button
             variant="ghost"
             size="icon"
@@ -330,21 +331,13 @@ function InternalConversationView({
                         <p className="text-[11px] font-semibold text-primary">{m.sender.name}</p>
                       )}
                       {m.mediaUrl && (
-                        <a
-                          href={m.mediaUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mb-1 block text-xs font-medium underline"
-                        >
-                          {m.mediaType?.startsWith("image/")
-                            ? tt("reply.image")
-                            : m.mediaType?.startsWith("audio/")
-                              ? tt("reply.audio")
-                              : m.mediaType?.startsWith("video/")
-                                ? tt("reply.video")
-                                : tt("reply.document")}
-                        </a>
+                        <MessageMedia message={{
+                          id: m.id, ticketId: 0, body: m.body, fromMe: m.fromMe,
+                          createdAt: m.createdAt, mediaUrl: m.mediaUrl, mediaType: m.mediaType ?? null,
+                          ticket: { user: m.sender ?? null },
+                        }} />
                       )}
+                      {!m.mediaUrl && m.mediaName && <p className="text-xs">{m.mediaName}</p>}
                       {m.body && <BodyWithMentions body={m.body} />}
                       <p className="mt-0.5 text-right text-[10px] opacity-70">
                         {time(m.createdAt)}
@@ -484,6 +477,7 @@ function NewConversationDialog({
               <button
                 key={k}
                 type="button"
+                disabled={k === "queue"}
                 onClick={() => setKind(k)}
                 className={cn(
                   "min-h-11 rounded-md px-2 text-xs font-semibold",
