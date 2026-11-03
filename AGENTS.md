@@ -13,6 +13,8 @@
 
 ## Architecture rules
 
+- Internal chat adapts the verified `/chats` controller contract in its API layer; queue-only contracts and media URL construction stay unsupported until verified. Why: avoids invented endpoints and payloads; server-side company/membership enforcement remains mandatory.
+
 - Conversation polling loads the complete paginated history only when its cache is empty, then refreshes page one and merges by message ID; background notifications use a separate latest-page cache. Why: preserves history while avoiding repeated full-history requests every three seconds.
 
 - Conversation avatars use only contact photo URLs returned by the session-scoped backend, resolved through the shared contact-photo helper, with initials on missing or failed images. Why: reuse available WhatsApp photos without inventing lookup endpoints or crossing company boundaries.

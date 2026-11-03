@@ -1,21 +1,38 @@
 import { queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload } from "@/shared/api/client";
 import { internalChatKeys } from "@/shared/api/query-keys";
-import { withQuery } from "@/shared/config/endpoints";
+import { internalChatEndpoints, withQuery } from "@/shared/config/endpoints";
 import { normalizePdfFile } from "@/shared/upload/pdf-file";
-import type { CreateConversationInput, InternalConversation, InternalMessage } from "./types";
+import { sessionStore } from "@/shared/auth/session-store";
+import { conversationFromRecord, conversationPayload, messageFromRecord } from "./adapter";
+import type { ChatRecord, ChatMessageRecord } from "./adapter";
+import type { CreateConversationInput } from "./types";
 
-/**
- * Chat interno por empresa.
- * CONTRATO PENDENTE: caminhos sugeridos; o backend deve isolar por empresa
- * (token da sessão) e nunca enviar estas mensagens ao WhatsApp do cliente.
- */
-export const internalChatEndpoints = {
-  conversations: "/internal-chat/conversations",
-  messages: (id: number) => `/internal-chat/conversations/${id}/messages`,
-  members: (id: number) => `/internal-chat/conversations/${id}/members`,
-  member: (id: number, userId: number) => `/internal-chat/conversations/${id}/members/${userId}`,
-} as const;
+export { internalChatEndpoints } from "@/shared/config/endpoints";
+
+function currentUserId() {
+  const id = Number(sessionStore.get().user?.id);
+  if (!Number.isInteger(id) || id <= 0) throw new Error("Authenticated session required");
+  return id;
+}
+
+async function listConversations(signal?: AbortSignal) {
+  const userId = currentUserId();
+  const companyId = Number(sessionStore.get().user?.companyId);
+  const records: ChatRecord[] = [];
+  for (let pageNumber = 1; ; pageNumber++) {
+    const res = await apiRequest<{ records: ChatRecord[]; hasMore?: boolean }>(
+      withQuery(internalChatEndpoints.conversations, { pageNumber }), { signal },
+    );
+    const page = asArray<ChatRecord>(res);
+    records.push(...page.filter((record) =>
+      (record.companyId === undefined || record.companyId === companyId) &&
+      record.users.some((member) => member.userId === userId),
+    ));
+    if (!res.hasMore || !page.length) break;
+  }
+  return [...new Map(records.map((record) => [record.id, conversationFromRecord(record, userId)])).values()];
+}
 
 const asArray = <T>(res: unknown): T[] => {
   if (Array.isArray(res)) return res as T[];
@@ -26,10 +43,7 @@ const asArray = <T>(res: unknown): T[] => {
 export const internalConversationsQuery = (companyId?: string) =>
   queryOptions({
     queryKey: internalChatKeys.conversations(companyId),
-    queryFn: async ({ signal }) => {
-      const res = await apiRequest<unknown>(internalChatEndpoints.conversations, { signal });
-      return asArray<InternalConversation>(res);
-    },
+    queryFn: ({ signal }) => listConversations(signal),
     staleTime: 15_000,
   });
 
@@ -41,31 +55,48 @@ export const internalMessagesQuery = (conversationId: number) =>
         withQuery(internalChatEndpoints.messages(conversationId), { pageNumber: 1 }),
         { signal },
       );
-      return asArray<InternalMessage>(res);
+      return asArray<ChatMessageRecord>(res).map((record) => messageFromRecord(record, currentUserId()));
     },
   });
 
-export const createInternalConversation = (body: CreateConversationInput) =>
-  apiRequest<InternalConversation>(internalChatEndpoints.conversations, { method: "POST", body });
-
-export const sendInternalMessage = (conversationId: number, body: string, ticketId?: number) =>
-  apiRequest<InternalMessage>(internalChatEndpoints.messages(conversationId), {
-    method: "POST",
-    body: { body, ...(ticketId ? { ticketId } : {}) },
+export const createInternalConversation = async (input: CreateConversationInput) => {
+  const userId = currentUserId();
+  const record = await apiRequest<ChatRecord>(internalChatEndpoints.conversations, {
+    method: "POST", body: conversationPayload(input, userId),
   });
+  return conversationFromRecord(record, userId);
+};
+
+export const sendInternalMessage = async (conversationId: number, body: string) => {
+  const record = await apiRequest<ChatMessageRecord>(internalChatEndpoints.messages(conversationId), {
+    method: "POST",
+    body: { message: body },
+  });
+  return messageFromRecord(record, currentUserId());
+};
 
 export const sendInternalMedia = async (conversationId: number, file: File, caption: string) => {
   const form = new FormData();
-  form.append("medias", await normalizePdfFile(file));
-  if (caption) form.append("body", caption);
-  return apiUpload<InternalMessage>(internalChatEndpoints.messages(conversationId), form);
+  form.append("file", await normalizePdfFile(file));
+  form.append("message", caption);
+  const record = await apiUpload<ChatMessageRecord>(internalChatEndpoints.messages(conversationId), form);
+  return messageFromRecord(record, currentUserId());
 };
 
-export const addInternalMember = (conversationId: number, userId: number) =>
-  apiRequest<InternalConversation>(internalChatEndpoints.members(conversationId), {
-    method: "POST",
-    body: { userId },
+async function updateMembers(conversationId: number, userId: number, add: boolean) {
+  // Read the latest membership before a full-list update; never use stale dialog state.
+  const conversation = (await listConversations()).find((record) => record.id === conversationId);
+  if (!conversation || conversation.ownerId !== currentUserId()) throw new Error("Chat owner required");
+  const ids = new Set(conversation.participants.map((member) => member.id));
+  if (add) ids.add(userId);
+  else ids.delete(userId);
+  ids.delete(conversation.ownerId);
+  const record = await apiRequest<ChatRecord>(internalChatEndpoints.detail(conversationId), {
+    method: "PUT",
+    body: { title: conversation.kind === "direct" ? "" : conversation.title, users: [...ids].map((id) => ({ id })) },
   });
+  return conversationFromRecord(record, currentUserId());
+}
 
-export const removeInternalMember = (conversationId: number, userId: number) =>
-  apiRequest<void>(internalChatEndpoints.member(conversationId, userId), { method: "DELETE" });
+export const addInternalMember = (conversationId: number, userId: number) => updateMembers(conversationId, userId, true);
+export const removeInternalMember = (conversationId: number, userId: number) => updateMembers(conversationId, userId, false);

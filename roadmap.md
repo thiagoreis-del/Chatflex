@@ -2,7 +2,9 @@
 
 ## Falha ao criar grupo interno — 03/11/2026
 
-- [ ] Identificar resposta de erro na criação do grupo interno e corrigir a causa sem alterar o isolamento entre empresas — requer resposta autenticada ou logs do backend externo.
+- [x] Identificar incompatibilidade: servidor usa /chats, users/title, message e arquivo no campo file; aplicativo usava contrato não instalado.
+- [x] Adaptar criação, listagem, mensagens e participantes ao contrato recebido; grupos por fila desabilitados até existir contrato.
+- [ ] Validar criação e mensagens com sessão real; corrigir verificações de empresa/participação no servidor externo e confirmar URL dos anexos — exige acesso à VPS e sessão autenticada.
 
 ## Fotos dos contatos — 29/10/2026
 
