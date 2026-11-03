@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
@@ -52,6 +53,7 @@ import { can } from "@/shared/permissions/catalog";
 import { IncomingNotifications } from "@/modules/tickets/components/IncomingNotifications";
 import { AdminAlerts } from "@/modules/tickets/components/AdminAlerts";
 import { SlaWatcher } from "@/modules/sla/components/SlaWatcher";
+import { connectionsQuery } from "@/modules/whatsapp/api";
 
 const soonModules = [{ key: "reports", icon: BarChart3 }] as const;
 
@@ -90,7 +92,17 @@ function SectionTitle({ label }: { label: string }) {
   );
 }
 
-function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+type ConnectionMenuStatus = "connected" | "disconnected" | "unknown";
+
+function SidebarNav({
+  onNavigate,
+  connectionStatus,
+  disconnectedCount,
+}: {
+  onNavigate?: (() => void) | undefined;
+  connectionStatus: ConnectionMenuStatus;
+  disconnectedCount: number;
+}) {
   const { t } = useTranslation();
   const { hasRole } = usePermissions();
   const { user } = useSession();
@@ -163,11 +175,35 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
                 <Link
                   to="/app/conexoes"
                   onClick={onNavigate}
-                  className={linkClass}
+                  className={`${linkClass} ${
+                    connectionStatus === "disconnected"
+                      ? "!bg-destructive/15 !text-red-300 ring-1 ring-inset ring-destructive/50 hover:!bg-destructive/25"
+                      : ""
+                  }`}
                   activeProps={activeLink}
                 >
-                  <Smartphone className="size-4" aria-hidden />
-                  {t("nav.modules.whatsapp")}
+                  <Smartphone
+                    className={
+                      connectionStatus === "disconnected" ? "size-4 text-red-400" : "size-4"
+                    }
+                    aria-hidden
+                  />
+                  <span className="min-w-0 flex-1">{t("nav.modules.whatsapp")}</span>
+                  <span
+                    className={`size-2.5 shrink-0 rounded-full ring-2 ring-sidebar ${
+                      connectionStatus === "connected"
+                        ? "bg-emerald-400"
+                        : connectionStatus === "disconnected"
+                          ? "animate-pulse bg-red-500"
+                          : "bg-sidebar-foreground/35"
+                    }`}
+                    aria-label={t(`nav.connectionStatus.${connectionStatus}`, {
+                      count: disconnectedCount,
+                    })}
+                    title={t(`nav.connectionStatus.${connectionStatus}`, {
+                      count: disconnectedCount,
+                    })}
+                  />
                 </Link>
               </li>
             )}
@@ -278,14 +314,26 @@ function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   );
 }
 
-function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+function SidebarBody({
+  onNavigate,
+  connectionStatus,
+  disconnectedCount,
+}: {
+  onNavigate?: (() => void) | undefined;
+  connectionStatus: ConnectionMenuStatus;
+  disconnectedCount: number;
+}) {
   return (
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-y-auto bg-sidebar py-5 text-sidebar-foreground">
       <div className="flex items-center gap-2 px-6">
         <AppLogo />
         <AppName className="text-lg" />
       </div>
-      <SidebarNav onNavigate={onNavigate} />
+      <SidebarNav
+        onNavigate={onNavigate}
+        connectionStatus={connectionStatus}
+        disconnectedCount={disconnectedCount}
+      />
       <GroupFooter className="mt-auto border-t border-sidebar-border pt-3" />
     </div>
   );
@@ -338,6 +386,20 @@ export function AppShell({ children }: { children: ReactNode }) {
     return window.localStorage.getItem(DESKTOP_MENU_STORAGE_KEY) !== "false";
   });
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const canViewConnections = can(user, "module.connections");
+  const connectionList = useQuery({
+    ...connectionsQuery(),
+    enabled: canViewConnections,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: true,
+  });
+  const disconnectedCount =
+    connectionList.data?.filter((connection) => connection.status !== "CONNECTED").length ?? 0;
+  const connectionStatus: ConnectionMenuStatus = connectionList.data?.length
+    ? disconnectedCount > 0
+      ? "disconnected"
+      : "connected"
+    : "unknown";
 
   const toggleDesktopMenu = () => {
     setDesktopOpen((open) => {
@@ -434,7 +496,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           className={desktopOpen ? "hidden w-64 shrink-0 lg:block" : "hidden"}
         >
           <div className="h-full">
-            <SidebarBody />
+            <SidebarBody
+              connectionStatus={connectionStatus}
+              disconnectedCount={disconnectedCount}
+            />
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
@@ -468,7 +533,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               </SheetTrigger>
               <SheetContent side="left" className="w-72 max-w-[85vw] border-0 p-0">
                 <SheetTitle className="sr-only">{t("nav.main")}</SheetTitle>
-                <SidebarBody onNavigate={() => setMobileOpen(false)} />
+                <SidebarBody
+                  onNavigate={() => setMobileOpen(false)}
+                  connectionStatus={connectionStatus}
+                  disconnectedCount={disconnectedCount}
+                />
               </SheetContent>
             </Sheet>
             <div className="flex min-w-0 items-center gap-1.5 lg:hidden">

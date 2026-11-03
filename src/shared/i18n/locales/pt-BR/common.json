@@ -81,6 +81,12 @@
       "internalChat": "Chat interno",
       "whatsappStatus": "Publicar Status"
     },
+    "connectionStatus": {
+      "connected": "WhatsApp conectado",
+      "disconnected_one": "{{count}} conexão do WhatsApp não está conectada",
+      "disconnected_other": "{{count}} conexões do WhatsApp não estão conectadas",
+      "unknown": "Verificando conexão do WhatsApp"
+    },
     "platform": {
       "section": "Administração da plataforma",
       "overview": "Visão da plataforma",
