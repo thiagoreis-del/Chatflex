@@ -424,18 +424,21 @@ export function ImageEditorDialog({
     out.height = c.base.height;
     const o = out.getContext("2d");
     if (!o) return;
+    // O provedor de WhatsApp rejeita algumas imagens PNG geradas por canvas
+    // com HTTP 400. A edição é achatada em JPEG, formato aceito de forma
+    // consistente; o fundo branco evita áreas pretas onde havia transparência.
+    o.fillStyle = "#ffffff";
+    o.fillRect(0, 0, out.width, out.height);
     o.drawImage(c.base, 0, 0);
     o.drawImage(c.marks, 0, 0);
-    const png = file.type === "image/png";
-    const type = png ? "image/png" : "image/jpeg";
     out.toBlob(
       (blob) => {
         if (!blob) return;
         const base = file.name.replace(/\.[^.]+$/, "") || "imagem";
-        onSave(new File([blob], `${base}-editada.${png ? "png" : "jpg"}`, { type }));
+        onSave(new File([blob], `${base}-editada.jpg`, { type: "image/jpeg" }));
         onOpenChange(false);
       },
-      type,
+      "image/jpeg",
       0.92,
     );
   };
