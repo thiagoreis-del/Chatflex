@@ -1157,7 +1157,11 @@ function Conversation({
       }
       const detail = e instanceof ApiError ? e.body?.message : undefined;
       toast.error(t(v.media.length ? "toast.fileError" : "toast.sendError"), {
-        description: detail,
+        description:
+          detail ??
+          (e instanceof ApiError && e.status > 0
+            ? t("toast.requestFailed", { status: e.status })
+            : undefined),
       });
     },
   });

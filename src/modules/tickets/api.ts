@@ -3,7 +3,7 @@ import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import { sessionStore } from "@/shared/auth/session-store";
-import { normalizePdfFile } from "@/shared/upload/pdf-file";
+import { normalizeUploadFile } from "@/shared/upload/pdf-file";
 import type {
   Message,
   Ticket,
@@ -372,7 +372,11 @@ export const messagesQuery = (ticketId: number) =>
   queryOptions({
     queryKey: ticketKeys.messages(ticketId),
     queryFn: ({ signal, client }) =>
-      refreshMessages(ticketId, client.getQueryData<Message[]>(ticketKeys.messages(ticketId)), signal),
+      refreshMessages(
+        ticketId,
+        client.getQueryData<Message[]>(ticketKeys.messages(ticketId)),
+        signal,
+      ),
     // Polling de fallback é definido na tela conforme o status do Socket.
   });
 
@@ -459,7 +463,7 @@ export const sendMediaMessage = async (
   opts: UploadOptions = {},
 ) => {
   const form = new FormData();
-  form.append("medias", await normalizePdfFile(file));
+  form.append("medias", await normalizeUploadFile(file));
   form.append("body", caption);
   return apiUpload<Message | undefined>(ep.messages(ticketId), form, opts);
 };
