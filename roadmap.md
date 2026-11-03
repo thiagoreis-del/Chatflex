@@ -1,5 +1,9 @@
 # Roadmap
 
+## Falha ao criar grupo interno — 03/11/2026
+
+- [ ] Identificar resposta de erro na criação do grupo interno e corrigir a causa sem alterar o isolamento entre empresas — requer resposta autenticada ou logs do backend externo.
+
 ## Fotos dos contatos — 29/10/2026
 
 - [x] Mostrar fotos já recebidas nos contatos da lista e cabeçalho de conversa, com iniciais quando ausentes ou indisponíveis.
