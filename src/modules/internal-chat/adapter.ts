@@ -35,7 +35,7 @@ export function conversationFromRecord(record: ChatRecord, userId: number): Inte
     ownerId: record.ownerId,
     kind: record.title ? "group" : "direct",
     title: record.title || other?.name || participants.map((member) => member.name).join(", "),
-    lastMessage: record.lastMessage,
+    ...(record.lastMessage !== undefined ? { lastMessage: record.lastMessage } : {}),
     updatedAt: record.updatedAt,
     unreadMessages: record.users.find((member) => member.userId === userId)?.unreads ?? 0,
     participants,
@@ -49,9 +49,9 @@ export function messageFromRecord(record: ChatMessageRecord, userId: number): In
     body: record.message || "",
     fromMe: record.senderId === userId,
     createdAt: record.createdAt,
-    sender: record.sender,
-    mediaUrl: record.mediaUrl,
-    mediaName: record.mediaName,
+    sender: record.sender ?? null,
+    mediaUrl: record.mediaUrl ?? null,
+    mediaName: record.mediaName ?? null,
   };
 }
 

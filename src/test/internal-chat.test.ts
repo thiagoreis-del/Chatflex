@@ -45,7 +45,9 @@ describe("verified internal chat contract", () => {
   it("uploads a PDF under file and sends its caption under message", async () => {
     vi.mocked(apiUpload).mockResolvedValue({ id: 23, chatId: 12, senderId: 7, message: "Contrato", createdAt: record.updatedAt });
     await sendInternalMedia(12, new File(["%PDF-1.7"], "contrato", { type: "application/octet-stream" }), "Contrato");
-    const [url, form] = vi.mocked(apiUpload).mock.calls[0];
+    const call = vi.mocked(apiUpload).mock.calls[0];
+    if (!call) throw new Error("Missing upload");
+    const [url, form] = call;
     expect(url).toBe("/chats/12/messages");
     expect(form.get("message")).toBe("Contrato");
     expect((form.get("file") as File).name).toBe("contrato.pdf");
