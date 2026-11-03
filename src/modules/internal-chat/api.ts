@@ -16,6 +16,10 @@ function currentUserId() {
   return id;
 }
 
+function adaptMessage(record: ChatMessageRecord) {
+  return messageFromRecord(record, currentUserId(), Number(sessionStore.get().user?.companyId));
+}
+
 async function listConversations(signal?: AbortSignal) {
   const userId = currentUserId();
   const companyId = Number(sessionStore.get().user?.companyId);
@@ -55,7 +59,7 @@ export const internalMessagesQuery = (conversationId: number) =>
         withQuery(internalChatEndpoints.messages(conversationId), { pageNumber: 1 }),
         { signal },
       );
-      return asArray<ChatMessageRecord>(res).map((record) => messageFromRecord(record, currentUserId()));
+      return asArray<ChatMessageRecord>(res).map(adaptMessage);
     },
   });
 
@@ -72,7 +76,7 @@ export const sendInternalMessage = async (conversationId: number, body: string) 
     method: "POST",
     body: { message: body },
   });
-  return messageFromRecord(record, currentUserId());
+  return adaptMessage(record);
 };
 
 export const sendInternalMedia = async (conversationId: number, file: File, caption: string) => {
@@ -80,7 +84,7 @@ export const sendInternalMedia = async (conversationId: number, file: File, capt
   form.append("file", await normalizePdfFile(file));
   form.append("message", caption);
   const record = await apiUpload<ChatMessageRecord>(internalChatEndpoints.messages(conversationId), form);
-  return messageFromRecord(record, currentUserId());
+  return adaptMessage(record);
 };
 
 async function updateMembers(conversationId: number, userId: number, add: boolean) {

@@ -42,6 +42,20 @@ describe("verified internal chat contract", () => {
     expect(apiRequest).toHaveBeenCalledWith("/chats/12/messages", { method: "POST", body: { message: "Olá" } });
   });
 
+  it("resolves uploaded voice notes in the session company's folder", async () => {
+    vi.mocked(apiUpload).mockResolvedValue({ id: 24, chatId: 12, senderId: 7, message: "", createdAt: record.updatedAt,
+      mediaPath: "1793744307471_audio.ogg", mediaName: "audio.ogg" });
+    const message = await sendInternalMedia(12, new File(["audio"], "audio.ogg", { type: "audio/ogg" }), "");
+    expect(message.mediaUrl).toBe("https://api.notasflex.com.br/public/company2/1793744307471_audio.ogg");
+    expect(message.mediaType).toBe("audio");
+  });
+
+  it("does not resolve filenames outside the authenticated company folder", () => {
+    const base = { id: 24, chatId: 12, senderId: 7, message: "", createdAt: record.updatedAt };
+    expect(messageFromRecord({ ...base, mediaPath: "../company4/audio.ogg" }, 7, 2).mediaUrl).toBeNull();
+    expect(messageFromRecord({ ...base, mediaPath: "audio.ogg" }, 7).mediaUrl).toBeNull();
+  });
+
   it("uploads a PDF under file and sends its caption under message", async () => {
     vi.mocked(apiUpload).mockResolvedValue({ id: 23, chatId: 12, senderId: 7, message: "Contrato", createdAt: record.updatedAt });
     await sendInternalMedia(12, new File(["%PDF-1.7"], "contrato", { type: "application/octet-stream" }), "Contrato");

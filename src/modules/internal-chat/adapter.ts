@@ -1,4 +1,6 @@
 import type { CreateConversationInput, InternalConversation, InternalMessage } from "./types";
+import { internalChatEndpoints } from "@/shared/config/endpoints";
+import { env } from "@/shared/config/env";
 
 export interface ChatParticipantRecord {
   userId: number;
@@ -24,6 +26,7 @@ export interface ChatMessageRecord {
   createdAt: string;
   sender?: { id: number; name: string };
   mediaUrl?: string | null;
+  mediaPath?: string | null;
   mediaName?: string | null;
 }
 
@@ -42,7 +45,17 @@ export function conversationFromRecord(record: ChatRecord, userId: number): Inte
   };
 }
 
-export function messageFromRecord(record: ChatMessageRecord, userId: number): InternalMessage {
+export function messageFromRecord(record: ChatMessageRecord, userId: number, companyId?: number): InternalMessage {
+  // The verified controller stores only file.filename, in the authenticated company's folder.
+  const filename = record.mediaPath;
+  const scopedUrl = companyId && Number.isInteger(companyId) && companyId > 0 && filename &&
+    !/[\\/\u0000]/.test(filename) && filename !== "." && filename !== ".."
+    ? `${env.apiUrl}${internalChatEndpoints.media(companyId, filename)}` : null;
+  const mediaUrl = record.mediaUrl || scopedUrl;
+  const extension = (record.mediaName || filename || mediaUrl || "").split("?")[0].split(".").pop()?.toLowerCase();
+  const mediaType = extension && ["ogg", "opus", "webm", "mp3", "m4a", "wav", "aac"].includes(extension)
+    ? "audio" : extension && ["png", "jpg", "jpeg", "gif", "webp"].includes(extension)
+      ? "image" : extension && ["mp4", "mov"].includes(extension) ? "video" : "document";
   return {
     id: String(record.id),
     conversationId: record.chatId,
@@ -50,7 +63,8 @@ export function messageFromRecord(record: ChatMessageRecord, userId: number): In
     fromMe: record.senderId === userId,
     createdAt: record.createdAt,
     sender: record.sender ?? null,
-    mediaUrl: record.mediaUrl ?? null,
+    mediaUrl,
+    mediaType: mediaUrl ? mediaType : null,
     mediaName: record.mediaName ?? null,
   };
 }
