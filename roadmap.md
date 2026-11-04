@@ -2,6 +2,7 @@
 
 ## Busca de contatos e identificação de grupos — 04/11/2026
 
+- [ ] Corrigir sugestões que ignoram atendimentos antigos encontrados pela busca e validar regressões para abertos/aguardando.
 - [x] Excluir grupos das sugestões e deduplicar contatos pelo telefone dos atendimentos abertos/aguardando retornados na primeira página autorizada, sem filtrar essa consulta pelo termo da busca.
 - [x] Mostrar somente o nome na identificação de grupos, sem o número interno.
 - [x] Validar 26 testes relacionados e compilação da prévia sem erros.
