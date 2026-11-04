@@ -307,267 +307,470 @@ export function TicketsPage() {
   });
 
   const ticketList = (
-    <aside
-      className={cn(
-        "flex h-full min-h-0 min-w-0 w-full flex-col bg-card",
-        selected && "hidden md:flex",
-      )}
-    >
-      <div className="space-y-2.5 border-b px-3 pb-2.5 pt-3">
-        <div className="flex items-center justify-between gap-2">
-          <h1 className="font-display text-lg font-semibold tracking-tight">
-            {t("sidebar.title")}
-          </h1>
-          <div className="flex items-center gap-1">
-            <Button
-              variant={showFilters || activeFilters > 0 ? "secondary" : "ghost"}
-              size="icon"
-              className="relative size-8"
-              aria-label={t("sidebar.filters")}
-              aria-pressed={showFilters}
-              onClick={() => setShowFilters((v) => !v)}
-            >
-              <SlidersHorizontal className="size-4" />
-              {activeFilters > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {activeFilters}
-                </span>
-              )}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  aria-label={t("sidebar.actions")}
-                >
-                  <MoreVertical className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem
-                  onSelect={() => qcl.invalidateQueries({ queryKey: ticketKeys.all })}
-                >
-                  <RefreshCw className="mr-2 size-4" /> {t("sidebar.refresh")}
-                </DropdownMenuItem>
-                {isAdmin && tab !== "closed" && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="text-destructive focus:text-destructive"
-                      disabled={closeable.length === 0 || bulkClose.isPending}
-                      onSelect={() => setConfirmClose(true)}
-                    >
-                      <XCircle className="mr-2 size-4" /> {t("closeAll.button")} ({closeable.length}
-                      )
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" aria-hidden />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("search")}
-            aria-label={t("search")}
-            className="h-9 rounded-full bg-muted/60 pl-8 pr-8"
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              aria-label={t("sidebar.clearSearch")}
-              className="absolute right-2 top-2 rounded-full p-0.5 text-muted-foreground hover:bg-muted"
-            >
-              <X className="size-4" />
-            </button>
-          )}
-        </div>
-        <Tabs value={tab} onValueChange={(v) => setTab(v as TicketTab)}>
-          <TabsList className="grid h-auto w-full grid-cols-4 gap-1 bg-transparent p-0">
-            {(["open", "pending", "groups", "closed"] as const).map((s) => {
-              const c = s === tab ? query.data?.length : counts[s];
-              const Icon = TAB_ICONS[s];
-              const active = s === tab;
-              return (
-                <TabsTrigger
-                  key={s}
-                  value={s}
-                  className={cn(
-                    "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border-0 px-1 py-2",
-                    "text-[11px] font-semibold leading-tight transition-all sm:text-xs",
-                    active ? TAB_ACTIVE_CLASSES[s] : TAB_IDLE_CLASSES[s],
-                  )}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Icon className="size-4 shrink-0 sm:size-5" aria-hidden />
-                    {s !== "closed" && (
-                      <span
-                        className={cn(
-                          "min-w-7 rounded-full px-1.5 text-sm font-extrabold leading-6 tabular-nums sm:text-base",
-                          active
-                            ? "bg-background text-foreground shadow-sm"
-                            : "bg-background text-current shadow-sm ring-1 ring-current/20",
-                        )}
-                        aria-label={String(c ?? 0)}
-                      >
-                        {c === undefined ? "–" : c > 99 ? "99+" : c}
-                      </span>
-                    )}
+      <aside
+        className={cn(
+          "flex h-full min-h-0 min-w-0 w-full flex-col bg-card",
+          selected && "hidden md:flex",
+        )}
+      >
+        <div className="space-y-2.5 border-b px-3 pb-2.5 pt-3">
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="font-display text-lg font-semibold tracking-tight">
+              {t("sidebar.title")}
+            </h1>
+            <div className="flex items-center gap-1">
+              <Button
+                variant={showFilters || activeFilters > 0 ? "secondary" : "ghost"}
+                size="icon"
+                className="relative size-8"
+                aria-label={t("sidebar.filters")}
+                aria-pressed={showFilters}
+                onClick={() => setShowFilters((v) => !v)}
+              >
+                <SlidersHorizontal className="size-4" />
+                {activeFilters > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {activeFilters}
                   </span>
-                  <span className="max-w-full truncate">{t(`tabs.${s}`)}</span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-        </Tabs>
-        {showFilters && (
-          <div className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/30 p-2">
-            {connections.length > 0 && (
-              <select
-                value={connectionId}
-                onChange={(e) => setConnectionId(e.target.value)}
-                aria-label={t("connectionFilter")}
-                className="col-span-2 h-8 rounded-md border bg-background px-2 text-xs"
-              >
-                <option value="all">{t("allConnections")}</option>
-                {connections.map((c) => (
-                  <option key={c.id} value={String(c.id)}>
-                    {c.name}
-                    {c.number ? ` · +${c.number}` : ""}
-                  </option>
-                ))}
-              </select>
-            )}
-            <select
-              value={attendantFilter}
-              onChange={(e) => setAttendantFilter(e.target.value)}
-              aria-label={t("attendant")}
-              className="h-8 rounded-md border bg-background px-2 text-xs"
-            >
-              <option value="all">{t("sidebar.allAttendants")}</option>
-              <option value="mine">{t("sidebar.mine")}</option>
-              <option value="none">{t("sidebar.unassigned")}</option>
-              {attendants.length > 0 && (
-                <optgroup label={t("sidebar.attendantsGroup")}>
-                  {attendants.map((u) => (
-                    <option key={u.id} value={String(u.id)}>
-                      {u.name}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-            {slaOn ? (
-              <select
-                value={slaFilter}
-                onChange={(e) => setSlaFilter(e.target.value as "all" | SlaState)}
-                aria-label={ts("sla.filter")}
-                className="h-8 rounded-md border bg-background px-2 text-xs"
-              >
-                <option value="all">{ts("sla.filterAll")}</option>
-                {(["monitoring", "warning", "urgent", "violated"] as const).map((s) => (
-                  <option key={s} value={s}>
-                    {ts(`sla.states.${s}`)}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <span />
-            )}
-            <button
-              type="button"
-              onClick={() => setUnreadOnly((v) => !v)}
-              aria-pressed={unreadOnly}
-              className={cn(
-                "inline-flex h-7 items-center justify-center gap-1 rounded-full border px-2 text-xs font-medium transition-colors",
-                unreadOnly ? "border-primary bg-primary/10 text-primary" : "bg-background",
-              )}
-            >
-              <MessageCircle className="size-3.5" /> {t("sidebar.unreadOnly")}
-            </button>
-            {activeFilters > 0 && (
+                )}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    aria-label={t("sidebar.actions")}
+                  >
+                    <MoreVertical className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem
+                    onSelect={() => qcl.invalidateQueries({ queryKey: ticketKeys.all })}
+                  >
+                    <RefreshCw className="mr-2 size-4" /> {t("sidebar.refresh")}
+                  </DropdownMenuItem>
+                  {isAdmin && tab !== "closed" && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        disabled={closeable.length === 0 || bulkClose.isPending}
+                        onSelect={() => setConfirmClose(true)}
+                      >
+                        <XCircle className="mr-2 size-4" /> {t("closeAll.button")} (
+                        {closeable.length})
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          <div className="relative">
+            <Search
+              className="absolute left-2.5 top-2.5 size-4 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("search")}
+              aria-label={t("search")}
+              className="h-9 rounded-full bg-muted/60 pl-8 pr-8"
+            />
+            {search && (
               <button
                 type="button"
-                onClick={clearFilters}
-                className="h-7 text-xs font-medium text-muted-foreground hover:text-foreground"
+                onClick={() => setSearch("")}
+                aria-label={t("sidebar.clearSearch")}
+                className="absolute right-2 top-2 rounded-full p-0.5 text-muted-foreground hover:bg-muted"
               >
-                {t("sidebar.clearFilters")}
+                <X className="size-4" />
               </button>
             )}
           </div>
-        )}
-        <ConfirmDialog
-          open={confirmClose}
-          onOpenChange={setConfirmClose}
-          title={t("closeAll.title")}
-          description={t("closeAll.description", { count: closeable.length })}
-          confirmLabel={t("closeAll.confirm")}
-          onConfirm={() => {
-            setConfirmClose(false);
-            if (isAdmin) bulkClose.mutate();
-          }}
-        />
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        {tab !== "groups" && openTickets && pendingTickets && (
-          <NewTicketSuggestions
-            search={debouncedSearch}
-            activeTickets={activeTickets}
-            userId={session.user?.id ? Number(session.user.id) : undefined}
-            onStarted={(tk) => {
-              setTab("open");
-              setSearch("");
-              setSelected(tk);
+          <Tabs value={tab} onValueChange={(v) => setTab(v as TicketTab)}>
+            <TabsList className="grid h-auto w-full grid-cols-4 gap-1 bg-transparent p-0">
+              {(["open", "pending", "groups", "closed"] as const).map((s) => {
+                const c = s === tab ? query.data?.length : counts[s];
+                const Icon = TAB_ICONS[s];
+                const active = s === tab;
+                return (
+                  <TabsTrigger
+                    key={s}
+                    value={s}
+                    className={cn(
+                      "flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border-0 px-1 py-2",
+                      "text-[11px] font-semibold leading-tight transition-all sm:text-xs",
+                      active ? TAB_ACTIVE_CLASSES[s] : TAB_IDLE_CLASSES[s],
+                    )}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Icon className="size-4 shrink-0 sm:size-5" aria-hidden />
+                      {s !== "closed" && (
+                        <span
+                          className={cn(
+                            "min-w-7 rounded-full px-1.5 text-sm font-extrabold leading-6 tabular-nums sm:text-base",
+                            active
+                              ? "bg-background text-foreground shadow-sm"
+                              : "bg-background text-current shadow-sm ring-1 ring-current/20",
+                          )}
+                          aria-label={String(c ?? 0)}
+                        >
+                          {c === undefined ? "–" : c > 99 ? "99+" : c}
+                        </span>
+                      )}
+                    </span>
+                    <span className="max-w-full truncate">{t(`tabs.${s}`)}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </Tabs>
+          {showFilters && (
+            <div className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/30 p-2">
+              {connections.length > 0 && (
+                <select
+                  value={connectionId}
+                  onChange={(e) => setConnectionId(e.target.value)}
+                  aria-label={t("connectionFilter")}
+                  className="col-span-2 h-8 rounded-md border bg-background px-2 text-xs"
+                >
+                  <option value="all">{t("allConnections")}</option>
+                  {connections.map((c) => (
+                    <option key={c.id} value={String(c.id)}>
+                      {c.name}
+                      {c.number ? ` · +${c.number}` : ""}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <select
+                value={attendantFilter}
+                onChange={(e) => setAttendantFilter(e.target.value)}
+                aria-label={t("attendant")}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="all">{t("sidebar.allAttendants")}</option>
+                <option value="mine">{t("sidebar.mine")}</option>
+                <option value="none">{t("sidebar.unassigned")}</option>
+                {attendants.length > 0 && (
+                  <optgroup label={t("sidebar.attendantsGroup")}>
+                    {attendants.map((u) => (
+                      <option key={u.id} value={String(u.id)}>
+                        {u.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+              {slaOn ? (
+                <select
+                  value={slaFilter}
+                  onChange={(e) => setSlaFilter(e.target.value as "all" | SlaState)}
+                  aria-label={ts("sla.filter")}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                >
+                  <option value="all">{ts("sla.filterAll")}</option>
+                  {(["monitoring", "warning", "urgent", "violated"] as const).map((s) => (
+                    <option key={s} value={s}>
+                      {ts(`sla.states.${s}`)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span />
+              )}
+              <button
+                type="button"
+                onClick={() => setUnreadOnly((v) => !v)}
+                aria-pressed={unreadOnly}
+                className={cn(
+                  "inline-flex h-7 items-center justify-center gap-1 rounded-full border px-2 text-xs font-medium transition-colors",
+                  unreadOnly ? "border-primary bg-primary/10 text-primary" : "bg-background",
+                )}
+              >
+                <MessageCircle className="size-3.5" /> {t("sidebar.unreadOnly")}
+              </button>
+              {activeFilters > 0 && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="h-7 text-xs font-medium text-muted-foreground hover:text-foreground"
+                >
+                  {t("sidebar.clearFilters")}
+                </button>
+              )}
+            </div>
+          )}
+          <ConfirmDialog
+            open={confirmClose}
+            onOpenChange={setConfirmClose}
+            title={t("closeAll.title")}
+            description={t("closeAll.description", { count: closeable.length })}
+            confirmLabel={t("closeAll.confirm")}
+            onConfirm={() => {
+              setConfirmClose(false);
+              if (isAdmin) bulkClose.mutate();
             }}
           />
-        )}
-        {query.isPending ? (
-          <ul aria-busy className="divide-y">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i} className="flex gap-3 px-3 py-3">
-                <Skeleton className="size-11 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-3.5 w-2/3" />
-                  <Skeleton className="h-3 w-full" />
-                  <Skeleton className="h-3 w-1/2" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <QueryBoundary query={query} contract={ticketsContract}>
-            {(firstPage) => {
-              const list =
-                tab === "closed" && olderOn
-                  ? mergeTicketHistory([
-                      firstPage,
-                      ...(older.data?.pages ?? []).map((p) => notGroup(p?.tickets ?? [])),
-                    ])
-                  : firstPage;
-              const visible = list.filter(matchesFilters);
-              if (visible.length === 0) {
-                const msg = debouncedSearch
-                  ? t("sidebar.noResults", { q: debouncedSearch })
-                  : activeFilters > 0
-                    ? t("sidebar.noFiltered")
-                    : t("empty");
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {tab !== "groups" && openTickets && pendingTickets && (
+            <NewTicketSuggestions
+              search={debouncedSearch}
+              activeTickets={activeTickets}
+              userId={session.user?.id ? Number(session.user.id) : undefined}
+              onStarted={(tk) => {
+                setTab("open");
+                setSearch("");
+                setSelected(tk);
+              }}
+            />
+          )}
+          {query.isPending ? (
+            <ul aria-busy className="divide-y">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <li key={i} className="flex gap-3 px-3 py-3">
+                  <Skeleton className="size-11 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-2/3" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <QueryBoundary query={query} contract={ticketsContract}>
+              {(firstPage) => {
+                const list =
+                  tab === "closed" && olderOn
+                    ? mergeTicketHistory([
+                        firstPage,
+                        ...(older.data?.pages ?? []).map((p) => notGroup(p?.tickets ?? [])),
+                      ])
+                    : firstPage;
+                const visible = list.filter(matchesFilters);
+                if (visible.length === 0) {
+                  const msg = debouncedSearch
+                    ? t("sidebar.noResults", { q: debouncedSearch })
+                    : activeFilters > 0
+                      ? t("sidebar.noFiltered")
+                      : t("empty");
+                  return (
+                    <div className="flex flex-col items-center gap-2 px-6 py-12 text-center text-sm text-muted-foreground">
+                      {debouncedSearch ? (
+                        <SearchX className="size-8" />
+                      ) : (
+                        <Inbox className="size-8" />
+                      )}
+                      <p>{msg}</p>
+                      {tab === "closed" &&
+                        (older.hasNextPage || !olderOn) &&
+                        firstPage.length > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={older.isFetching}
+                            onClick={() => {
+                              if (!olderOn) setOlderOn(true);
+                              else void older.fetchNextPage();
+                            }}
+                          >
+                            {older.isFetching ? t("sidebar.loadingMore") : t("sidebar.loadMore")}
+                          </Button>
+                        )}
+                      {(debouncedSearch || activeFilters > 0) && (
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => {
+                            setSearch("");
+                            clearFilters();
+                          }}
+                        >
+                          {t("sidebar.clearFilters")}
+                        </Button>
+                      )}
+                    </div>
+                  );
+                }
                 return (
-                  <div className="flex flex-col items-center gap-2 px-6 py-12 text-center text-sm text-muted-foreground">
-                    {debouncedSearch ? (
-                      <SearchX className="size-8" />
-                    ) : (
-                      <Inbox className="size-8" />
-                    )}
-                    <p>{msg}</p>
-                    {tab === "closed" &&
-                      (older.hasNextPage || !olderOn) &&
-                      firstPage.length > 0 && (
+                  <ul className="divide-y divide-border/60">
+                    {visible.map((tk) => {
+                      const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
+                      const hl = sla?.highlight ? slaInfo?.state : undefined;
+                      const isSel = selected?.id === tk.id;
+                      const name = conversationContactName(tk.contact, tk.isGroup, t("tabs.groups"));
+                      const preview = stripSignature(tk.lastMessage ?? "");
+                      const waitMin =
+                        tk.status === "pending"
+                          ? Math.max(
+                              0,
+                              Math.floor((now - new Date(tk.updatedAt).getTime()) / 60000),
+                            )
+                          : 0;
+                      return (
+                        <li key={tk.id}>
+                          <button
+                            type="button"
+                            onClick={() => setSelected(tk)}
+                            aria-current={isSel || undefined}
+                            className={cn(
+                              "flex w-full gap-3 border-l-[3px] border-l-transparent px-3 py-2.5 text-left transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none",
+                              hl === "urgent" && "border-l-warning bg-warning/5",
+                              hl === "violated" && "border-l-destructive bg-destructive/5",
+                              isSel && "border-l-primary bg-primary/10 hover:bg-primary/10",
+                            )}
+                          >
+                            <div className="relative shrink-0">
+                              <Avatar className="size-11">
+                                <AvatarImage
+                                  src={contactPhotoUrl(tk.contact.profilePicUrl)}
+                                  alt=""
+                                  className="object-cover"
+                                  referrerPolicy="no-referrer"
+                                />
+                                <AvatarFallback className="bg-primary/10 font-display text-base font-semibold text-primary">
+                                  {contactInitials(name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span
+                                className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full border-2 border-card bg-success text-success-foreground"
+                                title={tk.whatsapp?.name ?? t("unknownOrigin")}
+                              >
+                                <MessageCircle className="size-2" />
+                              </span>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-baseline justify-between gap-2">
+                                <span
+                                  className={cn(
+                                    "truncate text-sm",
+                                    tk.unreadMessages > 0 ? "font-semibold" : "font-medium",
+                                  )}
+                                >
+                                  {name}
+                                  {mutedIds.includes(tk.contact.id) && (
+                                    <BellOff
+                                      className="ml-1 inline size-3 text-muted-foreground"
+                                      aria-label={t("mute.muted")}
+                                    />
+                                  )}
+                                </span>
+                                <span
+                                  className={cn(
+                                    "shrink-0 text-[11px]",
+                                    tk.unreadMessages > 0
+                                      ? "font-semibold text-primary"
+                                      : "text-muted-foreground",
+                                  )}
+                                >
+                                  {time(tk.updatedAt)}
+                                </span>
+                              </div>
+                              <div className="mt-0.5 flex items-center justify-between gap-2">
+                                <span
+                                  className={cn(
+                                    "truncate text-[13px]",
+                                    tk.unreadMessages > 0
+                                      ? "text-foreground"
+                                      : "text-muted-foreground",
+                                  )}
+                                >
+                                  {preview || "\u00a0"}
+                                </span>
+                                {tk.unreadMessages > 0 && (
+                                  <span
+                                    className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground"
+                                    aria-label={t("sidebar.unread", { count: tk.unreadMessages })}
+                                  >
+                                    {tk.unreadMessages > 99 ? "99+" : tk.unreadMessages}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1">
+                                {slaInfo && <SlaBadge info={slaInfo} />}
+                                <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-medium text-muted-foreground">
+                                  <span
+                                    className="size-1.5 shrink-0 rounded-full"
+                                    style={{
+                                      backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
+                                    }}
+                                  />
+                                  <span className="truncate">{tk.queue?.name ?? t("noQueue")}</span>
+                                </span>
+                                <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md bg-muted px-1.5 py-px text-[10px] text-muted-foreground">
+                                  <Smartphone className="size-2.5 shrink-0" />
+                                  <span className="truncate">
+                                    {tk.whatsapp?.name ?? t("unknownOrigin")}
+                                  </span>
+                                </span>
+                                {waitMin > 0 && (
+                                  <span className="inline-flex items-center gap-0.5 rounded-md bg-warning/15 px-1.5 py-px text-[10px] font-medium text-foreground">
+                                    <Clock className="size-2.5" />
+                                    {waitMin >= 60
+                                      ? `${Math.floor(waitMin / 60)}h${waitMin % 60}m`
+                                      : `${waitMin}m`}
+                                  </span>
+                                )}
+                                {tk.user ? (
+                                  <span
+                                    title={t("attendant") + ": " + tk.user.name}
+                                    className={cn(
+                                      "ml-auto inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-semibold",
+                                      attendantBadgeColor(tk.user).badge,
+                                    )}
+                                  >
+                                    <UserRound className="size-2.5 shrink-0" />
+                                    <span className="truncate">{tk.user.name}</span>
+                                  </span>
+                                ) : (
+                                  <span
+                                    title={t("noAttendant")}
+                                    className="ml-auto inline-flex items-center gap-1 truncate rounded-md border border-warning/40 bg-warning/10 px-1.5 py-px text-[10px] font-semibold text-warning-foreground"
+                                  >
+                                    <UserRound className="size-2.5 shrink-0" />
+                                    <span className="truncate">{t("noAttendant")}</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                          {tk.status !== "closed" && (
+                            <div className="flex flex-wrap justify-end gap-2 px-3 pb-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setTransferTarget(tk)}
+                                title={t("actions.transfer")}
+                              >
+                                <ArrowRightLeft className="size-4" aria-hidden="true" />
+                                {t("actions.transfer")}
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => setRefuseTarget(tk)}
+                                disabled={refuseFromList.isPending}
+                                title={t("actions.refuse")}
+                              >
+                                <Undo2 className="size-4" aria-hidden="true" />
+                                {t("actions.refuse")}
+                              </Button>
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                    {tab === "closed" && (older.hasNextPage || !olderOn) && list.length > 0 && (
+                      <li className="flex justify-center p-3">
                         <Button
                           variant="outline"
                           size="sm"
@@ -577,244 +780,47 @@ export function TicketsPage() {
                             else void older.fetchNextPage();
                           }}
                         >
-                          {older.isFetching ? t("sidebar.loadingMore") : t("sidebar.loadMore")}
+                          {older.isFetchingNextPage || (olderOn && older.isPending)
+                            ? t("sidebar.loadingMore")
+                            : t("sidebar.loadMore")}
                         </Button>
-                      )}
-                    {(debouncedSearch || activeFilters > 0) && (
-                      <Button
-                        variant="link"
-                        size="sm"
-                        onClick={() => {
-                          setSearch("");
-                          clearFilters();
-                        }}
-                      >
-                        {t("sidebar.clearFilters")}
-                      </Button>
-                    )}
-                  </div>
-                );
-              }
-              return (
-                <ul className="divide-y divide-border/60">
-                  {visible.map((tk) => {
-                    const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
-                    const hl = sla?.highlight ? slaInfo?.state : undefined;
-                    const isSel = selected?.id === tk.id;
-                    const name = conversationContactName(tk.contact, tk.isGroup, t("tabs.groups"));
-                    const preview = stripSignature(tk.lastMessage ?? "");
-                    const waitMin =
-                      tk.status === "pending"
-                        ? Math.max(0, Math.floor((now - new Date(tk.updatedAt).getTime()) / 60000))
-                        : 0;
-                    return (
-                      <li key={tk.id}>
-                        <button
-                          type="button"
-                          onClick={() => setSelected(tk)}
-                          aria-current={isSel || undefined}
-                          className={cn(
-                            "flex w-full gap-3 border-l-[3px] border-l-transparent px-3 py-2.5 text-left transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none",
-                            hl === "urgent" && "border-l-warning bg-warning/5",
-                            hl === "violated" && "border-l-destructive bg-destructive/5",
-                            isSel && "border-l-primary bg-primary/10 hover:bg-primary/10",
-                          )}
-                        >
-                          <div className="relative shrink-0">
-                            <Avatar className="size-11">
-                              <AvatarImage
-                                src={contactPhotoUrl(tk.contact.profilePicUrl)}
-                                alt=""
-                                className="object-cover"
-                                referrerPolicy="no-referrer"
-                              />
-                              <AvatarFallback className="bg-primary/10 font-display text-base font-semibold text-primary">
-                                {contactInitials(name)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span
-                              className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full border-2 border-card bg-success text-success-foreground"
-                              title={tk.whatsapp?.name ?? t("unknownOrigin")}
-                            >
-                              <MessageCircle className="size-2" />
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-baseline justify-between gap-2">
-                              <span
-                                className={cn(
-                                  "truncate text-sm",
-                                  tk.unreadMessages > 0 ? "font-semibold" : "font-medium",
-                                )}
-                              >
-                                {name}
-                                {mutedIds.includes(tk.contact.id) && (
-                                  <BellOff
-                                    className="ml-1 inline size-3 text-muted-foreground"
-                                    aria-label={t("mute.muted")}
-                                  />
-                                )}
-                              </span>
-                              <span
-                                className={cn(
-                                  "shrink-0 text-[11px]",
-                                  tk.unreadMessages > 0
-                                    ? "font-semibold text-primary"
-                                    : "text-muted-foreground",
-                                )}
-                              >
-                                {time(tk.updatedAt)}
-                              </span>
-                            </div>
-                            <div className="mt-0.5 flex items-center justify-between gap-2">
-                              <span
-                                className={cn(
-                                  "truncate text-[13px]",
-                                  tk.unreadMessages > 0
-                                    ? "text-foreground"
-                                    : "text-muted-foreground",
-                                )}
-                              >
-                                {preview || "\u00a0"}
-                              </span>
-                              {tk.unreadMessages > 0 && (
-                                <span
-                                  className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground"
-                                  aria-label={t("sidebar.unread", { count: tk.unreadMessages })}
-                                >
-                                  {tk.unreadMessages > 99 ? "99+" : tk.unreadMessages}
-                                </span>
-                              )}
-                            </div>
-                            <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1">
-                              {slaInfo && <SlaBadge info={slaInfo} />}
-                              <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-medium text-muted-foreground">
-                                <span
-                                  className="size-1.5 shrink-0 rounded-full"
-                                  style={{
-                                    backgroundColor: tk.queue?.color ?? "var(--muted-foreground)",
-                                  }}
-                                />
-                                <span className="truncate">{tk.queue?.name ?? t("noQueue")}</span>
-                              </span>
-                              <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md bg-muted px-1.5 py-px text-[10px] text-muted-foreground">
-                                <Smartphone className="size-2.5 shrink-0" />
-                                <span className="truncate">
-                                  {tk.whatsapp?.name ?? t("unknownOrigin")}
-                                </span>
-                              </span>
-                              {waitMin > 0 && (
-                                <span className="inline-flex items-center gap-0.5 rounded-md bg-warning/15 px-1.5 py-px text-[10px] font-medium text-foreground">
-                                  <Clock className="size-2.5" />
-                                  {waitMin >= 60
-                                    ? `${Math.floor(waitMin / 60)}h${waitMin % 60}m`
-                                    : `${waitMin}m`}
-                                </span>
-                              )}
-                              {tk.user ? (
-                                <span
-                                  title={t("attendant") + ": " + tk.user.name}
-                                  className={cn(
-                                    "ml-auto inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-semibold",
-                                    attendantBadgeColor(tk.user).badge,
-                                  )}
-                                >
-                                  <UserRound className="size-2.5 shrink-0" />
-                                  <span className="truncate">{tk.user.name}</span>
-                                </span>
-                              ) : (
-                                <span
-                                  title={t("noAttendant")}
-                                  className="ml-auto inline-flex items-center gap-1 truncate rounded-md border border-warning/40 bg-warning/10 px-1.5 py-px text-[10px] font-semibold text-warning-foreground"
-                                >
-                                  <UserRound className="size-2.5 shrink-0" />
-                                  <span className="truncate">{t("noAttendant")}</span>
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                        {tk.status !== "closed" && (
-                          <div className="flex flex-wrap justify-end gap-2 px-3 pb-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setTransferTarget(tk)}
-                              title={t("actions.transfer")}
-                            >
-                              <ArrowRightLeft className="size-4" aria-hidden="true" />
-                              {t("actions.transfer")}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                              onClick={() => setRefuseTarget(tk)}
-                              disabled={refuseFromList.isPending}
-                              title={t("actions.refuse")}
-                            >
-                              <Undo2 className="size-4" aria-hidden="true" />
-                              {t("actions.refuse")}
-                            </Button>
-                          </div>
-                        )}
                       </li>
-                    );
-                  })}
-                  {tab === "closed" && (older.hasNextPage || !olderOn) && list.length > 0 && (
-                    <li className="flex justify-center p-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={older.isFetching}
-                        onClick={() => {
-                          if (!olderOn) setOlderOn(true);
-                          else void older.fetchNextPage();
-                        }}
-                      >
-                        {older.isFetchingNextPage || (olderOn && older.isPending)
-                          ? t("sidebar.loadingMore")
-                          : t("sidebar.loadMore")}
-                      </Button>
-                    </li>
-                  )}
-                </ul>
-              );
-            }}
-          </QueryBoundary>
-        )}
-      </div>
-    </aside>
+                    )}
+                  </ul>
+                );
+              }}
+            </QueryBoundary>
+          )}
+        </div>
+      </aside>
   );
   const conversation = (
-    <section
-      className={cn(
-        "flex h-full min-h-0 min-w-0 flex-1 flex-col",
-        selected ? "chat-open" : "hidden md:flex",
-      )}
-    >
-      {selected ? (
-        <Conversation
-          key={selected.id}
-          ticket={selected}
-          defaultReplyAsId={selectedReplyUserId(attendantFilter, isAdmin)}
-          onBack={() => setSelected(null)}
-          onChange={setSelected}
-          onConversationStarted={(tk) => {
-            setTab(tk.status === "pending" ? "pending" : "open");
-            setSearch("");
-            clearFilters();
-            setSelected(tk);
-          }}
-        />
-      ) : (
-        <div className="m-auto">
-          <EmptyState title={t("selectTitle")} description={t("selectDescription")} />
-        </div>
-      )}
-    </section>
+      <section
+        className={cn(
+          "flex h-full min-h-0 min-w-0 flex-1 flex-col",
+          selected ? "chat-open" : "hidden md:flex",
+        )}
+      >
+        {selected ? (
+          <Conversation
+            key={selected.id}
+            ticket={selected}
+            defaultReplyAsId={selectedReplyUserId(attendantFilter, isAdmin)}
+            onBack={() => setSelected(null)}
+            onChange={setSelected}
+            onConversationStarted={(tk) => {
+              setTab(tk.status === "pending" ? "pending" : "open");
+              setSearch("");
+              clearFilters();
+              setSelected(tk);
+            }}
+          />
+        ) : (
+          <div className="m-auto">
+            <EmptyState title={t("selectTitle")} description={t("selectDescription")} />
+          </div>
+        )}
+      </section>
   );
   return (
     <div className="tickets-workspace flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
@@ -840,10 +846,7 @@ export function TicketsPage() {
           </ResizablePanel>
         </ResizablePanelGroup>
       ) : (
-        <>
-          {ticketList}
-          {conversation}
-        </>
+        <>{ticketList}{conversation}</>
       )}
       <ConfirmDialog
         open={refuseTarget !== null}
@@ -1449,9 +1452,7 @@ function Conversation({
             referrerPolicy="no-referrer"
           />
           <AvatarFallback className="bg-primary/10 font-semibold text-primary sm:text-lg">
-            {contactInitials(
-              conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups")),
-            )}
+            {contactInitials(conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups")))}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
@@ -1470,9 +1471,7 @@ function Conversation({
               <Pencil className="size-3.5" />
             </Button>
             {!ticket.isGroup && !isGroupContact(ticket.contact) && (
-              <span className="truncate text-xs text-muted-foreground">
-                +{ticket.contact.number}
-              </span>
+              <span className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</span>
             )}
           </div>
           <div className="mt-1 flex items-center gap-1 overflow-x-auto text-[11px] [scrollbar-width:none] sm:flex-wrap">
@@ -2259,4 +2258,3 @@ function Conversation({
     </>
   );
 }
-
