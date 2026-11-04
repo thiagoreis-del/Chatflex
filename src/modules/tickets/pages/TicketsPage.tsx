@@ -276,10 +276,14 @@ export function TicketsPage() {
     refetchInterval: fallback,
   }).data;
   const openTickets = useQuery({
-    ...ticketsQuery({ status: "open", search: debouncedSearch }),
+    ...ticketsQuery({ status: "open" }),
+    enabled: debouncedSearch.length >= 2,
+    refetchInterval: fallback,
   }).data;
   const pendingTickets = useQuery({
-    ...ticketsQuery({ status: "pending", search: debouncedSearch }),
+    ...ticketsQuery({ status: "pending" }),
+    enabled: debouncedSearch.length >= 2,
+    refetchInterval: fallback,
   }).data;
   const activeTickets = useMemo(
     () => [...(openTickets ?? []), ...(pendingTickets ?? [])],

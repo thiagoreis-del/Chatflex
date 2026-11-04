@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { availableContactSuggestions, conversationContactName, isGroupContact, normalizeContactSearch } from "@/modules/tickets/contact-search";
 import type { Contact } from "@/modules/contacts/types";
-import type { Ticket } from "@/modules/tickets/types";
+import type { Ticket, TicketContact } from "@/modules/tickets/types";
 
-const contact = (id: number, number = "5511998765432", isGroup = false): Contact => ({ id, name: "Anvat Soluções", number, isGroup });
-const ticket = (c: Contact, status: Ticket["status"] = "open"): Ticket => ({
+const contact = (id: number, number = "5511998765432", isGroup = false): Contact & TicketContact => ({ id, name: "Anvat Soluções", number, isGroup });
+const ticket = (c: TicketContact, status: Ticket["status"] = "open"): Ticket => ({
   id: c.id, contact: c, status, lastMessage: "Oi", updatedAt: "2026-11-04T13:00:00Z", unreadMessages: 0, queue: null, user: null,
 });
 
