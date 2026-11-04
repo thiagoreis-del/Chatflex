@@ -277,13 +277,14 @@ export function TicketsPage() {
     select: (l: Ticket[]) => l.length,
     refetchInterval: fallback,
   }).data;
+  // Reuse the search-scoped list/count cache: older matches may not be on the unfiltered first page.
   const openTickets = useQuery({
-    ...ticketsQuery({ status: "open" }),
+    ...ticketsQuery({ status: "open", search: debouncedSearch }),
     enabled: debouncedSearch.length >= 2,
     refetchInterval: fallback,
   }).data;
   const pendingTickets = useQuery({
-    ...ticketsQuery({ status: "pending" }),
+    ...ticketsQuery({ status: "pending", search: debouncedSearch }),
     enabled: debouncedSearch.length >= 2,
     refetchInterval: fallback,
   }).data;

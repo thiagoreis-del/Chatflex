@@ -13,7 +13,7 @@
 
 ## Architecture rules
 
-- New-ticket search excludes group flags/JIDs and compares authorized active contacts by ID and normalized phone; group headings never fall back to internal numbers. Why: prevent duplicate suggestions and expose names rather than group identifiers without widening API permissions.
+- New-ticket search excludes group flags/JIDs and compares authorized active contacts by ID and normalized phone using the same search-scoped open/pending query keys as the list and counters; group headings never fall back to internal numbers. Why: exclude older search matches missed by an unfiltered first page, reuse cache, and preserve API permissions.
 
 - Ticket workspace resizing uses the existing resizable panels on desktop only; browser storage holds validated geometry exclusively and persists only user resize actions. Why: keep mobile navigation and tenant data isolation unchanged while retaining the device's layout preference.
 

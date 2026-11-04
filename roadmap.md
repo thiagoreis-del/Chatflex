@@ -2,10 +2,11 @@
 
 ## Busca de contatos e identificação de grupos — 04/11/2026
 
-- [x] Excluir grupos das sugestões e deduplicar contatos pelo telefone dos atendimentos abertos/aguardando retornados na primeira página autorizada, sem filtrar essa consulta pelo termo da busca.
+- [x] Corrigir sugestões que ignoram atendimentos antigos encontrados pela busca; regressões para abertos/aguardando reproduzidas em consultas locais.
+- [x] Excluir grupos das sugestões e deduplicar contatos por ID/telefone dos atendimentos autorizados abertos/aguardando encontrados pelo mesmo termo da lista; reutilizar cache da lista e contadores.
 - [x] Mostrar somente o nome na identificação de grupos, sem o número interno.
 - [x] Validar 26 testes relacionados e compilação da prévia sem erros.
-- [ ] Confirmar busca em sessão real — backend externo redirecionou para Serviço temporariamente indisponível; não houve validação autenticada nem garantia de deduplicação de tickets fora da página retornada.
+- [ ] Confirmar busca em sessão real — requer sessão do backend externo; exclusão cobre os resultados autorizados retornados pela busca, sem garantir unicidade no servidor ou registros fora dessas páginas.
 
 ## Largura ajustável dos atendimentos — 04/11/2026
 
