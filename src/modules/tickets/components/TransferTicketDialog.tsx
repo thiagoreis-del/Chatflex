@@ -24,9 +24,7 @@ import { ticketKeys } from "@/shared/api/query-keys";
 import { allCompanyUsersQuery } from "@/modules/users/api";
 import { queuesQuery } from "@/modules/queues/api";
 import { transferTicket, updateTicketStatus } from "../api";
-import { hideRefusedTicket, restoreRefusedTicket } from "../refused";
 import type { Ticket } from "../types";
-import { useSession } from "@/shared/auth/session-store";
 
 const ANY = "any";
 const NO_QUEUE = "none";
@@ -43,7 +41,6 @@ export function TransferTicketDialog({
   onDone: (t: Ticket | null) => void;
 }) {
   const { t } = useTranslation("tickets");
-  const session = useSession();
   const qc = useQueryClient();
   const users = useQuery({ ...allCompanyUsersQuery(), enabled: open });
   const queues = useQuery({ ...queuesQuery(), enabled: open });
@@ -70,9 +67,8 @@ export function TransferTicketDialog({
 
   const mutation = useMutation({
     mutationFn: () => {
-      // Recusar encerra o ticket (não volta para a fila) e o oculta para o atendente.
+      // Recusar altera somente o status, preservando contato, responsável e histórico.
       if (refusing) {
-        hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
         return updateTicketStatus(ticket.id, "closed");
       }
       return transferTicket(ticket.id, {
@@ -88,7 +84,6 @@ export function TransferTicketDialog({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
     onError: () => {
-      if (refusing) restoreRefusedTicket(String(session.user?.id ?? ""), ticket.id);
       toast.error(t("toast.transferError"));
     },
   });

@@ -13,6 +13,8 @@
 
 ## Architecture rules
 
+- Closing/refusing tickets changes status only; history merges by ticket ID without browser refusal blocklists. Contact/ticket caches partition by session company/user and all query caches are discarded on identity, role, queue or permission changes. Why: retain server history without reusing another account's authorized data.
+
 - Internal chat adapts the verified `/chats` controller contract and resolves filename-only mediaPath through `/public/company{sessionCompanyId}/`; queue-only contracts stay unsupported. Why: matches the verified upload/static configuration without guessing another company's folder; server-side company/membership enforcement remains mandatory.
 
 - Conversation polling loads the complete paginated history only when its cache is empty, then refreshes page one and merges by message ID; background notifications use a separate latest-page cache. Why: preserves history while avoiding repeated full-history requests every three seconds.
