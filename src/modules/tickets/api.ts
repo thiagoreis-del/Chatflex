@@ -163,30 +163,30 @@ export const closedOlderTicketsQuery = (search: string) =>
       last?.hasMore && last.tickets?.length ? page + 1 : undefined,
   });
 
-/**
- * Session-wide notification fallback.
- *
- * Notifications only need the most recently updated tickets. Fetching every
- * historical page every five seconds made the request volume grow with each
- * company, even though older unchanged tickets cannot produce a new alert.
- */
+/** Session-wide notification fallback, including pages beyond the visible list. */
 export const incomingTicketsQuery = (companyId: string) =>
   queryOptions({
     queryKey: [...ticketKeys.all, "incoming", companyId],
     queryFn: async ({ signal }): Promise<Ticket[]> => {
       const lists = await Promise.all(
-        ["pending", "open", "group"].map(async (status) =>
-          (
-            await apiRequest<TicketsResponse>(
+        ["pending", "open", "group"].map(async (status) => {
+          const tickets: Ticket[] = [];
+          let pageNumber = 1;
+          while (true) {
+            const result = await apiRequest<TicketsResponse>(
               withQuery(ep.list, {
                 ...scope(),
                 status,
-                pageNumber: 1,
+                pageNumber,
               }),
               { signal },
-            )
-          )?.tickets ?? [],
-        ),
+            );
+            tickets.push(...(result.tickets ?? []));
+            if (!result.hasMore || !result.tickets?.length) break;
+            pageNumber += 1;
+          }
+          return tickets;
+        }),
       );
       return [...new Map(lists.flat().map((ticket) => [ticket.id, ticket])).values()];
     },
