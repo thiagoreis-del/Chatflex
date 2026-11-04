@@ -918,9 +918,10 @@ function Conversation({
     enabled: messages.isSuccess && (messages.data?.length ?? 0) > 0,
   });
   useEffect(() => {
-    if (!olderMessages.data?.length) return;
+    const history = olderMessages.data;
+    if (!history?.length) return;
     qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (current) =>
-      mergeMessagePages([olderMessages.data, current ?? []]),
+      mergeMessagePages([history, current ?? []]),
     );
   }, [olderMessages.data, qc, ticket.id]);
   const companyId = String(session.user?.companyId ?? "");
