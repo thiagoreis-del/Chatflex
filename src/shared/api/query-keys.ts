@@ -88,6 +88,12 @@ export const ticketKeys = {
   tagOptions: ["company", "tickets", "tag-options"] as const,
 };
 
+/** Histórico antigo é imutável e não participa das invalidações frequentes da lista. */
+export const messageHistoryKeys = {
+  detail: (id: number) =>
+    ["company", "message-history", ...sessionCacheScope(), id] as const,
+};
+
 /** Respostas rápidas pertencem à empresa da sessão; o backend filtra pelo token. */
 export const quickMessageKeys = {
   all: ["company", "quick-messages"] as const,
@@ -102,3 +108,4 @@ export const internalChatKeys = {
   messages: (conversationId: number) =>
     ["company", "internal-chat", "messages", conversationId] as const,
 };
+
