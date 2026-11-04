@@ -1,5 +1,10 @@
 # Roadmap
 
+## Disponibilidade de conversas e contatos — 04/11/2026
+
+- [ ] Verificar armazenamento e regras de visibilidade existentes; identificar se a necessidade é histórico finalizado, acesso após reconexão ou proteção contra exclusão.
+- [ ] Aplicar a correção adequada sem ampliar acesso entre empresas — depende de identificar o caso e confirmar o contrato do backend externo.
+
 ## Falha ao criar grupo interno — 03/11/2026
 
 - [x] Corrigir áudio exibido apenas como nome: resolver mediaPath na pasta da empresa autenticada e reutilizar o player de atendimentos.
