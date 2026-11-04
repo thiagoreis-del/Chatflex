@@ -68,7 +68,9 @@ import {
   assignTicket,
   removeTicketTag,
   MAX_MEDIA_BYTES,
+  mergeMessagePages,
   messagesQuery,
+  olderMessagesQuery,
   sendMediaMessage,
   sendMessage,
   tagOptionsQuery,
@@ -911,6 +913,17 @@ function Conversation({
     refetchInterval: msgFallback,
     refetchIntervalInBackground: true,
   });
+  const olderMessages = useQuery({
+    ...olderMessagesQuery(ticket.id),
+    enabled: messages.isSuccess && (messages.data?.length ?? 0) > 0,
+  });
+  useEffect(() => {
+    const history = olderMessages.data;
+    if (!history?.length) return;
+    qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (current) =>
+      mergeMessagePages([history, current ?? []]),
+    );
+  }, [olderMessages.data, qc, ticket.id]);
   const companyId = String(session.user?.companyId ?? "");
   const [text, setText] = useState(() => loadDraft(companyId, ticket.id));
   // Rascunho preservado por conversa (sobrevive a queda de conexão/recarga).
