@@ -10,11 +10,7 @@ vi.mock("@/shared/api/client", () => ({
   apiUpload: vi.fn(),
 }));
 
-import {
-  latestMessagesQuery,
-  messagesQuery,
-  olderMessagesQuery,
-} from "@/modules/tickets/api";
+import { latestMessagesQuery, messagesQuery, olderMessagesQuery } from "@/modules/tickets/api";
 
 const message = (id: string, createdAt: string): Message => ({
   id,
