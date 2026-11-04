@@ -173,6 +173,18 @@ export function TicketsPage() {
   }, [slaOn]);
   const [selected, setSelected] = useState<Ticket | null>(null);
   const [transferTarget, setTransferTarget] = useState<Ticket | null>(null);
+  const [refuseTarget, setRefuseTarget] = useState<Ticket | null>(null);
+  const refuseFromList = useMutation({
+    mutationFn: (ticket: Ticket) => updateTicketStatus(ticket.id, "closed"),
+    onSuccess: (_result, ticket) => {
+      hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
+      if (selected?.id === ticket.id) setSelected(null);
+      setRefuseTarget(null);
+      toast.success(t("toast.refused"));
+      void qcl.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: () => toast.error(t("toast.transferError")),
+  });
   const hiddenRefused = useRefusedHiddenIds(String(session.user?.id ?? ""));
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
@@ -712,31 +724,35 @@ export function TicketsPage() {
                                     <span className="truncate">{t("noAttendant")}</span>
                                   </span>
                                 )}
-                                {tk.status !== "closed" && (
-                                  <span
-                                    role="button"
-                                    tabIndex={0}
-                                    aria-label={t("actions.transfer")}
-                                    title={t("actions.transfer")}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setTransferTarget(tk);
-                                    }}
-                                    onKeyDown={(e) => {
-                                      if (e.key === "Enter" || e.key === " ") {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        setTransferTarget(tk);
-                                      }
-                                    }}
-                                    className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
-                                  >
-                                    <ArrowRightLeft className="size-3" />
-                                  </span>
-                                )}
                               </div>
                             </div>
                           </button>
+                          {tk.status !== "closed" && (
+                            <div className="flex flex-wrap justify-end gap-2 px-3 pb-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setTransferTarget(tk)}
+                                title={t("actions.transfer")}
+                              >
+                                <ArrowRightLeft className="size-4" aria-hidden="true" />
+                                {t("actions.transfer")}
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => setRefuseTarget(tk)}
+                                disabled={refuseFromList.isPending}
+                                title={t("actions.refuse")}
+                              >
+                                <Undo2 className="size-4" aria-hidden="true" />
+                                {t("actions.refuse")}
+                              </Button>
+                            </div>
+                          )}
                         </li>
                       );
                     })}
@@ -790,6 +806,18 @@ export function TicketsPage() {
           </div>
         )}
       </section>
+      <ConfirmDialog
+        open={refuseTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRefuseTarget(null);
+        }}
+        title={t("actions.refuse")}
+        description={t("transfer.refuseDescription")}
+        confirmLabel={t("actions.refuse")}
+        onConfirm={() => {
+          if (refuseTarget && !refuseFromList.isPending) refuseFromList.mutate(refuseTarget);
+        }}
+      />
       {transferTarget && (
         <TransferTicketDialog
           ticket={transferTarget}
