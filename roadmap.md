@@ -1,5 +1,11 @@
 # Roadmap
 
+## Busca de contatos e identificação de grupos — 04/11/2026
+
+- [ ] Excluir grupos das sugestões e deduplicar contatos pelo telefone dos atendimentos abertos/aguardando.
+- [ ] Mostrar somente o nome na identificação de grupos, sem o número interno.
+- [ ] Validar testes locais; conferência em sessão real depende de login no backend externo.
+
 ## Largura ajustável dos atendimentos — 04/11/2026
 
 - [x] Permitir arrastar a divisória no desktop, salvar somente a preferência de tamanho e preservar a navegação no celular.

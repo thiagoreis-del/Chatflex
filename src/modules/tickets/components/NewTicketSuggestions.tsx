@@ -9,17 +9,13 @@ import { connectionsQuery } from "@/modules/whatsapp/api";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { createTicket } from "../api";
 import type { Ticket } from "../types";
-
-/** Busca por telefone ignora pontuação: "(11) 98765-0001" → "11987650001". */
-export function normalizeContactSearch(q: string): string {
-  const t = q.trim();
-  return /^[\d\s()+.-]+$/.test(t) ? t.replace(/\D/g, "") : t;
-}
+import { availableContactSuggestions, normalizeContactSearch } from "../contact-search";
+export { normalizeContactSearch } from "../contact-search";
 
 export interface NewTicketSuggestionsProps {
   search: string;
-  /** IDs de contatos que já possuem atendimento aberto ou aguardando. */
-  activeContactIds: Set<number>;
+  /** Atendimentos autorizados abertos/aguardando, usados para comparar ID e telefone. */
+  activeTickets: Ticket[];
   userId?: number | undefined;
   onStarted: (ticket: Ticket) => void;
 }
@@ -27,7 +23,7 @@ export interface NewTicketSuggestionsProps {
 /** Lista contatos encontrados na busca que não estão em atendimento, com ação de iniciar. */
 export function NewTicketSuggestions({
   search,
-  activeContactIds,
+  activeTickets,
   userId,
   onStarted,
 }: NewTicketSuggestionsProps) {
@@ -59,7 +55,7 @@ export function NewTicketSuggestions({
   });
 
   if (!enabled) return null;
-  const free = (contacts.data?.data ?? []).filter((c) => !activeContactIds.has(c.id));
+  const free = availableContactSuggestions(contacts.data?.data ?? [], activeTickets);
   if (contacts.isPending) {
     return <p className="px-3 py-2 text-xs text-muted-foreground">{t("newTicket.searching")}</p>;
   }

@@ -118,6 +118,7 @@ import {
   saveDraft,
 } from "../offline-outbox";
 import { deduplicateActiveTickets } from "../ticket-identity";
+import { conversationContactName, isGroupContact, normalizeContactSearch } from "../contact-search";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTicketWorkspaceLayout } from "../workspace-layout";
 
@@ -189,7 +190,7 @@ export function TicketsPage() {
   });
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    const timer = setTimeout(() => setDebouncedSearch(normalizeContactSearch(search)), 300);
     return () => clearTimeout(timer);
   }, [search]);
   const fallback = useFallbackInterval();
@@ -274,18 +275,15 @@ export function TicketsPage() {
     select: (l: Ticket[]) => l.length,
     refetchInterval: fallback,
   }).data;
-  const activeIdsOf = (l: Ticket[]) => l.map((x) => x.contact?.id);
-  const openIds = useQuery({
+  const openTickets = useQuery({
     ...ticketsQuery({ status: "open", search: debouncedSearch }),
-    select: activeIdsOf,
   }).data;
-  const pendingIds = useQuery({
+  const pendingTickets = useQuery({
     ...ticketsQuery({ status: "pending", search: debouncedSearch }),
-    select: activeIdsOf,
   }).data;
-  const activeContactIds = useMemo(
-    () => new Set([...(openIds ?? []), ...(pendingIds ?? [])]),
-    [openIds, pendingIds],
+  const activeTickets = useMemo(
+    () => [...(openTickets ?? []), ...(pendingTickets ?? [])],
+    [openTickets, pendingTickets],
   );
   const counts: Partial<Record<TicketTab, number | undefined>> = {
     open: openCount,
@@ -514,10 +512,10 @@ export function TicketsPage() {
           />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {tab !== "groups" && openIds && pendingIds && (
+          {tab !== "groups" && openTickets && pendingTickets && (
             <NewTicketSuggestions
               search={debouncedSearch}
-              activeContactIds={activeContactIds}
+              activeTickets={activeTickets}
               userId={session.user?.id ? Number(session.user.id) : undefined}
               onStarted={(tk) => {
                 setTab("open");
@@ -600,7 +598,7 @@ export function TicketsPage() {
                       const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
                       const hl = sla?.highlight ? slaInfo?.state : undefined;
                       const isSel = selected?.id === tk.id;
-                      const name = tk.contact.name || `+${tk.contact.number}`;
+                      const name = conversationContactName(tk.contact, tk.isGroup, t("tabs.groups"));
                       const preview = stripSignature(tk.lastMessage ?? "");
                       const waitMin =
                         tk.status === "pending"
@@ -1438,13 +1436,13 @@ function Conversation({
             referrerPolicy="no-referrer"
           />
           <AvatarFallback className="bg-primary/10 font-semibold text-primary sm:text-lg">
-            {contactInitials(ticket.contact.name || ticket.contact.number)}
+            {contactInitials(conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups")))}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2">
             <p className="truncate font-semibold leading-tight">
-              {ticket.contact.name || `+${ticket.contact.number}`}
+              {conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups"))}
             </p>
             <Button
               variant="ghost"
@@ -1456,7 +1454,9 @@ function Conversation({
             >
               <Pencil className="size-3.5" />
             </Button>
-            <span className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</span>
+            {!ticket.isGroup && !isGroupContact(ticket.contact) && (
+              <span className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</span>
+            )}
           </div>
           <div className="mt-1 flex items-center gap-1 overflow-x-auto text-[11px] [scrollbar-width:none] sm:flex-wrap">
             {session.user?.companyName && (

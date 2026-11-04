@@ -13,6 +13,8 @@
 
 ## Architecture rules
 
+- New-ticket search excludes group flags/JIDs and compares authorized active contacts by ID and normalized phone; group headings never fall back to internal numbers. Why: prevent duplicate suggestions and expose names rather than group identifiers without widening API permissions.
+
 - Ticket workspace resizing uses the existing resizable panels on desktop only; browser storage holds validated geometry exclusively and persists only user resize actions. Why: keep mobile navigation and tenant data isolation unchanged while retaining the device's layout preference.
 
 - Closing/refusing tickets changes status only; history merges by ticket ID without browser refusal blocklists. Contact/ticket caches partition by session company/user and all query caches are discarded on identity, role, queue or permission changes. Why: retain server history without reusing another account's authorized data.
