@@ -1,6 +1,6 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
-import { ticketKeys, sessionCacheScope } from "@/shared/api/query-keys";
+import { messageHistoryKeys, ticketKeys, sessionCacheScope } from "@/shared/api/query-keys";
 import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import { sessionStore } from "@/shared/auth/session-store";
 import { normalizeUploadFile } from "@/shared/upload/pdf-file";
@@ -50,10 +50,14 @@ export function mergeMessagePages(pages: Message[][]): Message[] {
   });
 }
 
-async function fetchAllMessages(ticketId: number, signal?: AbortSignal): Promise<Message[]> {
+async function fetchMessagePages(
+  ticketId: number,
+  firstPage: number,
+  signal?: AbortSignal,
+): Promise<Message[]> {
   const pages: Message[][] = [];
   const seen = new Set<string>();
-  let pageNumber = 1;
+  let pageNumber = firstPage;
 
   while (true) {
     const result = await apiRequest<MessagesResponse>(
@@ -75,21 +79,20 @@ async function fetchAllMessages(ticketId: number, signal?: AbortSignal): Promise
 }
 
 /**
- * Depois que o histórico completo está no cache, o polling consulta somente a
- * página recente. Isso mantém mensagens novas/atualizadas sem reler todo o
- * histórico a cada três segundos.
+ * A primeira abertura devolve a página recente imediatamente. O restante do
+ * histórico é carregado em segundo plano por `olderMessagesQuery`, evitando
+ * manter a conversa em branco enquanto todas as páginas antigas são baixadas.
  */
 async function refreshMessages(
   ticketId: number,
   cached: Message[] | undefined,
   signal?: AbortSignal,
 ): Promise<Message[]> {
-  if (!cached?.length) return fetchAllMessages(ticketId, signal);
   const result = await apiRequest<MessagesResponse>(
     withQuery(ep.messages(ticketId), { pageNumber: 1 }),
     { signal },
   );
-  return mergeMessagePages([cached, result?.messages ?? []]);
+  return mergeMessagePages([cached ?? [], result?.messages ?? []]);
 }
 
 export interface AttendantMetric {
@@ -160,30 +163,30 @@ export const closedOlderTicketsQuery = (search: string) =>
       last?.hasMore && last.tickets?.length ? page + 1 : undefined,
   });
 
-/** Session-wide notification fallback, including pages beyond the visible list. */
+/**
+ * Session-wide notification fallback.
+ *
+ * Notifications only need the most recently updated tickets. Fetching every
+ * historical page every five seconds made the request volume grow with each
+ * company, even though older unchanged tickets cannot produce a new alert.
+ */
 export const incomingTicketsQuery = (companyId: string) =>
   queryOptions({
     queryKey: [...ticketKeys.all, "incoming", companyId],
     queryFn: async ({ signal }): Promise<Ticket[]> => {
       const lists = await Promise.all(
-        ["pending", "open", "group"].map(async (status) => {
-          const tickets: Ticket[] = [];
-          let pageNumber = 1;
-          while (true) {
-            const result = await apiRequest<TicketsResponse>(
+        ["pending", "open", "group"].map(async (status) =>
+          (
+            await apiRequest<TicketsResponse>(
               withQuery(ep.list, {
                 ...scope(),
                 status,
-                pageNumber,
+                pageNumber: 1,
               }),
               { signal },
-            );
-            tickets.push(...(result.tickets ?? []));
-            if (!result.hasMore || !result.tickets?.length) break;
-            pageNumber += 1;
-          }
-          return tickets;
-        }),
+            )
+          )?.tickets ?? [],
+        ),
       );
       return [...new Map(lists.flat().map((ticket) => [ticket.id, ticket])).values()];
     },
@@ -380,6 +383,14 @@ export const messagesQuery = (ticketId: number) =>
     // Polling de fallback é definido na tela conforme o status do Socket.
   });
 
+/** Páginas antigas carregadas depois que a página recente já está visível. */
+export const olderMessagesQuery = (ticketId: number) =>
+  queryOptions({
+    queryKey: messageHistoryKeys.detail(ticketId),
+    queryFn: ({ signal }) => fetchMessagePages(ticketId, 2, signal),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+
 /** Notificações precisam somente das mensagens recentes, nunca do histórico inteiro. */
 export const latestMessagesQuery = (ticketId: number) =>
   queryOptions({
@@ -533,3 +544,4 @@ export async function forwardMessage(message: Message, targetTicketId: number) {
   }
   return sendMessage(targetTicketId, body);
 }
+
