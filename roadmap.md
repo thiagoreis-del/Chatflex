@@ -1,5 +1,11 @@
 # Roadmap
 
+## Largura ajustável dos atendimentos — 04/11/2026
+
+- [x] Permitir arrastar a divisória no desktop, salvar somente a preferência de tamanho e preservar a navegação no celular.
+- [x] Validar 13 testes e divisória isolada no navegador: arrastar, restaurar após recarregar, teclado e modo celular; prévia compilou sem erros.
+- [ ] Confirmar ajuste em conversa real — depende de sessão autenticada do backend externo; publicação não solicitada nesta etapa.
+
 ## Disponibilidade de conversas e contatos — 04/11/2026
 
 - [x] Verificar interface: contatos são criados/consultados via /contacts; conversas vêm de /tickets, com histórico finalizado paginado e filtros de filas/perfil; não há remoção automática identificada na interface.

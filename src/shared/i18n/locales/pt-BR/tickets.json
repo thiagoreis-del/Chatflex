@@ -221,6 +221,7 @@
   },
   "sidebar": {
     "title": "Atendimentos",
+    "resize": "Ajustar largura da lista de atendimentos",
     "loadMore": "Carregar mais",
     "loadingMore": "Carregando…",
     "actions": "Ações",

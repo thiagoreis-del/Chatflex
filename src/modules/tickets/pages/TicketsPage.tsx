@@ -118,6 +118,8 @@ import {
   saveDraft,
 } from "../offline-outbox";
 import { deduplicateActiveTickets } from "../ticket-identity";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { useTicketWorkspaceLayout } from "../workspace-layout";
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -150,6 +152,7 @@ const displayBody = (m: Pick<Message, "body" | "fromMe" | "isPrivate">) =>
 
 export function TicketsPage() {
   const { t } = useTranslation("tickets");
+  const workspace = useTicketWorkspaceLayout();
   const [tab, setTab] = useState<TicketTab>("open");
   const status: TicketStatus = tab === "groups" ? "open" : tab;
   const session = useSession();
@@ -299,11 +302,10 @@ export function TicketsPage() {
     },
   });
 
-  return (
-    <div className="tickets-workspace flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
+  const ticketList = (
       <aside
         className={cn(
-          "flex min-h-0 min-w-0 w-full flex-col border-r bg-card md:w-80 md:shrink-0 xl:w-96",
+          "flex h-full min-h-0 min-w-0 w-full flex-col bg-card",
           selected && "hidden md:flex",
         )}
       >
@@ -787,9 +789,11 @@ export function TicketsPage() {
           )}
         </div>
       </aside>
+  );
+  const conversation = (
       <section
         className={cn(
-          "flex min-h-0 min-w-0 flex-1 flex-col",
+          "flex h-full min-h-0 min-w-0 flex-1 flex-col",
           selected ? "chat-open" : "hidden md:flex",
         )}
       >
@@ -813,6 +817,33 @@ export function TicketsPage() {
           </div>
         )}
       </section>
+  );
+  return (
+    <div className="tickets-workspace flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
+      {workspace.desktop ? (
+        <ResizablePanelGroup
+          id="tickets-workspace"
+          orientation="horizontal"
+          defaultLayout={workspace.layout}
+          onLayoutChanged={workspace.onLayoutChanged}
+          className="min-h-0 min-w-0 flex-1"
+        >
+          <ResizablePanel id="list" defaultSize="35%" minSize="25%" maxSize="60%">
+            {ticketList}
+          </ResizablePanel>
+          <ResizableHandle
+            withHandle
+            aria-label={t("sidebar.resize")}
+            title={t("sidebar.resize")}
+            className="hover:bg-primary focus-visible:bg-primary"
+          />
+          <ResizablePanel id="conversation" minSize="40%">
+            {conversation}
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <>{ticketList}{conversation}</>
+      )}
       <ConfirmDialog
         open={refuseTarget !== null}
         onOpenChange={(open) => {
