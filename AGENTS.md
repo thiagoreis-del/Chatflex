@@ -13,6 +13,8 @@
 
 ## Architecture rules
 
+- Ticket workspace resizing uses the existing resizable panels on desktop only; browser storage holds validated geometry exclusively and persists only user resize actions. Why: keep mobile navigation and tenant data isolation unchanged while retaining the device's layout preference.
+
 - Closing/refusing tickets changes status only; history merges by ticket ID without browser refusal blocklists. Contact/ticket caches partition by session company/user and all query caches are discarded on identity, role, queue or permission changes. Why: retain server history without reusing another account's authorized data.
 
 - Internal chat adapts the verified `/chats` controller contract and resolves filename-only mediaPath through `/public/company{sessionCompanyId}/`; queue-only contracts stay unsupported. Why: matches the verified upload/static configuration without guessing another company's folder; server-side company/membership enforcement remains mandatory.
