@@ -107,4 +107,3 @@ export const internalChatKeys = {
   messages: (conversationId: number) =>
     ["company", "internal-chat", "messages", conversationId] as const,
 };
-
