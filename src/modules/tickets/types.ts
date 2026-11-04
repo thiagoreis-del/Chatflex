@@ -61,7 +61,7 @@ export interface TicketFilters {
 }
 
 export interface TransferInput {
-  /** Recusa encerra o ticket (status closed) e o oculta para o atendente. */
+  /** Recusa encerra o ticket (status closed), preservando o histórico autorizado. */
   queueId?: number;
   userId?: number | null;
   note?: string;

@@ -1,6 +1,6 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
-import { ticketKeys } from "@/shared/api/query-keys";
+import { ticketKeys, sessionCacheScope } from "@/shared/api/query-keys";
 import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import { sessionStore } from "@/shared/auth/session-store";
 import { normalizeUploadFile } from "@/shared/upload/pdf-file";
@@ -149,7 +149,7 @@ export const ticketsQuery = (filters: TicketFilters) =>
 /** Páginas antigas de Finalizados (a partir da 2ª), carregadas sob demanda e sem polling. */
 export const closedOlderTicketsQuery = (search: string) =>
   infiniteQueryOptions({
-    queryKey: [...ticketKeys.all, "closed-older", search],
+    queryKey: [...ticketKeys.all, ...sessionCacheScope(), "closed-older", search],
     initialPageParam: 2,
     queryFn: async ({ pageParam, signal }) =>
       apiRequest<TicketsResponse>(

@@ -2,6 +2,7 @@ import { MutationCache, QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { notifyError, shouldRetry } from "@/shared/errors/handle-error";
+import { bindSessionCache } from "@/shared/auth/session-cache";
 
 // Após uma publicação, abas abertas podem pedir arquivos antigos que não existem mais.
 // Recarrega uma vez (no máx. a cada 10s) para buscar a versão nova em vez de exibir tela branca.
@@ -38,6 +39,8 @@ export const getRouter = () => {
       queries: { retry: shouldRetry, refetchOnWindowFocus: false, staleTime: 30_000 },
     },
   });
+
+  if (typeof window !== "undefined") bindSessionCache(queryClient);
 
   const router = createRouter({
     routeTree,

@@ -62,7 +62,7 @@ import { ticketKeys } from "@/shared/api/query-keys";
 import { ApiError } from "@/shared/api/errors";
 import { useSession } from "@/shared/auth/session-store";
 import { TransferTicketDialog } from "../components/TransferTicketDialog";
-import { hideRefusedTicket, restoreRefusedTicket, useRefusedHiddenIds } from "../refused";
+import { mergeTicketHistory } from "../history";
 import {
   addTicketTag,
   assignTicket,
@@ -177,7 +177,6 @@ export function TicketsPage() {
   const refuseFromList = useMutation({
     mutationFn: (ticket: Ticket) => updateTicketStatus(ticket.id, "closed"),
     onSuccess: (_result, ticket) => {
-      hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
       if (selected?.id === ticket.id) setSelected(null);
       setRefuseTarget(null);
       toast.success(t("toast.refused"));
@@ -185,7 +184,6 @@ export function TicketsPage() {
     },
     onError: () => toast.error(t("toast.transferError")),
   });
-  const hiddenRefused = useRefusedHiddenIds(String(session.user?.id ?? ""));
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -200,7 +198,7 @@ export function TicketsPage() {
           ...ticketsQuery({ status, search: debouncedSearch }),
           select: (l: Ticket[]) => {
             const visible = l.filter(
-              (x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id),
+              (x) => !x.contact?.isGroup && !x.isGroup,
             );
             return status === "closed" ? visible : deduplicateActiveTickets(visible);
           },
@@ -259,7 +257,7 @@ export function TicketsPage() {
     (!unreadOnly || x.unreadMessages > 0) &&
     (!slaOn || slaFilter === "all" || computeSla(x, sla!, now).state === slaFilter);
   const notGroup = (l: Ticket[]) =>
-    l.filter((x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id));
+    l.filter((x) => !x.contact?.isGroup && !x.isGroup);
   const activeOnly = (l: Ticket[]) => deduplicateActiveTickets(notGroup(l));
   const openCount = useQuery({
     ...ticketsQuery({ status: "open", search: debouncedSearch }),
@@ -273,7 +271,7 @@ export function TicketsPage() {
   }).data;
   const groupsCount = useQuery({
     ...groupTicketsQuery(debouncedSearch),
-    select: (l: Ticket[]) => l.filter((x) => !hiddenRefused.has(x.id)).length,
+    select: (l: Ticket[]) => l.length,
     refetchInterval: fallback,
   }).data;
   const activeIdsOf = (l: Ticket[]) => l.map((x) => x.contact?.id);
@@ -545,17 +543,14 @@ export function TicketsPage() {
           ) : (
             <QueryBoundary query={query} contract={ticketsContract}>
               {(firstPage) => {
-                const seen = new Set(firstPage.map((x) => x.id));
                 const list =
                   tab === "closed" && olderOn
-                    ? [
-                        ...firstPage,
-                        ...(older.data?.pages ?? [])
-                          .flatMap((p) => p?.tickets ?? [])
-                          .filter((x) => !seen.has(x.id) && !x.contact?.isGroup && !x.isGroup),
-                      ]
+                    ? mergeTicketHistory([
+                        firstPage,
+                        ...(older.data?.pages ?? []).map((p) => notGroup(p?.tickets ?? [])),
+                      ])
                     : firstPage;
-                const visible = list.filter((x) => !hiddenRefused.has(x.id) && matchesFilters(x));
+                const visible = list.filter(matchesFilters);
                 if (visible.length === 0) {
                   const msg = debouncedSearch
                     ? t("sidebar.noResults", { q: debouncedSearch })
@@ -570,6 +565,19 @@ export function TicketsPage() {
                         <Inbox className="size-8" />
                       )}
                       <p>{msg}</p>
+                      {tab === "closed" && (older.hasNextPage || !olderOn) && firstPage.length > 0 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={older.isFetching}
+                          onClick={() => {
+                            if (!olderOn) setOlderOn(true);
+                            else void older.fetchNextPage();
+                          }}
+                        >
+                          {older.isFetching ? t("sidebar.loadingMore") : t("sidebar.loadMore")}
+                        </Button>
+                      )}
                       {(debouncedSearch || activeFilters > 0) && (
                         <Button
                           variant="link"
@@ -761,7 +769,7 @@ export function TicketsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          disabled={older.isFetchingNextPage}
+                          disabled={older.isFetching}
                           onClick={() => {
                             if (!olderOn) setOlderOn(true);
                             else void older.fetchNextPage();
@@ -1024,19 +1032,15 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
   });
-  // Recusar encerra o atendimento (não volta para a fila) e o tira da lista do atendente.
+  // Recusar encerra o atendimento; o histórico permanece nos Finalizados autorizados.
   const refuse = useMutation({
-    mutationFn: () => {
-      hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
-      return updateTicketStatus(ticket.id, "closed");
-    },
+    mutationFn: () => updateTicketStatus(ticket.id, "closed"),
     onSuccess: () => {
       toast.success(t("toast.refused"));
       onChange(null);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
     onError: () => {
-      restoreRefusedTicket(String(session.user?.id ?? ""), ticket.id);
       toast.error(t("toast.transferError"));
     },
   });
