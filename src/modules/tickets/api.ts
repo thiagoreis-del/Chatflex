@@ -175,17 +175,18 @@ export const incomingTicketsQuery = (companyId: string) =>
     queryKey: [...ticketKeys.all, "incoming", companyId],
     queryFn: async ({ signal }): Promise<Ticket[]> => {
       const lists = await Promise.all(
-        ["pending", "open", "group"].map(async (status) =>
-          (
-            await apiRequest<TicketsResponse>(
-              withQuery(ep.list, {
-                ...scope(),
-                status,
-                pageNumber: 1,
-              }),
-              { signal },
-            )
-          )?.tickets ?? [],
+        ["pending", "open", "group"].map(
+          async (status) =>
+            (
+              await apiRequest<TicketsResponse>(
+                withQuery(ep.list, {
+                  ...scope(),
+                  status,
+                  pageNumber: 1,
+                }),
+                { signal },
+              )
+            )?.tickets ?? [],
         ),
       );
       return [...new Map(lists.flat().map((ticket) => [ticket.id, ticket])).values()];
@@ -507,7 +508,8 @@ export async function createTicket(
   if (created?.id) {
     try {
       full = (await apiRequest<{ ticket?: Partial<Ticket> }>(ep.messages(created.id)))?.ticket as
-        Partial<Ticket> | undefined;
+        | Partial<Ticket>
+        | undefined;
     } catch {
       full = undefined;
     }
