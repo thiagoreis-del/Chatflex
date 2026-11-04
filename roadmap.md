@@ -3,8 +3,8 @@
 ## Disponibilidade de conversas e contatos — 04/11/2026
 
 - [x] Verificar interface: contatos são criados/consultados via /contacts; conversas vêm de /tickets, com histórico finalizado paginado e filtros de filas/perfil; não há remoção automática identificada na interface.
-- [ ] Identificar quando os registros desaparecem e confirmar persistência/retenção no backend externo — sem acesso autorizado à VPS ou sessão real; depende da descrição do caso pelo usuário.
-- [ ] Aplicar a correção adequada sem ampliar acesso entre empresas — depende de identificar o caso e confirmar o contrato do backend externo.
+- [ ] Aplicar padrões seguros na interface: não ocultar recusados no histórico, isolar caches por empresa/usuário e recuperar registros do servidor após novo login.
+- [ ] Confirmar persistência/retenção e autorização no backend externo após finalizar, recusar e sair — requer acesso autorizado à VPS e sessão real.
 
 ## Falha ao criar grupo interno — 03/11/2026
 
