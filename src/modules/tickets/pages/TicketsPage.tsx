@@ -197,9 +197,7 @@ export function TicketsPage() {
       : {
           ...ticketsQuery({ status, search: debouncedSearch }),
           select: (l: Ticket[]) => {
-            const visible = l.filter(
-              (x) => !x.contact?.isGroup && !x.isGroup,
-            );
+            const visible = l.filter((x) => !x.contact?.isGroup && !x.isGroup);
             return status === "closed" ? visible : deduplicateActiveTickets(visible);
           },
         };
@@ -256,8 +254,7 @@ export function TicketsPage() {
     matchesAttendantFilter(x, attendantFilter, session.user?.id, isAdmin) &&
     (!unreadOnly || x.unreadMessages > 0) &&
     (!slaOn || slaFilter === "all" || computeSla(x, sla!, now).state === slaFilter);
-  const notGroup = (l: Ticket[]) =>
-    l.filter((x) => !x.contact?.isGroup && !x.isGroup);
+  const notGroup = (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup && !x.isGroup);
   const activeOnly = (l: Ticket[]) => deduplicateActiveTickets(notGroup(l));
   const openCount = useQuery({
     ...ticketsQuery({ status: "open", search: debouncedSearch }),
@@ -565,19 +562,21 @@ export function TicketsPage() {
                         <Inbox className="size-8" />
                       )}
                       <p>{msg}</p>
-                      {tab === "closed" && (older.hasNextPage || !olderOn) && firstPage.length > 0 && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={older.isFetching}
-                          onClick={() => {
-                            if (!olderOn) setOlderOn(true);
-                            else void older.fetchNextPage();
-                          }}
-                        >
-                          {older.isFetching ? t("sidebar.loadingMore") : t("sidebar.loadMore")}
-                        </Button>
-                      )}
+                      {tab === "closed" &&
+                        (older.hasNextPage || !olderOn) &&
+                        firstPage.length > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={older.isFetching}
+                            onClick={() => {
+                              if (!olderOn) setOlderOn(true);
+                              else void older.fetchNextPage();
+                            }}
+                          >
+                            {older.isFetching ? t("sidebar.loadingMore") : t("sidebar.loadMore")}
+                          </Button>
+                        )}
                       {(debouncedSearch || activeFilters > 0) && (
                         <Button
                           variant="link"

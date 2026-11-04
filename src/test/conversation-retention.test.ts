@@ -22,13 +22,23 @@ import { closedOlderTicketsQuery, ticketsQuery, updateTicketStatus } from "@/mod
 import { contactsQuery } from "@/modules/contacts/api";
 
 const user = (companyId = "1", id = "7"): AuthenticatedUser => ({
-  companyId, id, name: "Atendente", email: "agent@example.test", role: "agent",
-  permissions: [], queueIds: [3],
+  companyId,
+  id,
+  name: "Atendente",
+  email: "agent@example.test",
+  role: "agent",
+  permissions: [],
+  queueIds: [3],
 });
 const ticket = (id: number): Ticket => ({
-  id, status: "closed", lastMessage: "Histórico", updatedAt: "2026-11-04T12:00:00Z",
-  unreadMessages: 0, contact: { id: 10, name: "Contato", number: "5511999999999" },
-  user: { id: 7, name: "Atendente" }, queue: { id: 3, name: "Suporte", color: "green" },
+  id,
+  status: "closed",
+  lastMessage: "Histórico",
+  updatedAt: "2026-11-04T12:00:00Z",
+  unreadMessages: 0,
+  contact: { id: 10, name: "Contato", number: "5511999999999" },
+  user: { id: 7, name: "Atendente" },
+  queue: { id: 3, name: "Suporte", color: "green" },
 });
 
 beforeEach(() => {
@@ -41,18 +51,25 @@ describe("conservação segura de conversas e contatos", () => {
   it("finalizar altera apenas o status sem excluir contato, mensagens ou atribuição", async () => {
     mocks.apiRequest.mockResolvedValue(ticket(42));
     await updateTicketStatus(42, "closed", 7);
-    expect(mocks.apiRequest.mock.calls).toEqual([["/tickets/42", { method: "PUT", body: { status: "closed" } }]]);
+    expect(mocks.apiRequest.mock.calls).toEqual([
+      ["/tickets/42", { method: "PUT", body: { status: "closed" } }],
+    ]);
   });
 
   it("recusar mantém o ticket recuperável nos Finalizados, ignorando bloqueios locais antigos", async () => {
     setSessionUser(user());
     window.localStorage.setItem("chatflex:refused:7", JSON.stringify([{ id: 42, at: Date.now() }]));
-    mocks.apiRequest.mockResolvedValueOnce(ticket(42)).mockResolvedValueOnce({ tickets: [ticket(42)] });
+    mocks.apiRequest
+      .mockResolvedValueOnce(ticket(42))
+      .mockResolvedValueOnce({ tickets: [ticket(42)] });
     await updateTicketStatus(42, "closed");
     const client = new QueryClient();
     const history = await client.fetchQuery(ticketsQuery({ status: "closed" }));
     expect(history.map((t) => t.id)).toEqual([42]);
-    expect(mocks.apiRequest.mock.calls[0]).toEqual(["/tickets/42", { method: "PUT", body: { status: "closed" } }]);
+    expect(mocks.apiRequest.mock.calls[0]).toEqual([
+      "/tickets/42",
+      { method: "PUT", body: { status: "closed" } },
+    ]);
     client.clear();
   });
 
@@ -68,12 +85,16 @@ describe("conservação segura de conversas e contatos", () => {
     expect(sessionStore.get().user).toBeNull();
     mocks.apiRequest.mockResolvedValueOnce({ token: "test-token", user: user() });
     await login("agent@example.test", "test-password");
-    mocks.apiRequest.mockResolvedValueOnce({ contacts: [{ id: 10, name: "Contato", number: "5511999999999" }], count: 1 });
+    mocks.apiRequest.mockResolvedValueOnce({
+      contacts: [{ id: 10, name: "Contato", number: "5511999999999" }],
+      count: 1,
+    });
     expect((await client.fetchQuery(contactsQuery({ search: "", page: 1 }))).data[0]?.id).toBe(10);
     mocks.apiRequest.mockResolvedValueOnce({ tickets: [ticket(42)] });
     expect((await client.fetchQuery(ticketsQuery({ status: "closed" })))[0]?.id).toBe(42);
     expect(mocks.apiRequest.mock.calls.some(([, opts]) => opts?.method === "DELETE")).toBe(false);
-    unbind(); client.clear();
+    unbind();
+    client.clear();
   });
 
   it("isola chaves e limpa dados na troca de empresa", () => {
@@ -113,7 +134,11 @@ describe("conservação segura de conversas e contatos", () => {
   });
 
   it("preserva atendimentos antigos do mesmo contato e deduplica todas as páginas por ticket", () => {
-    expect(mergeTicketHistory([[ticket(42)], [ticket(42), ticket(41)], [ticket(41), ticket(40)]]).map((t) => t.id)).toEqual([42, 41, 40]);
+    expect(
+      mergeTicketHistory([[ticket(42)], [ticket(42), ticket(41)], [ticket(41), ticket(40)]]).map(
+        (t) => t.id,
+      ),
+    ).toEqual([42, 41, 40]);
   });
 
   it("mantém busca e filas autorizadas ao carregar páginas antigas sem ampliar acesso", async () => {

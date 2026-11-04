@@ -55,7 +55,8 @@ export const auditKeys = {
 /** Contatos pertencem à empresa da sessão; o backend filtra pelo token. */
 export const contactKeys = {
   all: ["company", "contacts"] as const,
-  list: (filters: object) => ["company", "contacts", ...sessionCacheScope(), "list", filters] as const,
+  list: (filters: object) =>
+    ["company", "contacts", ...sessionCacheScope(), "list", filters] as const,
 };
 
 /** Conexões pertencem à empresa da sessão; o backend filtra pelo token. */
@@ -79,8 +80,10 @@ export const queueKeys = {
 /** Atendimentos pertencem à empresa da sessão; o backend filtra pelo token. */
 export const ticketKeys = {
   all: ["company", "tickets"] as const,
-  operationalDashboard: () => ["company", "tickets", ...sessionCacheScope(), "operational-dashboard"] as const,
-  list: (filters: object) => ["company", "tickets", ...sessionCacheScope(), "list", filters] as const,
+  operationalDashboard: () =>
+    ["company", "tickets", ...sessionCacheScope(), "operational-dashboard"] as const,
+  list: (filters: object) =>
+    ["company", "tickets", ...sessionCacheScope(), "list", filters] as const,
   messages: (id: number) => ["company", "tickets", ...sessionCacheScope(), "messages", id] as const,
   tagOptions: ["company", "tickets", "tag-options"] as const,
 };
