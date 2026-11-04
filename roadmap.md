@@ -3,7 +3,8 @@
 ## Disponibilidade de conversas e contatos — 04/11/2026
 
 - [x] Verificar interface: contatos são criados/consultados via /contacts; conversas vêm de /tickets, com histórico finalizado paginado e filtros de filas/perfil; não há remoção automática identificada na interface.
-- [ ] Aplicar padrões seguros na interface: não ocultar recusados no histórico, isolar caches por empresa/usuário e recuperar registros do servidor após novo login.
+- [x] Aplicar padrões seguros na interface: recusados permanecem nos Finalizados; histórico deduplicado por ticket; caches de contatos/atendimentos separados por empresa/usuário e descartados ao perder/trocar sessão ou permissões; novo login relê o servidor.
+- [x] Validar 166 testes locais, incluindo oito regras de conservação/isolamento; documentar requisitos externos em docs/conservation-and-isolation.md.
 - [ ] Confirmar persistência/retenção e autorização no backend externo após finalizar, recusar e sair — requer acesso autorizado à VPS e sessão real.
 
 ## Falha ao criar grupo interno — 03/11/2026
