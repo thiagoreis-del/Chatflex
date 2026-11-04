@@ -86,4 +86,3 @@ describe("message polling", () => {
     expect(client.getQueryData(ticketKeys.messages(10))).toBeUndefined();
   });
 });
-
