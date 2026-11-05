@@ -1133,9 +1133,11 @@ function Conversation({
       /** Conteúdo estruturado já possui sua própria identificação. */
       skipSignature?: boolean;
     }) => {
-      // Conversa aberta sem responsável: o atendente logado assume antes de responder.
+      // Ticket aguardando/grupo ou aberto sem responsável: quem envia assume
+      // automaticamente antes de responder (assignTicket define status "open").
       // Admin respondendo como outro usuário: o ticket passa para esse usuário.
-      if (senderId && (!ticket.user || (replyAs && ticket.user.id !== senderId))) {
+      const needsAccept = ticket.status !== "open" && ticket.status !== "closed";
+      if (senderId && (needsAccept || !ticket.user || (replyAs && ticket.user.id !== senderId))) {
         const tk = await assignTicket(ticket.id, senderId);
         onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
       }
@@ -1853,7 +1855,8 @@ function Conversation({
           )}
         </QueryBoundary>
       </div>
-      {ticket.status === "open" ? (
+      {/* Aguardando/grupo também pode responder: o envio assume o ticket. */}
+      {ticket.status !== "closed" ? (
         <form
           onSubmit={submit}
           {...dropHandlers}
