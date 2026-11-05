@@ -624,70 +624,240 @@ function InternalConversationView({
       </div>
       <form
         onSubmit={submit}
-        className="flex shrink-0 items-end gap-1.5 border-t bg-card px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-4"
+        {...dropHandlers}
+        className={cn(
+          "relative shrink-0 border-t bg-card px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-4",
+          dragging && "bg-primary/10 ring-2 ring-inset ring-primary",
+        )}
       >
-        <input
-          ref={fileInput}
-          type="file"
-          className="hidden"
-          onChange={(e) => {
-            setFile(e.target.files?.[0] ?? null);
-            e.target.value = "";
-          }}
-        />
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label={t("composer.attach")}
-          title={t("composer.attach")}
-          onClick={() => fileInput.current?.click()}
-        >
-          <Paperclip className="size-4" />
-        </Button>
-        <AudioRecorder
-          labels={{
-            start: tt("audio.start"),
-            stop: tt("audio.stop"),
-            cancel: tt("audio.cancel"),
-            recording: tt("audio.recording"),
-            unsupported: tt("audio.unsupported"),
-          }}
-          onReady={(f) => send.mutate({ body: "", media: f })}
-          onError={(reason) => toast.error(tt(`audio.errors.${reason}`))}
-        />
-        <div className="min-w-0 flex-1">
-          {file && (
-            <p className="mb-1 flex items-center gap-1 truncate rounded bg-muted px-2 py-1 text-xs">
-              <Paperclip className="size-3" aria-hidden />
-              <span className="truncate">{file.name}</span>
+        {dragging && (
+          <p className="pointer-events-none absolute inset-x-0 -top-10 z-10 mx-auto w-fit rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground shadow">
+            {t("composer.dropHere")}
+          </p>
+        )}
+        {replyQuote && (
+          <div className="mb-2 flex items-center gap-2 rounded-lg border-l-4 border-primary bg-muted/60 p-2 text-xs">
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-primary">{replyQuote.sender}</p>
+              <p className="truncate text-muted-foreground">{replyQuote.snippet}</p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("reply.cancel")}
+              onClick={() => setReplyTo(null)}
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+        )}
+        {emojiOpen && (
+          <div
+            className="mb-2 flex flex-wrap gap-1 rounded-lg border bg-card p-2"
+            role="group"
+            aria-label={t("composer.emoji")}
+          >
+            {["😀", "😊", "👍", "❤️", "🙏", "✅", "🎉", "👋"].map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                disabled={send.isPending}
+                className="rounded p-2 text-xl hover:bg-muted"
+                aria-label={t("composer.insertEmoji", { emoji })}
+                onClick={() => {
+                  setText((current) => current + emoji);
+                  setEmojiOpen(false);
+                }}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        )}
+        {file && (
+          <div className="mb-2 rounded-lg border bg-muted/40 p-2">
+            <div className="flex items-center gap-3">
+              {previews[active] && file.type.startsWith("image/") ? (
+                <button
+                  type="button"
+                  onClick={() => setImageEditorOpen(true)}
+                  aria-label={t("composer.editImage")}
+                >
+                  <img
+                    src={previews[active]}
+                    alt={file.name}
+                    className="h-24 max-w-40 rounded object-cover sm:h-32"
+                  />
+                </button>
+              ) : previews[active] && file.type.startsWith("video/") ? (
+                <video
+                  src={previews[active]}
+                  controls
+                  preload="metadata"
+                  className="h-24 max-w-48 rounded bg-foreground sm:h-32"
+                />
+              ) : previews[active] && file.type.startsWith("audio/") ? (
+                <audio controls preload="metadata" src={previews[active]} className="max-w-52" />
+              ) : (
+                <FileText className="size-8 text-muted-foreground" aria-hidden />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{file.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                  {files.length > 1 && ` · ${active + 1}/${files.length}`}
+                </p>
+              </div>
+              {file.type.startsWith("image/") && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  aria-label={t("composer.editImage")}
+                  onClick={() => setImageEditorOpen(true)}
+                >
+                  <Pencil className="size-4" />
+                  <span className="hidden sm:inline">{t("composer.editImage")}</span>
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label={tt("composer.removeAttachment")}
+                onClick={() => removeFile(active)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+            <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+              {files.map((f, index) => (
+                <button
+                  key={`${f.name}-${f.size}-${index}`}
+                  type="button"
+                  onClick={() => setActive(index)}
+                  aria-label={f.name}
+                  aria-pressed={index === active}
+                  className={cn(
+                    "flex size-12 shrink-0 items-center justify-center overflow-hidden rounded border-2 bg-background",
+                    index === active ? "border-primary" : "border-transparent",
+                  )}
+                >
+                  {f.type.startsWith("image/") && previews[index] ? (
+                    <img src={previews[index]} alt="" className="size-full object-cover" />
+                  ) : f.type.startsWith("video/") ? (
+                    <Video className="size-5 text-muted-foreground" />
+                  ) : (
+                    <FileText className="size-5 text-muted-foreground" />
+                  )}
+                </button>
+              ))}
               <button
                 type="button"
-                onClick={() => setFile(null)}
-                aria-label={tt("composer.removeAttachment")}
-                className="ml-auto text-muted-foreground hover:text-foreground"
+                onClick={() => fileInput.current?.click()}
+                aria-label={t("composer.addMore")}
+                title={t("composer.addMore")}
+                className="flex size-12 shrink-0 items-center justify-center rounded border-2 border-dashed text-muted-foreground hover:bg-muted"
               >
-                <X className="size-3" />
+                <Plus className="size-5" />
               </button>
-            </p>
-          )}
-          <Input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={t("composer.placeholder")}
-            aria-label={t("composer.placeholder")}
-            className="h-10 rounded-full bg-muted/60"
+            </div>
+          </div>
+        )}
+        {file?.type.startsWith("image/") && (
+          <ImageEditorDialog
+            file={file}
+            open={imageEditorOpen}
+            onOpenChange={setImageEditorOpen}
+            onSave={replaceActive}
+            labels={{
+              title: tt("imageEditor.title"),
+              rotate: tt("imageEditor.rotate"),
+              draw: tt("imageEditor.draw"),
+              highlighter: tt("imageEditor.highlighter"),
+              arrow: tt("imageEditor.arrow"),
+              circle: tt("imageEditor.circle"),
+              rectangle: tt("imageEditor.rectangle"),
+              text: tt("imageEditor.text"),
+              eraser: tt("imageEditor.eraser"),
+              blur: tt("imageEditor.blur"),
+              crop: tt("imageEditor.crop"),
+              color: tt("imageEditor.color"),
+              thickness: tt("imageEditor.thickness"),
+              textSize: tt("imageEditor.textSize"),
+              textPlaceholder: tt("imageEditor.textPlaceholder"),
+              undo: tt("imageEditor.undo"),
+              redo: tt("imageEditor.redo"),
+              restore: tt("imageEditor.restore"),
+              canvas: tt("imageEditor.canvas"),
+              loading: tt("imageEditor.loading"),
+              cancel: tt("imageEditor.cancel"),
+              apply: tt("imageEditor.apply"),
+            }}
           />
+        )}
+        <div className="flex items-end gap-1.5">
+          <input
+            ref={fileInput}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              addFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t("composer.emoji")}
+            aria-pressed={emojiOpen}
+            onClick={() => setEmojiOpen((value) => !value)}
+          >
+            <Smile className="size-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t("composer.attach")}
+            title={t("composer.attach")}
+            onClick={() => fileInput.current?.click()}
+          >
+            <Paperclip className="size-4" />
+          </Button>
+          <AudioRecorder
+            labels={{
+              start: tt("audio.start"),
+              stop: tt("audio.stop"),
+              cancel: tt("audio.cancel"),
+              recording: tt("audio.recording"),
+              unsupported: tt("audio.unsupported"),
+            }}
+            onReady={(f) => send.mutate({ body: "", media: [f] })}
+            onError={(reason) => toast.error(tt(`audio.errors.${reason}`))}
+          />
+          <div className="min-w-0 flex-1">
+            <Input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={t("composer.placeholder")}
+              aria-label={t("composer.placeholder")}
+              className="h-10 rounded-full bg-muted/60"
+            />
+          </div>
+          <Button
+            type="submit"
+            size="icon"
+            className="size-10 rounded-full"
+            disabled={send.isPending || (!text.trim() && !files.length)}
+            aria-label={t("composer.send")}
+          >
+            <Send className="size-4" />
+          </Button>
         </div>
-        <Button
-          type="submit"
-          size="icon"
-          className="size-10 rounded-full"
-          disabled={send.isPending || (!text.trim() && !file)}
-          aria-label={t("composer.send")}
-        >
-          <Send className="size-4" />
-        </Button>
       </form>
     </>
   );
