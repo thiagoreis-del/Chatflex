@@ -1,6 +1,7 @@
 import type { CreateConversationInput, InternalConversation, InternalMessage } from "./types";
 import { internalChatEndpoints } from "@/shared/config/endpoints";
 import { env } from "@/shared/config/env";
+import { stripQuote } from "./quote";
 
 export interface ChatParticipantRecord {
   userId?: number | string;
