@@ -2257,7 +2257,7 @@ function Conversation({
         </form>
       ) : (
         <p className="shrink-0 border-t p-3 text-center text-sm text-muted-foreground [overflow-wrap:anywhere]">
-          {t("composer.acceptFirst")}
+          {t("composer.reopenFirst")}
         </p>
       )}
     </>
