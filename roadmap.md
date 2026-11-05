@@ -84,3 +84,13 @@
 
 - Ajustar filtro de atendentes e assinatura automática sem ocultar aguardando sem responsável.
 - Publicação de Status — tela `/app/status` pronta; aguarda teste real com fotos (nome do campo de legendas `captions` a confirmar no controller).
+
+## Chat interno com recursos do atendimento — 05/11/2026
+
+- [x] Separadores de dia (Hoje/Ontem/data) reutilizando as regras do atendimento.
+- [x] Menu por mensagem: responder (citação codificada no corpo), copiar, encaminhar para outra conversa interna (texto e mídia) e excluir para mim (local, por empresa/usuário).
+- [x] Compositor: múltiplos arquivos com miniaturas e prévia (imagem/vídeo/áudio), editor de imagem, emojis, arrastar-e-soltar; áudio gravado não apaga texto digitado.
+- [x] Cartões de contato (vCard) e localização (Google Maps) nas mensagens internas; prévia da lista sem marcador de citação.
+- [x] Validar 208 testes e build sem erros.
+- [ ] Confirmar em conversa real (foto, vídeo, áudio, responder, excluir, encaminhar) — requer sessão autenticada do backend externo.
+- [ ] Excluir mensagem para todos — requer endpoint de exclusão de mensagem no backend (contrato atual só exclui a conversa inteira).

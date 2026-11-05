@@ -14,10 +14,46 @@
   "empty": "Nenhuma conversa interna ainda.",
   "selectTitle": "Selecione uma conversa",
   "selectDescription": "Escolha uma conversa interna ao lado ou inicie uma nova.",
+  "dates": {
+    "today": "Hoje",
+    "yesterday": "Ontem"
+  },
+  "messageMenu": {
+    "label": "Opções da mensagem",
+    "copy": "Copiar",
+    "copied": "Mensagem copiada.",
+    "deleteForMe": "Excluir para mim",
+    "deletedForMe": "Mensagem excluída neste dispositivo."
+  },
+  "reply": {
+    "action": "Responder",
+    "you": "Você",
+    "cancel": "Cancelar resposta",
+    "image": "📷 Foto",
+    "video": "🎥 Vídeo",
+    "audio": "🎤 Áudio",
+    "document": "📄 Documento",
+    "contact": "👤 Contato",
+    "location": "📍 Localização"
+  },
+  "forward": {
+    "action": "Encaminhar",
+    "title": "Encaminhar mensagem",
+    "search": "Buscar conversa",
+    "loading": "Carregando conversas…",
+    "empty": "Nenhuma outra conversa encontrada.",
+    "done": "Mensagem encaminhada.",
+    "failed": "Não foi possível encaminhar."
+  },
   "composer": {
     "placeholder": "Mensagem interna…",
     "send": "Enviar",
-    "attach": "Anexar arquivo"
+    "attach": "Anexar arquivo",
+    "emoji": "Emoji",
+    "insertEmoji": "Inserir {{emoji}}",
+    "dropHere": "Solte os arquivos para enviar",
+    "addMore": "Adicionar mais arquivos",
+    "editImage": "Editar imagem"
   },
   "mentions": {
     "hint": "Use @nome para mencionar um colega."
