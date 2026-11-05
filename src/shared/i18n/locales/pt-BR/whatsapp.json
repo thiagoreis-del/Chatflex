@@ -31,7 +31,7 @@
       "description": "Publique fotos no Status do WhatsApp da empresa."
     },
     "title": "Publicar Status",
-    "description": "Envie de 1 a 20 fotos para o Status de uma conexão conectada. Recurso em teste.",
+    "description": "Envie de 1 a 20 fotos para o Status de uma conexão conectada.",
     "connection": "Conexão",
     "selectConnection": "Selecione uma conexão conectada",
     "noConnected": "Nenhuma conexão conectada no momento.",
@@ -44,8 +44,10 @@
     "clear": "Limpar",
     "tooMany": "Limite de 20 fotos. Algumas foram ignoradas.",
     "onlyImages": "Apenas imagens são aceitas.",
-    "success": "Fotos enviadas para publicação no Status.",
+    "success": "Status publicado e confirmado pelo servidor.",
     "error": "Não foi possível publicar o Status.",
+    "unconfirmed": "O servidor recebeu as fotos, mas não confirmou a publicação.",
+    "unconfirmedHint": "As fotos foram mantidas na tela. Confira o WhatsApp antes de tentar novamente para evitar duplicidade.",
     "empty": "Nenhuma foto selecionada."
   },
   "actions": {

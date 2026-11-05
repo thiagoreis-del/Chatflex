@@ -54,6 +54,7 @@ import { IncomingNotifications } from "@/modules/tickets/components/IncomingNoti
 import { AdminAlerts } from "@/modules/tickets/components/AdminAlerts";
 import { SlaWatcher } from "@/modules/sla/components/SlaWatcher";
 import { connectionsQuery } from "@/modules/whatsapp/api";
+import { internalConversationsQuery } from "@/modules/internal-chat/api";
 
 const soonModules = [{ key: "reports", icon: BarChart3 }] as const;
 
@@ -98,10 +99,12 @@ function SidebarNav({
   onNavigate,
   connectionStatus,
   disconnectedCount,
+  internalUnreadCount,
 }: {
   onNavigate?: (() => void) | undefined;
   connectionStatus: ConnectionMenuStatus;
   disconnectedCount: number;
+  internalUnreadCount: number;
 }) {
   const { t } = useTranslation();
   const { hasRole } = usePermissions();
@@ -246,11 +249,28 @@ function SidebarNav({
               <Link
                 to="/app/chat-interno"
                 onClick={onNavigate}
-                className={linkClass}
+                className={`${linkClass} ${
+                  internalUnreadCount > 0 ? "ring-1 ring-inset ring-sidebar-primary/60" : ""
+                }`}
                 activeProps={activeLink}
               >
                 <UsersRound className="size-4" aria-hidden />
-                {t("nav.modules.internalChat")}
+                <span className="min-w-0 flex-1">{t("nav.modules.internalChat")}</span>
+                {internalUnreadCount > 0 && (
+                  <span
+                    className="relative flex size-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm"
+                    aria-label={t("nav.internalChatUnread", { count: internalUnreadCount })}
+                    title={t("nav.internalChatUnread", { count: internalUnreadCount })}
+                  >
+                    <span
+                      className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-60"
+                      aria-hidden
+                    />
+                    <span className="relative">
+                      {internalUnreadCount > 99 ? "99+" : internalUnreadCount}
+                    </span>
+                  </span>
+                )}
               </Link>
             </li>
             {(isSuperadmin || hasRole("company_admin")) && (
@@ -318,10 +338,12 @@ function SidebarBody({
   onNavigate,
   connectionStatus,
   disconnectedCount,
+  internalUnreadCount,
 }: {
   onNavigate?: (() => void) | undefined;
   connectionStatus: ConnectionMenuStatus;
   disconnectedCount: number;
+  internalUnreadCount: number;
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col gap-6 overflow-y-auto bg-sidebar py-5 text-sidebar-foreground">
@@ -333,6 +355,7 @@ function SidebarBody({
         onNavigate={onNavigate}
         connectionStatus={connectionStatus}
         disconnectedCount={disconnectedCount}
+        internalUnreadCount={internalUnreadCount}
       />
       <GroupFooter className="mt-auto border-t border-sidebar-border pt-3" />
     </div>
@@ -400,6 +423,17 @@ export function AppShell({ children }: { children: ReactNode }) {
       ? "disconnected"
       : "connected"
     : "unknown";
+  const companyId = String(user?.companyId ?? "");
+  const internalConversations = useQuery({
+    ...internalConversationsQuery(companyId),
+    enabled: Boolean(user && companyId),
+    refetchInterval: 3_000,
+    refetchIntervalInBackground: true,
+  });
+  const internalUnreadCount = (internalConversations.data ?? []).reduce(
+    (total, conversation) => total + Math.max(0, conversation.unreadMessages),
+    0,
+  );
 
   const toggleDesktopMenu = () => {
     setDesktopOpen((open) => {
@@ -499,6 +533,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <SidebarBody
               connectionStatus={connectionStatus}
               disconnectedCount={disconnectedCount}
+              internalUnreadCount={internalUnreadCount}
             />
           </div>
         </aside>
@@ -537,6 +572,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   onNavigate={() => setMobileOpen(false)}
                   connectionStatus={connectionStatus}
                   disconnectedCount={disconnectedCount}
+                  internalUnreadCount={internalUnreadCount}
                 />
               </SheetContent>
             </Sheet>

@@ -48,8 +48,11 @@ export function StatusPublishPage() {
       await publishStatusBatch(whatsappId, items, (f) => setProgress(Math.round(f * 100)));
       toast.success(t("status.success"));
       setItems([]);
-    } catch {
-      toast.error(t("status.error"));
+    } catch (error) {
+      const unconfirmed = error instanceof Error && error.message.startsWith("STATUS_");
+      toast.error(t(unconfirmed ? "status.unconfirmed" : "status.error"), {
+        description: unconfirmed ? t("status.unconfirmedHint") : undefined,
+      });
     } finally {
       setProgress(null);
     }

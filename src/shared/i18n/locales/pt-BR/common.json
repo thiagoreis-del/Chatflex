@@ -69,6 +69,8 @@
     "main": "Navegação principal",
     "dashboard": "Painel",
     "soon": "Em breve",
+    "internalChatUnread_one": "{{count}} mensagem interna não lida",
+    "internalChatUnread_other": "{{count}} mensagens internas não lidas",
     "modules": {
       "tickets": "Atendimentos",
       "contacts": "Contatos",
