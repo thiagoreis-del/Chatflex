@@ -1136,8 +1136,7 @@ function Conversation({
       // Ticket aguardando/grupo ou aberto sem responsável: quem envia assume
       // automaticamente antes de responder (assignTicket define status "open").
       // Admin respondendo como outro usuário: o ticket passa para esse usuário.
-      const needsAccept = ticket.status !== "open" && ticket.status !== "closed";
-      if (senderId && (needsAccept || !ticket.user || (replyAs && ticket.user.id !== senderId))) {
+      if (shouldAutoAssignOnSend(ticket, senderId, replyAs)) {
         const tk = await assignTicket(ticket.id, senderId);
         onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
       }
