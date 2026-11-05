@@ -86,6 +86,7 @@ import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../typ
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { allCompanyUsersQuery } from "@/modules/users/api";
 import { matchesAttendantFilter, selectedReplyUserId } from "../attendant-selection";
+import { shouldAutoAssignOnSend } from "../auto-assign";
 import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
 import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
