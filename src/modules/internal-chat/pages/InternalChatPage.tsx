@@ -384,6 +384,16 @@ function InternalConversationView({
     onError: () => toast.error(t("toast.sendError")),
   });
 
+  // Áudio vai sozinho e NUNCA apaga o texto digitado nem os anexos.
+  const sendAudio = useMutation({
+    mutationFn: (f: File) => sendInternalMedia(conversation.id, f, ""),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: internalChatKeys.messages(conversation.id) });
+      onChanged();
+    },
+    onError: () => toast.error(t("toast.sendError")),
+  });
+
   const remove = useMutation({
     mutationFn: () => deleteInternalConversation(conversation.id),
     onSuccess: () => {
@@ -836,7 +846,7 @@ function InternalConversationView({
               recording: tt("audio.recording"),
               unsupported: tt("audio.unsupported"),
             }}
-            onReady={(f) => send.mutate({ body: "", media: [f] })}
+            onReady={(f) => sendAudio.mutate(f)}
             onError={(reason) => toast.error(tt(`audio.errors.${reason}`))}
           />
           <div className="min-w-0 flex-1">
