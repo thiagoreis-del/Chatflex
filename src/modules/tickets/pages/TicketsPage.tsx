@@ -86,6 +86,7 @@ import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../typ
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { allCompanyUsersQuery } from "@/modules/users/api";
 import { matchesAttendantFilter, selectedReplyUserId } from "../attendant-selection";
+import { shouldAutoAssignOnSend } from "../auto-assign";
 import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
 import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
@@ -1133,9 +1134,10 @@ function Conversation({
       /** Conteúdo estruturado já possui sua própria identificação. */
       skipSignature?: boolean;
     }) => {
-      // Conversa aberta sem responsável: o atendente logado assume antes de responder.
+      // Ticket aguardando/grupo ou aberto sem responsável: quem envia assume
+      // automaticamente antes de responder (assignTicket define status "open").
       // Admin respondendo como outro usuário: o ticket passa para esse usuário.
-      if (senderId && (!ticket.user || (replyAs && ticket.user.id !== senderId))) {
+      if (shouldAutoAssignOnSend(ticket, senderId, replyAs)) {
         const tk = await assignTicket(ticket.id, senderId);
         onChange({ ...ticket, ...tk, contact: tk?.contact ?? ticket.contact });
       }
@@ -1853,7 +1855,8 @@ function Conversation({
           )}
         </QueryBoundary>
       </div>
-      {ticket.status === "open" ? (
+      {/* Aguardando/grupo também pode responder: o envio assume o ticket. */}
+      {ticket.status !== "closed" ? (
         <form
           onSubmit={submit}
           {...dropHandlers}
@@ -2254,7 +2257,7 @@ function Conversation({
         </form>
       ) : (
         <p className="shrink-0 border-t p-3 text-center text-sm text-muted-foreground [overflow-wrap:anywhere]">
-          {t("composer.acceptFirst")}
+          {t("composer.reopenFirst")}
         </p>
       )}
     </>
