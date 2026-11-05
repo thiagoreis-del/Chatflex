@@ -1,24 +1,39 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   ArrowLeft,
+  Copy,
+  FileText,
+  Forward,
   Hash,
   MessageSquarePlus,
+  MoreVertical,
   Paperclip,
+  Pencil,
+  Plus,
+  Reply,
   Search,
   Send,
+  Smile,
   Trash2,
   UserMinus,
   UserPlus,
   UserRound,
   Users,
+  Video,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog, EmptyState, QueryBoundary } from "@/shared/components";
 import { internalChatKeys } from "@/shared/api/query-keys";
@@ -27,6 +42,12 @@ import { usersQuery } from "@/modules/users/api";
 import { queuesQuery } from "@/modules/queues/api";
 import { AudioRecorder } from "@/modules/tickets/components/AudioRecorder";
 import { MessageMedia } from "@/modules/tickets/components/MessageMedia";
+import { ContactCard } from "@/modules/tickets/components/ContactCard";
+import { LocationCard } from "@/modules/tickets/components/LocationCard";
+import { ImageEditorDialog } from "@/modules/tickets/components/ImageEditorDialog";
+import { isVCard, parseVCards } from "@/modules/tickets/vcard";
+import { locationText, parseLocation } from "@/modules/tickets/location";
+import { messageDateLabel, messageDayKey, startsMessageDay } from "@/modules/tickets/message-date";
 import { useFallbackInterval } from "@/modules/tickets/realtime";
 import {
   addInternalMember,
@@ -38,6 +59,9 @@ import {
   sendInternalMedia,
   sendInternalMessage,
 } from "../api";
+import { ForwardInternalDialog } from "../components/ForwardInternalDialog";
+import { hideMessageForMe, listHiddenMessages } from "../hidden";
+import { encodeReplyBody, parseReplyBody, quoteSnippet, stripQuote } from "../quote";
 import type { InternalConversation, InternalConversationKind, InternalMessage } from "../types";
 
 const time = (iso: string) =>
