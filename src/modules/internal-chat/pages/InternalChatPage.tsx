@@ -268,9 +268,17 @@ function InternalConversationView({
     refetchInterval: fallback,
   });
   const [text, setText] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [active, setActive] = useState(0);
+  const [replyTo, setReplyTo] = useState<InternalMessage | null>(null);
+  const [forwarding, setForwarding] = useState<InternalMessage | null>(null);
+  const [hidden, setHidden] = useState<string[]>([]);
   const [membersOpen, setMembersOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [imageEditorOpen, setImageEditorOpen] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const currentUser = useSession().user;
@@ -279,23 +287,97 @@ function InternalConversationView({
     currentUser?.role === "company_admin" ||
     currentUser?.role === "superadmin";
 
+  const scopeCompany = String(currentUser?.companyId ?? "");
+  const scopeUser = String(currentUser?.id ?? "");
+
+  useEffect(() => {
+    setHidden(listHiddenMessages(scopeCompany, scopeUser));
+  }, [scopeCompany, scopeUser]);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [messages.data?.length]);
 
-  const send = useMutation({
-    mutationFn: async ({ body, media }: { body: string; media: File | null }) => {
-      if (media) return sendInternalMedia(conversation.id, media, body);
-      return sendInternalMessage(conversation.id, body);
-    },
-    onSuccess: (message) => {
-      setText("");
-      setFile(null);
-      if (message?.id) {
-        qc.setQueryData<InternalMessage[]>(internalChatKeys.messages(conversation.id), (p = []) =>
-          p.some((m) => m.id === message.id) ? p : [...p, message],
-        );
+  const file = files[active] ?? null;
+  const previews = useMemo(() => files.map((f) => URL.createObjectURL(f)), [files]);
+  useEffect(() => () => previews.forEach((url) => URL.revokeObjectURL(url)), [previews]);
+
+  const mediaLabel = (m: InternalMessage) => {
+    if (m.mediaType === "image") return t("reply.image");
+    if (m.mediaType === "video") return t("reply.video");
+    if (m.mediaType === "audio") return t("reply.audio");
+    return m.mediaName ? `📄 ${m.mediaName}` : t("reply.document");
+  };
+
+  const quoteOf = (m: InternalMessage): ReplyQuote => {
+    const clean = stripQuote(m.body);
+    return {
+      id: m.id,
+      sender: m.fromMe ? t("reply.you") : (m.sender?.name ?? conversation.title),
+      snippet:
+        clean && isVCard(clean)
+          ? t("reply.contact")
+          : clean && parseLocation(clean)
+            ? locationText(clean) || t("reply.location")
+            : clean
+              ? quoteSnippet(clean)
+              : mediaLabel(m),
+    };
+  };
+
+  const jumpTo = (id: string) => {
+    document.getElementById(`imsg-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlightId(id);
+    window.setTimeout(() => setHighlightId((cur) => (cur === id ? null : cur)), 1800);
+  };
+
+  const addFiles = (list: FileList | null) => {
+    if (!list?.length) return;
+    setFiles((cur) => [...cur, ...Array.from(list)]);
+    setActive(files.length);
+  };
+  const removeFile = (index: number) => {
+    setFiles((cur) => cur.filter((_, i) => i !== index));
+    setActive(0);
+  };
+  const replaceActive = (f: File) =>
+    setFiles((cur) => cur.map((x, i) => (i === active ? f : x)));
+
+  const dropHandlers = {
+    onDragOver: (e: React.DragEvent) => {
+      if (e.dataTransfer.types.includes("Files")) {
+        e.preventDefault();
+        setDragging(true);
       }
+    },
+    onDragLeave: (e: React.DragEvent) => {
+      if (e.currentTarget === e.target) setDragging(false);
+    },
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragging(false);
+      addFiles(e.dataTransfer.files);
+    },
+  };
+
+  const send = useMutation({
+    mutationFn: async ({ body, media }: { body: string; media: File[] }) => {
+      const quoted = replyTo ? encodeReplyBody(quoteOf(replyTo), body || " ") : body;
+      // Como no WhatsApp: a legenda acompanha a primeira mídia enviada.
+      if (media.length) {
+        for (const [index, item] of media.entries()) {
+          await sendInternalMedia(conversation.id, item, index === 0 ? quoted : "");
+        }
+        return;
+      }
+      await sendInternalMessage(conversation.id, quoted);
+    },
+    onSuccess: () => {
+      setText("");
+      setFiles([]);
+      setActive(0);
+      setReplyTo(null);
+      void qc.invalidateQueries({ queryKey: internalChatKeys.messages(conversation.id) });
       onChanged();
     },
     onError: () => toast.error(t("toast.sendError")),
