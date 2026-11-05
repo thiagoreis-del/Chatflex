@@ -473,41 +473,151 @@ function InternalConversationView({
           {() => (
             <>
               <ul className="space-y-1.5">
-                {(messages.data ?? []).map((m) => (
-                  <li key={m.id} className={cn("flex", m.fromMe ? "justify-end" : "justify-start")}>
-                    <div
-                      className={cn(
-                        "max-w-[85%] rounded-lg px-2.5 py-1.5 shadow-sm sm:max-w-[70%]",
-                        m.fromMe ? "chat-outgoing" : "bg-card",
-                      )}
-                    >
-                      {!m.fromMe && m.sender?.name && (
-                        <p className="text-[11px] font-semibold text-primary">{m.sender.name}</p>
-                      )}
-                      {m.mediaUrl && (
-                        <MessageMedia
-                          message={{
-                            id: m.id,
-                            ticketId: 0,
-                            body: m.body,
-                            fromMe: m.fromMe,
-                            createdAt: m.createdAt,
-                            mediaUrl: m.mediaUrl,
-                            mediaType: m.mediaType ?? null,
-                            ticket: { user: m.sender ?? null },
+                {(messages.data ?? [])
+                  .filter((m) => !hidden.includes(m.id))
+                  .map((m, index, visible) => {
+                    const parsed = parseReplyBody(m.body);
+                    const cleanBody = parsed.body.trim();
+                    return (
+                      <Fragment key={m.id}>
+                        {startsMessageDay(m.createdAt, visible[index - 1]?.createdAt) && (
+                          <li className="flex justify-center py-2">
+                            <time
+                              dateTime={messageDayKey(m.createdAt) ?? undefined}
+                              className="max-w-full rounded-md border border-border bg-card px-3 py-1.5 text-center text-xs font-semibold text-muted-foreground shadow-sm"
+                            >
+                              {messageDateLabel(m.createdAt, {
+                                today: t("dates.today"),
+                                yesterday: t("dates.yesterday"),
+                              })}
+                            </time>
+                          </li>
+                        )}
+                        <li
+                          id={`imsg-${m.id}`}
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            setReplyTo(m);
                           }}
-                        />
-                      )}
-                      {!m.mediaUrl && m.mediaName && <p className="text-xs">{m.mediaName}</p>}
-                      {m.body && <BodyWithMentions body={m.body} />}
-                      <p className="mt-0.5 text-right text-[10px] opacity-70">
-                        {time(m.createdAt)}
-                      </p>
-                    </div>
-                  </li>
-                ))}
+                          className={cn(
+                            "group flex items-center gap-1",
+                            m.fromMe ? "flex-row-reverse" : "flex-row",
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "max-w-[85%] rounded-lg px-2.5 py-1.5 shadow-sm sm:max-w-[70%]",
+                              highlightId === m.id && "ring-2 ring-primary",
+                              m.fromMe ? "chat-outgoing" : "bg-card",
+                            )}
+                          >
+                            {!m.fromMe && m.sender?.name && (
+                              <p className="text-[11px] font-semibold text-primary">
+                                {m.sender.name}
+                              </p>
+                            )}
+                            {parsed.quote && (
+                              <button
+                                type="button"
+                                onClick={() => parsed.quote?.id && jumpTo(parsed.quote.id)}
+                                className="mb-1 block w-full rounded border-l-4 border-primary bg-muted/60 px-2 py-1 text-left text-xs"
+                              >
+                                <span className="block font-semibold text-primary">
+                                  {parsed.quote.sender}
+                                </span>
+                                <span className="line-clamp-2 text-muted-foreground">
+                                  {parsed.quote.snippet}
+                                </span>
+                              </button>
+                            )}
+                            {m.mediaUrl && (
+                              <MessageMedia
+                                message={{
+                                  id: m.id,
+                                  ticketId: 0,
+                                  body: cleanBody,
+                                  fromMe: m.fromMe,
+                                  createdAt: m.createdAt,
+                                  mediaUrl: m.mediaUrl,
+                                  mediaType: m.mediaType ?? null,
+                                  ticket: { user: m.sender ?? null },
+                                }}
+                              />
+                            )}
+                            {!m.mediaUrl && m.mediaName && (
+                              <p className="text-xs">{m.mediaName}</p>
+                            )}
+                            {cleanBody && isVCard(cleanBody) ? (
+                              <div className="flex flex-col gap-1.5">
+                                {parseVCards(cleanBody).map((contact, i) => (
+                                  <ContactCard key={i} contact={contact} />
+                                ))}
+                              </div>
+                            ) : cleanBody && parseLocation(cleanBody) ? (
+                              <div className="flex flex-col gap-1.5">
+                                <LocationCard
+                                  location={parseLocation(cleanBody)!}
+                                  label={locationText(cleanBody)}
+                                />
+                              </div>
+                            ) : (
+                              cleanBody && <BodyWithMentions body={parsed.body} />
+                            )}
+                            <p className="mt-0.5 text-right text-[10px] opacity-70">
+                              {time(m.createdAt)}
+                            </p>
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                type="button"
+                                aria-label={t("messageMenu.label")}
+                                title={t("messageMenu.label")}
+                                className="shrink-0 rounded-full p-1.5 text-muted-foreground opacity-60 hover:bg-muted hover:text-foreground focus-visible:opacity-100 data-[state=open]:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                              >
+                                <MoreVertical className="size-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align={m.fromMe ? "end" : "start"}>
+                              <DropdownMenuItem onSelect={() => setReplyTo(m)}>
+                                <Reply className="size-4" /> {t("reply.action")}
+                              </DropdownMenuItem>
+                              {cleanBody && (
+                                <DropdownMenuItem
+                                  onSelect={() => {
+                                    void navigator.clipboard
+                                      ?.writeText(cleanBody)
+                                      .then(() => toast.success(t("messageMenu.copied")));
+                                  }}
+                                >
+                                  <Copy className="size-4" /> {t("messageMenu.copy")}
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem onSelect={() => setForwarding(m)}>
+                                <Forward className="size-4" /> {t("forward.action")}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onSelect={() => {
+                                  setHidden(hideMessageForMe(scopeCompany, scopeUser, m.id));
+                                  toast.success(t("messageMenu.deletedForMe"));
+                                }}
+                              >
+                                <Trash2 className="size-4" /> {t("messageMenu.deleteForMe")}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </li>
+                      </Fragment>
+                    );
+                  })}
               </ul>
               <div ref={endRef} />
+              <ForwardInternalDialog
+                message={forwarding}
+                currentConversationId={conversation.id}
+                companyId={scopeCompany}
+                onClose={() => setForwarding(null)}
+              />
             </>
           )}
         </QueryBoundary>
