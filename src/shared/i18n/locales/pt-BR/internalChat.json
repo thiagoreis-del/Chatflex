@@ -51,6 +51,14 @@
     "error": "Não foi possível atualizar os participantes.",
     "close": "Fechar"
   },
+  "delete": {
+    "action": "Excluir conversa",
+    "title": "Excluir conversa interna?",
+    "description": "A conversa “{{name}}” e suas mensagens serão excluídas. Esta ação não pode ser desfeita.",
+    "confirm": "Excluir conversa",
+    "success": "Conversa interna excluída.",
+    "error": "Não foi possível excluir a conversa."
+  },
   "toast": {
     "sendError": "Não foi possível enviar a mensagem.",
     "fileError": "Não foi possível enviar o arquivo."

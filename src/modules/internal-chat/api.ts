@@ -34,7 +34,7 @@ async function listConversations(signal?: AbortSignal) {
       ...page.filter(
         (record) =>
           (record.companyId === undefined || record.companyId === companyId) &&
-          record.users.some((member) => member.userId === userId),
+          record.users.some((member) => Number(member.userId ?? member.user?.id) === userId),
       ),
     );
     if (!res.hasMore || !page.length) break;
@@ -101,6 +101,9 @@ export const sendInternalMedia = async (conversationId: number, file: File, capt
   );
   return adaptMessage(record);
 };
+
+export const deleteInternalConversation = (conversationId: number) =>
+  apiRequest<void>(internalChatEndpoints.detail(conversationId), { method: "DELETE" });
 
 async function updateMembers(conversationId: number, userId: number, add: boolean) {
   // Read the latest membership before a full-list update; never use stale dialog state.

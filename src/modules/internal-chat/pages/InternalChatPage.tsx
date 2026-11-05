@@ -9,6 +9,7 @@ import {
   Paperclip,
   Search,
   Send,
+  Trash2,
   UserMinus,
   UserPlus,
   UserRound,
@@ -19,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { EmptyState, QueryBoundary } from "@/shared/components";
+import { ConfirmDialog, EmptyState, QueryBoundary } from "@/shared/components";
 import { internalChatKeys } from "@/shared/api/query-keys";
 import { sessionStore, useSession } from "@/shared/auth/session-store";
 import { usersQuery } from "@/modules/users/api";
@@ -30,6 +31,7 @@ import { useFallbackInterval } from "@/modules/tickets/realtime";
 import {
   addInternalMember,
   createInternalConversation,
+  deleteInternalConversation,
   internalConversationsQuery,
   internalMessagesQuery,
   removeInternalMember,
@@ -195,6 +197,10 @@ export function InternalChatPage() {
             key={selected.id}
             conversation={selected}
             onBack={() => setSelected(null)}
+            onDeleted={() => {
+              setSelected(null);
+              void qc.invalidateQueries({ queryKey: internalChatKeys.conversations(companyId) });
+            }}
             onChanged={() =>
               void qc.invalidateQueries({ queryKey: internalChatKeys.conversations(companyId) })
             }
@@ -222,10 +228,12 @@ function InternalConversationView({
   conversation,
   onBack,
   onChanged,
+  onDeleted,
 }: {
   conversation: InternalConversation;
   onBack: () => void;
   onChanged: () => void;
+  onDeleted: () => void;
 }) {
   const { t } = useTranslation("internalChat");
   const { t: tt } = useTranslation("tickets");
@@ -238,8 +246,14 @@ function InternalConversationView({
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [membersOpen, setMembersOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const currentUser = useSession().user;
+  const canDelete =
+    conversation.ownerId === Number(currentUser?.id) ||
+    currentUser?.role === "company_admin" ||
+    currentUser?.role === "superadmin";
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
@@ -261,6 +275,17 @@ function InternalConversationView({
       onChanged();
     },
     onError: () => toast.error(t("toast.sendError")),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteInternalConversation(conversation.id),
+    onSuccess: () => {
+      setDeleteOpen(false);
+      qc.removeQueries({ queryKey: internalChatKeys.messages(conversation.id) });
+      toast.success(t("delete.success"));
+      onDeleted();
+    },
+    onError: () => toast.error(t("delete.error")),
   });
 
   const submit = (e: React.FormEvent) => {
@@ -293,19 +318,40 @@ function InternalConversationView({
             {conversation.participants.map((p) => p.name).join(", ")}
           </p>
         </div>
-        {conversation.kind !== "direct" && conversation.ownerId === Number(sessionStore.get().user?.id) && (
+        {conversation.kind !== "direct" &&
+          conversation.ownerId === Number(sessionStore.get().user?.id) && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+              aria-label={t("members.manage")}
+              title={t("members.manage")}
+              onClick={() => setMembersOpen(true)}
+            >
+              <Users className="size-4" />
+            </Button>
+          )}
+        {canDelete && (
           <Button
             variant="ghost"
             size="icon"
-            className="shrink-0"
-            aria-label={t("members.manage")}
-            title={t("members.manage")}
-            onClick={() => setMembersOpen(true)}
+            className="shrink-0 text-destructive hover:text-destructive"
+            aria-label={t("delete.action")}
+            title={t("delete.action")}
+            onClick={() => setDeleteOpen(true)}
           >
-            <Users className="size-4" />
+            <Trash2 className="size-4" />
           </Button>
         )}
       </header>
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={t("delete.title")}
+        description={t("delete.description", { name: conversation.title })}
+        confirmLabel={t("delete.confirm")}
+        onConfirm={() => remove.mutate()}
+      />
       {membersOpen && (
         <ManageMembersDialog
           conversation={conversation}
@@ -331,11 +377,18 @@ function InternalConversationView({
                         <p className="text-[11px] font-semibold text-primary">{m.sender.name}</p>
                       )}
                       {m.mediaUrl && (
-                        <MessageMedia message={{
-                          id: m.id, ticketId: 0, body: m.body, fromMe: m.fromMe,
-                          createdAt: m.createdAt, mediaUrl: m.mediaUrl, mediaType: m.mediaType ?? null,
-                          ticket: { user: m.sender ?? null },
-                        }} />
+                        <MessageMedia
+                          message={{
+                            id: m.id,
+                            ticketId: 0,
+                            body: m.body,
+                            fromMe: m.fromMe,
+                            createdAt: m.createdAt,
+                            mediaUrl: m.mediaUrl,
+                            mediaType: m.mediaType ?? null,
+                            ticket: { user: m.sender ?? null },
+                          }}
+                        />
                       )}
                       {!m.mediaUrl && m.mediaName && <p className="text-xs">{m.mediaName}</p>}
                       {m.body && <BodyWithMentions body={m.body} />}
