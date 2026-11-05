@@ -6,6 +6,20 @@ export function selectedReplyUserId(filter: string, isAdmin: boolean): number | 
   return Number.isSafeInteger(id) && id > 0 ? id : null;
 }
 
+/** Toda resposta ao cliente abre o atendimento e registra quem está respondendo. */
+export function ticketNeedsOutgoingAssignment(
+  ticket: Pick<Ticket, "status" | "user">,
+  senderId: number,
+): boolean {
+  return ticket.status !== "open" || Number(ticket.user?.id) !== senderId;
+}
+
+/** A assinatura persistida na mensagem preserva a autoria histórica do envio. */
+export function outgoingMessageAttendant(body: string, fallback?: string | null): string | null {
+  const signed = /^\*([^*\n]+):\*/.exec(body)?.[1]?.trim();
+  return signed || fallback?.trim() || null;
+}
+
 export function matchesAttendantFilter(
   ticket: Pick<Ticket, "user" | "status">,
   filter: string,
