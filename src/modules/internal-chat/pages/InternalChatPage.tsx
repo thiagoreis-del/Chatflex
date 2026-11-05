@@ -62,6 +62,7 @@ import {
 import { ForwardInternalDialog } from "../components/ForwardInternalDialog";
 import { hideMessageForMe, listHiddenMessages } from "../hidden";
 import { encodeReplyBody, parseReplyBody, quoteSnippet, stripQuote } from "../quote";
+import type { ReplyQuote } from "../quote";
 import type { InternalConversation, InternalConversationKind, InternalMessage } from "../types";
 
 const time = (iso: string) =>
@@ -397,9 +398,10 @@ function InternalConversationView({
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const body = text.trim();
-    if ((body || file) && !send.isPending) send.mutate({ body, media: file });
+    if ((body || files.length) && !send.isPending) send.mutate({ body, media: files });
   };
 
+  const replyQuote = replyTo ? quoteOf(replyTo) : null;
   const Icon = KIND_ICONS[conversation.kind];
 
   return (
