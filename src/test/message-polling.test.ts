@@ -10,7 +10,7 @@ vi.mock("@/shared/api/client", () => ({
   apiUpload: vi.fn(),
 }));
 
-import { latestMessagesQuery, messagesQuery } from "@/modules/tickets/api";
+import { latestMessagesQuery, messagesQuery, olderMessagesQuery } from "@/modules/tickets/api";
 
 const message = (id: string, createdAt: string): Message => ({
   id,
@@ -23,7 +23,21 @@ const message = (id: string, createdAt: string): Message => ({
 beforeEach(() => mocks.apiRequest.mockReset());
 
 describe("message polling", () => {
-  it("carrega todas as páginas somente quando a conversa ainda não está no cache", async () => {
+  it("mostra a página recente sem aguardar o histórico antigo", async () => {
+    mocks.apiRequest.mockResolvedValueOnce({
+      messages: [message("2", "2026-10-29T10:00:00.000Z")],
+      hasMore: true,
+    });
+    const client = new QueryClient();
+
+    const result = await client.fetchQuery(messagesQuery(10));
+
+    expect(mocks.apiRequest).toHaveBeenCalledTimes(1);
+    expect(String(mocks.apiRequest.mock.calls[0]?.[0])).toContain("pageNumber=1");
+    expect(result.map((item) => item.id)).toEqual(["2"]);
+  });
+
+  it("carrega as páginas antigas separadamente a partir da segunda", async () => {
     mocks.apiRequest
       .mockResolvedValueOnce({
         messages: [message("2", "2026-10-29T10:00:00.000Z")],
@@ -35,9 +49,10 @@ describe("message polling", () => {
       });
     const client = new QueryClient();
 
-    const result = await client.fetchQuery(messagesQuery(10));
+    const result = await client.fetchQuery(olderMessagesQuery(10));
 
     expect(mocks.apiRequest).toHaveBeenCalledTimes(2);
+    expect(String(mocks.apiRequest.mock.calls[0]?.[0])).toContain("pageNumber=2");
     expect(result.map((item) => item.id)).toEqual(["1", "2"]);
   });
 

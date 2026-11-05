@@ -62,13 +62,15 @@ import { ticketKeys } from "@/shared/api/query-keys";
 import { ApiError } from "@/shared/api/errors";
 import { useSession } from "@/shared/auth/session-store";
 import { TransferTicketDialog } from "../components/TransferTicketDialog";
-import { hideRefusedTicket, restoreRefusedTicket, useRefusedHiddenIds } from "../refused";
+import { mergeTicketHistory } from "../history";
 import {
   addTicketTag,
   assignTicket,
   removeTicketTag,
   MAX_MEDIA_BYTES,
+  mergeMessagePages,
   messagesQuery,
+  olderMessagesQuery,
   sendMediaMessage,
   sendMessage,
   tagOptionsQuery,
@@ -118,6 +120,9 @@ import {
   saveDraft,
 } from "../offline-outbox";
 import { deduplicateActiveTickets } from "../ticket-identity";
+import { conversationContactName, isGroupContact, normalizeContactSearch } from "../contact-search";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { useTicketWorkspaceLayout } from "../workspace-layout";
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -150,6 +155,7 @@ const displayBody = (m: Pick<Message, "body" | "fromMe" | "isPrivate">) =>
 
 export function TicketsPage() {
   const { t } = useTranslation("tickets");
+  const workspace = useTicketWorkspaceLayout();
   const [tab, setTab] = useState<TicketTab>("open");
   const status: TicketStatus = tab === "groups" ? "open" : tab;
   const session = useSession();
@@ -173,10 +179,20 @@ export function TicketsPage() {
   }, [slaOn]);
   const [selected, setSelected] = useState<Ticket | null>(null);
   const [transferTarget, setTransferTarget] = useState<Ticket | null>(null);
-  const hiddenRefused = useRefusedHiddenIds(String(session.user?.id ?? ""));
+  const [refuseTarget, setRefuseTarget] = useState<Ticket | null>(null);
+  const refuseFromList = useMutation({
+    mutationFn: (ticket: Ticket) => updateTicketStatus(ticket.id, "closed"),
+    onSuccess: (_result, ticket) => {
+      if (selected?.id === ticket.id) setSelected(null);
+      setRefuseTarget(null);
+      toast.success(t("toast.refused"));
+      void qcl.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: () => toast.error(t("toast.transferError")),
+  });
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    const timer = setTimeout(() => setDebouncedSearch(normalizeContactSearch(search)), 300);
     return () => clearTimeout(timer);
   }, [search]);
   const fallback = useFallbackInterval();
@@ -187,9 +203,7 @@ export function TicketsPage() {
       : {
           ...ticketsQuery({ status, search: debouncedSearch }),
           select: (l: Ticket[]) => {
-            const visible = l.filter(
-              (x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id),
-            );
+            const visible = l.filter((x) => !x.contact?.isGroup && !x.isGroup);
             return status === "closed" ? visible : deduplicateActiveTickets(visible);
           },
         };
@@ -246,8 +260,7 @@ export function TicketsPage() {
     matchesAttendantFilter(x, attendantFilter, session.user?.id, isAdmin) &&
     (!unreadOnly || x.unreadMessages > 0) &&
     (!slaOn || slaFilter === "all" || computeSla(x, sla!, now).state === slaFilter);
-  const notGroup = (l: Ticket[]) =>
-    l.filter((x) => !x.contact?.isGroup && !x.isGroup && !hiddenRefused.has(x.id));
+  const notGroup = (l: Ticket[]) => l.filter((x) => !x.contact?.isGroup && !x.isGroup);
   const activeOnly = (l: Ticket[]) => deduplicateActiveTickets(notGroup(l));
   const openCount = useQuery({
     ...ticketsQuery({ status: "open", search: debouncedSearch }),
@@ -261,21 +274,23 @@ export function TicketsPage() {
   }).data;
   const groupsCount = useQuery({
     ...groupTicketsQuery(debouncedSearch),
-    select: (l: Ticket[]) => l.filter((x) => !hiddenRefused.has(x.id)).length,
+    select: (l: Ticket[]) => l.length,
     refetchInterval: fallback,
   }).data;
-  const activeIdsOf = (l: Ticket[]) => l.map((x) => x.contact?.id);
-  const openIds = useQuery({
+  // Reuse the search-scoped list/count cache: older matches may not be on the unfiltered first page.
+  const openTickets = useQuery({
     ...ticketsQuery({ status: "open", search: debouncedSearch }),
-    select: activeIdsOf,
+    enabled: debouncedSearch.length >= 2,
+    refetchInterval: fallback,
   }).data;
-  const pendingIds = useQuery({
+  const pendingTickets = useQuery({
     ...ticketsQuery({ status: "pending", search: debouncedSearch }),
-    select: activeIdsOf,
+    enabled: debouncedSearch.length >= 2,
+    refetchInterval: fallback,
   }).data;
-  const activeContactIds = useMemo(
-    () => new Set([...(openIds ?? []), ...(pendingIds ?? [])]),
-    [openIds, pendingIds],
+  const activeTickets = useMemo(
+    () => [...(openTickets ?? []), ...(pendingTickets ?? [])],
+    [openTickets, pendingTickets],
   );
   const counts: Partial<Record<TicketTab, number | undefined>> = {
     open: openCount,
@@ -292,11 +307,10 @@ export function TicketsPage() {
     },
   });
 
-  return (
-    <div className="tickets-workspace flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
+  const ticketList = (
       <aside
         className={cn(
-          "flex min-h-0 min-w-0 w-full flex-col border-r bg-card md:w-80 md:shrink-0 xl:w-96",
+          "flex h-full min-h-0 min-w-0 w-full flex-col bg-card",
           selected && "hidden md:flex",
         )}
       >
@@ -505,10 +519,10 @@ export function TicketsPage() {
           />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {tab !== "groups" && openIds && pendingIds && (
+          {tab !== "groups" && openTickets && pendingTickets && (
             <NewTicketSuggestions
               search={debouncedSearch}
-              activeContactIds={activeContactIds}
+              activeTickets={activeTickets}
               userId={session.user?.id ? Number(session.user.id) : undefined}
               onStarted={(tk) => {
                 setTab("open");
@@ -533,17 +547,14 @@ export function TicketsPage() {
           ) : (
             <QueryBoundary query={query} contract={ticketsContract}>
               {(firstPage) => {
-                const seen = new Set(firstPage.map((x) => x.id));
                 const list =
                   tab === "closed" && olderOn
-                    ? [
-                        ...firstPage,
-                        ...(older.data?.pages ?? [])
-                          .flatMap((p) => p?.tickets ?? [])
-                          .filter((x) => !seen.has(x.id) && !x.contact?.isGroup && !x.isGroup),
-                      ]
+                    ? mergeTicketHistory([
+                        firstPage,
+                        ...(older.data?.pages ?? []).map((p) => notGroup(p?.tickets ?? [])),
+                      ])
                     : firstPage;
-                const visible = list.filter((x) => !hiddenRefused.has(x.id) && matchesFilters(x));
+                const visible = list.filter(matchesFilters);
                 if (visible.length === 0) {
                   const msg = debouncedSearch
                     ? t("sidebar.noResults", { q: debouncedSearch })
@@ -558,6 +569,21 @@ export function TicketsPage() {
                         <Inbox className="size-8" />
                       )}
                       <p>{msg}</p>
+                      {tab === "closed" &&
+                        (older.hasNextPage || !olderOn) &&
+                        firstPage.length > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={older.isFetching}
+                            onClick={() => {
+                              if (!olderOn) setOlderOn(true);
+                              else void older.fetchNextPage();
+                            }}
+                          >
+                            {older.isFetching ? t("sidebar.loadingMore") : t("sidebar.loadMore")}
+                          </Button>
+                        )}
                       {(debouncedSearch || activeFilters > 0) && (
                         <Button
                           variant="link"
@@ -579,7 +605,7 @@ export function TicketsPage() {
                       const slaInfo = slaOn ? computeSla(tk, sla!, now) : null;
                       const hl = sla?.highlight ? slaInfo?.state : undefined;
                       const isSel = selected?.id === tk.id;
-                      const name = tk.contact.name || `+${tk.contact.number}`;
+                      const name = conversationContactName(tk.contact, tk.isGroup, t("tabs.groups"));
                       const preview = stripSignature(tk.lastMessage ?? "");
                       const waitMin =
                         tk.status === "pending"
@@ -712,31 +738,35 @@ export function TicketsPage() {
                                     <span className="truncate">{t("noAttendant")}</span>
                                   </span>
                                 )}
-                                {tk.status !== "closed" && (
-                                  <span
-                                    role="button"
-                                    tabIndex={0}
-                                    aria-label={t("actions.transfer")}
-                                    title={t("actions.transfer")}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setTransferTarget(tk);
-                                    }}
-                                    onKeyDown={(e) => {
-                                      if (e.key === "Enter" || e.key === " ") {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        setTransferTarget(tk);
-                                      }
-                                    }}
-                                    className="inline-flex size-5 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
-                                  >
-                                    <ArrowRightLeft className="size-3" />
-                                  </span>
-                                )}
                               </div>
                             </div>
                           </button>
+                          {tk.status !== "closed" && (
+                            <div className="flex flex-wrap justify-end gap-2 px-3 pb-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setTransferTarget(tk)}
+                                title={t("actions.transfer")}
+                              >
+                                <ArrowRightLeft className="size-4" aria-hidden="true" />
+                                {t("actions.transfer")}
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => setRefuseTarget(tk)}
+                                disabled={refuseFromList.isPending}
+                                title={t("actions.refuse")}
+                              >
+                                <Undo2 className="size-4" aria-hidden="true" />
+                                {t("actions.refuse")}
+                              </Button>
+                            </div>
+                          )}
                         </li>
                       );
                     })}
@@ -745,7 +775,7 @@ export function TicketsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          disabled={older.isFetchingNextPage}
+                          disabled={older.isFetching}
                           onClick={() => {
                             if (!olderOn) setOlderOn(true);
                             else void older.fetchNextPage();
@@ -764,9 +794,11 @@ export function TicketsPage() {
           )}
         </div>
       </aside>
+  );
+  const conversation = (
       <section
         className={cn(
-          "flex min-h-0 min-w-0 flex-1 flex-col",
+          "flex h-full min-h-0 min-w-0 flex-1 flex-col",
           selected ? "chat-open" : "hidden md:flex",
         )}
       >
@@ -790,6 +822,45 @@ export function TicketsPage() {
           </div>
         )}
       </section>
+  );
+  return (
+    <div className="tickets-workspace flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-lg border bg-card shadow-sm">
+      {workspace.desktop ? (
+        <ResizablePanelGroup
+          id="tickets-workspace"
+          orientation="horizontal"
+          defaultLayout={workspace.layout}
+          onLayoutChanged={workspace.onLayoutChanged}
+          className="min-h-0 min-w-0 flex-1"
+        >
+          <ResizablePanel id="list" defaultSize="35%" minSize="25%" maxSize="60%">
+            {ticketList}
+          </ResizablePanel>
+          <ResizableHandle
+            withHandle
+            aria-label={t("sidebar.resize")}
+            title={t("sidebar.resize")}
+            className="hover:bg-primary focus-visible:bg-primary"
+          />
+          <ResizablePanel id="conversation" minSize="40%">
+            {conversation}
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <>{ticketList}{conversation}</>
+      )}
+      <ConfirmDialog
+        open={refuseTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRefuseTarget(null);
+        }}
+        title={t("actions.refuse")}
+        description={t("transfer.refuseDescription")}
+        confirmLabel={t("actions.refuse")}
+        onConfirm={() => {
+          if (refuseTarget && !refuseFromList.isPending) refuseFromList.mutate(refuseTarget);
+        }}
+      />
       {transferTarget && (
         <TransferTicketDialog
           ticket={transferTarget}
@@ -843,6 +914,17 @@ function Conversation({
     refetchInterval: msgFallback,
     refetchIntervalInBackground: true,
   });
+  const olderMessages = useQuery({
+    ...olderMessagesQuery(ticket.id),
+    enabled: messages.isSuccess && (messages.data?.length ?? 0) > 0,
+  });
+  useEffect(() => {
+    const history = olderMessages.data;
+    if (!history?.length) return;
+    qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (current) =>
+      mergeMessagePages([history, current ?? []]),
+    );
+  }, [olderMessages.data, qc, ticket.id]);
   const companyId = String(session.user?.companyId ?? "");
   const [text, setText] = useState(() => loadDraft(companyId, ticket.id));
   // Rascunho preservado por conversa (sobrevive a queda de conexão/recarga).
@@ -996,19 +1078,15 @@ function Conversation({
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
   });
-  // Recusar encerra o atendimento (não volta para a fila) e o tira da lista do atendente.
+  // Recusar encerra o atendimento; o histórico permanece nos Finalizados autorizados.
   const refuse = useMutation({
-    mutationFn: () => {
-      hideRefusedTicket(String(session.user?.id ?? ""), ticket.id);
-      return updateTicketStatus(ticket.id, "closed");
-    },
+    mutationFn: () => updateTicketStatus(ticket.id, "closed"),
     onSuccess: () => {
       toast.success(t("toast.refused"));
       onChange(null);
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     },
     onError: () => {
-      restoreRefusedTicket(String(session.user?.id ?? ""), ticket.id);
       toast.error(t("toast.transferError"));
     },
   });
@@ -1376,13 +1454,13 @@ function Conversation({
             referrerPolicy="no-referrer"
           />
           <AvatarFallback className="bg-primary/10 font-semibold text-primary sm:text-lg">
-            {contactInitials(ticket.contact.name || ticket.contact.number)}
+            {contactInitials(conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups")))}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2">
             <p className="truncate font-semibold leading-tight">
-              {ticket.contact.name || `+${ticket.contact.number}`}
+              {conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups"))}
             </p>
             <Button
               variant="ghost"
@@ -1394,7 +1472,9 @@ function Conversation({
             >
               <Pencil className="size-3.5" />
             </Button>
-            <span className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</span>
+            {!ticket.isGroup && !isGroupContact(ticket.contact) && (
+              <span className="truncate text-xs text-muted-foreground">+{ticket.contact.number}</span>
+            )}
           </div>
           <div className="mt-1 flex items-center gap-1 overflow-x-auto text-[11px] [scrollbar-width:none] sm:flex-wrap">
             {session.user?.companyName && (

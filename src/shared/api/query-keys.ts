@@ -1,3 +1,11 @@
+import { sessionStore } from "@/shared/auth/session-store";
+
+/** Identity partitions are cache boundaries, not server authorization. */
+export function sessionCacheScope() {
+  const user = sessionStore.get().user;
+  return [user?.companyId ?? "", user?.id ?? ""] as const;
+}
+
 /**
  * Chaves do TanStack Query centralizadas.
  * Dados de empresa SEMPRE incluem companyId na chave.
@@ -47,7 +55,8 @@ export const auditKeys = {
 /** Contatos pertencem à empresa da sessão; o backend filtra pelo token. */
 export const contactKeys = {
   all: ["company", "contacts"] as const,
-  list: (filters: object) => ["company", "contacts", "list", filters] as const,
+  list: (filters: object) =>
+    ["company", "contacts", ...sessionCacheScope(), "list", filters] as const,
 };
 
 /** Conexões pertencem à empresa da sessão; o backend filtra pelo token. */
@@ -71,10 +80,17 @@ export const queueKeys = {
 /** Atendimentos pertencem à empresa da sessão; o backend filtra pelo token. */
 export const ticketKeys = {
   all: ["company", "tickets"] as const,
-  operationalDashboard: () => ["company", "tickets", "operational-dashboard"] as const,
-  list: (filters: object) => ["company", "tickets", "list", filters] as const,
-  messages: (id: number) => ["company", "tickets", "messages", id] as const,
+  operationalDashboard: () =>
+    ["company", "tickets", ...sessionCacheScope(), "operational-dashboard"] as const,
+  list: (filters: object) =>
+    ["company", "tickets", ...sessionCacheScope(), "list", filters] as const,
+  messages: (id: number) => ["company", "tickets", ...sessionCacheScope(), "messages", id] as const,
   tagOptions: ["company", "tickets", "tag-options"] as const,
+};
+
+/** Histórico antigo é imutável e não participa das invalidações frequentes da lista. */
+export const messageHistoryKeys = {
+  detail: (id: number) => ["company", "message-history", ...sessionCacheScope(), id] as const,
 };
 
 /** Respostas rápidas pertencem à empresa da sessão; o backend filtra pelo token. */

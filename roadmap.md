@@ -1,5 +1,26 @@
 # Roadmap
 
+## Busca de contatos e identificação de grupos — 04/11/2026
+
+- [x] Corrigir sugestões que ignoram atendimentos antigos encontrados pela busca; regressões para abertos/aguardando reproduzidas em consultas locais.
+- [x] Excluir grupos das sugestões e deduplicar contatos por ID/telefone dos atendimentos autorizados abertos/aguardando encontrados pelo mesmo termo da lista; reutilizar cache da lista e contadores.
+- [x] Mostrar somente o nome na identificação de grupos, sem o número interno.
+- [x] Validar 26 testes relacionados e compilação da prévia sem erros.
+- [ ] Confirmar busca em sessão real — requer sessão do backend externo; exclusão cobre os resultados autorizados retornados pela busca, sem garantir unicidade no servidor ou registros fora dessas páginas.
+
+## Largura ajustável dos atendimentos — 04/11/2026
+
+- [x] Permitir arrastar a divisória no desktop, salvar somente a preferência de tamanho e preservar a navegação no celular.
+- [x] Validar 13 testes e divisória isolada no navegador: arrastar, restaurar após recarregar, teclado e modo celular; prévia compilou sem erros.
+- [ ] Confirmar ajuste em conversa real — depende de sessão autenticada do backend externo; publicação não solicitada nesta etapa.
+
+## Disponibilidade de conversas e contatos — 04/11/2026
+
+- [x] Verificar interface: contatos são criados/consultados via /contacts; conversas vêm de /tickets, com histórico finalizado paginado e filtros de filas/perfil; não há remoção automática identificada na interface.
+- [x] Aplicar padrões seguros na interface: recusados permanecem nos Finalizados; histórico deduplicado por ticket; caches de contatos/atendimentos separados por empresa/usuário e descartados ao perder/trocar sessão ou permissões; novo login relê o servidor.
+- [x] Validar 166 testes locais, incluindo oito regras de conservação/isolamento; documentar requisitos externos em docs/conservation-and-isolation.md.
+- [ ] Confirmar persistência/retenção e autorização no backend externo após finalizar, recusar e sair — requer acesso autorizado à VPS e sessão real.
+
 ## Falha ao criar grupo interno — 03/11/2026
 
 - [x] Corrigir áudio exibido apenas como nome: resolver mediaPath na pasta da empresa autenticada e reutilizar o player de atendimentos.
