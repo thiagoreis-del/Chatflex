@@ -3,7 +3,6 @@ import {
   matchesAttendantFilter,
   outgoingMessageAttendant,
   selectedReplyUserId,
-  ticketNeedsOutgoingAssignment,
 } from "../modules/tickets/attendant-selection";
 
 describe("seleção de atendente pelo administrador", () => {
@@ -41,18 +40,6 @@ describe("seleção de atendente pelo administrador", () => {
     for (const filter of ["all", "mine", "none", "0", "invalid"]) {
       expect(selectedReplyUserId(filter, true)).toBeNull();
     }
-  });
-
-  it("abre e atribui um aguardando mesmo quando ele já tem usuário", () => {
-    expect(
-      ticketNeedsOutgoingAssignment({ status: "pending", user: { id: 7, name: "Thiago" } }, 7),
-    ).toBe(true);
-    expect(
-      ticketNeedsOutgoingAssignment({ status: "open", user: { id: 7, name: "Thiago" } }, 7),
-    ).toBe(false);
-    expect(
-      ticketNeedsOutgoingAssignment({ status: "open", user: { id: 8, name: "Bruna" } }, 7),
-    ).toBe(true);
   });
 
   it("preserva o autor gravado na assinatura da mensagem", () => {

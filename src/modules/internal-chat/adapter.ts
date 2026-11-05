@@ -1,6 +1,7 @@
 import type { CreateConversationInput, InternalConversation, InternalMessage } from "./types";
 import { internalChatEndpoints } from "@/shared/config/endpoints";
 import { env } from "@/shared/config/env";
+import { stripQuote } from "./quote";
 
 export interface ChatParticipantRecord {
   userId?: number | string;
@@ -43,7 +44,8 @@ export function conversationFromRecord(record: ChatRecord, userId: number): Inte
     ownerId: record.ownerId,
     kind: record.title ? "group" : "direct",
     title: record.title || other?.name || participants.map((member) => member.name).join(", "),
-    ...(record.lastMessage !== undefined ? { lastMessage: record.lastMessage } : {}),
+    // Prévia nunca mostra o marcador de citação de uma resposta.
+    ...(record.lastMessage !== undefined ? { lastMessage: stripQuote(record.lastMessage) } : {}),
     updatedAt: record.updatedAt,
     unreadMessages: Math.max(
       0,

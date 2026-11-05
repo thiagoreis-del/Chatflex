@@ -89,8 +89,8 @@ import {
   matchesAttendantFilter,
   outgoingMessageAttendant,
   selectedReplyUserId,
-  ticketNeedsOutgoingAssignment,
 } from "../attendant-selection";
+import { shouldAutoAssignOnSend } from "../auto-assign";
 import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
 import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
@@ -1038,7 +1038,7 @@ function Conversation({
   const [closeOpen, setCloseOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const ensureOutgoingTicket = async () => {
-    if (!senderId || !ticketNeedsOutgoingAssignment(ticket, senderId)) return ticket;
+    if (!shouldAutoAssignOnSend(ticket, senderId, replyAs)) return ticket;
     const updated = await assignTicket(ticket.id, senderId);
     const next = { ...ticket, ...updated, contact: updated?.contact ?? ticket.contact };
     onChange(next);
@@ -1144,7 +1144,8 @@ function Conversation({
       /** Conteúdo estruturado já possui sua própria identificação. */
       skipSignature?: boolean;
     }) => {
-      // Conversa aberta sem responsável: o atendente logado assume antes de responder.
+      // Ticket aguardando/grupo ou aberto sem responsável: quem envia assume
+      // automaticamente antes de responder (assignTicket define status "open").
       // Admin respondendo como outro usuário: o ticket passa para esse usuário.
       if (!isPrivate) await ensureOutgoingTicket();
       // Mensagens de texto e anexos recebem assinatura do atendente.
@@ -1324,7 +1325,7 @@ function Conversation({
         const pending = listOutbox(companyId).filter((m) => m.ticketId === ticket.id);
         for (const item of pending) {
           try {
-            if (!item.isPrivate && senderId && ticketNeedsOutgoingAssignment(ticket, senderId)) {
+            if (!item.isPrivate && shouldAutoAssignOnSend(ticket, senderId, replyAs)) {
               await assignTicket(ticket.id, senderId);
             }
             const message = await sendMessage(ticket.id, item.body, item.isPrivate, null);
@@ -1347,7 +1348,7 @@ function Conversation({
     // Também dispara quando a sonda confirma que a API voltou.
     if (apiState === "online") void flush();
     return () => window.removeEventListener("online", flush);
-  }, [companyId, ticket, senderId, qc, apiState]);
+  }, [companyId, ticket, senderId, replyAs, qc, apiState]);
 
   const addFiles = (input: File[]) => {
     const list = input.filter((f) => !isDangerousFile(f.name));
@@ -1874,7 +1875,8 @@ function Conversation({
           )}
         </QueryBoundary>
       </div>
-      {ticket.status === "open" ? (
+      {/* Aguardando/grupo também pode responder: o envio assume o ticket. */}
+      {ticket.status !== "closed" ? (
         <form
           onSubmit={submit}
           {...dropHandlers}
@@ -2275,7 +2277,7 @@ function Conversation({
         </form>
       ) : (
         <p className="shrink-0 border-t p-3 text-center text-sm text-muted-foreground [overflow-wrap:anywhere]">
-          {t("composer.acceptFirst")}
+          {t("composer.reopenFirst")}
         </p>
       )}
     </>
