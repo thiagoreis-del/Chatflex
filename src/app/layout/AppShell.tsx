@@ -56,16 +56,58 @@ import { SlaWatcher } from "@/modules/sla/components/SlaWatcher";
 import { connectionsQuery } from "@/modules/whatsapp/api";
 import { internalConversationsQuery } from "@/modules/internal-chat/api";
 
-const soonModules = [{ key: "reports", icon: BarChart3 }] as const;
+const soonModules = [{ key: "reports", icon: BarChart3, iconClass: "text-pink-400" }] as const;
 
 const platformLinks = [
-  { to: "/app/plataforma", key: "overview", icon: Gauge, exact: true },
-  { to: "/app/plataforma/empresas", key: "companies", icon: Building2, exact: false },
-  { to: "/app/plataforma/planos", key: "plans", icon: Layers, exact: false },
-  { to: "/app/plataforma/assinaturas", key: "subscriptions", icon: Repeat, exact: false },
-  { to: "/app/plataforma/faturas", key: "invoices", icon: Receipt, exact: false },
-  { to: "/app/plataforma/auditoria", key: "audit", icon: ScrollText, exact: false },
-  { to: "/app/plataforma/backups", key: "backups", icon: DatabaseBackup, exact: false },
+  {
+    to: "/app/plataforma",
+    key: "overview",
+    icon: Gauge,
+    iconClass: "text-sky-400",
+    exact: true,
+  },
+  {
+    to: "/app/plataforma/empresas",
+    key: "companies",
+    icon: Building2,
+    iconClass: "text-violet-400",
+    exact: false,
+  },
+  {
+    to: "/app/plataforma/planos",
+    key: "plans",
+    icon: Layers,
+    iconClass: "text-indigo-400",
+    exact: false,
+  },
+  {
+    to: "/app/plataforma/assinaturas",
+    key: "subscriptions",
+    icon: Repeat,
+    iconClass: "text-cyan-400",
+    exact: false,
+  },
+  {
+    to: "/app/plataforma/faturas",
+    key: "invoices",
+    icon: Receipt,
+    iconClass: "text-emerald-400",
+    exact: false,
+  },
+  {
+    to: "/app/plataforma/auditoria",
+    key: "audit",
+    icon: ScrollText,
+    iconClass: "text-amber-400",
+    exact: false,
+  },
+  {
+    to: "/app/plataforma/backups",
+    key: "backups",
+    icon: DatabaseBackup,
+    iconClass: "text-teal-400",
+    exact: false,
+  },
 ] as const;
 
 const linkClass =
@@ -122,7 +164,7 @@ function SidebarNav({
               className={linkClass}
               activeProps={activeLink}
             >
-              <LayoutDashboard className="size-4" aria-hidden />
+              <LayoutDashboard className="size-4 text-sky-400" aria-hidden />
               {t("nav.dashboard")}
             </Link>
           </li>
@@ -132,7 +174,7 @@ function SidebarNav({
         <div>
           <SectionTitle label={t("nav.platform.section")} />
           <ul className="space-y-1">
-            {platformLinks.map(({ to, key, icon: Icon, exact }) => (
+            {platformLinks.map(({ to, key, icon: Icon, iconClass, exact }) => (
               <li key={key}>
                 <Link
                   to={to}
@@ -141,7 +183,7 @@ function SidebarNav({
                   activeOptions={{ exact }}
                   activeProps={activeLink}
                 >
-                  <Icon className="size-4" aria-hidden />
+                  <Icon className={`size-4 ${iconClass}`} aria-hidden />
                   {t(`nav.platform.${key}`)}
                 </Link>
               </li>
@@ -169,8 +211,36 @@ function SidebarNav({
                 className={linkClass}
                 activeProps={activeLink}
               >
-                <MessagesSquare className="size-4" aria-hidden />
+                <MessagesSquare className="size-4 text-blue-400" aria-hidden />
                 {t("nav.modules.tickets")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/app/chat-interno"
+                onClick={onNavigate}
+                className={`${linkClass} ${
+                  internalUnreadCount > 0 ? "ring-1 ring-inset ring-sidebar-primary/60" : ""
+                }`}
+                activeProps={activeLink}
+              >
+                <UsersRound className="size-4 text-violet-400" aria-hidden />
+                <span className="min-w-0 flex-1">{t("nav.modules.internalChat")}</span>
+                {internalUnreadCount > 0 && (
+                  <span
+                    className="relative flex size-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm"
+                    aria-label={t("nav.internalChatUnread", { count: internalUnreadCount })}
+                    title={t("nav.internalChatUnread", { count: internalUnreadCount })}
+                  >
+                    <span
+                      className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-60"
+                      aria-hidden
+                    />
+                    <span className="relative">
+                      {internalUnreadCount > 99 ? "99+" : internalUnreadCount}
+                    </span>
+                  </span>
+                )}
               </Link>
             </li>
             {can(user, "module.connections") && (
@@ -187,7 +257,9 @@ function SidebarNav({
                 >
                   <Smartphone
                     className={
-                      connectionStatus === "disconnected" ? "size-4 text-red-400" : "size-4"
+                      connectionStatus === "disconnected"
+                        ? "size-4 text-red-400"
+                        : "size-4 text-emerald-400"
                     }
                     aria-hidden
                   />
@@ -218,7 +290,7 @@ function SidebarNav({
                   className={linkClass}
                   activeProps={activeLink}
                 >
-                  <ImagePlus className="size-4" aria-hidden />
+                  <ImagePlus className="size-4 text-fuchsia-400" aria-hidden />
                   {t("nav.modules.whatsappStatus")}
                 </Link>
               </li>
@@ -230,7 +302,7 @@ function SidebarNav({
                 className={linkClass}
                 activeProps={activeLink}
               >
-                <Users className="size-4" aria-hidden />
+                <Users className="size-4 text-cyan-400" aria-hidden />
                 {t("nav.modules.contacts")}
               </Link>
             </li>
@@ -241,36 +313,8 @@ function SidebarNav({
                 className={linkClass}
                 activeProps={activeLink}
               >
-                <Zap className="size-4" aria-hidden />
+                <Zap className="size-4 text-amber-400" aria-hidden />
                 {t("nav.modules.quickMessages")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/app/chat-interno"
-                onClick={onNavigate}
-                className={`${linkClass} ${
-                  internalUnreadCount > 0 ? "ring-1 ring-inset ring-sidebar-primary/60" : ""
-                }`}
-                activeProps={activeLink}
-              >
-                <UsersRound className="size-4" aria-hidden />
-                <span className="min-w-0 flex-1">{t("nav.modules.internalChat")}</span>
-                {internalUnreadCount > 0 && (
-                  <span
-                    className="relative flex size-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm"
-                    aria-label={t("nav.internalChatUnread", { count: internalUnreadCount })}
-                    title={t("nav.internalChatUnread", { count: internalUnreadCount })}
-                  >
-                    <span
-                      className="absolute inset-0 animate-ping rounded-full bg-red-400 opacity-60"
-                      aria-hidden
-                    />
-                    <span className="relative">
-                      {internalUnreadCount > 99 ? "99+" : internalUnreadCount}
-                    </span>
-                  </span>
-                )}
               </Link>
             </li>
             {(isSuperadmin || hasRole("company_admin")) && (
@@ -282,7 +326,7 @@ function SidebarNav({
                     className={linkClass}
                     activeProps={activeLink}
                   >
-                    <UserCog className="size-4" aria-hidden />
+                    <UserCog className="size-4 text-purple-400" aria-hidden />
                     {t("nav.modules.users")}
                   </Link>
                 </li>
@@ -293,7 +337,7 @@ function SidebarNav({
                     className={linkClass}
                     activeProps={activeLink}
                   >
-                    <ListOrdered className="size-4" aria-hidden />
+                    <ListOrdered className="size-4 text-orange-400" aria-hidden />
                     {t("nav.modules.queues")}
                   </Link>
                 </li>
@@ -304,7 +348,7 @@ function SidebarNav({
                     className={linkClass}
                     activeProps={activeLink}
                   >
-                    <Settings className="size-4" aria-hidden />
+                    <Settings className="size-4 text-slate-300" aria-hidden />
                     {t("nav.modules.settings")}
                   </Link>
                 </li>
@@ -317,13 +361,13 @@ function SidebarNav({
         <div>
           <SectionTitle label={t("nav.soon")} />
           <ul className="space-y-1">
-            {soonModules.map(({ key, icon: Icon }) => (
+            {soonModules.map(({ key, icon: Icon, iconClass }) => (
               <li
                 key={key}
                 aria-disabled="true"
                 className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/45"
               >
-                <Icon className="size-4" aria-hidden />
+                <Icon className={`size-4 ${iconClass}`} aria-hidden />
                 {t(`nav.modules.${key}`)}
               </li>
             ))}
