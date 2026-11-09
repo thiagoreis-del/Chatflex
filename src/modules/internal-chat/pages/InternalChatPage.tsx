@@ -46,6 +46,8 @@ import { MessageMedia } from "@/modules/tickets/components/MessageMedia";
 import { ContactCard } from "@/modules/tickets/components/ContactCard";
 import { LocationCard } from "@/modules/tickets/components/LocationCard";
 import { ImageEditorDialog } from "@/modules/tickets/components/ImageEditorDialog";
+import { MAX_MEDIA_BYTES } from "@/modules/tickets/api";
+import { isDangerousFile } from "@/modules/tickets/audio-format";
 import { isVCard, parseVCards } from "@/modules/tickets/vcard";
 import { locationText, parseLocation } from "@/modules/tickets/location";
 import { messageDateLabel, messageDayKey, startsMessageDay } from "@/modules/tickets/message-date";
@@ -357,10 +359,43 @@ function InternalConversationView({
     window.setTimeout(() => setHighlightId((cur) => (cur === id ? null : cur)), 1800);
   };
 
-  const addFiles = (list: FileList | null) => {
-    if (!list?.length) return;
-    setFiles((cur) => [...cur, ...Array.from(list)]);
-    setActive(files.length);
+  const namedFile = (file: File, index: number) => {
+    if (file.name && file.name !== "image.png") return file;
+    const extension = file.type.split("/")[1]?.replace("jpeg", "jpg") || "bin";
+    const stamp = new Date().toISOString().replace(/\D/g, "").slice(0, 14);
+    return new File([file], `colado-${stamp}-${index + 1}.${extension}`, { type: file.type });
+  };
+
+  const addFiles = (input: File[] | FileList | null) => {
+    if (!input?.length) return;
+    const selected = Array.from(input).filter((item) => !isDangerousFile(item.name));
+    if (selected.length < input.length) toast.error(t("toast.fileBlocked"));
+    const accepted = selected.filter((item) => item.size > 0 && item.size <= MAX_MEDIA_BYTES);
+    if (accepted.length < selected.length) toast.error(t("toast.fileTooLarge"));
+    if (!accepted.length) return;
+
+    setFiles((current) => {
+      setActive(Math.min(current.length, 9));
+      return [...current, ...accepted].slice(0, 10);
+    });
+
+    const first = accepted[0]!;
+    if (first.type.startsWith("image/") && first.type !== "image/gif") {
+      setImageEditorOpen(true);
+    }
+  };
+
+  const filesFrom = (data: DataTransfer | null) => {
+    if (!data) return [];
+    const selected = Array.from(data.files);
+    if (!selected.length) {
+      for (const item of Array.from(data.items ?? [])) {
+        if (item.kind !== "file") continue;
+        const file = item.getAsFile();
+        if (file) selected.push(file);
+      }
+    }
+    return selected.map(namedFile);
   };
   const removeFile = (index: number) => {
     setFiles((cur) => cur.filter((_, i) => i !== index));
@@ -379,9 +414,15 @@ function InternalConversationView({
       if (e.currentTarget === e.target) setDragging(false);
     },
     onDrop: (e: React.DragEvent) => {
-      e.preventDefault();
       setDragging(false);
-      addFiles(e.dataTransfer.files);
+      const selected = filesFrom(e.dataTransfer);
+      if (!selected.length) return;
+      e.preventDefault();
+      if (send.isPending) {
+        toast.error(t("toast.attachUnavailable"));
+        return;
+      }
+      addFiles(selected);
     },
   };
 
@@ -424,6 +465,17 @@ function InternalConversationView({
     },
     onError: () => toast.error(t("toast.sendError")),
   });
+
+  const onPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const selected = filesFrom(event.clipboardData);
+    if (!selected.length) return;
+    event.preventDefault();
+    if (send.isPending || sendAudio.isPending) {
+      toast.error(t("toast.attachUnavailable"));
+      return;
+    }
+    addFiles(selected);
+  };
 
   const remove = useMutation({
     mutationFn: () => deleteInternalConversation(conversation.id),
@@ -904,6 +956,7 @@ function InternalConversationView({
             <Input
               value={text}
               onChange={(e) => setText(e.target.value)}
+              onPaste={onPaste}
               placeholder={t("composer.placeholder")}
               aria-label={t("composer.placeholder")}
               className="h-10 rounded-full bg-muted/60"
