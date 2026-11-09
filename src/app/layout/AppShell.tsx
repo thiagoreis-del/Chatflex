@@ -499,7 +499,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div
           role="status"
           aria-label={t("context.label")}
-          className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b bg-muted/60 px-3 py-1.5 text-xs sm:px-6"
+          className="flex min-w-0 shrink-0 flex-wrap items-center gap-x-3 gap-y-1 overflow-hidden border-b bg-muted/60 px-3 py-1.5 text-xs sm:px-6"
         >
           <span
             className={
@@ -510,7 +510,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             {user.role === "superadmin" ? t("context.platform") : t("context.company")}
           </span>
-          <span className="font-medium">
+          <span className="min-w-0 flex-1 truncate font-medium sm:flex-none sm:whitespace-normal">
             {t("context.currentCompany", { company: user.companyName ?? user.companyId })}
           </span>
           <span className="hidden text-muted-foreground sm:inline">
@@ -519,7 +519,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <span className="hidden text-muted-foreground md:inline">
             {t("context.user", { name: user.name })}
           </span>
-          <span className="text-muted-foreground">
+          <span className="min-w-0 max-w-full truncate text-muted-foreground sm:whitespace-normal">
             {t("context.role", { role: t(`roles.${user.role}`) })}
           </span>
         </div>
