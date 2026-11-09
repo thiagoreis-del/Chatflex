@@ -215,4 +215,18 @@ describe("verified internal chat contract", () => {
     expect(result.map((chat) => chat.id)).toEqual([12, 14]);
     expect(apiRequest).toHaveBeenCalledWith("/chats?pageNumber=2", expect.any(Object));
   });
+
+  it("keeps an owned conversation while a repaired membership is not yet returned", async () => {
+    vi.mocked(apiRequest).mockResolvedValue({
+      records: [{ ...record, users: record.users.filter((member) => member.userId !== 7) }],
+      hasMore: false,
+    });
+    const options = internalConversationsQuery("2");
+    const query = options.queryFn;
+    if (typeof query !== "function") throw new Error("Missing query function");
+    const result = await query({ signal: new AbortController().signal } as Parameters<
+      typeof query
+    >[0]);
+    expect(result.map((chat) => chat.id)).toEqual([12]);
+  });
 });

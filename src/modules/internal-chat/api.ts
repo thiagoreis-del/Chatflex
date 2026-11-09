@@ -34,7 +34,10 @@ async function listConversations(signal?: AbortSignal) {
       ...page.filter(
         (record) =>
           (record.companyId === undefined || record.companyId === companyId) &&
-          record.users.some((member) => Number(member.userId ?? member.user?.id) === userId),
+          (Number(record.ownerId) === userId ||
+            record.users.some(
+              (member) => Number(member.userId ?? member.user?.id) === userId,
+            )),
       ),
     );
     if (!res.hasMore || !page.length) break;
