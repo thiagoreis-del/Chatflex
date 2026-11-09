@@ -8,6 +8,9 @@ import {
   createInternalConversation,
   deleteInternalConversation,
   internalConversationsQuery,
+  internalMessagesQuery,
+  markInternalConversationRead,
+  mergeInternalMessages,
   sendInternalMedia,
   sendInternalMessage,
 } from "@/modules/internal-chat/api";
@@ -98,6 +101,51 @@ describe("verified internal chat contract", () => {
       method: "POST",
       body: { message: "Olá" },
     });
+  });
+
+  it("marks the selected conversation as read through the verified route", async () => {
+    vi.mocked(apiRequest).mockResolvedValue(undefined);
+    await markInternalConversationRead(12);
+    expect(apiRequest).toHaveBeenCalledWith("/chats/12/read", {
+      method: "POST",
+      body: {},
+    });
+  });
+
+  it("merges refreshed messages without removing older history", () => {
+    const oldMessage = messageFromRecord(
+      { id: 1, chatId: 12, senderId: 3, message: "Antiga", createdAt: "2026-11-01T10:00:00Z" },
+      7,
+    );
+    const newMessage = messageFromRecord(
+      { id: 2, chatId: 12, senderId: 7, message: "Nova", createdAt: "2026-11-01T10:01:00Z" },
+      7,
+    );
+    expect(mergeInternalMessages([oldMessage], [newMessage])).toEqual([oldMessage, newMessage]);
+  });
+
+  it("loads every message page when the conversation cache is empty", async () => {
+    vi.mocked(apiRequest)
+      .mockResolvedValueOnce({
+        records: [
+          { id: 2, chatId: 12, senderId: 7, message: "Nova", createdAt: "2026-11-01T10:01:00Z" },
+        ],
+        hasMore: true,
+      })
+      .mockResolvedValueOnce({
+        records: [
+          { id: 1, chatId: 12, senderId: 3, message: "Antiga", createdAt: "2026-11-01T10:00:00Z" },
+        ],
+        hasMore: false,
+      });
+    const query = internalMessagesQuery(12).queryFn;
+    if (typeof query !== "function") throw new Error("Missing query function");
+    const result = await query({
+      signal: new AbortController().signal,
+      client: { getQueryData: () => undefined },
+    } as never);
+    expect(result.map((message) => message.id)).toEqual(["1", "2"]);
+    expect(apiRequest).toHaveBeenCalledWith("/chats/12/messages?pageNumber=2", expect.any(Object));
   });
 
   it("resolves uploaded voice notes in the session company's folder", async () => {

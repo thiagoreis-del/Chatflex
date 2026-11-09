@@ -48,7 +48,8 @@
   "composer": {
     "placeholder": "Mensagem interna…",
     "send": "Enviar",
-    "attach": "Anexar arquivo",
+    "attach": "Anexar imagem, áudio ou documento",
+    "attachMedia": "Enviar fotos ou vídeos",
     "emoji": "Emoji",
     "insertEmoji": "Inserir {{emoji}}",
     "dropHere": "Solte os arquivos para enviar",

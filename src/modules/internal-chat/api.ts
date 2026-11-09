@@ -6,7 +6,7 @@ import { normalizeUploadFile } from "@/shared/upload/pdf-file";
 import { sessionStore } from "@/shared/auth/session-store";
 import { conversationFromRecord, conversationPayload, messageFromRecord } from "./adapter";
 import type { ChatRecord, ChatMessageRecord } from "./adapter";
-import type { CreateConversationInput } from "./types";
+import type { CreateConversationInput, InternalMessage } from "./types";
 
 export { internalChatEndpoints } from "@/shared/config/endpoints";
 
@@ -62,14 +62,56 @@ export const internalConversationsQuery = (companyId?: string) =>
 export const internalMessagesQuery = (conversationId: number) =>
   queryOptions({
     queryKey: internalChatKeys.messages(conversationId),
-    queryFn: async ({ signal }) => {
-      const res = await apiRequest<unknown>(
-        withQuery(internalChatEndpoints.messages(conversationId), { pageNumber: 1 }),
-        { signal },
+    queryFn: async ({ signal, client }) => {
+      const cached = client.getQueryData<InternalMessage[]>(
+        internalChatKeys.messages(conversationId),
       );
-      return asArray<ChatMessageRecord>(res).map(adaptMessage);
+      if (cached?.length) {
+        const recent = await fetchMessagePage(conversationId, 1, signal);
+        return mergeInternalMessages(cached, recent.messages);
+      }
+      return fetchCompleteMessageHistory(conversationId, signal);
     },
   });
+
+type MessagePage = { messages: InternalMessage[]; hasMore: boolean };
+
+async function fetchMessagePage(
+  conversationId: number,
+  pageNumber: number,
+  signal?: AbortSignal,
+): Promise<MessagePage> {
+  const res = await apiRequest<{
+    records?: ChatMessageRecord[];
+    data?: ChatMessageRecord[];
+    hasMore?: boolean;
+  }>(withQuery(internalChatEndpoints.messages(conversationId), { pageNumber }), { signal });
+  return {
+    messages: asArray<ChatMessageRecord>(res).map(adaptMessage),
+    hasMore: Boolean(res.hasMore),
+  };
+}
+
+async function fetchCompleteMessageHistory(conversationId: number, signal?: AbortSignal) {
+  let merged: InternalMessage[] = [];
+  for (let pageNumber = 1; ; pageNumber++) {
+    const page = await fetchMessagePage(conversationId, pageNumber, signal);
+    const before = merged.length;
+    merged = mergeInternalMessages(merged, page.messages);
+    if (!page.hasMore || !page.messages.length || merged.length === before) break;
+  }
+  return merged;
+}
+
+export function mergeInternalMessages(current: InternalMessage[], incoming: InternalMessage[]) {
+  const byId = new Map(current.map((message) => [message.id, message]));
+  for (const message of incoming) byId.set(message.id, message);
+  return [...byId.values()].sort((left, right) => {
+    const dateOrder = new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
+    if (dateOrder) return dateOrder;
+    return Number(left.id) - Number(right.id);
+  });
+}
 
 export const createInternalConversation = async (input: CreateConversationInput) => {
   const userId = currentUserId();
@@ -101,6 +143,12 @@ export const sendInternalMedia = async (conversationId: number, file: File, capt
   );
   return adaptMessage(record);
 };
+
+export const markInternalConversationRead = (conversationId: number) =>
+  apiRequest<void>(internalChatEndpoints.read(conversationId), {
+    method: "POST",
+    body: {},
+  });
 
 export const deleteInternalConversation = (conversationId: number) =>
   apiRequest<void>(internalChatEndpoints.detail(conversationId), { method: "DELETE" });

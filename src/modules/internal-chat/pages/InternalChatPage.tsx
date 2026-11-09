@@ -8,6 +8,7 @@ import {
   FileText,
   Forward,
   Hash,
+  ImagePlus,
   MessageSquarePlus,
   MoreVertical,
   Paperclip,
@@ -55,6 +56,8 @@ import {
   deleteInternalConversation,
   internalConversationsQuery,
   internalMessagesQuery,
+  markInternalConversationRead,
+  mergeInternalMessages,
   removeInternalMember,
   sendInternalMedia,
   sendInternalMessage,
@@ -106,6 +109,13 @@ export function InternalChatPage() {
     ...internalConversationsQuery(companyId),
     refetchInterval: fallback,
   });
+
+  useEffect(() => {
+    setSelected((current) => {
+      if (!current) return current;
+      return conversations.data?.find((item) => item.id === current.id) ?? current;
+    });
+  }, [conversations.data]);
 
   const filtered = useMemo(() => {
     const list = conversations.data ?? [];
@@ -281,7 +291,9 @@ function InternalConversationView({
   const [dragging, setDragging] = useState(false);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const imageInput = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const lastReadMessage = useRef<string | null>(null);
   const currentUser = useSession().user;
   const canDelete =
     conversation.ownerId === Number(currentUser?.id) ||
@@ -294,6 +306,19 @@ function InternalConversationView({
   useEffect(() => {
     setHidden(listHiddenMessages(scopeCompany, scopeUser));
   }, [scopeCompany, scopeUser]);
+
+  const latestMessageId = messages.data?.at(-1)?.id ?? null;
+  useEffect(() => {
+    if (!latestMessageId || conversation.unreadMessages <= 0) return;
+    const readKey = `${conversation.id}:${latestMessageId}`;
+    if (lastReadMessage.current === readKey) return;
+    lastReadMessage.current = readKey;
+    void markInternalConversationRead(conversation.id)
+      .then(onChanged)
+      .catch(() => {
+        lastReadMessage.current = null;
+      });
+  }, [conversation.id, conversation.unreadMessages, latestMessageId, onChanged]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
@@ -341,8 +366,7 @@ function InternalConversationView({
     setFiles((cur) => cur.filter((_, i) => i !== index));
     setActive(0);
   };
-  const replaceActive = (f: File) =>
-    setFiles((cur) => cur.map((x, i) => (i === active ? f : x)));
+  const replaceActive = (f: File) => setFiles((cur) => cur.map((x, i) => (i === active ? f : x)));
 
   const dropHandlers = {
     onDragOver: (e: React.DragEvent) => {
@@ -366,14 +390,18 @@ function InternalConversationView({
       const quoted = replyTo ? encodeReplyBody(quoteOf(replyTo), body || " ") : body;
       // Como no WhatsApp: a legenda acompanha a primeira mídia enviada.
       if (media.length) {
+        const sent: InternalMessage[] = [];
         for (const [index, item] of media.entries()) {
-          await sendInternalMedia(conversation.id, item, index === 0 ? quoted : "");
+          sent.push(await sendInternalMedia(conversation.id, item, index === 0 ? quoted : ""));
         }
-        return;
+        return sent;
       }
-      await sendInternalMessage(conversation.id, quoted);
+      return [await sendInternalMessage(conversation.id, quoted)];
     },
-    onSuccess: () => {
+    onSuccess: (sent) => {
+      qc.setQueryData<InternalMessage[]>(internalChatKeys.messages(conversation.id), (current) =>
+        mergeInternalMessages(current ?? [], sent),
+      );
       setText("");
       setFiles([]);
       setActive(0);
@@ -387,7 +415,10 @@ function InternalConversationView({
   // Áudio vai sozinho e NUNCA apaga o texto digitado nem os anexos.
   const sendAudio = useMutation({
     mutationFn: (f: File) => sendInternalMedia(conversation.id, f, ""),
-    onSuccess: () => {
+    onSuccess: (sent) => {
+      qc.setQueryData<InternalMessage[]>(internalChatKeys.messages(conversation.id), (current) =>
+        mergeInternalMessages(current ?? [], [sent]),
+      );
       void qc.invalidateQueries({ queryKey: internalChatKeys.messages(conversation.id) });
       onChanged();
     },
@@ -554,9 +585,7 @@ function InternalConversationView({
                                 }}
                               />
                             )}
-                            {!m.mediaUrl && m.mediaName && (
-                              <p className="text-xs">{m.mediaName}</p>
-                            )}
+                            {!m.mediaUrl && m.mediaName && <p className="text-xs">{m.mediaName}</p>}
                             {cleanBody && isVCard(cleanBody) ? (
                               <div className="flex flex-col gap-1.5">
                                 {parseVCards(cleanBody).map((contact, i) => (
@@ -812,12 +841,34 @@ function InternalConversationView({
             ref={fileInput}
             type="file"
             multiple
+            accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
             className="hidden"
             onChange={(e) => {
               addFiles(e.target.files);
               e.target.value = "";
             }}
           />
+          <input
+            ref={imageInput}
+            type="file"
+            multiple
+            accept="image/*,video/*"
+            className="hidden"
+            onChange={(e) => {
+              addFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t("composer.attachMedia")}
+            title={t("composer.attachMedia")}
+            onClick={() => imageInput.current?.click()}
+          >
+            <ImagePlus className="size-4" />
+          </Button>
           <Button
             type="button"
             variant="ghost"
