@@ -50,8 +50,25 @@ describe("location", () => {
       lat: -24.9214,
       lng: -53.4247,
       mapsUrl: "https://www.google.com/maps?q=-24.9214,-53.4247",
+      thumbnailUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB",
     });
     expect(locationText(body)).toBe("");
+  });
+
+  it("lê nome e endereço no formato completo do WhatsApp", () => {
+    const body = [
+      "data:image/png;base64, aGVsbG8=",
+      "https://maps.google.com/maps?q=-24.9214,-53.4247",
+      "-24.9214, -53.4247",
+      "Anvat Soluções",
+      "Av. sabiá N°913, Cascavel, PR",
+    ].join(" | ");
+    expect(parseLocation(body)).toMatchObject({
+      name: "Anvat Soluções",
+      address: "Av. sabiá N°913, Cascavel, PR",
+      thumbnailUrl: "data:image/png;base64,aGVsbG8=",
+    });
+    expect(locationText(body)).toBe("Anvat Soluções\nAv. sabiá N°913, Cascavel, PR");
   });
 
   it("rejeita coordenadas inválidas e texto comum", () => {

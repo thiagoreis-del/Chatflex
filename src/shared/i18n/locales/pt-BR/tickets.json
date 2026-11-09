@@ -194,6 +194,10 @@
     "secureContext": "A localização só funciona em uma conexão segura HTTPS.",
     "unavailable": "O dispositivo não conseguiu determinar a localização. Ative a localização do Windows ou do celular e tente novamente."
   },
+  "advertisement": {
+    "label": "Anúncio",
+    "details": "Mostrar detalhes"
+  },
   "conversationSearch": "Buscar nesta conversa",
   "searchLoadedOnly": "Busca nas mensagens carregadas desta conversa.",
   "closeAll": {

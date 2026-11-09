@@ -98,8 +98,10 @@ import { contactKeys } from "@/shared/api/query-keys";
 import { MessageMedia } from "../components/MessageMedia";
 import { ContactCard } from "../components/ContactCard";
 import { LocationCard } from "../components/LocationCard";
+import { AdvertisementCard } from "../components/AdvertisementCard";
 import { isVCard, parseVCards } from "../vcard";
 import { parseLocation, locationText } from "../location";
+import { parseAdvertisement } from "../advertisement";
 import { NewTicketSuggestions } from "../components/NewTicketSuggestions";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ShareContactDialog, contactCardText } from "../components/ShareContactDialog";
@@ -1792,7 +1794,9 @@ function Conversation({
                           </button>
                         )}
                         <MessageMedia message={m} />
-                        {displayBody(m) && isVCard(displayBody(m)) ? (
+                        {displayBody(m) && parseAdvertisement(displayBody(m)) ? (
+                          <AdvertisementCard advertisement={parseAdvertisement(displayBody(m))!} />
+                        ) : displayBody(m) && isVCard(displayBody(m)) ? (
                           <div className="flex flex-col gap-1.5">
                             {parseVCards(displayBody(m)!).map((contact, i) => (
                               <ContactCard

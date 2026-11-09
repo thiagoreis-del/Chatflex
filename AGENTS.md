@@ -11,6 +11,12 @@
 
 <!-- LOVABLE:END -->
 
+## Project links and synchronization
+
+- GitHub repository: https://github.com/thiagoreis-del/Chatflex.git
+- Lovable preview: https://lovable.dev/projects/65971cb3-9c1d-4b5a-b3fe-3f1657143195
+- Never send prompts, messages, edits, or commands directly to Lovable. Make every source change through normal GitHub commits and pushes only; Lovable is a read-only preview/synchronization destination for this workflow.
+
 ## Architecture rules
 
 - New-ticket search excludes group flags/JIDs and compares authorized active contacts by ID and normalized phone using the same search-scoped open/pending query keys as the list and counters; group headings never fall back to internal numbers. Why: exclude older search matches missed by an unfiltered first page, reuse cache, and preserve API permissions.

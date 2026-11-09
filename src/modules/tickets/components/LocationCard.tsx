@@ -10,8 +10,10 @@ export function LocationCard({ location, label }: { location: ParsedLocation; la
       ? `https://maps.google.com/maps?q=${location.lat},${location.lng}&z=15&output=embed`
       : null;
   return (
-    <div className="min-w-56 overflow-hidden rounded-lg bg-background/65 shadow-sm ring-1 ring-border/60">
-      {previewUrl && (
+    <div className="min-w-56 max-w-sm overflow-hidden rounded-lg bg-background/65 shadow-sm ring-1 ring-border/60">
+      {location.thumbnailUrl ? (
+        <img src={location.thumbnailUrl} alt="" className="h-32 w-full object-cover" />
+      ) : previewUrl ? (
         <iframe
           src={previewUrl}
           title={t("locationCard.mapTitle")}
@@ -20,7 +22,7 @@ export function LocationCard({ location, label }: { location: ParsedLocation; la
           className="h-36 w-full border-0"
           tabIndex={-1}
         />
-      )}
+      ) : null}
       <a
         href={location.mapsUrl}
         target="_blank"
@@ -34,18 +36,17 @@ export function LocationCard({ location, label }: { location: ParsedLocation; la
           <MapPin className="size-5" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block whitespace-pre-wrap break-words text-sm font-semibold text-foreground">
-            {label || t("locationCard.label")}
+          <span className="block break-words text-sm font-semibold text-foreground">
+            {location.name || label?.split("\n")[0] || t("locationCard.label")}
           </span>
-          {location.lat !== 0 && (
-            <span className="block truncate text-xs text-muted-foreground">
-              {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-            </span>
-          )}
-          <span className="mt-0.5 flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-primary">
-            {t("locationCard.open")}
-            <ExternalLink className="size-3" aria-hidden />
+          <span className="block whitespace-pre-wrap break-words text-xs text-muted-foreground">
+            {location.address ||
+              label?.split("\n").slice(1).join("\n") ||
+              (location.lat !== 0
+                ? `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`
+                : t("locationCard.open"))}
           </span>
+          <ExternalLink className="mt-1 size-3 text-primary" aria-hidden />
         </span>
       </a>
     </div>
