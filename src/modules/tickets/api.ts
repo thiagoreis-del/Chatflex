@@ -190,8 +190,8 @@ export const incomingTicketsQuery = (companyId: string) =>
       );
       return [...new Map(lists.flat().map((ticket) => [ticket.id, ticket])).values()];
     },
-    refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
   });
 
 /** Busca TODAS as páginas de um status, para métricas e gráficos completos. */

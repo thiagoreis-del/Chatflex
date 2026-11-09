@@ -217,8 +217,8 @@ export function TicketsPage() {
   const query = useQuery({
     ...(listOpts as ReturnType<typeof groupTicketsQuery>),
     refetchInterval: fallback,
-    // Continua atualizando com a aba em segundo plano (atendente em outra janela).
-    refetchIntervalInBackground: true,
+    // Ao voltar para a aba, os eventos de foco/visibilidade invalidam os dados imediatamente.
+    refetchIntervalInBackground: false,
   });
   // Finalizados antigos: só carrega ao clicar em "Carregar mais"; reinicia ao trocar busca/aba.
   const [olderOn, setOlderOn] = useState(false);
@@ -272,17 +272,17 @@ export function TicketsPage() {
   const openCount = useQuery({
     ...ticketsQuery({ status: "open", search: debouncedSearch }),
     select: (l: Ticket[]) => activeOnly(l).length,
-    refetchInterval: fallback,
+    refetchInterval: tab === "open" ? fallback : 10_000,
   }).data;
   const pendingCount = useQuery({
     ...ticketsQuery({ status: "pending", search: debouncedSearch }),
     select: (l: Ticket[]) => activeOnly(l).length,
-    refetchInterval: fallback,
+    refetchInterval: tab === "pending" ? fallback : 10_000,
   }).data;
   const groupsCount = useQuery({
     ...groupTicketsQuery(debouncedSearch),
     select: (l: Ticket[]) => l.length,
-    refetchInterval: fallback,
+    refetchInterval: tab === "groups" ? fallback : 15_000,
   }).data;
   // Reuse the search-scoped list/count cache: older matches may not be on the unfiltered first page.
   const openTickets = useQuery({
@@ -916,7 +916,7 @@ function Conversation({
   const messages = useQuery({
     ...messagesQuery(ticket.id),
     refetchInterval: msgFallback,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
   const olderMessages = useQuery({
     ...olderMessagesQuery(ticket.id),

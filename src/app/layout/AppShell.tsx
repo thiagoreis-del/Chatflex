@@ -413,8 +413,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const connectionList = useQuery({
     ...connectionsQuery(),
     enabled: canViewConnections,
-    refetchInterval: 15_000,
-    refetchIntervalInBackground: true,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
   });
   const disconnectedCount =
     connectionList.data?.filter((connection) => connection.status !== "CONNECTED").length ?? 0;
@@ -427,8 +427,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const internalConversations = useQuery({
     ...internalConversationsQuery(companyId),
     enabled: Boolean(user && companyId),
-    refetchInterval: 3_000,
-    refetchIntervalInBackground: true,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
   });
   const internalUnreadCount = (internalConversations.data ?? []).reduce(
     (total, conversation) => total + Math.max(0, conversation.unreadMessages),
