@@ -22,6 +22,7 @@ export interface CompanyUserInput {
   /** Cor opcional do atendente (chave da paleta). */
   color?: string | null | undefined;
   blocked?: boolean;
+  allTicket?: "enable" | "disable";
   /** Só superadmin: cria o usuário em outra empresa (backend valida `super`). */
   companyId?: number;
   /** Obrigatória na criação; opcional na edição (vazia = manter). */
