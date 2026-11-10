@@ -341,6 +341,7 @@ export function UserFormDialog({
     queueIds: editing?.queueIds ?? [],
     color: editing?.color,
     blocked: editing?.blocked ?? false,
+    allTicket: editing?.allTicket ?? "enable",
     password: editing ? "" : generatePassword(),
   });
   const [errors, setErrors] = useState({ name: false, email: false, password: false });
@@ -532,6 +533,13 @@ export function UserFormDialog({
               </div>
             )}
           </fieldset>
+          <label className="flex items-center gap-2 text-sm">
+            <Checkbox
+              checked={data.allTicket === "enable"}
+              onCheckedChange={(c) => setData({ ...data, allTicket: c === true ? "enable" : "disable" })}
+            />
+            {t("users.form.allTicket")}
+          </label>
           <label className="flex items-center gap-2 text-sm">
             <Checkbox
               checked={!!data.blocked}

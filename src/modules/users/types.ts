@@ -10,6 +10,8 @@ export interface CompanyUser {
   color?: string | null | undefined;
   /** CONTRATO PENDENTE: bloqueio de acesso (backend deve impedir login e revogar sessões). */
   blocked?: boolean;
+  /** Backend Whaticket: "enable" permite ver conversas sem fila e grupos. */
+  allTicket?: "enable" | "disable";
 }
 
 export interface CompanyUserInput {
