@@ -789,6 +789,18 @@ export function TicketsPage() {
             }}
           </QueryBoundary>
         )}
+        {tab !== "groups" && openTickets && pendingTickets && (
+          <NewTicketSuggestions
+            search={debouncedSearch}
+            activeTickets={activeTickets}
+            userId={session.user?.id ? Number(session.user.id) : undefined}
+            onStarted={(tk) => {
+              setTab("open");
+              setSearch("");
+              setSelected(tk);
+            }}
+          />
+        )}
       </div>
     </aside>
   );
