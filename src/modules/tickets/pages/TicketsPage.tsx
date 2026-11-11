@@ -1836,18 +1836,18 @@ function Conversation({
                           <span className="inline-flex items-center gap-1">
                             {time(m.createdAt)}
                             {m.fromMe && !m.isPrivate && (
-                              m.ack >= 3 ? (
+                              (m.ack ?? 0) >= 3 ? (
                                 <span className="inline-flex items-center text-sky-600" title={t("messageStatus.read", { time: deliveryTime(m) })}>
                                   <CheckCheck className="size-3" aria-hidden />
                                 </span>
-                              ) : m.ack >= 2 ? (
+                              ) : (m.ack ?? 0) >= 2 ? (
                                 <CheckCheck className="size-3 text-muted-foreground" aria-label={t("messageStatus.delivered")} />
                               ) : (
                                 <Check className="size-3 text-muted-foreground" aria-label={t("messageStatus.sent")} />
                               )
                             )}
                           </span>
-                          {m.fromMe && !m.isPrivate && m.ack >= 3 && (
+                          {m.fromMe && !m.isPrivate && (m.ack ?? 0) >= 3 && (
                             <span className="sr-only">{t("messageStatus.read", { time: deliveryTime(m) })}</span>
                           )}
                         </p>
