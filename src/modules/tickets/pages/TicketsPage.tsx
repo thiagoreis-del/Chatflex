@@ -105,6 +105,7 @@ import { isVCard, parseVCards } from "../vcard";
 import { parseLocation, locationText } from "../location";
 import { parseAdvertisement } from "../advertisement";
 import { NewTicketSuggestions } from "../components/NewTicketSuggestions";
+import { sortByRecent, ticketMatchesSearch } from "../search-order";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ShareContactDialog, contactCardText } from "../components/ShareContactDialog";
 import { isDangerousFile } from "../audio-format";
@@ -528,18 +529,6 @@ export function TicketsPage() {
         />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {tab !== "groups" && openTickets && pendingTickets && (
-          <NewTicketSuggestions
-            search={debouncedSearch}
-            activeTickets={activeTickets}
-            userId={session.user?.id ? Number(session.user.id) : undefined}
-            onStarted={(tk) => {
-              setTab("open");
-              setSearch("");
-              setSelected(tk);
-            }}
-          />
-        )}
         {query.isPending ? (
           <ul aria-busy className="divide-y">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -563,7 +552,9 @@ export function TicketsPage() {
                       ...(older.data?.pages ?? []).map((p) => notGroup(p?.tickets ?? [])),
                     ])
                   : firstPage;
-              const visible = list.filter(matchesFilters);
+              const visible = sortByRecent(
+                list.filter((x) => matchesFilters(x) && ticketMatchesSearch(x, debouncedSearch)),
+              );
               if (visible.length === 0) {
                 const msg = debouncedSearch
                   ? t("sidebar.noResults", { q: debouncedSearch })

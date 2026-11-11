@@ -1,3 +1,4 @@
+import { withSearchParams } from "./search-order";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
 import { messageHistoryKeys, ticketKeys, sessionCacheScope } from "@/shared/api/query-keys";
@@ -143,7 +144,7 @@ export const ticketsQuery = (filters: TicketFilters) =>
     queryKey: ticketKeys.list(filters),
     queryFn: async ({ signal }) =>
       (
-        await apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), ...filters }), {
+        await apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), ...withSearchParams(filters) }), {
           signal,
         })
       )?.tickets ?? [],
@@ -156,7 +157,7 @@ export const closedOlderTicketsQuery = (search: string) =>
     initialPageParam: 2,
     queryFn: async ({ pageParam, signal }) =>
       apiRequest<TicketsResponse>(
-        withQuery(ep.list, { ...scope(), status: "closed", search, pageNumber: pageParam }),
+        withQuery(ep.list, { ...scope(), status: "closed", ...withSearchParams({ search }), pageNumber: pageParam }),
         { signal },
       ),
     getNextPageParam: (last, _all, page) =>
@@ -346,7 +347,7 @@ export const groupTicketsQuery = (search?: string) =>
     queryKey: [...ticketKeys.list({ status: "open", search }), "groups"],
     queryFn: async ({ signal }) => {
       const get = (status: string) =>
-        apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, search }), {
+        apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, ...withSearchParams({ search }) }), {
           signal,
         }).catch(() => ({ tickets: [] as Ticket[] }));
       // O backend guarda grupos com status "group"; também aceitamos aberto/aguardando marcados.
