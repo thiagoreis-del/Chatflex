@@ -1,7 +1,7 @@
 import type { Ticket } from "./types";
 
 /** Envia o termo nos dois nomes aceitos pelo backend (`searchParam` é o lido por ListTicketsService). */
-export function withSearchParams<T extends { search?: string }>(f: T): T & { searchParam?: string } {
+export function withSearchParams<T extends { search?: string | undefined }>(f: T): T & { searchParam?: string } {
   const s = f.search?.trim();
   return s ? { ...f, search: s, searchParam: s } : f;
 }
