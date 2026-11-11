@@ -41,6 +41,11 @@ export interface Message {
   body: string;
   fromMe: boolean;
   createdAt: string;
+  /** Estado de entrega do WhatsApp: 1 enviado, 2 entregue, 3 visualizado. */
+  ack?: number;
+  /** Atualizado pelo backend quando o recibo de leitura chega. */
+  readAt?: string | null;
+  updatedAt?: string;
   /** URL absoluta do arquivo (backend monta `/public/company{id}/arquivo`). */
   mediaUrl?: string | null;
   /** Ex.: "image", "video", "audio", "application", "document". */

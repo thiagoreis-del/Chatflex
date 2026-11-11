@@ -8,6 +8,8 @@ import {
   ArrowLeft,
   ArrowRightLeft,
   Camera,
+  Check,
+  CheckCheck,
   Clock,
   Inbox,
   MessageCircle,
@@ -133,6 +135,9 @@ import { useTicketWorkspaceLayout } from "../workspace-layout";
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+const deliveryTime = (message: Message) =>
+  message.readAt ? time(message.readAt) : time(message.createdAt);
 
 /** Identidade visual das quatro categorias de atendimento. */
 const TAB_ICONS: Record<TicketTab, typeof Inbox> = {
@@ -1828,7 +1833,23 @@ function Conversation({
                               : "text-muted-foreground",
                           )}
                         >
-                          {time(m.createdAt)}
+                          <span className="inline-flex items-center gap-1">
+                            {time(m.createdAt)}
+                            {m.fromMe && !m.isPrivate && (
+                              m.ack >= 3 ? (
+                                <span className="inline-flex items-center text-sky-600" title={t("messageStatus.read", { time: deliveryTime(m) })}>
+                                  <CheckCheck className="size-3" aria-hidden />
+                                </span>
+                              ) : m.ack >= 2 ? (
+                                <CheckCheck className="size-3 text-muted-foreground" aria-label={t("messageStatus.delivered")} />
+                              ) : (
+                                <Check className="size-3 text-muted-foreground" aria-label={t("messageStatus.sent")} />
+                              )
+                            )}
+                          </span>
+                          {m.fromMe && !m.isPrivate && m.ack >= 3 && (
+                            <span className="sr-only">{t("messageStatus.read", { time: deliveryTime(m) })}</span>
+                          )}
                         </p>
                       </div>
                       {!m.isPrivate && (

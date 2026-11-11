@@ -141,6 +141,11 @@
     "queued": "Sem conexão. A mensagem será enviada automaticamente quando a internet voltar."
   },
   "privateBadge": "Nota interna · só a equipe vê",
+  "messageStatus": {
+    "sent": "Enviada",
+    "delivered": "Entregue",
+    "read": "Visualizada às {{time}}"
+  },
   "tags": {
     "add": "Adicionar etiqueta",
     "loading": "Carregando…",
