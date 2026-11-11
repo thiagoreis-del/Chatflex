@@ -51,6 +51,7 @@
       "color": "Cor do atendente",
       "colorAuto": "Automática",
       "colorHint": "Opcional: escolha uma cor fixa para identificar o atendente no Atendimento. Sem escolha, a cor é atribuída automaticamente.",
+      "allTicket": "Ver conversas sem fila e grupos",
       "colors": {
         "sky": "Azul",
         "emerald": "Verde",
