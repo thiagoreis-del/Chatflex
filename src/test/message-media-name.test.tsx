@@ -87,3 +87,14 @@ describe("Message media file name", () => {
     vi.unstubAllGlobals();
   });
 });
+
+import { isAutoFileCaption, normalizeFileExtension } from "@/modules/tickets/media-file";
+describe("certificate files", () => {
+  it("maps x-pkcs12 to pfx", () => {
+    expect(normalizeFileExtension("1794914734078.x-pkcs12")).toBe("1794914734078.pfx");
+  });
+  it("hides internal filename captions", () => {
+    expect(isAutoFileCaption("1794914734078_1794914734078.x-pkcs12", "https://a.b/public/company1/1794914734078.x-pkcs12")).toBe(true);
+    expect(isAutoFileCaption("certificado renovado", "https://a.b/x.pfx")).toBe(false);
+  });
+});

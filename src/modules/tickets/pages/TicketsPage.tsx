@@ -98,6 +98,7 @@ import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
 import { contactKeys } from "@/shared/api/query-keys";
 import { MessageMedia } from "../components/MessageMedia";
+import { isAutoFileCaption } from "../media-file";
 import { ContactCard } from "../components/ContactCard";
 import { LocationCard } from "../components/LocationCard";
 import { AdvertisementCard } from "../components/AdvertisementCard";
@@ -163,8 +164,17 @@ const TAB_IDLE_CLASSES: Record<TicketTab, string> = {
 /** Remove a assinatura `*Nome:*\n` enviada ao cliente — o painel já mostra o atendente. */
 const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
 /** Texto visível na bolha: remove a assinatura "*Nome:*" das mensagens enviadas. */
-const displayBody = (m: Pick<Message, "body" | "fromMe" | "isPrivate">) =>
-  m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body;
+const displayBody = (
+  m: Pick<Message, "body" | "fromMe" | "isPrivate"> & Partial<Pick<Message, "mediaUrl" | "mediaType">>,
+) => {
+  if (
+    m.mediaUrl &&
+    !["image", "video", "audio"].includes(m.mediaType ?? "") &&
+    isAutoFileCaption(m.body, m.mediaUrl)
+  )
+    return "";
+  return m.fromMe && !m.isPrivate ? stripSignature(m.body) : m.body;
+};
 
 export function TicketsPage() {
   const { t } = useTranslation("tickets");

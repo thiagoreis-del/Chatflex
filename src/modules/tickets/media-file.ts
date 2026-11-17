@@ -22,12 +22,58 @@ export async function downloadFile(url: string, filename: string) {
   }
 }
 
+/** Extensões derivadas do MIME pelo backend (ex.: `.x-pkcs12`) → extensão real. */
+const MIME_EXTENSIONS: Record<string, string> = {
+  "x-pkcs12": "pfx",
+  pkcs12: "pfx",
+  "x-pkcs7-certificates": "p7b",
+  "x-x509-ca-cert": "cer",
+  "pkix-cert": "cer",
+  "x-zip-compressed": "zip",
+  "x-rar-compressed": "rar",
+  "vnd.rar": "rar",
+  "x-7z-compressed": "7z",
+  plain: "txt",
+  msword: "doc",
+  "vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+  "vnd.ms-excel": "xls",
+  "vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+  "vnd.ms-powerpoint": "ppt",
+  "vnd.openxmlformats-officedocument.presentationml.presentation": "pptx",
+  "octet-stream": "bin",
+};
+
+export function normalizeFileExtension(filename: string) {
+  const dot = filename.lastIndexOf(".");
+  if (dot <= 0) return filename;
+  const ext = filename.slice(dot + 1).toLowerCase();
+  const mapped = MIME_EXTENSIONS[ext];
+  return mapped ? `${filename.slice(0, dot)}.${mapped}` : filename;
+}
+
 export function fileNameFromUrl(url: string) {
+  let name: string;
   try {
-    return decodeURIComponent(new URL(url).pathname.split("/").pop() ?? "") || url;
+    name = decodeURIComponent(new URL(url).pathname.split("/").pop() ?? "") || url;
   } catch {
-    return url;
+    name = url;
   }
+  return normalizeFileExtension(name);
+}
+
+/** Legenda gerada automaticamente com o nome interno do arquivo (ex.: 179..._179....x-pkcs12). */
+export function isAutoFileCaption(body: string | null | undefined, mediaUrl?: string | null) {
+  const text = body?.trim();
+  if (!text || !mediaUrl) return false;
+  const urlName = (() => {
+    try {
+      return decodeURIComponent(new URL(mediaUrl).pathname.split("/").pop() ?? "");
+    } catch {
+      return "";
+    }
+  })();
+  if (text === urlName || normalizeFileExtension(text) === fileNameFromUrl(mediaUrl)) return true;
+  return /^\d{10,}([_-]\d{10,})?\.[\w.-]+$/.test(text);
 }
 
 /**
@@ -39,6 +85,7 @@ export function displayFileName(filename: string) {
   const dot = filename.lastIndexOf(".");
   const extension = dot > 0 ? filename.slice(dot) : "";
   const stem = dot > 0 ? filename.slice(0, dot) : filename;
+  if (/^\d{10,}$/.test(stem)) return `${stem}${extension}`;
   const cleaned = stem
     .replace(/^\d{10,}[_-]+/, "")
     .replace(/[_-]+\d{10,}$/, "")

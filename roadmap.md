@@ -1,5 +1,11 @@
 # Roadmap
 
+## Conversa aberta sem novas mensagens — 16/11/2026
+
+- [x] Corrigir invalidação por appMessage (criação/atualização/exclusão), chave da lista por sessão e leitura canônica sem inserir eventos parciais; consulta a cada 3 segundos e atualização imediata ao reabrir.
+- [x] Reproduzir seis regressões antes da correção; preservar histórico carregado durante consultas simultâneas; 227 testes passaram e prévia compilou sem erros.
+- [ ] Confirmar em conversa real da Bruna e publicar na VPS — requer sessão autorizada do backend externo e deploy.
+
 ## Busca de contatos e identificação de grupos — 04/11/2026
 
 - [x] Corrigir sugestões que ignoram atendimentos antigos encontrados pela busca; regressões para abertos/aguardando reproduzidas em consultas locais.

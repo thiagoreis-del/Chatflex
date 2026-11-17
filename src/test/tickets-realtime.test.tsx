@@ -1,6 +1,6 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ticketKeys } from "@/shared/api/query-keys";
+import { sessionCacheScope, ticketKeys } from "@/shared/api/query-keys";
 
 const harness = vi.hoisted(() => ({
   status: "connected",
@@ -23,7 +23,7 @@ vi.mock("@/shared/socket/socket-client", () => ({
   },
 }));
 
-import { useFallbackInterval, useTicketsRealtime } from "@/modules/tickets/realtime";
+import { useFallbackInterval, useMessagesRealtime, useTicketsRealtime } from "@/modules/tickets/realtime";
 
 afterEach(() => {
   cleanup();
@@ -62,6 +62,43 @@ describe("Ticket refresh recovery", () => {
     expect(harness.invalidateQueries).toHaveBeenCalledWith({
       queryKey: [...ticketKeys.all, "incoming"],
     });
+    expect(harness.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: [...ticketKeys.all, ...sessionCacheScope(), "list"],
+    });
+  });
+
+  it.each([
+    { action: "create", message: { ticketId: 7381 } },
+    { action: "update", ticket: { id: "7381" } },
+    { action: "delete", ticketId: 7381 },
+  ])("refreshes the affected conversation for appMessage %j", (payload) => {
+    renderHook(() => useTicketsRealtime("open"));
+    harness.invalidateQueries.mockClear();
+    act(() => harness.handlers.get("appMessage")?.(payload));
+    expect(harness.invalidateQueries).toHaveBeenCalledWith(
+      { queryKey: ticketKeys.messages(7381) },
+      { cancelRefetch: false },
+    );
+  });
+
+  it("refetches canonical messages instead of inserting incomplete socket payloads", () => {
+    renderHook(() => useMessagesRealtime(7381));
+    act(() => harness.handlers.get("appMessage")?.({
+      action: "update", message: { ticketId: "7381", id: "new", ack: 2 },
+    }));
+    expect(harness.invalidateQueries).toHaveBeenCalledWith(
+      { queryKey: ticketKeys.messages(7381) },
+      { cancelRefetch: false },
+    );
+    expect(harness.setQueryData).not.toHaveBeenCalled();
+  });
+
+  it("ignores events for another conversation or invalid IDs", () => {
+    renderHook(() => useMessagesRealtime(7381));
+    for (const ticketId of [5493, 0, "invalid", null]) {
+      act(() => harness.handlers.get("appMessage")?.({ message: { ticketId } }));
+    }
+    expect(harness.invalidateQueries).not.toHaveBeenCalled();
   });
 
   it("removes focus listeners on unmount", () => {

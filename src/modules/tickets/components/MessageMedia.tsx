@@ -157,7 +157,12 @@ export function MessageMedia({ message }: { message: Message }) {
           {extension}
         </span>
       </span>
-      <span className="min-w-0 flex-1 truncate text-[13px] font-semibold leading-5">{name}</span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="line-clamp-2 text-[13px] font-semibold leading-5 [overflow-wrap:anywhere]">
+          {name}
+        </span>
+        <span className="text-[11px] text-muted-foreground">{extension}</span>
+      </span>
       {downloaded ? (
         <span
           className="flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
@@ -167,7 +172,7 @@ export function MessageMedia({ message }: { message: Message }) {
           <Check className="size-3.5" strokeWidth={3} aria-hidden />
         </span>
       ) : (
-        <Download className="size-4 shrink-0" aria-hidden />
+        <Download className="size-5 shrink-0 text-muted-foreground" aria-hidden />
       )}
     </button>
   );

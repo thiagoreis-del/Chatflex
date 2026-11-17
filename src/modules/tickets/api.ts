@@ -86,14 +86,14 @@ async function fetchMessagePages(
  */
 async function refreshMessages(
   ticketId: number,
-  cached: Message[] | undefined,
+  getCached: () => Message[] | undefined,
   signal?: AbortSignal,
 ): Promise<Message[]> {
   const result = await apiRequest<MessagesResponse>(
     withQuery(ep.messages(ticketId), { pageNumber: 1 }),
     { signal },
   );
-  return mergeMessagePages([cached ?? [], result?.messages ?? []]);
+  return mergeMessagePages([getCached() ?? [], result?.messages ?? []]);
 }
 
 export interface AttendantMetric {
@@ -378,10 +378,13 @@ export const messagesQuery = (ticketId: number) =>
     queryFn: ({ signal, client }) =>
       refreshMessages(
         ticketId,
-        client.getQueryData<Message[]>(ticketKeys.messages(ticketId)),
+        () => client.getQueryData<Message[]>(ticketKeys.messages(ticketId)),
         signal,
       ),
-    // Polling de fallback é definido na tela conforme o status do Socket.
+    // Reopening must re-read immediately; interval polling is independent of staleTime.
+    staleTime: 0,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: false,
   });
 
 /** Páginas antigas carregadas depois que a página recente já está visível. */

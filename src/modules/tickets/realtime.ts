@@ -5,13 +5,24 @@
  */
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ticketKeys } from "@/shared/api/query-keys";
+import { sessionCacheScope, ticketKeys } from "@/shared/api/query-keys";
 import { socketClient, useSocketStatus } from "@/shared/socket/socket-client";
-import type { Message, TicketStatus } from "./types";
+import type { TicketStatus } from "./types";
 
 interface AppMessagePayload {
-  action?: string;
-  message?: Message & { ticketId?: number };
+  ticketId?: unknown;
+  ticket?: { id?: unknown };
+  message?: { ticketId?: unknown; ticket?: { id?: unknown } };
+}
+
+function eventTicketId(raw: unknown): number | undefined {
+  if (!raw || typeof raw !== "object") return;
+  const payload = raw as AppMessagePayload;
+  const value = payload.message?.ticketId ?? payload.message?.ticket?.id
+    ?? payload.ticketId ?? payload.ticket?.id;
+  if (typeof value !== "number" && typeof value !== "string") return;
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id > 0 ? id : undefined;
 }
 
 /**
@@ -47,7 +58,7 @@ export function useTicketsRealtime(status: TicketStatus) {
     const leaveTickets = socketClient.joinRoom("joinTickets", "leaveTickets", status);
     const leaveNotif = socketClient.joinRoom("joinNotification", "leaveNotification");
     const invalidate = () => {
-      void qc.invalidateQueries({ queryKey: [...ticketKeys.all, "list"] });
+      void qc.invalidateQueries({ queryKey: [...ticketKeys.all, ...sessionCacheScope(), "list"] });
       void qc.invalidateQueries({ queryKey: [...ticketKeys.all, "incoming"] });
     };
     const offTicket = socketClient.onCompany("ticket", (raw) => {
@@ -57,7 +68,12 @@ export function useTicketsRealtime(status: TicketStatus) {
       if (Number.isFinite(ticketId) && ticketId > 0)
         void qc.invalidateQueries({ queryKey: ticketKeys.messages(ticketId) });
     });
-    const offMsg = socketClient.onCompany("appMessage", invalidate);
+    const offMsg = socketClient.onCompany("appMessage", (raw) => {
+      invalidate();
+      const ticketId = eventTicketId(raw);
+      if (ticketId !== undefined)
+        void qc.invalidateQueries({ queryKey: ticketKeys.messages(ticketId) }, { cancelRefetch: false });
+    });
     const offContact = socketClient.onCompany("contact", invalidate);
     return () => {
       leaveTickets();
@@ -74,16 +90,11 @@ export function useMessagesRealtime(ticketId: number) {
   useEffect(() => {
     const leave = socketClient.joinRoom("joinChatBox", "joinChatBoxLeave", String(ticketId));
     const off = socketClient.onCompany("appMessage", (raw) => {
-      const p = raw as AppMessagePayload;
-      const msg = p?.message;
-      if (!msg || Number(msg.ticketId) !== ticketId) return;
-      qc.setQueryData<Message[]>(ticketKeys.messages(ticketId), (prev = []) => {
-        const i = prev.findIndex((m) => m.id === msg.id);
-        if (i === -1) return p.action === "update" ? prev : [...prev, msg];
-        const next = prev.slice();
-        next[i] = { ...prev[i], ...msg };
-        return next;
-      });
+      if (eventTicketId(raw) !== ticketId) return;
+      // Events may contain only receipts/metadata. Read the authorized canonical
+      // page instead of treating a partial payload as a complete message.
+      // Both listeners share this query; do not cancel/restart an in-flight read.
+      void qc.invalidateQueries({ queryKey: ticketKeys.messages(ticketId) }, { cancelRefetch: false });
     });
     return () => {
       leave();

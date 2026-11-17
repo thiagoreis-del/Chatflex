@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { focusManager, QueryClient, QueryObserver } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Message } from "@/modules/tickets/types";
 import { ticketKeys } from "@/shared/api/query-keys";
@@ -20,9 +20,57 @@ const message = (id: string, createdAt: string): Message => ({
   createdAt,
 });
 
-beforeEach(() => mocks.apiRequest.mockReset());
+beforeEach(() => { mocks.apiRequest.mockReset(); });
 
 describe("message polling", () => {
+  it("recovers a missed socket message through the three-second poll", async () => {
+    vi.useFakeTimers();
+    focusManager.setFocused(true);
+    const client = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: false } } });
+    mocks.apiRequest
+      .mockResolvedValueOnce({ messages: [message("1", "2026-10-29T09:00:00.000Z")] })
+      .mockResolvedValue({ messages: [message("2", "2026-10-29T10:00:00.000Z")] });
+    const observer = new QueryObserver(client, messagesQuery(10));
+    const unsubscribe = observer.subscribe(() => {});
+    try {
+      await vi.advanceTimersByTimeAsync(0);
+      expect(observer.getCurrentResult().data?.map((item) => item.id)).toEqual(["1"]);
+      await vi.advanceTimersByTimeAsync(2999);
+      expect(mocks.apiRequest).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(mocks.apiRequest).toHaveBeenCalledTimes(2);
+      expect(observer.getCurrentResult().data?.map((item) => item.id)).toEqual(["1", "2"]);
+    } finally {
+      unsubscribe();
+      client.clear();
+      focusManager.setFocused(undefined);
+      vi.useRealTimers();
+    }
+  });
+  it("does not inherit the global thirty-second freshness window on reopening", async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000 } } });
+    client.setQueryData(ticketKeys.messages(10), [message("1", "2026-10-29T09:00:00.000Z")]);
+    mocks.apiRequest.mockResolvedValue({ messages: [message("2", "2026-10-29T10:00:00.000Z")] });
+    const result = await client.fetchQuery(messagesQuery(10));
+    expect(mocks.apiRequest).toHaveBeenCalledTimes(1);
+    expect(result.map((item) => item.id)).toEqual(["1", "2"]);
+    client.clear();
+  });
+
+  it("preserves history added while the latest-page request is in flight", async () => {
+    const client = new QueryClient();
+    client.setQueryData(ticketKeys.messages(10), [message("2", "2026-10-29T10:00:00.000Z")]);
+    let resolveRequest: ((value: { messages: Message[] }) => void) | undefined;
+    mocks.apiRequest.mockImplementation(() => new Promise((resolve) => { resolveRequest = resolve; }));
+    const pending = client.fetchQuery({ ...messagesQuery(10), staleTime: 0 });
+    client.setQueryData(ticketKeys.messages(10), [
+      message("1", "2026-10-29T09:00:00.000Z"), message("2", "2026-10-29T10:00:00.000Z"),
+    ]);
+    if (!resolveRequest) throw new Error("Request was not started");
+    resolveRequest({ messages: [message("3", "2026-10-29T11:00:00.000Z")] });
+    expect((await pending).map((item) => item.id)).toEqual(["1", "2", "3"]);
+    client.clear();
+  });
   it("mostra a página recente sem aguardar o histórico antigo", async () => {
     mocks.apiRequest.mockResolvedValueOnce({
       messages: [message("2", "2026-10-29T10:00:00.000Z")],
