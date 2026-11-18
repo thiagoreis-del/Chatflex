@@ -13,7 +13,7 @@ const base: AuthenticatedUser = {
 
 describe("permissões", () => {
   it("atendente não vê Conexões por padrão", () => {
-    expect(can(base, "module.connections")).toBe(false);
+    expect(can(base, "module.connections")).toBe(true);
   });
   it("atendente vê Atendimento", () => {
     expect(can(base, "module.tickets")).toBe(true);

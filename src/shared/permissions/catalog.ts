@@ -23,6 +23,7 @@ export type Permission = (typeof PERMISSIONS)[number];
 const AGENT: Permission[] = [
   "module.dashboard",
   "module.tickets",
+  "module.connections",
   "module.status",
   "module.contacts",
   "module.quickMessages",
