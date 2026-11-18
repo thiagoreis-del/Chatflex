@@ -548,3 +548,7 @@ export async function forwardMessage(message: Message, targetTicketId: number) {
   }
   return sendMessage(targetTicketId, body);
 }
+
+/** Apaga para todos uma mensagem enviada (backend: DELETE /messages/:messageId). */
+export const deleteTicketMessage = (messageId: string) =>
+  apiRequest<void>(ep.message(messageId), { method: "DELETE" });

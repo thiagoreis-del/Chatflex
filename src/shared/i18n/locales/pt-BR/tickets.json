@@ -282,6 +282,11 @@
   "messageMenu": {
     "label": "Opções da mensagem",
     "copy": "Copiar",
-    "copied": "Copiado"
+    "copied": "Copiado",
+    "delete": "Apagar para todos",
+    "deleteTitle": "Apagar mensagem?",
+    "deleteDescription": "A mensagem será apagada para você e para o contato no WhatsApp.",
+    "deleted": "Mensagem apagada",
+    "deleteFailed": "Não foi possível apagar a mensagem"
   }
 }

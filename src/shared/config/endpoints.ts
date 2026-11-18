@@ -181,6 +181,7 @@ export const ticketEndpoints = {
   list: "/tickets",
   detail: (id: number) => `/tickets/${id}`,
   messages: (id: number) => `/messages/${id}`,
+  message: (messageId: string) => `/messages/${encodeURIComponent(messageId)}`,
   tagOptions: "/tags/list",
   ticketTag: (id: number, tagId: number) => `/ticket-tags/${id}/${tagId}`,
   ticketTags: (id: number) => `/ticket-tags/${id}`,
@@ -201,6 +202,8 @@ export const ticketContracts = [
   { method: "POST", path: "/messages/:ticketId", confirmed: true },
   /** Mesmo caminho, multipart/form-data: `medias` (arquivos) + `body` (legenda). */
   { method: "POST", path: "/messages/:ticketId (multipart)", confirmed: true },
+  /** Apagar mensagem enviada para todos (padrão Whaticket; validar na VPS). */
+  { method: "DELETE", path: "/messages/:messageId", confirmed: false },
 ] as const;
 
 /**

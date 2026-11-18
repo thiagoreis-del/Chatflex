@@ -42,6 +42,7 @@ import {
   Bell,
   BellOff,
   Contact as ContactIcon,
+  Trash2,
 } from "lucide-react";
 import { mutedKey, setMuted, useMutedContacts } from "../muted-contacts";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,7 @@ import {
   transferTicket,
   updateTicketStatus,
   closedOlderTicketsQuery,
+  deleteTicketMessage,
 } from "../api";
 import type { Message, Ticket, TicketStatus, TicketTab, TicketTag } from "../types";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
@@ -956,6 +958,18 @@ function Conversation({
   }, [companyId, ticket.id, text]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [forwarding, setForwarding] = useState<Message | null>(null);
+  const [deleting, setDeleting] = useState<Message | null>(null);
+  const removeMessage = useMutation({
+    mutationFn: (m: Message) => deleteTicketMessage(m.id),
+    onSuccess: (_d, m) => {
+      setDeleting(null);
+      qc.setQueryData<Message[]>(ticketKeys.messages(ticket.id), (current) =>
+        current?.filter((x) => x.id !== m.id),
+      );
+      toast.success(t("messageMenu.deleted"));
+    },
+    onError: () => toast.error(t("messageMenu.deleteFailed")),
+  });
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const openContactEditor = async () => {
     const base: Contact = {
@@ -1897,6 +1911,14 @@ function Conversation({
                             <DropdownMenuItem onSelect={() => setForwarding(m)}>
                               <Forward className="size-4" /> {t("forward.action")}
                             </DropdownMenuItem>
+                            {m.fromMe && (
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onSelect={() => setDeleting(m)}
+                              >
+                                <Trash2 className="size-4" /> {t("messageMenu.delete")}
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       )}
@@ -1908,6 +1930,14 @@ function Conversation({
                 message={forwarding}
                 currentTicketId={ticket.id}
                 onClose={() => setForwarding(null)}
+              />
+              <ConfirmDialog
+                open={deleting !== null}
+                onOpenChange={(o) => !o && setDeleting(null)}
+                title={t("messageMenu.deleteTitle")}
+                description={t("messageMenu.deleteDescription")}
+                confirmLabel={t("messageMenu.delete")}
+                onConfirm={() => deleting && removeMessage.mutate(deleting)}
               />
             </>
           )}
