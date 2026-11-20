@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useSession } from "@/shared/auth/session-store";
-import { incomingTicketsQuery } from "@/modules/tickets/api";
+import { activeTicketsForSlaQuery } from "@/modules/tickets/api";
 import { computeSla, playSlaTone, slaConfigQuery, type SlaState } from "../sla";
 
 const LEVELS: SlaState[] = ["warning", "urgent", "violated"];
@@ -18,9 +18,8 @@ export function SlaWatcher() {
   const config = useQuery({ ...slaConfigQuery(companyId), enabled: !!user });
   const enabled = !!user && !!config.data?.enabled;
   const tickets = useQuery({
-    ...incomingTicketsQuery(companyId),
+    ...activeTicketsForSlaQuery(companyId),
     enabled,
-    refetchInterval: 30_000,
   });
   const { t } = useTranslation("settings");
   const notified = useRef(new Set<string>());

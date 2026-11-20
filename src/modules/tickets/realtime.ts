@@ -18,8 +18,11 @@ interface AppMessagePayload {
 function eventTicketId(raw: unknown): number | undefined {
   if (!raw || typeof raw !== "object") return;
   const payload = raw as AppMessagePayload;
-  const value = payload.message?.ticketId ?? payload.message?.ticket?.id
-    ?? payload.ticketId ?? payload.ticket?.id;
+  const value =
+    payload.message?.ticketId ??
+    payload.message?.ticket?.id ??
+    payload.ticketId ??
+    payload.ticket?.id;
   if (typeof value !== "number" && typeof value !== "string") return;
   const id = Number(value);
   return Number.isSafeInteger(id) && id > 0 ? id : undefined;
@@ -59,7 +62,12 @@ export function useTicketsRealtime(status: TicketStatus) {
     const leaveNotif = socketClient.joinRoom("joinNotification", "leaveNotification");
     const invalidate = () => {
       void qc.invalidateQueries({ queryKey: [...ticketKeys.all, ...sessionCacheScope(), "list"] });
-      void qc.invalidateQueries({ queryKey: [...ticketKeys.all, "incoming"] });
+      void qc.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === ticketKeys.all[0] &&
+          query.queryKey[1] === ticketKeys.all[1] &&
+          (query.queryKey.includes("incoming") || query.queryKey.includes("sla-active")),
+      });
     };
     const offTicket = socketClient.onCompany("ticket", (raw) => {
       invalidate();
@@ -72,7 +80,10 @@ export function useTicketsRealtime(status: TicketStatus) {
       invalidate();
       const ticketId = eventTicketId(raw);
       if (ticketId !== undefined)
-        void qc.invalidateQueries({ queryKey: ticketKeys.messages(ticketId) }, { cancelRefetch: false });
+        void qc.invalidateQueries(
+          { queryKey: ticketKeys.messages(ticketId) },
+          { cancelRefetch: false },
+        );
     });
     const offContact = socketClient.onCompany("contact", invalidate);
     return () => {
@@ -94,7 +105,10 @@ export function useMessagesRealtime(ticketId: number) {
       // Events may contain only receipts/metadata. Read the authorized canonical
       // page instead of treating a partial payload as a complete message.
       // Both listeners share this query; do not cancel/restart an in-flight read.
-      void qc.invalidateQueries({ queryKey: ticketKeys.messages(ticketId) }, { cancelRefetch: false });
+      void qc.invalidateQueries(
+        { queryKey: ticketKeys.messages(ticketId) },
+        { cancelRefetch: false },
+      );
     });
     return () => {
       leave();

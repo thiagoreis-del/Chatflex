@@ -144,9 +144,12 @@ export const ticketsQuery = (filters: TicketFilters) =>
     queryKey: ticketKeys.list(filters),
     queryFn: async ({ signal }) =>
       (
-        await apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), ...withSearchParams(filters) }), {
-          signal,
-        })
+        await apiRequest<TicketsResponse>(
+          withQuery(ep.list, { ...scope(), ...withSearchParams(filters) }),
+          {
+            signal,
+          },
+        )
       )?.tickets ?? [],
   });
 
@@ -157,41 +160,67 @@ export const closedOlderTicketsQuery = (search: string) =>
     initialPageParam: 2,
     queryFn: async ({ pageParam, signal }) =>
       apiRequest<TicketsResponse>(
-        withQuery(ep.list, { ...scope(), status: "closed", ...withSearchParams({ search }), pageNumber: pageParam }),
+        withQuery(ep.list, {
+          ...scope(),
+          status: "closed",
+          ...withSearchParams({ search }),
+          pageNumber: pageParam,
+        }),
         { signal },
       ),
     getNextPageParam: (last, _all, page) =>
       last?.hasMore && last.tickets?.length ? page + 1 : undefined,
   });
 
-/** Session-wide notification fallback, including pages beyond the visible list. */
+/**
+ * Fallback global de notificações.
+ *
+ * Mensagens e conversas novas aparecem na primeira página de cada estado. Não
+ * percorremos o histórico inteiro aqui: este query fica montado durante toda a
+ * sessão e uma varredura completa a cada poucos segundos cresce linearmente
+ * com a quantidade de tickets da empresa.
+ */
 export const incomingTicketsQuery = (companyId: string) =>
   queryOptions({
-    queryKey: [...ticketKeys.all, "incoming", companyId],
+    queryKey: [...ticketKeys.all, ...sessionCacheScope(), "incoming", companyId],
     queryFn: async ({ signal }): Promise<Ticket[]> => {
       const lists = await Promise.all(
-        ["pending", "open", "group"].map(async (status) => {
-          const tickets: Ticket[] = [];
-          let pageNumber = 1;
-          while (true) {
-            const result = await apiRequest<TicketsResponse>(
-              withQuery(ep.list, {
-                ...scope(),
-                status,
-                pageNumber,
-              }),
-              { signal },
-            );
-            tickets.push(...(result.tickets ?? []));
-            if (!result.hasMore || !result.tickets?.length) break;
-            pageNumber += 1;
-          }
-          return tickets;
-        }),
+        ["pending", "open", "group"].map(
+          async (status) =>
+            (
+              await apiRequest<TicketsResponse>(
+                withQuery(ep.list, { ...scope(), status, pageNumber: 1 }),
+                { signal },
+              )
+            )?.tickets ?? [],
+        ),
       );
       return [...new Map(lists.flat().map((ticket) => [ticket.id, ticket])).values()];
     },
     refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
+  });
+
+/**
+ * Tickets ativos completos usados exclusivamente pelo monitor de SLA.
+ * O componente consumidor só habilita esta consulta quando o SLA está ativo.
+ */
+export const activeTicketsForSlaQuery = (companyId: string) =>
+  queryOptions({
+    queryKey: [...ticketKeys.all, ...sessionCacheScope(), "sla-active", companyId],
+    queryFn: async ({ signal }): Promise<Ticket[]> => {
+      const lists = await Promise.all([
+        fetchAllTickets("pending", {}, signal),
+        fetchAllTickets("open", {}, signal),
+      ]);
+      return [
+        ...new Map(
+          lists.flatMap(({ tickets }) => tickets).map((ticket) => [ticket.id, ticket]),
+        ).values(),
+      ];
+    },
+    staleTime: 15_000,
+    refetchInterval: 30_000,
     refetchIntervalInBackground: false,
   });
 
@@ -347,9 +376,12 @@ export const groupTicketsQuery = (search?: string) =>
     queryKey: [...ticketKeys.list({ status: "open", search }), "groups"],
     queryFn: async ({ signal }) => {
       const get = (status: string) =>
-        apiRequest<TicketsResponse>(withQuery(ep.list, { ...scope(), status, ...withSearchParams({ search }) }), {
-          signal,
-        }).catch(() => ({ tickets: [] as Ticket[] }));
+        apiRequest<TicketsResponse>(
+          withQuery(ep.list, { ...scope(), status, ...withSearchParams({ search }) }),
+          {
+            signal,
+          },
+        ).catch(() => ({ tickets: [] as Ticket[] }));
       // O backend guarda grupos com status "group"; também aceitamos aberto/aguardando marcados.
       const [g, o, p] = await Promise.all([get("group"), get("open"), get("pending")]);
       const seen = new Set<number>();
