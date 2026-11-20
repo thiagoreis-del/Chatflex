@@ -4,12 +4,12 @@ import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useSession } from "@/shared/auth/session-store";
-import { computeSla, slaConfigQuery } from "@/modules/sla/sla";
 import { incomingTicketsQuery } from "../api";
 
 /**
- * Avisos para administradores da empresa: novas conversas aguardando e SLAs
- * próximos do vencimento. Tudo é isolado pela empresa da sessão (companyId),
+ * Avisos para administradores da empresa sobre novas conversas aguardando.
+ * O SlaWatcher é a única fonte de alertas de SLA, evitando consultas e avisos
+ * duplicados. Tudo é isolado pela empresa da sessão (companyId),
  * então um superadmin dentro de uma empresa só vê os dados dela.
  */
 export function AdminAlerts() {
@@ -24,15 +24,12 @@ function CompanyAdminAlerts({ companyId }: { companyId: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const tickets = useQuery({ ...incomingTicketsQuery(companyId), refetchInterval: 30_000 });
-  const sla = useQuery(slaConfigQuery(companyId));
   // Dedup por empresa: chaves incluem companyId para nunca misturar avisos.
   const seenConversations = useRef(new Set<string>());
-  const seenSla = useRef(new Map<string, string>());
   const firstRun = useRef(true);
 
   useEffect(() => {
     if (!tickets.data) return;
-    const config = sla.data;
     const go = () => void navigate({ to: "/app/atendimento" });
 
     // Novas conversas aguardando atendimento.
@@ -53,38 +50,8 @@ function CompanyAdminAlerts({ companyId }: { companyId: string }) {
       });
     }
 
-    // SLAs próximos do vencimento (avisos ao entrar em atenção/urgência).
-    if (config?.enabled) {
-      const now = Date.now();
-      for (const ticket of tickets.data) {
-        const info = computeSla(ticket, config, now);
-        const key = `${companyId}:${ticket.id}`;
-        const previous = seenSla.current.get(key);
-        if (info.state === "none" || info.state === "monitoring") {
-          seenSla.current.delete(key);
-          continue;
-        }
-        if (firstRun.current || previous === info.state) {
-          seenSla.current.set(key, info.state);
-          continue;
-        }
-        seenSla.current.set(key, info.state);
-        const contact = ticket.contact?.name || t("notifications.customer");
-        const label =
-          info.state === "violated"
-            ? t("adminAlerts.slaViolated")
-            : info.state === "urgent"
-              ? t("adminAlerts.slaUrgent")
-              : t("adminAlerts.slaWarning");
-        toast.error(label, {
-          description: t("adminAlerts.slaBody", { contact }),
-          action: { label: t("notifications.view"), onClick: go },
-        });
-      }
-    }
-
     firstRun.current = false;
-  }, [tickets.data, sla.data, companyId, navigate, t]);
+  }, [tickets.data, companyId, navigate, t]);
 
   return null;
 }
