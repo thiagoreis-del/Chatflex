@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { apiRequest } from "@/shared/api/client";
 import { whatsappKeys } from "@/shared/api/query-keys";
 import { whatsappEndpoints as ep } from "@/shared/config/endpoints";
-import type { WhatsAppConnection, WhatsAppInput } from "./types";
+import type { MetaOAuthStart, WhatsAppConnection, WhatsAppInput } from "./types";
 
 export const whatsappContract = "GET /whatsapp";
 
@@ -47,3 +47,4 @@ export const startSession = (id: number) => apiRequest<void>(ep.session(id), { m
 export const refreshQr = (id: number) => apiRequest<void>(ep.session(id), { method: "PUT" });
 export const disconnectSession = (id: number) =>
   apiRequest<void>(ep.session(id), { method: "DELETE" });
+export const startMetaOAuth = () => apiRequest<MetaOAuthStart>(ep.metaOAuthStart);
