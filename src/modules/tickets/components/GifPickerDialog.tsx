@@ -48,7 +48,7 @@ export function GifPickerDialog({
     staleTime: 60_000,
   });
   const items = gifs.data?.pages.flatMap((page) => page.results) ?? [];
-  const attribution = gifs.data?.pages[0]?.attribution ?? "Powered by Tenor";
+  const attribution = gifs.data?.pages[0]?.attribution ?? "Powered by KLIPY";
 
   const handleOpenChange = (next: boolean) => {
     if (sending) return;

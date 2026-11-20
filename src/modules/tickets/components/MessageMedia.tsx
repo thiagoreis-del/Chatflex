@@ -14,7 +14,7 @@ export function isImage(m: Pick<Message, "mediaType" | "mediaUrl">) {
 }
 
 function hasGifPlayback(message: Message): boolean {
-  if (/(?:^|\/)tenor-[^/]+\.mp4(?:\?|$)/i.test(message.mediaUrl ?? "")) return true;
+  if (/(?:^|\/)klipy-[^/]+\.mp4(?:\?|$)/i.test(message.mediaUrl ?? "")) return true;
   if (!message.dataJson) return false;
   try {
     const payload = JSON.parse(message.dataJson) as {
