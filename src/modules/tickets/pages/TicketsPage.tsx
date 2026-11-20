@@ -46,6 +46,7 @@ import {
   Contact as ContactIcon,
   Trash2,
 } from "lucide-react";
+import { toStickerWebp } from "../sticker-format";
 import { favoriteStickersKey, toggleFavoriteSticker, useFavoriteStickers } from "../favorite-stickers";
 import { isImage } from "../components/MessageMedia";
 import { mutedKey, setMuted, useMutedContacts } from "../muted-contacts";
@@ -1024,9 +1025,8 @@ function Conversation({
     try {
       const res = await fetch(url);
       if (!res.ok) throw new Error(String(res.status));
-      const blob = await res.blob();
-      const name = decodeURIComponent(url.split("/").pop()?.split("?")[0] || "figurinha.webp");
-      await sendMediaMessage(ticket.id, new File([blob], name, { type: blob.type || "image/webp" }));
+      const sticker = await toStickerWebp(await res.blob());
+      await sendMediaMessage(ticket.id, new File([sticker], `figurinha-${Date.now()}.webp`, { type: "image/webp" }));
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     } catch {
       toast.error(t("stickers.sendFailed"));
