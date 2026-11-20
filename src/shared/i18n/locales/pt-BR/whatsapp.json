@@ -1,10 +1,19 @@
 {
   "meta": {
-    "title": "Conexões WhatsApp",
-    "description": "Gerencie as conexões WhatsApp da sua empresa."
+    "title": "Canais de atendimento",
+    "description": "Gerencie WhatsApp, Facebook Messenger e Instagram Direct."
   },
-  "title": "Conexões WhatsApp",
-  "description": "Conecte e acompanhe os números de WhatsApp usados no atendimento.",
+  "title": "Canais de atendimento",
+  "description": "Conecte e acompanhe WhatsApp, Facebook Messenger e Instagram Direct.",
+  "channels": {
+    "facebook": "Facebook Messenger",
+    "instagram": "Instagram Direct"
+  },
+  "metaConnect": {
+    "action": "Conectar Facebook e Instagram",
+    "success": "Facebook e Instagram conectados com sucesso.",
+    "error": "Não foi possível conectar as contas da Meta. Tente novamente."
+  },
   "new": "Nova conexão",
   "edit": "Editar conexão",
   "empty": "Nenhuma conexão cadastrada ainda.",

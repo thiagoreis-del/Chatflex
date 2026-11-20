@@ -9,7 +9,12 @@ export interface WhatsAppConnection {
   number?: string | null;
   isDefault: boolean;
   greetingMessage?: string | null;
+  channel?: string;
   updatedAt?: string;
+}
+
+export interface MetaOAuthStart {
+  url: string;
 }
 
 export interface WhatsAppInput {

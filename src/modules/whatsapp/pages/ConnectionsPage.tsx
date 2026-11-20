@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import {
   AlertTriangle,
   CheckCircle2,
+  Facebook,
+  Instagram,
   Pencil,
   Plus,
   QrCode,
@@ -46,6 +48,7 @@ import {
   disconnectSession,
   refreshQr,
   startSession,
+  startMetaOAuth,
   updateConnection,
   whatsappContract,
 } from "../api";
@@ -130,9 +133,24 @@ export function ConnectionsPage() {
   const [toDisconnect, setToDisconnect] = useState<WhatsAppConnection | null>(null);
   const previousStatuses = useRef(new Map<number, WhatsAppStatus>());
   const connectionList = query.data ?? [];
-  const downConnections = connectionList.filter((connection) =>
-    isConnectionDown(connection.status),
+  const downConnections = connectionList.filter(
+    (connection) => connection.channel === "whatsapp" && isConnectionDown(connection.status),
   );
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get("meta");
+    if (!result) return;
+    if (result === "success") toast.success(t("metaConnect.success"));
+    else toast.error(t("metaConnect.error"));
+    params.delete("meta");
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${params.size ? `?${params}` : ""}`,
+    );
+    void qc.invalidateQueries({ queryKey: whatsappKeys.all });
+  }, [qc, t]);
 
   useEffect(() => {
     if (!query.data) return;
@@ -176,6 +194,11 @@ export function ConnectionsPage() {
     },
     onError,
   });
+  const connectMeta = useMutation({
+    mutationFn: startMetaOAuth,
+    onSuccess: ({ url }) => window.location.assign(url),
+    onError,
+  });
 
   return (
     <div className="space-y-6">
@@ -183,10 +206,20 @@ export function ConnectionsPage() {
         title={t("title")}
         description={t("description")}
         actions={
-          <Button onClick={() => setForm("new")}>
-            <Plus className="size-4" aria-hidden />
-            {t("new")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              disabled={connectMeta.isPending}
+              onClick={() => connectMeta.mutate()}
+            >
+              <Facebook className="size-4" aria-hidden />
+              {t("metaConnect.action")}
+            </Button>
+            <Button onClick={() => setForm("new")}>
+              <Plus className="size-4" aria-hidden />
+              {t("new")}
+            </Button>
+          </div>
         }
       />
       {downConnections.length > 0 && (
@@ -213,7 +246,14 @@ export function ConnectionsPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {list.map((c) => {
-                const down = isConnectionDown(c.status);
+                const isMeta = c.channel === "facebook" || c.channel === "instagram";
+                const down = !isMeta && isConnectionDown(c.status);
+                const ChannelIcon =
+                  c.channel === "facebook"
+                    ? Facebook
+                    : c.channel === "instagram"
+                      ? Instagram
+                      : Smartphone;
                 return (
                   <Card
                     key={c.id}
@@ -232,12 +272,14 @@ export function ConnectionsPage() {
                               : "bg-primary/10 text-primary"
                           }`}
                         >
-                          <Smartphone className="size-5" aria-hidden />
+                          <ChannelIcon className="size-5" aria-hidden />
                         </span>
                         <div className="min-w-0 [overflow-wrap:anywhere]">
                           <CardTitle className="text-base">{c.name}</CardTitle>
                           <p className="text-xs text-muted-foreground">
-                            {formatNumber(c.number) ?? t("noNumber")}
+                            {isMeta
+                              ? t(`channels.${c.channel}`)
+                              : (formatNumber(c.number) ?? t("noNumber"))}
                           </p>
                         </div>
                       </div>
@@ -253,7 +295,7 @@ export function ConnectionsPage() {
                       </Badge>
                     </CardContent>
                     <CardFooter className="flex flex-wrap gap-2">
-                      {c.status === "CONNECTED" ? (
+                      {isMeta ? null : c.status === "CONNECTED" ? (
                         <Button size="sm" variant="outline" onClick={() => setToDisconnect(c)}>
                           <Unplug className="size-4" aria-hidden />
                           {t("actions.disconnect")}
@@ -275,14 +317,16 @@ export function ConnectionsPage() {
                             : t("actions.connect")}
                         </Button>
                       )}
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        aria-label={t("actions.edit")}
-                        onClick={() => setForm(c)}
-                      >
-                        <Pencil className="size-4" aria-hidden />
-                      </Button>
+                      {!isMeta && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label={t("actions.edit")}
+                          onClick={() => setForm(c)}
+                        >
+                          <Pencil className="size-4" aria-hidden />
+                        </Button>
+                      )}
                       <Button
                         size="icon"
                         variant="ghost"

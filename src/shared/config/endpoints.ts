@@ -106,6 +106,7 @@ export const whatsappEndpoints = {
   /** Sem o campo `session` (credenciais Baileys), que é pesado e sensível. */
   status: (id: number) => `/whatsapp/${id}?session=0`,
   session: (id: number) => `/whatsappsession/${id}`,
+  metaOAuthStart: "/meta/oauth/start",
   /** Experimental: publica 1–20 fotos em status@broadcast. */
   statusBatch: (id: number) => `/whatsapp/${id}/status/test-batch`,
 } as const;
