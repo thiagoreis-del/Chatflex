@@ -1,0 +1,192 @@
+name: VPS Maintenance
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vps-maintenance
+  cancel-in-progress: false
+
+jobs:
+  inspect-and-repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verificar e reparar serviços da VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          command_timeout: 5m
+          script_stop: true
+          script: |
+            set -uo pipefail
+
+            failures=0
+            warnings=0
+            repaired=0
+            cooldown_seconds=3600
+
+            info() { printf '[OK] %s\n' "$*"; }
+            warn() { printf '[ATENCAO] %s\n' "$*"; warnings=$((warnings + 1)); }
+            fail() { printf '[FALHA] %s\n' "$*"; failures=$((failures + 1)); }
+
+            percent_used() {
+              awk -v total="$1" -v available="$2" 'BEGIN {
+                if (total <= 0) print 0;
+                else printf "%.0f", ((total - available) / total) * 100
+              }'
+            }
+
+            process_online() {
+              PROCESS_NAME="$1" pm2 jlist 2>/dev/null | node -e '
+                let body = "";
+                process.stdin.on("data", chunk => body += chunk);
+                process.stdin.on("end", () => {
+                  try {
+                    const app = JSON.parse(body).find(item => item.name === process.env.PROCESS_NAME);
+                    process.exit(app?.pm2_env?.status === "online" ? 0 : 1);
+                  } catch { process.exit(1); }
+                });
+              '
+            }
+
+            http_ok() {
+              url="$1"
+              accepted="$2"
+              status="$(curl --max-time 12 -sS -o /dev/null -w '%{http_code}' "$url" || true)"
+              printf '%s' "$status" | grep -Eq "$accepted"
+            }
+
+            can_restart() {
+              marker="/var/tmp/chatflex-maintenance-$1.stamp"
+              [ ! -f "$marker" ] && return 0
+              last="$(stat -c %Y "$marker" 2>/dev/null || printf '0')"
+              now="$(date +%s)"
+              [ $((now - last)) -ge "$cooldown_seconds" ]
+            }
+
+            mark_restart() {
+              touch "/var/tmp/chatflex-maintenance-$1.stamp"
+            }
+
+            repair_process() {
+              name="$1"
+              if ! pm2 describe "$name" >/dev/null 2>&1; then
+                fail "Processo PM2 ausente: $name"
+                return 1
+              fi
+              if ! can_restart "$name"; then
+                fail "Reinicio de $name bloqueado pelo intervalo de seguranca de 1 hora"
+                return 1
+              fi
+              warn "Reiniciando $name uma vez"
+              mark_restart "$name"
+              if pm2 restart "$name" >/dev/null; then
+                repaired=$((repaired + 1))
+                sleep 5
+                return 0
+              fi
+              fail "PM2 nao conseguiu reiniciar $name"
+              return 1
+            }
+
+            check_service() {
+              name="$1"
+              url="$2"
+              accepted="$3"
+
+              online=true
+              process_online "$name" || online=false
+              healthy=true
+              http_ok "$url" "$accepted" || healthy=false
+
+              if [ "$online" = true ] && [ "$healthy" = true ]; then
+                info "$name online e respondendo"
+                return
+              fi
+
+              warn "$name apresentou uma falha; repetindo a verificacao antes de agir"
+              sleep 5
+              online=true
+              process_online "$name" || online=false
+              healthy=true
+              http_ok "$url" "$accepted" || healthy=false
+              if [ "$online" = true ] && [ "$healthy" = true ]; then
+                info "$name recuperou sem intervencao"
+                return
+              fi
+
+              warn "$name confirmou falha (pm2=$online, http=$healthy)"
+              repair_process "$name" || return
+              if process_online "$name" && http_ok "$url" "$accepted"; then
+                info "$name recuperado automaticamente"
+              else
+                fail "$name continua indisponivel depois do reinicio"
+              fi
+            }
+
+            printf '%s\n' '--- RECURSOS ---'
+            disk_used="$(df -P / | awk 'NR==2 {gsub("%", "", $5); print $5}')"
+            if [ "$disk_used" -ge 90 ]; then
+              fail "Disco raiz em ${disk_used}%"
+            elif [ "$disk_used" -ge 80 ]; then
+              warn "Disco raiz em ${disk_used}%"
+            else
+              info "Disco raiz em ${disk_used}%"
+            fi
+
+            read -r memory_total memory_available <<EOF
+            $(free -m | awk '/^Mem:/ {print $2, $7}')
+            EOF
+            memory_used="$(percent_used "$memory_total" "$memory_available")"
+            if [ "$memory_used" -ge 90 ]; then
+              fail "Memoria em ${memory_used}%"
+            elif [ "$memory_used" -ge 80 ]; then
+              warn "Memoria em ${memory_used}%"
+            else
+              info "Memoria em ${memory_used}%"
+            fi
+
+            load_1m="$(awk '{print $1}' /proc/loadavg)"
+            cpu_cores="$(getconf _NPROCESSORS_ONLN)"
+            if awk -v load="$load_1m" -v cores="$cpu_cores" 'BEGIN { exit !(load > cores * 2) }'; then
+              warn "Carga elevada: $load_1m para $cpu_cores nucleos"
+            else
+              info "Carga: $load_1m para $cpu_cores nucleos"
+            fi
+
+            if [ -f /var/run/reboot-required ]; then
+              warn "Ubuntu solicita reinicializacao; nenhuma reinicializacao automatica foi feita"
+            fi
+
+            printf '%s\n' '--- SERVICOS ---'
+            check_service "chatflex-frontend" "http://127.0.0.1:3001/" '^(200|301|302)$'
+            check_service "notasflex-backend" "http://127.0.0.1:4000/auth/me" '^(200|401|403)$'
+
+            printf '%s\n' '--- CERTIFICADO ---'
+            cert_end="$(timeout 15 openssl s_client -servername chatbotflex.com.br -connect chatbotflex.com.br:443 </dev/null 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2 || true)"
+            if [ -z "$cert_end" ]; then
+              warn "Nao foi possivel consultar o certificado de chatbotflex.com.br"
+            else
+              cert_epoch="$(date -d "$cert_end" +%s)"
+              days_left=$(((cert_epoch - $(date +%s)) / 86400))
+              if [ "$days_left" -lt 7 ]; then
+                fail "Certificado expira em $days_left dias"
+              elif [ "$days_left" -lt 21 ]; then
+                warn "Certificado expira em $days_left dias"
+              else
+                info "Certificado valido por mais $days_left dias"
+              fi
+            fi
+
+            printf '%s\n' '--- RESUMO ---'
+            printf 'falhas=%s avisos=%s reparos=%s\n' "$failures" "$warnings" "$repaired"
+            [ "$failures" -eq 0 ]
