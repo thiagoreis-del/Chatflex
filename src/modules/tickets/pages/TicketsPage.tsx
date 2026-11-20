@@ -33,6 +33,8 @@ import {
   Forward,
   Search,
   Smile,
+  Heart,
+  Sticker,
   Undo2,
   Send,
   Tag,
@@ -44,6 +46,8 @@ import {
   Contact as ContactIcon,
   Trash2,
 } from "lucide-react";
+import { favoriteStickersKey, toggleFavoriteSticker, useFavoriteStickers } from "../favorite-stickers";
+import { isImage } from "../components/MessageMedia";
 import { mutedKey, setMuted, useMutedContacts } from "../muted-contacts";
 import { Button } from "@/components/ui/button";
 import {
@@ -1012,6 +1016,22 @@ function Conversation({
   const [conversationSearch, setConversationSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [stickersOpen, setStickersOpen] = useState(false);
+  const favKey = session.user ? favoriteStickersKey(session.user.companyId, session.user.id) : null;
+  const favoriteStickers = useFavoriteStickers(favKey);
+  const sendSticker = async (url: string) => {
+    setStickersOpen(false);
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(String(res.status));
+      const blob = await res.blob();
+      const name = decodeURIComponent(url.split("/").pop()?.split("?")[0] || "figurinha.webp");
+      await sendMediaMessage(ticket.id, new File([blob], name, { type: blob.type || "image/webp" }));
+      void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    } catch {
+      toast.error(t("stickers.sendFailed"));
+    }
+  };
   const [gifOpen, setGifOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -1930,6 +1950,20 @@ function Conversation({
                                 <Copy className="size-4" /> {t("messageMenu.copy")}
                               </DropdownMenuItem>
                             )}
+                            {favKey && m.mediaUrl && isImage(m) && (
+                              <DropdownMenuItem
+                                onSelect={() => {
+                                  const had = favoriteStickers.includes(m.mediaUrl!);
+                                  toggleFavoriteSticker(favKey, m.mediaUrl!);
+                                  toast.success(t(had ? "stickers.removed" : "stickers.added"));
+                                }}
+                              >
+                                <Heart
+                                  className={cn("size-4", favoriteStickers.includes(m.mediaUrl) && "fill-current")}
+                                />{" "}
+                                {t(favoriteStickers.includes(m.mediaUrl) ? "stickers.remove" : "stickers.add")}
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem onSelect={() => setForwarding(m)}>
                               <Forward className="size-4" /> {t("forward.action")}
                             </DropdownMenuItem>
@@ -2027,6 +2061,37 @@ function Conversation({
               >
                 {t("composer.cancelUpload")}
               </Button>
+            </div>
+          )}
+          {stickersOpen && (
+            <div className="mb-2 rounded-lg border bg-card p-2" role="group" aria-label={t("stickers.title")}>
+              {favoriteStickers.length === 0 ? (
+                <p className="p-2 text-sm text-muted-foreground">{t("stickers.empty")}</p>
+              ) : (
+                <div className="grid max-h-56 grid-cols-4 gap-1 overflow-y-auto sm:grid-cols-6">
+                  {favoriteStickers.map((url) => (
+                    <div key={url} className="group/st relative">
+                      <button
+                        type="button"
+                        disabled={ticket.status !== "open"}
+                        onClick={() => void sendSticker(url)}
+                        className="block aspect-square w-full rounded p-1 hover:bg-muted"
+                        aria-label={t("stickers.send")}
+                      >
+                        <img src={url} alt="" loading="lazy" className="size-full object-contain" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => favKey && toggleFavoriteSticker(favKey, url)}
+                        className="absolute right-0 top-0 rounded-full bg-background p-0.5 text-destructive opacity-70 hover:opacity-100"
+                        aria-label={t("stickers.remove")}
+                      >
+                        <XCircle className="size-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {emojiOpen && (
@@ -2224,6 +2289,17 @@ function Conversation({
               onClick={() => setEmojiOpen((value) => !value)}
             >
               <Smile className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t("stickers.title")}
+              title={t("stickers.title")}
+              aria-pressed={stickersOpen}
+              onClick={() => setStickersOpen((v) => !v)}
+            >
+              <Sticker className="size-4" />
             </Button>
             <Button
               type="button"

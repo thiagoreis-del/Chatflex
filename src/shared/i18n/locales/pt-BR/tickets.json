@@ -307,5 +307,15 @@
     "deleteDescription": "A mensagem será apagada para você e para o contato no WhatsApp.",
     "deleted": "Mensagem apagada",
     "deleteFailed": "Não foi possível apagar a mensagem"
+  },
+  "stickers": {
+    "title": "Figurinhas favoritas",
+    "add": "Adicionar às favoritas",
+    "remove": "Remover das favoritas",
+    "added": "Figurinha adicionada às favoritas",
+    "removed": "Figurinha removida das favoritas",
+    "empty": "Nenhuma figurinha favorita. Use o menu da figurinha para adicionar.",
+    "send": "Enviar figurinha",
+    "sendFailed": "Não foi possível enviar a figurinha"
   }
 }
