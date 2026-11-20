@@ -50,6 +50,8 @@ export interface Message {
   mediaUrl?: string | null;
   /** Ex.: "image", "video", "audio", "application", "document". */
   mediaType?: string | null;
+  /** Payload técnico preservado pelo backend; usado apenas para metadados como gifPlayback. */
+  dataJson?: string | null;
   /** Nota interna: visível só para a equipe, não é enviada ao cliente. */
   isPrivate?: boolean;
   /** Backend inclui o ticket com o atendente responsável (`ticket.user`). */

@@ -115,6 +115,7 @@
     "play": "Reproduzir áudio",
     "pause": "Pausar áudio",
     "video": "Vídeo recebido",
+    "gif": "GIF animado",
     "audioError": "Não foi possível reproduzir este áudio aqui. Toque para baixar.",
     "saveOffline": "Salvar no dispositivo para ouvir offline",
     "downloaded": "Baixado para ouvir offline",
@@ -278,6 +279,24 @@
     "empty": "Nenhum atendimento aberto encontrado",
     "done": "Mensagem encaminhada",
     "failed": "Não foi possível encaminhar"
+  },
+  "gif": {
+    "open": "Buscar e enviar GIF",
+    "title": "GIFs",
+    "description": "Busque uma animação e confirme antes de enviar ao cliente.",
+    "search": "Buscar GIFs",
+    "loading": "Carregando GIFs…",
+    "loadingMore": "Carregando mais…",
+    "loadMore": "Carregar mais",
+    "empty": "Nenhum GIF encontrado para esta busca.",
+    "unavailable": "O catálogo de GIFs está indisponível no momento.",
+    "retry": "Tentar novamente",
+    "preview": "Visualizar GIF: {{title}}",
+    "send": "Enviar GIF",
+    "sending": "Enviando…",
+    "cancel": "Cancelar",
+    "sent": "GIF enviado.",
+    "sendError": "Não foi possível enviar o GIF. Tente novamente."
   },
   "messageMenu": {
     "label": "Opções da mensagem",

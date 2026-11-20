@@ -75,6 +75,7 @@ import {
   messagesQuery,
   olderMessagesQuery,
   sendMediaMessage,
+  sendGifMessage,
   sendMessage,
   tagOptionsQuery,
   ticketsContract,
@@ -114,6 +115,7 @@ import { ShareContactDialog, contactCardText } from "../components/ShareContactD
 import { isDangerousFile } from "../audio-format";
 import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
+import { GifPickerDialog } from "../components/GifPickerDialog";
 import { ForwardMessageDialog } from "../components/ForwardMessageDialog";
 import { useConnectivity } from "@/shared/connectivity/connectivity";
 import { closingMessageQuery } from "@/modules/settings/closing-message";
@@ -1010,6 +1012,7 @@ function Conversation({
   const [conversationSearch, setConversationSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [gifOpen, setGifOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const quick = useQuery(quickMessagesQuery(session.user?.companyId));
@@ -1284,6 +1287,25 @@ function Conversation({
             ? t("toast.requestFailed", { status: e.status })
             : undefined),
       });
+    },
+  });
+
+  const sendGif = useMutation({
+    mutationFn: async ({ gifId, requestId }: { gifId: string; requestId: string }) => {
+      await ensureOutgoingTicket();
+      return sendGifMessage(ticket.id, gifId, requestId);
+    },
+    onSuccess: () => {
+      followLatest.current = true;
+      setGifOpen(false);
+      toast.success(t("gif.sent"));
+      void qc.invalidateQueries({ queryKey: ticketKeys.messages(ticket.id) });
+      void qc.invalidateQueries({ queryKey: ticketKeys.all });
+    },
+    onError: (error) => {
+      const body = error instanceof ApiError ? error.body : undefined;
+      const detail = body?.message ?? (body as { error?: string } | undefined)?.error;
+      toast.error(t("gif.sendError"), { description: detail });
     },
   });
 
@@ -2192,7 +2214,7 @@ function Conversation({
               )}
             </div>
           )}
-          <div className="grid grid-cols-[auto_auto_auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
+          <div className="grid grid-cols-[auto_auto_auto_auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
             <Button
               type="button"
               variant="ghost"
@@ -2202,6 +2224,17 @@ function Conversation({
               onClick={() => setEmojiOpen((value) => !value)}
             >
               <Smile className="size-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={isPrivate || send.isPending || sendGif.isPending}
+              className="w-auto px-1.5 text-[10px] font-bold sm:w-auto sm:px-2 sm:text-xs"
+              aria-label={t("gif.open")}
+              title={t("gif.open")}
+              onClick={() => setGifOpen(true)}
+            >
+              GIF
             </Button>
             {showPicker && (
               <QuickMessagePicker
@@ -2279,6 +2312,12 @@ function Conversation({
                 setShareOpen(false);
                 shareContact.mutate(c);
               }}
+            />
+            <GifPickerDialog
+              open={gifOpen}
+              sending={sendGif.isPending}
+              onOpenChange={setGifOpen}
+              onSend={(gif, requestId) => sendGif.mutate({ gifId: gif.id, requestId })}
             />
             <input ref={fileRef} type="file" multiple className="hidden" onChange={pickFile} />
             <input

@@ -182,10 +182,15 @@ export const ticketEndpoints = {
   list: "/tickets",
   detail: (id: number) => `/tickets/${id}`,
   messages: (id: number) => `/messages/${id}`,
+  gif: (id: number) => `/messages/${id}/gif`,
   message: (messageId: string) => `/messages/${encodeURIComponent(messageId)}`,
   tagOptions: "/tags/list",
   ticketTag: (id: number, tagId: number) => `/ticket-tags/${id}/${tagId}`,
   ticketTags: (id: number) => `/ticket-tags/${id}`,
+} as const;
+
+export const gifEndpoints = {
+  search: "/gifs/search",
 } as const;
 
 export const ticketContracts = [

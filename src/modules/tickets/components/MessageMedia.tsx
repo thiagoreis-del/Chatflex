@@ -13,6 +13,25 @@ export function isImage(m: Pick<Message, "mediaType" | "mediaUrl">) {
   return m.mediaType === "image" || /\.(png|jpe?g|gif|webp)(\?|$)/i.test(m.mediaUrl ?? "");
 }
 
+function hasGifPlayback(message: Message): boolean {
+  if (/(?:^|\/)tenor-[^/]+\.mp4(?:\?|$)/i.test(message.mediaUrl ?? "")) return true;
+  if (!message.dataJson) return false;
+  try {
+    const payload = JSON.parse(message.dataJson) as {
+      message?: {
+        videoMessage?: { gifPlayback?: boolean };
+        ephemeralMessage?: { message?: { videoMessage?: { gifPlayback?: boolean } } };
+      };
+    };
+    return Boolean(
+      payload.message?.videoMessage?.gifPlayback ||
+        payload.message?.ephemeralMessage?.message?.videoMessage?.gifPlayback,
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function MessageMedia({ message }: { message: Message }) {
   const { t } = useTranslation("tickets");
   const [open, setOpen] = useState(false);
@@ -112,12 +131,17 @@ export function MessageMedia({ message }: { message: Message }) {
     );
   }
   if (message.mediaType === "video") {
+    const isGifVideo = hasGifPlayback(message);
     return (
       <video
-        controls
-        preload="metadata"
+        controls={!isGifVideo}
+        autoPlay={isGifVideo}
+        loop={isGifVideo}
+        muted={isGifVideo}
+        playsInline
+        preload={isGifVideo ? "auto" : "metadata"}
         src={url}
-        aria-label={t("media.video")}
+        aria-label={t(isGifVideo ? "media.gif" : "media.video")}
         className="max-h-64 max-w-full rounded-lg"
       />
     );

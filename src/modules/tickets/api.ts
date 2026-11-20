@@ -2,7 +2,7 @@ import { withSearchParams } from "./search-order";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiRequest, apiUpload, type UploadOptions } from "@/shared/api/client";
 import { messageHistoryKeys, ticketKeys, sessionCacheScope } from "@/shared/api/query-keys";
-import { ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
+import { gifEndpoints, ticketEndpoints as ep, withQuery } from "@/shared/config/endpoints";
 import { sessionStore } from "@/shared/auth/session-store";
 import { normalizeUploadFile } from "@/shared/upload/pdf-file";
 import type {
@@ -514,6 +514,32 @@ export const sendMediaMessage = async (
   form.append("body", caption);
   return apiUpload<Message | undefined>(ep.messages(ticketId), form, opts);
 };
+
+export interface GifCatalogItem {
+  id: string;
+  title: string;
+  previewUrl: string;
+  width: number;
+  height: number;
+}
+
+export interface GifCatalogPage {
+  results: GifCatalogItem[];
+  next: string;
+  attribution: string;
+}
+
+export const searchGifs = (query = "", position = "", signal?: AbortSignal) =>
+  apiRequest<GifCatalogPage>(
+    withQuery(gifEndpoints.search, { q: query.trim(), pos: position }),
+    { signal },
+  );
+
+export const sendGifMessage = (ticketId: number, gifId: string, requestId: string) =>
+  apiRequest<{ message: string; messageId: string | null }>(ep.gif(ticketId), {
+    method: "POST",
+    body: { gifId, requestId },
+  });
 
 export const MAX_MEDIA_BYTES = 16 * 1024 * 1024;
 export const ACCEPTED_MEDIA =
