@@ -867,6 +867,13 @@ export function TicketsPage() {
           defaultReplyAsId={selectedReplyUserId(attendantFilter, isAdmin)}
           onBack={() => setSelected(null)}
           onChange={setSelected}
+          onContactPhotoUpdated={(contactId, profilePicUrl) => {
+            setSelected((current) =>
+              current?.contact.id === contactId
+                ? { ...current, contact: { ...current.contact, profilePicUrl } }
+                : current,
+            );
+          }}
           onConversationStarted={(tk) => {
             setTab(tk.status === "pending" ? "pending" : "open");
             setSearch("");
@@ -944,12 +951,14 @@ function Conversation({
   defaultReplyAsId,
   onBack,
   onChange,
+  onContactPhotoUpdated,
   onConversationStarted,
 }: {
   ticket: Ticket;
   defaultReplyAsId: number | null;
   onBack: () => void;
   onChange: (t: Ticket | null) => void;
+  onContactPhotoUpdated: (contactId: number, profilePicUrl: string) => void;
   onConversationStarted: (ticket: Ticket) => void;
 }) {
   const { t } = useTranslation("tickets");
@@ -1580,12 +1589,17 @@ function Conversation({
             setShowingContact(false);
             setEditingContact(contact);
           }}
-          onPhotoUpdated={() =>
-            Promise.all([
-              qc.invalidateQueries({ queryKey: ticketKeys.all }),
-              qc.invalidateQueries({ queryKey: contactKeys.all }),
-            ])
-          }
+          onPhotoUpdated={(url) => {
+            onContactPhotoUpdated(ticket.contact.id, url);
+            void qc.invalidateQueries({
+              queryKey: ticketKeys.all,
+              predicate: (query) => query.queryKey.includes("list"),
+            });
+            void qc.invalidateQueries({
+              queryKey: contactKeys.all,
+              predicate: (query) => query.queryKey.includes("list"),
+            });
+          }}
         />
       )}
       <header className="flex shrink-0 items-center gap-1.5 border-b px-1.5 py-1.5 pt-[max(0.375rem,env(safe-area-inset-top))] sm:gap-3 sm:px-4 sm:py-2.5">

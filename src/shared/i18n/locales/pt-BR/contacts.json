@@ -19,6 +19,12 @@
     "title": "Informações do contato",
     "viewPhoto": "Visualizar foto do contato",
     "refreshPhoto": "Atualizar foto",
+    "refreshing": "Consultando o WhatsApp…",
+    "refreshFailed": "Não foi possível consultar a foto agora. Tente novamente.",
+    "disconnected": "A conexão de WhatsApp deste contato está indisponível.",
+    "unavailable": "O WhatsApp não disponibilizou uma foto para este contato.",
+    "imageFailed": "A foto não pôde ser exibida. Tente atualizá-la.",
+    "updated": "Foto atualizada.",
     "photoOf": "Foto de {{name}}",
     "connection": "Conexão"
   },
