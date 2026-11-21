@@ -103,6 +103,7 @@ import {
 } from "../attendant-selection";
 import { shouldAutoAssignOnSend } from "../auto-assign";
 import { ContactFormDialog } from "@/modules/contacts/components/ContactFormDialog";
+import { ContactInfoDialog } from "@/modules/contacts/components/ContactInfoDialog";
 import { getContact } from "@/modules/contacts/api";
 import type { Contact } from "@/modules/contacts/types";
 import { contactKeys } from "@/shared/api/query-keys";
@@ -993,6 +994,7 @@ function Conversation({
     onError: () => toast.error(t("messageMenu.deleteFailed")),
   });
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [showingContact, setShowingContact] = useState(false);
   const openContactEditor = async () => {
     const base: Contact = {
       id: ticket.contact.id,
@@ -1539,6 +1541,28 @@ function Conversation({
           }
         />
       )}
+      {showingContact && (
+        <ContactInfoDialog
+          contact={{
+            id: ticket.contact.id,
+            name: ticket.contact.name,
+            number: ticket.contact.number,
+            profilePicUrl: ticket.contact.profilePicUrl ?? null,
+            isGroup: ticket.contact.isGroup ?? false,
+          }}
+          onClose={() => setShowingContact(false)}
+          onEdit={(contact) => {
+            setShowingContact(false);
+            setEditingContact(contact);
+          }}
+          onPhotoUpdated={() =>
+            Promise.all([
+              qc.invalidateQueries({ queryKey: ticketKeys.all }),
+              qc.invalidateQueries({ queryKey: contactKeys.all }),
+            ])
+          }
+        />
+      )}
       <header className="flex shrink-0 items-center gap-1.5 border-b px-1.5 py-1.5 pt-[max(0.375rem,env(safe-area-inset-top))] sm:gap-3 sm:px-4 sm:py-2.5">
         <Button
           variant="ghost"
@@ -1549,24 +1573,31 @@ function Conversation({
         >
           <ArrowLeft className="size-4" />
         </Button>
-        <Avatar className="size-9 self-center sm:size-11">
-          <AvatarImage
-            src={contactPhotoUrl(ticket.contact.profilePicUrl)}
-            alt=""
-            className="object-cover"
-            referrerPolicy="no-referrer"
-          />
-          <AvatarFallback className="bg-primary/10 font-semibold text-primary sm:text-lg">
-            {contactInitials(
-              conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups")),
-            )}
-          </AvatarFallback>
-        </Avatar>
+        <button
+          type="button"
+          className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          onClick={() => setShowingContact(true)}
+          aria-label={t("contactProfile.open")}
+        >
+          <Avatar className="size-9 self-center sm:size-11">
+            <AvatarImage
+              src={contactPhotoUrl(ticket.contact.profilePicUrl)}
+              alt=""
+              className="object-cover"
+              referrerPolicy="no-referrer"
+            />
+            <AvatarFallback className="bg-primary/10 font-semibold text-primary sm:text-lg">
+              {contactInitials(
+                conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups")),
+              )}
+            </AvatarFallback>
+          </Avatar>
+        </button>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2">
-            <p className="truncate font-semibold leading-tight">
+            <button type="button" className="truncate font-semibold leading-tight hover:underline" onClick={() => setShowingContact(true)}>
               {conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups"))}
-            </p>
+            </button>
             <Button
               variant="ghost"
               size="icon"

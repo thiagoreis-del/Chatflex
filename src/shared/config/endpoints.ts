@@ -118,6 +118,7 @@ export const whatsappEndpoints = {
 export const contactEndpoints = {
   list: "/contacts",
   detail: (id: number) => `/contacts/${id}`,
+  refreshProfilePicture: (id: number) => `/contacts/${id}/profile-picture/refresh`,
 } as const;
 
 export const contactContracts = [

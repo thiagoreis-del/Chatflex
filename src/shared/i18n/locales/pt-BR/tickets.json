@@ -29,6 +29,7 @@
     "queue": "Fila"
   },
   "noAttendant": "Sem atendente",
+  "contactProfile": { "open": "Abrir informações do contato" },
   "actions": {
     "editContact": "Editar contato",
     "accept": "Aceitar",

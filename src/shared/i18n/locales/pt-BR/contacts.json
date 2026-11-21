@@ -15,6 +15,13 @@
     "actions": "Ações"
   },
   "actions": { "edit": "Editar", "delete": "Excluir", "save": "Salvar", "cancel": "Cancelar" },
+  "profile": {
+    "title": "Informações do contato",
+    "viewPhoto": "Visualizar foto do contato",
+    "refreshPhoto": "Atualizar foto",
+    "photoOf": "Foto de {{name}}",
+    "connection": "Conexão"
+  },
   "form": {
     "name": "Nome",
     "nameRequired": "Informe um nome.",
