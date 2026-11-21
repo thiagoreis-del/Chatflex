@@ -15,6 +15,7 @@ import quickMessages from "./locales/pt-BR/quickMessages.json";
 import settings from "./locales/pt-BR/settings.json";
 import backups from "./locales/pt-BR/backups.json";
 import internalChat from "./locales/pt-BR/internalChat.json";
+import marketplace from "./locales/pt-BR/marketplace.json";
 
 export const supportedLanguages = ["pt-BR"] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
@@ -39,6 +40,7 @@ if (!i18n.isInitialized) {
       "backups",
       "settings",
       "internalChat",
+      "marketplace",
     ],
     resources: {
       "pt-BR": {
@@ -56,6 +58,7 @@ if (!i18n.isInitialized) {
         backups,
         settings,
         internalChat,
+        marketplace,
       },
     },
     interpolation: { escapeValue: false, defaultVariables: { appName: env.appName } },

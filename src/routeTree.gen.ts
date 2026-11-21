@@ -25,6 +25,7 @@ import { Route as AppConfiguracoesRouteImport } from './routes/app.configuracoes
 import { Route as AppContatosRouteImport } from './routes/app.contatos'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppFilasRouteImport } from './routes/app.filas'
+import { Route as AppMarketplaceRouteImport } from './routes/app.marketplace'
 import { Route as AppPlataformaRouteImport } from './routes/app.plataforma'
 import { Route as AppRespostasRapidasRouteImport } from './routes/app.respostas-rapidas'
 import { Route as AppStatusRouteImport } from './routes/app.status'
@@ -120,6 +121,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
 const AppFilasRoute = AppFilasRouteImport.update({
   id: '/filas',
   path: '/filas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMarketplaceRoute = AppMarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPlataformaRoute = AppPlataformaRouteImport.update({
@@ -226,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
+  '/app/marketplace': typeof AppMarketplaceRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
   '/app/status': typeof AppStatusRoute
@@ -259,6 +266,7 @@ export interface FileRoutesByTo {
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
+  '/app/marketplace': typeof AppMarketplaceRoute
   '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
   '/app/status': typeof AppStatusRoute
   '/app/usuarios': typeof AppUsuariosRoute
@@ -293,6 +301,7 @@ export interface FileRoutesById {
   '/app/contatos': typeof AppContatosRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/filas': typeof AppFilasRoute
+  '/app/marketplace': typeof AppMarketplaceRoute
   '/app/plataforma': typeof AppPlataformaRouteWithChildren
   '/app/respostas-rapidas': typeof AppRespostasRapidasRoute
   '/app/status': typeof AppStatusRoute
@@ -329,6 +338,7 @@ export interface FileRouteTypes {
     | '/app/contatos'
     | '/app/dashboard'
     | '/app/filas'
+    | '/app/marketplace'
     | '/app/plataforma'
     | '/app/respostas-rapidas'
     | '/app/status'
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/app/contatos'
     | '/app/dashboard'
     | '/app/filas'
+    | '/app/marketplace'
     | '/app/respostas-rapidas'
     | '/app/status'
     | '/app/usuarios'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/app/contatos'
     | '/app/dashboard'
     | '/app/filas'
+    | '/app/marketplace'
     | '/app/plataforma'
     | '/app/respostas-rapidas'
     | '/app/status'
@@ -537,6 +549,13 @@ declare module '@tanstack/react-router' {
       path: '/filas'
       fullPath: '/app/filas'
       preLoaderRoute: typeof AppFilasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/marketplace': {
+      id: '/app/marketplace'
+      path: '/marketplace'
+      fullPath: '/app/marketplace'
+      preLoaderRoute: typeof AppMarketplaceRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/plataforma': {
@@ -698,6 +717,7 @@ interface AppRouteChildren {
   AppContatosRoute: typeof AppContatosRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppFilasRoute: typeof AppFilasRoute
+  AppMarketplaceRoute: typeof AppMarketplaceRoute
   AppPlataformaRoute: typeof AppPlataformaRouteWithChildren
   AppRespostasRapidasRoute: typeof AppRespostasRapidasRoute
   AppStatusRoute: typeof AppStatusRoute
@@ -713,6 +733,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppContatosRoute: AppContatosRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppFilasRoute: AppFilasRoute,
+  AppMarketplaceRoute: AppMarketplaceRoute,
   AppPlataformaRoute: AppPlataformaRouteWithChildren,
   AppRespostasRapidasRoute: AppRespostasRapidasRoute,
   AppStatusRoute: AppStatusRoute,
@@ -737,11 +758,15 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
+
 import type { startInstance } from './start.ts'
+
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
+
     router: Awaited<ReturnType<typeof getRouter>>
+
     config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

@@ -98,7 +98,8 @@ export const messageHistoryKeys = {
 /** Respostas rápidas pertencem à empresa da sessão; o backend filtra pelo token. */
 export const quickMessageKeys = {
   all: ["company", "quick-messages"] as const,
-  list: (companyId?: string) => ["company", "quick-messages", "list", companyId ?? ""] as const,
+  list: (companyId?: string, userId?: string) =>
+    ["company", "quick-messages", "list", companyId ?? "", userId ?? ""] as const,
 };
 
 /** Chat interno pertence à empresa da sessão; o backend filtra pelo token. */
