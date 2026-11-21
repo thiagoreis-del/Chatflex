@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { messageDateLabel, messageDayKey, startsMessageDay } from "../message-date";
 import { useFallbackInterval, useMessagesRealtime, useTicketsRealtime } from "../realtime";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -126,9 +126,7 @@ import { sortByRecent, ticketMatchesSearch } from "../search-order";
 import { AudioRecorder } from "../components/AudioRecorder";
 import { ShareContactDialog, contactCardText } from "../components/ShareContactDialog";
 import { isDangerousFile } from "../audio-format";
-import { ImageEditorDialog } from "../components/ImageEditorDialog";
 import { CloseTicketDialog } from "../components/CloseTicketDialog";
-import { GifPickerDialog } from "../components/GifPickerDialog";
 import { ForwardMessageDialog } from "../components/ForwardMessageDialog";
 import { useConnectivity } from "@/shared/connectivity/connectivity";
 import { closingMessageQuery } from "@/modules/settings/closing-message";
@@ -151,6 +149,17 @@ import { deduplicateActiveTickets } from "../ticket-identity";
 import { conversationContactName, isGroupContact, normalizeContactSearch } from "../contact-search";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTicketWorkspaceLayout } from "../workspace-layout";
+
+const ImageEditorDialog = lazy(() =>
+  import("../components/ImageEditorDialog").then(({ ImageEditorDialog }) => ({
+    default: ImageEditorDialog,
+  })),
+);
+const GifPickerDialog = lazy(() =>
+  import("../components/GifPickerDialog").then(({ GifPickerDialog }) => ({
+    default: GifPickerDialog,
+  })),
+);
 
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -966,9 +975,16 @@ function Conversation({
     refetchInterval: msgFallback,
     refetchIntervalInBackground: false,
   });
+  const [shouldLoadHistory, setShouldLoadHistory] = useState(false);
+  const hasRecentMessages = (messages.data?.length ?? 0) > 0;
+  useEffect(() => {
+    if (!hasRecentMessages || shouldLoadHistory) return;
+    const timer = window.setTimeout(() => setShouldLoadHistory(true), 750);
+    return () => window.clearTimeout(timer);
+  }, [hasRecentMessages, shouldLoadHistory]);
   const olderMessages = useQuery({
     ...olderMessagesQuery(ticket.id),
-    enabled: messages.isSuccess && (messages.data?.length ?? 0) > 0,
+    enabled: hasRecentMessages && shouldLoadHistory,
   });
   const advertisement = ticketAdvertisement(ticket, messages.data);
   useEffect(() => {
@@ -1759,6 +1775,7 @@ function Conversation({
             aria-label={t("conversationSearch")}
             aria-pressed={searchOpen}
             onClick={() => {
+              setShouldLoadHistory(true);
               setSearchOpen((value) => !value);
               setConversationSearch("");
             }}
@@ -1856,6 +1873,7 @@ function Conversation({
         onScroll={(event) => {
           const pane = event.currentTarget;
           followLatest.current = pane.scrollHeight - pane.scrollTop - pane.clientHeight < 100;
+          if (!followLatest.current && pane.scrollTop < 200) setShouldLoadHistory(true);
         }}
         className="chat-messages min-h-0 min-w-0 flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 sm:p-4"
       >
@@ -2300,37 +2318,39 @@ function Conversation({
               </div>
             </div>
           )}
-          {file?.type.startsWith("image/") && (
-            <ImageEditorDialog
-              file={file}
-              open={imageEditorOpen}
-              onOpenChange={setImageEditorOpen}
-              onSave={replaceActive}
-              labels={{
-                title: t("imageEditor.title"),
-                rotate: t("imageEditor.rotate"),
-                draw: t("imageEditor.draw"),
-                highlighter: t("imageEditor.highlighter"),
-                arrow: t("imageEditor.arrow"),
-                circle: t("imageEditor.circle"),
-                rectangle: t("imageEditor.rectangle"),
-                text: t("imageEditor.text"),
-                eraser: t("imageEditor.eraser"),
-                blur: t("imageEditor.blur"),
-                crop: t("imageEditor.crop"),
-                color: t("imageEditor.color"),
-                thickness: t("imageEditor.thickness"),
-                textSize: t("imageEditor.textSize"),
-                textPlaceholder: t("imageEditor.textPlaceholder"),
-                undo: t("imageEditor.undo"),
-                redo: t("imageEditor.redo"),
-                restore: t("imageEditor.restore"),
-                canvas: t("imageEditor.canvas"),
-                loading: t("imageEditor.loading"),
-                cancel: t("imageEditor.cancel"),
-                apply: t("imageEditor.apply"),
-              }}
-            />
+          {imageEditorOpen && file?.type.startsWith("image/") && (
+            <Suspense fallback={<span role="status">{t("imageEditor.loading")}</span>}>
+              <ImageEditorDialog
+                file={file}
+                open={imageEditorOpen}
+                onOpenChange={setImageEditorOpen}
+                onSave={replaceActive}
+                labels={{
+                  title: t("imageEditor.title"),
+                  rotate: t("imageEditor.rotate"),
+                  draw: t("imageEditor.draw"),
+                  highlighter: t("imageEditor.highlighter"),
+                  arrow: t("imageEditor.arrow"),
+                  circle: t("imageEditor.circle"),
+                  rectangle: t("imageEditor.rectangle"),
+                  text: t("imageEditor.text"),
+                  eraser: t("imageEditor.eraser"),
+                  blur: t("imageEditor.blur"),
+                  crop: t("imageEditor.crop"),
+                  color: t("imageEditor.color"),
+                  thickness: t("imageEditor.thickness"),
+                  textSize: t("imageEditor.textSize"),
+                  textPlaceholder: t("imageEditor.textPlaceholder"),
+                  undo: t("imageEditor.undo"),
+                  redo: t("imageEditor.redo"),
+                  restore: t("imageEditor.restore"),
+                  canvas: t("imageEditor.canvas"),
+                  loading: t("imageEditor.loading"),
+                  cancel: t("imageEditor.cancel"),
+                  apply: t("imageEditor.apply"),
+                }}
+              />
+            </Suspense>
           )}
           {isAdmin && (companyUsers.data?.length ?? 0) > 0 && (
             <div className="mb-2 flex min-w-0 flex-wrap items-center gap-2">
@@ -2482,12 +2502,16 @@ function Conversation({
                 shareContact.mutate(c);
               }}
             />
-            <GifPickerDialog
-              open={gifOpen}
-              sending={sendGif.isPending}
-              onOpenChange={setGifOpen}
-              onSend={(gif, requestId) => sendGif.mutate({ gifId: gif.id, requestId })}
-            />
+            {gifOpen && (
+              <Suspense fallback={<span role="status">{t("common:states.loading")}</span>}>
+                <GifPickerDialog
+                  open={gifOpen}
+                  sending={sendGif.isPending}
+                  onOpenChange={setGifOpen}
+                  onSend={(gif, requestId) => sendGif.mutate({ gifId: gif.id, requestId })}
+                />
+              </Suspense>
+            )}
             <input ref={fileRef} type="file" multiple className="hidden" onChange={pickFile} />
             <input
               ref={galleryRef}
