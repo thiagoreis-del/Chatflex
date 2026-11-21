@@ -6,6 +6,25 @@
   "edit": "Editar contato",
   "import": "Importar",
   "empty": "Nenhum contato encontrado.",
+  "photoBatch": {
+    "button": "Atualizar fotos",
+    "description": "O ChatbotFlex consulta as fotos dos contatos ativos de WhatsApp, uma por vez. Você pode sair desta tela enquanto a atualização continua.",
+    "all": "Atualizar todas",
+    "missing": "Só fotos faltantes",
+    "stop": "Parar atualização",
+    "progress": "{{processed}} de {{total}} consultados · {{updated}} atualizadas · {{unavailable}} sem foto disponível · {{failed}} falhas · {{skipped}} ignorados",
+    "startError": "Não foi possível iniciar a atualização das fotos.",
+    "stopError": "Não foi possível parar a atualização. Tente novamente.",
+    "statusError": "O progresso está indisponível. Tentando consultar novamente.",
+    "status": {
+      "running": "Atualizando fotos de contatos",
+      "stopping": "Parando após a consulta atual",
+      "stopped": "Atualização interrompida",
+      "completed": "Atualização concluída",
+      "failed": "A atualização parou por falhas. Você pode tentar novamente.",
+      "disconnected": "Conecte o WhatsApp da empresa para atualizar as fotos."
+    }
+  },
   "searchPlaceholder": "Buscar por nome, número ou e-mail…",
   "table": {
     "name": "Nome",

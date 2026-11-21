@@ -119,6 +119,8 @@ export const contactEndpoints = {
   list: "/contacts",
   detail: (id: number) => `/contacts/${id}`,
   refreshProfilePicture: (id: number) => `/contacts/${id}/profile-picture/refresh`,
+  photoBatch: "/contacts/profile-pictures/batch",
+  stopPhotoBatch: (id: string) => `/contacts/profile-pictures/batch/${encodeURIComponent(id)}/stop`,
 } as const;
 
 export const contactContracts = [
