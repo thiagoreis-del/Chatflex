@@ -9,8 +9,14 @@ vi.mock("@/shared/api/client", () => ({ apiRequest: vi.fn(), apiUpload: vi.fn() 
 const request = vi.mocked(apiRequest);
 const contact = { id: 42, name: "Anvat Soluções", number: "5511998765432", isGroup: false };
 const activeTicket = (status: "open" | "pending"): Ticket => ({
-  id: 99, contact, status, lastMessage: "Oi", updatedAt: "2026-11-04T18:00:00Z",
-  unreadMessages: 0, queue: null, user: null,
+  id: 99,
+  contact,
+  status,
+  lastMessage: "Oi",
+  updatedAt: "2026-11-04T18:00:00Z",
+  unreadMessages: 0,
+  queue: null,
+  user: null,
 });
 
 beforeEach(() => request.mockReset());
@@ -22,9 +28,12 @@ describe("search-scoped active ticket exclusions", () => {
       request.mockImplementation(async (path) => {
         const params = new URL(path, "https://example.test").searchParams;
         return {
-          tickets: params.get("search") === "Anvat" && params.get("status") === status
-            ? [activeTicket(status)] : [],
-          count: 100, hasMore: true,
+          tickets:
+            params.get("search") === "Anvat" && params.get("status") === status
+              ? [activeTicket(status)]
+              : [],
+          count: 100,
+          hasMore: true,
         };
       });
       const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

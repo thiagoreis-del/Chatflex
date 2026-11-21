@@ -12,10 +12,15 @@ export function parseTicketLayout(raw: string | null): Layout | undefined {
     if (!value || typeof value !== "object") return undefined;
     const { list, conversation } = value as Record<string, unknown>;
     if (
-      typeof list !== "number" || !Number.isFinite(list) || list < 25 || list > 60 ||
-      typeof conversation !== "number" || !Number.isFinite(conversation) ||
+      typeof list !== "number" ||
+      !Number.isFinite(list) ||
+      list < 25 ||
+      list > 60 ||
+      typeof conversation !== "number" ||
+      !Number.isFinite(conversation) ||
       Math.abs(list + conversation - 100) > 0.01
-    ) return undefined;
+    )
+      return undefined;
     return { list, conversation };
   } catch {
     return undefined;
@@ -36,7 +41,9 @@ export function useTicketWorkspaceLayout() {
   const [layout, setLayout] = useState(DEFAULT_TICKET_LAYOUT);
   useEffect(() => {
     try {
-      setLayout(parseTicketLayout(window.localStorage.getItem(TICKET_LAYOUT_KEY)) ?? DEFAULT_TICKET_LAYOUT);
+      setLayout(
+        parseTicketLayout(window.localStorage.getItem(TICKET_LAYOUT_KEY)) ?? DEFAULT_TICKET_LAYOUT,
+      );
     } catch {
       // Keep the default without preventing access to the workspace.
     }

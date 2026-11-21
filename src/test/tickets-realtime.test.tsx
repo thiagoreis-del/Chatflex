@@ -23,7 +23,11 @@ vi.mock("@/shared/socket/socket-client", () => ({
   },
 }));
 
-import { useFallbackInterval, useMessagesRealtime, useTicketsRealtime } from "@/modules/tickets/realtime";
+import {
+  useFallbackInterval,
+  useMessagesRealtime,
+  useTicketsRealtime,
+} from "@/modules/tickets/realtime";
 
 afterEach(() => {
   cleanup();
@@ -83,9 +87,12 @@ describe("Ticket refresh recovery", () => {
 
   it("refetches canonical messages instead of inserting incomplete socket payloads", () => {
     renderHook(() => useMessagesRealtime(7381));
-    act(() => harness.handlers.get("appMessage")?.({
-      action: "update", message: { ticketId: "7381", id: "new", ack: 2 },
-    }));
+    act(() =>
+      harness.handlers.get("appMessage")?.({
+        action: "update",
+        message: { ticketId: "7381", id: "new", ack: 2 },
+      }),
+    );
     expect(harness.invalidateQueries).toHaveBeenCalledWith(
       { queryKey: ticketKeys.messages(7381) },
       { cancelRefetch: false },

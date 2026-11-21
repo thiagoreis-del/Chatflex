@@ -95,9 +95,7 @@ export function ForwardInternalDialog({
                     <Icon className="size-4" aria-hidden />
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium">
-                      {conversation.title}
-                    </span>
+                    <span className="block truncate text-sm font-medium">{conversation.title}</span>
                     <span className="block truncate text-xs text-muted-foreground">
                       {t(`kinds.${conversation.kind}`)}
                     </span>

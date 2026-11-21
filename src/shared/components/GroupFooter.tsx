@@ -28,7 +28,11 @@ export function GroupFooter({
   const [open, setOpen] = useState(false);
   const footer = variant === "footer";
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className={cn(footer ? "mx-auto w-full max-w-6xl text-xs" : "px-3 text-xs", className)}>
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className={cn(footer ? "mx-auto w-full max-w-6xl text-xs" : "px-3 text-xs", className)}
+    >
       <CollapsibleTrigger
         aria-label={t("group.toggle")}
         className={cn(
@@ -45,7 +49,12 @@ export function GroupFooter({
         />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <ul className={cn("space-y-0.5", footer ? "mt-2 columns-1 gap-6 sm:columns-2 lg:columns-3" : "mt-1")}>
+        <ul
+          className={cn(
+            "space-y-0.5",
+            footer ? "mt-2 columns-1 gap-6 sm:columns-2 lg:columns-3" : "mt-1",
+          )}
+        >
           {companies.map((c) => (
             <li key={c.key} className="break-inside-avoid">
               <a
@@ -54,9 +63,7 @@ export function GroupFooter({
                 rel="noopener noreferrer"
                 className={cn(
                   "block rounded-md px-3 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
-                  footer
-                    ? "hover:bg-muted/60 focus-visible:ring-ring"
-                    : "hover:bg-sidebar-accent",
+                  footer ? "hover:bg-muted/60 focus-visible:ring-ring" : "hover:bg-sidebar-accent",
                 )}
               >
                 <span

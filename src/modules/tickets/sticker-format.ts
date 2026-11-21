@@ -14,7 +14,5 @@ export async function toStickerWebp(blob: Blob): Promise<Blob> {
   const h = bitmap.height * scale;
   ctx.drawImage(bitmap, (STICKER_SIZE - w) / 2, (STICKER_SIZE - h) / 2, w, h);
   bitmap.close();
-  return new Promise((resolve) =>
-    canvas.toBlob((out) => resolve(out ?? blob), "image/webp", 0.9),
-  );
+  return new Promise((resolve) => canvas.toBlob((out) => resolve(out ?? blob), "image/webp", 0.9));
 }

@@ -20,13 +20,17 @@ const message = (id: string, createdAt: string): Message => ({
   createdAt,
 });
 
-beforeEach(() => { mocks.apiRequest.mockReset(); });
+beforeEach(() => {
+  mocks.apiRequest.mockReset();
+});
 
 describe("message polling", () => {
   it("recovers a missed socket message through the three-second poll", async () => {
     vi.useFakeTimers();
     focusManager.setFocused(true);
-    const client = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: false } } });
+    const client = new QueryClient({
+      defaultOptions: { queries: { staleTime: 30_000, retry: false } },
+    });
     mocks.apiRequest
       .mockResolvedValueOnce({ messages: [message("1", "2026-10-29T09:00:00.000Z")] })
       .mockResolvedValue({ messages: [message("2", "2026-10-29T10:00:00.000Z")] });
@@ -61,10 +65,16 @@ describe("message polling", () => {
     const client = new QueryClient();
     client.setQueryData(ticketKeys.messages(10), [message("2", "2026-10-29T10:00:00.000Z")]);
     let resolveRequest: ((value: { messages: Message[] }) => void) | undefined;
-    mocks.apiRequest.mockImplementation(() => new Promise((resolve) => { resolveRequest = resolve; }));
+    mocks.apiRequest.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRequest = resolve;
+        }),
+    );
     const pending = client.fetchQuery({ ...messagesQuery(10), staleTime: 0 });
     client.setQueryData(ticketKeys.messages(10), [
-      message("1", "2026-10-29T09:00:00.000Z"), message("2", "2026-10-29T10:00:00.000Z"),
+      message("1", "2026-10-29T09:00:00.000Z"),
+      message("2", "2026-10-29T10:00:00.000Z"),
     ]);
     if (!resolveRequest) throw new Error("Request was not started");
     resolveRequest({ messages: [message("3", "2026-10-29T11:00:00.000Z")] });

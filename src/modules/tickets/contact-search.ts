@@ -13,14 +13,21 @@ export function normalizeContactSearch(search: string): string {
 }
 
 /** Exclui grupos, atendimentos ativos e duplicatas, sem alterar os registros do servidor. */
-export function availableContactSuggestions(contacts: Contact[], activeTickets: Ticket[]): Contact[] {
-  const active = activeTickets.filter((ticket) => ticket.status === "open" || ticket.status === "pending");
+export function availableContactSuggestions(
+  contacts: Contact[],
+  activeTickets: Ticket[],
+): Contact[] {
+  const active = activeTickets.filter(
+    (ticket) => ticket.status === "open" || ticket.status === "pending",
+  );
   const ids = new Set(active.map((ticket) => ticket.contact.id));
-  const numbers = new Set(active.flatMap((ticket) => {
-    if (ticket.isGroup || isGroupContact(ticket.contact)) return [];
-    const number = normalizedTicketNumber(ticket.contact.number);
-    return number ? [number] : [];
-  }));
+  const numbers = new Set(
+    active.flatMap((ticket) => {
+      if (ticket.isGroup || isGroupContact(ticket.contact)) return [];
+      const number = normalizedTicketNumber(ticket.contact.number);
+      return number ? [number] : [];
+    }),
+  );
   const seenIds = new Set<number>();
   const seenNumbers = new Set<string>();
   return contacts.filter((contact) => {
@@ -34,6 +41,12 @@ export function availableContactSuggestions(contacts: Contact[], activeTickets: 
 }
 
 /** Grupos nunca usam seu JID como título quando o nome não está disponível. */
-export function conversationContactName(contact: TicketContact, isGroup: boolean | undefined, groupLabel: string): string {
-  return contact.name.trim() || (isGroup || isGroupContact(contact) ? groupLabel : `+${contact.number}`);
+export function conversationContactName(
+  contact: TicketContact,
+  isGroup: boolean | undefined,
+  groupLabel: string,
+): string {
+  return (
+    contact.name.trim() || (isGroup || isGroupContact(contact) ? groupLabel : `+${contact.number}`)
+  );
 }

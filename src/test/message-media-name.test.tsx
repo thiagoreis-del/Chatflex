@@ -70,9 +70,7 @@ describe("Message media file name", () => {
     const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
     const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
 
-    render(
-      <MessageMedia message={mediaMessage({ mediaUrl: url, mediaType: "application" })} />,
-    );
+    render(<MessageMedia message={mediaMessage({ mediaUrl: url, mediaType: "application" })} />);
     screen.getByRole("button", { name: "media.download" }).click();
     await vi.waitFor(() => expect(clickSpy).toHaveBeenCalled());
 
@@ -94,7 +92,12 @@ describe("certificate files", () => {
     expect(normalizeFileExtension("1794914734078.x-pkcs12")).toBe("1794914734078.pfx");
   });
   it("hides internal filename captions", () => {
-    expect(isAutoFileCaption("1794914734078_1794914734078.x-pkcs12", "https://a.b/public/company1/1794914734078.x-pkcs12")).toBe(true);
+    expect(
+      isAutoFileCaption(
+        "1794914734078_1794914734078.x-pkcs12",
+        "https://a.b/public/company1/1794914734078.x-pkcs12",
+      ),
+    ).toBe(true);
     expect(isAutoFileCaption("certificado renovado", "https://a.b/x.pfx")).toBe(false);
   });
 });

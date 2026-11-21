@@ -3,8 +3,7 @@ export interface ParsedVCard {
   phone: string | null;
 }
 
-const unfold = (text: string) =>
-  text.replace(/\r\n/g, "\n").replace(/\n[ \t]/g, "");
+const unfold = (text: string) => text.replace(/\r\n/g, "\n").replace(/\n[ \t]/g, "");
 
 const unescape = (value: string) =>
   value
@@ -13,14 +12,15 @@ const unescape = (value: string) =>
     .trim();
 
 const field = (lines: string[], key: string) => {
-  const line = lines.find((l) => l.toUpperCase().startsWith(`${key}:`) || l.toUpperCase().startsWith(`${key};`));
+  const line = lines.find(
+    (l) => l.toUpperCase().startsWith(`${key}:`) || l.toUpperCase().startsWith(`${key};`),
+  );
   if (!line) return null;
   return unescape(line.slice(line.indexOf(":") + 1));
 };
 
 /** Detecta se o corpo da mensagem é um contato compartilhado (vCard). */
-export const isVCard = (body: string | null | undefined) =>
-  !!body && /^\s*BEGIN:VCARD/i.test(body);
+export const isVCard = (body: string | null | undefined) => !!body && /^\s*BEGIN:VCARD/i.test(body);
 
 /** Extrai nome e telefone de um vCard; retorna null se não houver nada útil. */
 export const parseVCard = (body: string): ParsedVCard | null => {

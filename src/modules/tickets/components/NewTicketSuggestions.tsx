@@ -90,7 +90,12 @@ export function NewTicketSuggestions({
           return (
             <li key={c.id} className="flex items-center gap-3 px-3 py-2">
               <Avatar className="size-9 shrink-0">
-                <AvatarImage src={contactPhotoUrl(c.profilePicUrl)} alt="" className="object-cover" referrerPolicy="no-referrer" />
+                <AvatarImage
+                  src={contactPhotoUrl(c.profilePicUrl)}
+                  alt=""
+                  className="object-cover"
+                  referrerPolicy="no-referrer"
+                />
                 <AvatarFallback className="bg-muted font-display text-sm font-semibold text-muted-foreground">
                   {contactInitials(name)}
                 </AvatarFallback>
