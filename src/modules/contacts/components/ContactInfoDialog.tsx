@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Mail, Pencil, Phone, RefreshCw } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,32 +14,49 @@ interface Props {
   contact: Contact;
   onClose: () => void;
   onEdit: (contact: Contact) => void;
-  onPhotoUpdated: () => unknown;
+  onPhotoUpdated: (photoUrl: string) => void;
 }
 
 export function ContactInfoDialog({ contact, onClose, onEdit, onPhotoUpdated }: Props) {
   const { t } = useTranslation("contacts");
+  const qc = useQueryClient();
   const [expanded, setExpanded] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [failedPhoto, setFailedPhoto] = useState<string>();
+  const detailKey = contactKeys.detail(contact.id);
   const details = useQuery({
-    queryKey: [...contactKeys.all, "detail", contact.id],
+    queryKey: detailKey,
     queryFn: () => getContact(contact.id),
     initialData: contact,
   });
   const value = details.data;
   const photo = contactPhotoUrl(value.profilePicUrl);
-
-  const refreshPhoto = async () => {
-    if (refreshing) return;
-    setRefreshing(true);
-    try {
-      const refreshed = await refreshContactProfilePicture(value.id);
-      details.refetch();
-      if (refreshed.profilePicUrl !== value.profilePicUrl) await onPhotoUpdated();
-    } finally {
-      setRefreshing(false);
-    }
-  };
+  const refresh = useMutation({
+    mutationFn: () => refreshContactProfilePicture(contact.id),
+    onSuccess: async ({ profilePicUrl }) => {
+      if (!contactPhotoUrl(profilePicUrl)) return;
+      await qc.cancelQueries({ queryKey: detailKey, exact: true });
+      if (!detailKey.every((part, index) => part === contactKeys.detail(contact.id)[index])) return;
+      qc.setQueryData<Contact>(detailKey, (current) =>
+        current ? { ...current, profilePicUrl } : current,
+      );
+      onPhotoUpdated(profilePicUrl);
+    },
+  });
+  const imageFailed = !!photo && photo === failedPhoto;
+  const result = refresh.data;
+  const feedback = refresh.isPending
+    ? "refreshing"
+    : refresh.isError || result?.status === "retry"
+      ? "refreshFailed"
+      : result?.status === "disconnected"
+        ? "disconnected"
+        : result && !contactPhotoUrl(result.profilePicUrl)
+          ? "unavailable"
+          : imageFailed
+            ? "imageFailed"
+            : result
+              ? "updated"
+              : null;
 
   return (
     <>
@@ -53,7 +70,7 @@ export function ContactInfoDialog({ contact, onClose, onEdit, onPhotoUpdated }: 
               className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => photo && setExpanded(true)}
               aria-label={t("profile.viewPhoto")}
-              disabled={!photo}
+              disabled={!photo || imageFailed}
             >
               <Avatar className="size-28 border-4 border-background shadow-md">
                 <AvatarImage
@@ -61,6 +78,10 @@ export function ContactInfoDialog({ contact, onClose, onEdit, onPhotoUpdated }: 
                   alt={value.name}
                   className="object-cover"
                   referrerPolicy="no-referrer"
+                  onLoadingStatusChange={(status) => {
+                    if (status === "error") setFailedPhoto(photo);
+                    if (status === "loaded") setFailedPhoto(undefined);
+                  }}
                 />
                 <AvatarFallback className="bg-primary/10 text-3xl font-semibold text-primary">
                   {contactInitials(value.name)}
@@ -73,11 +94,11 @@ export function ContactInfoDialog({ contact, onClose, onEdit, onPhotoUpdated }: 
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => void refreshPhoto()}
-                disabled={refreshing}
+                onClick={() => refresh.mutate()}
+                disabled={refresh.isPending}
               >
                 <RefreshCw
-                  className={`mr-1.5 size-4 ${refreshing ? "animate-spin" : ""}`}
+                  className={`mr-1.5 size-4 ${refresh.isPending ? "animate-spin" : ""}`}
                   aria-hidden
                 />
                 {t("profile.refreshPhoto")}
@@ -87,6 +108,9 @@ export function ContactInfoDialog({ contact, onClose, onEdit, onPhotoUpdated }: 
                 {t("actions.edit")}
               </Button>
             </div>
+            <p role="status" className="mt-2 text-sm text-muted-foreground">
+              {feedback ? t(`profile.${feedback}`) : null}
+            </p>
           </div>
           <div className="space-y-3 border-t px-5 py-4 text-sm">
             <div className="flex items-center gap-3">
