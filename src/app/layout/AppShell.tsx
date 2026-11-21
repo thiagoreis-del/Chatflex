@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   MessagesSquare,
+  Store,
   Users,
   UserCog,
   ListOrdered,
@@ -213,6 +214,17 @@ function SidebarNav({
               >
                 <MessagesSquare className="size-4 text-blue-400" aria-hidden />
                 {t("nav.modules.tickets")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/app/marketplace"
+                onClick={onNavigate}
+                className={linkClass}
+                activeProps={activeLink}
+              >
+                <Store className="size-4 text-sky-400" aria-hidden />
+                {t("nav.modules.marketplace")}
               </Link>
             </li>
             <li>

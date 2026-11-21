@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "title": "Marketplace",
+    "description": "Prepare respostas para suas conversas no Facebook Marketplace."
+  },
+  "title": "Marketplace",
+  "description": "Prepare a resposta aqui e envie pela conversa original no Messenger.",
+  "openMessenger": "Abrir Messenger",
+  "draft": {
+    "label": "Sua resposta",
+    "placeholder": "Escreva uma mensagem ou insira uma resposta rápida…",
+    "help": "Copie a resposta, abra a caixa Marketplace no Messenger e cole na conversa.",
+    "copy": "Copiar resposta",
+    "clear": "Limpar",
+    "copied": "Resposta copiada.",
+    "copyFailed": "A resposta foi selecionada. Use o comando de copiar do seu dispositivo."
+  },
+  "templates": {
+    "title": "Respostas prontas",
+    "availability": {
+      "label": "Disponível",
+      "text": "Olá! Sim, o item está disponível. Quer mais informações?"
+    },
+    "interest": {
+      "label": "Tenho interesse",
+      "text": "Olá! Tenho interesse no anúncio. O item ainda está disponível?"
+    },
+    "pickup": {
+      "label": "Combinar retirada",
+      "text": "Podemos combinar a retirada. Qual dia e horário funcionam melhor para você?"
+    },
+    "followUp": {
+      "label": "Confirmar informação",
+      "text": "Vou conferir essa informação e te retorno por aqui."
+    }
+  },
+  "saved": {
+    "title": "Respostas rápidas do ChatbotFlex",
+    "search": "Buscar pelo atalho ou pelo texto",
+    "empty": "Nenhuma resposta rápida cadastrada. Você pode usar os modelos acima.",
+    "noMatch": "Nenhuma resposta rápida corresponde à busca."
+  }
+}

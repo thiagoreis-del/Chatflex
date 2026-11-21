@@ -6,9 +6,9 @@ import type { QuickMessage, QuickMessageInput } from "./types";
 
 export const quickMessagesContract = "GET /quick-messages/list";
 
-export const quickMessagesQuery = (companyId?: string) =>
+export const quickMessagesQuery = (companyId?: string, userId?: string) =>
   queryOptions({
-    queryKey: quickMessageKeys.list(companyId),
+    queryKey: quickMessageKeys.list(companyId, userId),
     queryFn: async ({ signal }) => {
       const all: QuickMessage[] = [];
       for (let page = 1; page <= 50; page++) {
