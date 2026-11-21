@@ -4,7 +4,9 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { MessageSquarePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { contactsQuery } from "@/modules/contacts/api";
+import { contactInitials, contactPhotoUrl } from "@/modules/contacts/contact-photo";
 import { connectionsQuery } from "@/modules/whatsapp/api";
 import { ticketKeys } from "@/shared/api/query-keys";
 import { createTicket } from "../api";
@@ -87,9 +89,12 @@ export function NewTicketSuggestions({
           const name = c.name || `+${c.number}`;
           return (
             <li key={c.id} className="flex items-center gap-3 px-3 py-2">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted font-display text-sm font-semibold uppercase text-muted-foreground">
-                {name.replace(/^\+/, "").charAt(0) || "#"}
-              </div>
+              <Avatar className="size-9 shrink-0">
+                <AvatarImage src={contactPhotoUrl(c.profilePicUrl)} alt="" className="object-cover" referrerPolicy="no-referrer" />
+                <AvatarFallback className="bg-muted font-display text-sm font-semibold text-muted-foreground">
+                  {contactInitials(name)}
+                </AvatarFallback>
+              </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{name}</p>
                 <p className="truncate text-xs text-muted-foreground">+{c.number}</p>

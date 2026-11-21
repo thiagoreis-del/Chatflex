@@ -6,6 +6,8 @@ export interface Contact {
   profilePicUrl?: string | null;
   email?: string | null;
   tags?: string[];
+  extraInfo?: Array<{ id?: number; name: string; value: string }>;
+  whatsapp?: { id: number; name: string } | null;
   /** Contato é um grupo do WhatsApp: número é opcional (JID interno). */
   isGroup?: boolean | undefined;
   createdAt?: string;

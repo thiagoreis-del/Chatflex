@@ -51,3 +51,7 @@ export const updateContact = (id: number, body: ContactInput) =>
   apiRequest<Contact>(ep.detail(id), { method: "PUT", body });
 export const deleteContact = (id: number) => apiRequest<void>(ep.detail(id), { method: "DELETE" });
 export const getContact = (id: number) => apiRequest<Contact>(ep.detail(id));
+export const refreshContactProfilePicture = (id: number) =>
+  apiRequest<{ contactId: number; profilePicUrl: string }>(ep.refreshProfilePicture(id), {
+    method: "POST",
+  });
