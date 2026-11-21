@@ -48,7 +48,11 @@ import {
   Megaphone,
 } from "lucide-react";
 import { toStickerWebp } from "../sticker-format";
-import { favoriteStickersKey, toggleFavoriteSticker, useFavoriteStickers } from "../favorite-stickers";
+import {
+  favoriteStickersKey,
+  toggleFavoriteSticker,
+  useFavoriteStickers,
+} from "../favorite-stickers";
 import { isImage } from "../components/MessageMedia";
 import { mutedKey, setMuted, useMutedContacts } from "../muted-contacts";
 import { Button } from "@/components/ui/button";
@@ -178,7 +182,8 @@ const TAB_IDLE_CLASSES: Record<TicketTab, string> = {
 const stripSignature = (body: string) => body.replace(/^\*[^*\n]+:\*\n?/, "");
 /** Texto visível na bolha: remove a assinatura "*Nome:*" das mensagens enviadas. */
 const displayBody = (
-  m: Pick<Message, "body" | "fromMe" | "isPrivate"> & Partial<Pick<Message, "mediaUrl" | "mediaType">>,
+  m: Pick<Message, "body" | "fromMe" | "isPrivate"> &
+    Partial<Pick<Message, "mediaUrl" | "mediaType">>,
 ) => {
   if (
     m.mediaUrl &&
@@ -631,7 +636,8 @@ export function TicketsPage() {
                     const isSel = selected?.id === tk.id;
                     const name = conversationContactName(tk.contact, tk.isGroup, t("tabs.groups"));
                     const preview = stripSignature(tk.lastMessage ?? "");
-                    const advertisement = advertisementOrigins.get(tk.id) ?? ticketAdvertisement(tk);
+                    const advertisement =
+                      advertisementOrigins.get(tk.id) ?? ticketAdvertisement(tk);
                     const waitMin =
                       tk.status === "pending"
                         ? Math.max(0, Math.floor((now - new Date(tk.updatedAt).getTime()) / 60000))
@@ -1043,7 +1049,10 @@ function Conversation({
       const res = await fetch(url);
       if (!res.ok) throw new Error(String(res.status));
       const sticker = await toStickerWebp(await res.blob());
-      await sendMediaMessage(ticket.id, new File([sticker], `figurinha-${Date.now()}.webp`, { type: "image/webp" }));
+      await sendMediaMessage(
+        ticket.id,
+        new File([sticker], `figurinha-${Date.now()}.webp`, { type: "image/webp" }),
+      );
       void qc.invalidateQueries({ queryKey: ticketKeys.all });
     } catch {
       toast.error(t("stickers.sendFailed"));
@@ -1595,7 +1604,11 @@ function Conversation({
         </button>
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2">
-            <button type="button" className="truncate font-semibold leading-tight hover:underline" onClick={() => setShowingContact(true)}>
+            <button
+              type="button"
+              className="truncate font-semibold leading-tight hover:underline"
+              onClick={() => setShowingContact(true)}
+            >
               {conversationContactName(ticket.contact, ticket.isGroup, t("tabs.groups"))}
             </button>
             <Button
@@ -1622,7 +1635,9 @@ function Conversation({
               >
                 <Megaphone className="size-3 shrink-0" aria-hidden="true" />
                 <span className="shrink-0">{t("advertisement.origin")}</span>
-                {advertisement.title && <span className="truncate font-normal">· {advertisement.title}</span>}
+                {advertisement.title && (
+                  <span className="truncate font-normal">· {advertisement.title}</span>
+                )}
               </span>
             )}
             {session.user?.companyName && (
@@ -1960,20 +1975,31 @@ function Conversation({
                         >
                           <span className="inline-flex items-center gap-1">
                             {time(m.createdAt)}
-                            {m.fromMe && !m.isPrivate && (
-                              (m.ack ?? 0) >= 3 ? (
-                                <span className="inline-flex items-center text-sky-600" title={t("messageStatus.read", { time: deliveryTime(m) })}>
+                            {m.fromMe &&
+                              !m.isPrivate &&
+                              ((m.ack ?? 0) >= 3 ? (
+                                <span
+                                  className="inline-flex items-center text-sky-600"
+                                  title={t("messageStatus.read", { time: deliveryTime(m) })}
+                                >
                                   <CheckCheck className="size-3" aria-hidden />
                                 </span>
                               ) : (m.ack ?? 0) >= 2 ? (
-                                <CheckCheck className="size-3 text-muted-foreground" aria-label={t("messageStatus.delivered")} />
+                                <CheckCheck
+                                  className="size-3 text-muted-foreground"
+                                  aria-label={t("messageStatus.delivered")}
+                                />
                               ) : (
-                                <Check className="size-3 text-muted-foreground" aria-label={t("messageStatus.sent")} />
-                              )
-                            )}
+                                <Check
+                                  className="size-3 text-muted-foreground"
+                                  aria-label={t("messageStatus.sent")}
+                                />
+                              ))}
                           </span>
                           {m.fromMe && !m.isPrivate && (m.ack ?? 0) >= 3 && (
-                            <span className="sr-only">{t("messageStatus.read", { time: deliveryTime(m) })}</span>
+                            <span className="sr-only">
+                              {t("messageStatus.read", { time: deliveryTime(m) })}
+                            </span>
                           )}
                         </p>
                       </div>
@@ -2015,9 +2041,16 @@ function Conversation({
                                 }}
                               >
                                 <Heart
-                                  className={cn("size-4", favoriteStickers.includes(m.mediaUrl) && "fill-current")}
+                                  className={cn(
+                                    "size-4",
+                                    favoriteStickers.includes(m.mediaUrl) && "fill-current",
+                                  )}
                                 />{" "}
-                                {t(favoriteStickers.includes(m.mediaUrl) ? "stickers.remove" : "stickers.add")}
+                                {t(
+                                  favoriteStickers.includes(m.mediaUrl)
+                                    ? "stickers.remove"
+                                    : "stickers.add",
+                                )}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem onSelect={() => setForwarding(m)}>
@@ -2120,7 +2153,11 @@ function Conversation({
             </div>
           )}
           {stickersOpen && (
-            <div className="mb-2 rounded-lg border bg-card p-2" role="group" aria-label={t("stickers.title")}>
+            <div
+              className="mb-2 rounded-lg border bg-card p-2"
+              role="group"
+              aria-label={t("stickers.title")}
+            >
               {favoriteStickers.length === 0 ? (
                 <p className="p-2 text-sm text-muted-foreground">{t("stickers.empty")}</p>
               ) : (

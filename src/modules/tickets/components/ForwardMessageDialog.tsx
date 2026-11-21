@@ -14,7 +14,11 @@ export interface ForwardMessageDialogProps {
 }
 
 /** Escolhe um atendimento aberto e reenvia a mensagem selecionada. */
-export function ForwardMessageDialog({ message, currentTicketId, onClose }: ForwardMessageDialogProps) {
+export function ForwardMessageDialog({
+  message,
+  currentTicketId,
+  onClose,
+}: ForwardMessageDialogProps) {
   const { t } = useTranslation("tickets");
   const [search, setSearch] = useState("");
   const list = useQuery({ ...ticketsQuery({ status: "open", search }), enabled: !!message });
@@ -41,7 +45,9 @@ export function ForwardMessageDialog({ message, currentTicketId, onClose }: Forw
           aria-label={t("forward.search")}
         />
         <ul className="max-h-80 overflow-y-auto">
-          {list.isLoading && <li className="p-3 text-sm text-muted-foreground">{t("forward.loading")}</li>}
+          {list.isLoading && (
+            <li className="p-3 text-sm text-muted-foreground">{t("forward.loading")}</li>
+          )}
           {!list.isLoading && tickets.length === 0 && (
             <li className="p-3 text-sm text-muted-foreground">{t("forward.empty")}</li>
           )}

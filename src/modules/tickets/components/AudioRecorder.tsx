@@ -177,10 +177,24 @@ export function AudioRecorder({
       <span className="min-w-12 font-mono tabular-nums" aria-label={labels.recording}>
         {formatDuration(seconds)}
       </span>
-      <Button type="button" variant="ghost" size="icon" aria-label={labels.stop} title={labels.stop} onClick={stop}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label={labels.stop}
+        title={labels.stop}
+        onClick={stop}
+      >
         <Send className="size-4" />
       </Button>
-      <Button type="button" variant="ghost" size="icon" aria-label={labels.cancel} title={labels.cancel} onClick={cancel}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label={labels.cancel}
+        title={labels.cancel}
+        onClick={cancel}
+      >
         <Trash2 className="size-4" />
       </Button>
     </div>

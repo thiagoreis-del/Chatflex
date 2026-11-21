@@ -25,9 +25,12 @@ export async function startSharedContactConversation(
   for (const status of ["open", "pending"] as const) {
     const options = ticketsQuery({ status, search: number });
     const tickets = await client.fetchQuery(options);
-    const existing = tickets.find((ticket) =>
-      !ticket.isGroup && !ticket.contact.isGroup &&
-      sharedContactNumber(ticket.contact.number) === number && ticket.whatsapp?.id === whatsappId,
+    const existing = tickets.find(
+      (ticket) =>
+        !ticket.isGroup &&
+        !ticket.contact.isGroup &&
+        sharedContactNumber(ticket.contact.number) === number &&
+        ticket.whatsapp?.id === whatsappId,
     );
     if (existing) return existing;
   }
@@ -36,15 +39,23 @@ export async function startSharedContactConversation(
   while (true) {
     const options = contactsQuery({ search: number, page });
     const result = await client.fetchQuery(options);
-    resolved = result.data.find((item) => !item.isGroup && sharedContactNumber(item.number) === number);
+    resolved = result.data.find(
+      (item) => !item.isGroup && sharedContactNumber(item.number) === number,
+    );
     if (resolved || !result.data.length || page * result.pageSize >= result.total) break;
     page += 1;
   }
-  resolved ??= await createContact({ name: contact.name.trim() || number, number, email: "", tags: [] });
+  resolved ??= await createContact({
+    name: contact.name.trim() || number,
+    number,
+    email: "",
+    tags: [],
+  });
   const ticket = await createTicket(
     { contactId: resolved.id, whatsappId, userId },
     { id: resolved.id, name: resolved.name, number: resolved.number },
   );
-  if (!Number.isSafeInteger(ticket.id) || ticket.id <= 0) throw new Error("Invalid ticket response");
+  if (!Number.isSafeInteger(ticket.id) || ticket.id <= 0)
+    throw new Error("Invalid ticket response");
   return ticket;
 }

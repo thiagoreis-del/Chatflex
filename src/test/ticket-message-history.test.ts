@@ -41,7 +41,10 @@ describe("ticket message history", () => {
   });
 
   it("ignora mensagens sem id em vez de derrubar a conversa", () => {
-    const broken = { ...message("x", "2026-10-29T10:00:00.000Z"), id: undefined } as unknown as Message;
+    const broken = {
+      ...message("x", "2026-10-29T10:00:00.000Z"),
+      id: undefined,
+    } as unknown as Message;
     const nulo = { ...message("y", "2026-10-29T11:00:00.000Z"), id: null } as unknown as Message;
 
     expect(

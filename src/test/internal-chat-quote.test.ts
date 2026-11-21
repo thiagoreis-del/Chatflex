@@ -8,7 +8,10 @@ import {
 
 describe("citação de resposta do chat interno", () => {
   it("codifica e recupera remetente, id e trecho", () => {
-    const raw = encodeReplyBody({ id: "42", sender: "Bruna", snippet: "chegou código?" }, "sim, chegou");
+    const raw = encodeReplyBody(
+      { id: "42", sender: "Bruna", snippet: "chegou código?" },
+      "sim, chegou",
+    );
     const parsed = parseReplyBody(raw);
     expect(parsed.quote).toEqual({ id: "42", sender: "Bruna", snippet: "chegou código?" });
     expect(parsed.body).toBe("sim, chegou");
@@ -16,7 +19,11 @@ describe("citação de resposta do chat interno", () => {
 
   it("preserva acentos e emojis no remetente e no trecho", () => {
     const raw = encodeReplyBody({ id: "7", sender: "João 🚀", snippet: "reunião às 14h" }, "ok");
-    expect(parseReplyBody(raw).quote).toEqual({ id: "7", sender: "João 🚀", snippet: "reunião às 14h" });
+    expect(parseReplyBody(raw).quote).toEqual({
+      id: "7",
+      sender: "João 🚀",
+      snippet: "reunião às 14h",
+    });
   });
 
   it("mantém o corpo intacto quando não há marcador", () => {

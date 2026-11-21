@@ -91,7 +91,12 @@ async function enrichCompanySummaries(data: Company[], signal: AbortSignal): Pro
   return data.map((c, i) => {
     const conns = whatsapps.filter((w) => String(w.companyId) === c.id);
     const u = usersResults[i];
-    const users = u?.status === "fulfilled" ? (Array.isArray(u.value) ? u.value : (u.value?.users ?? [])) : null;
+    const users =
+      u?.status === "fulfilled"
+        ? Array.isArray(u.value)
+          ? u.value
+          : (u.value?.users ?? [])
+        : null;
     return {
       ...c,
       connectionsCount: conns.length,

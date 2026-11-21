@@ -50,10 +50,7 @@ export function ContactFormDialog({
       if (isGroup && !data.number.trim()) {
         const { number: _omit, ...rest } = data;
         const keep = editing.number?.trim();
-        return updateContact(
-          editing.id,
-          (keep ? { ...rest, number: keep } : rest) as ContactInput,
-        );
+        return updateContact(editing.id, (keep ? { ...rest, number: keep } : rest) as ContactInput);
       }
       return updateContact(editing.id, data);
     },

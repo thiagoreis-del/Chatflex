@@ -25,7 +25,7 @@ function hasGifPlayback(message: Message): boolean {
     };
     return Boolean(
       payload.message?.videoMessage?.gifPlayback ||
-        payload.message?.ephemeralMessage?.message?.videoMessage?.gifPlayback,
+      payload.message?.ephemeralMessage?.message?.videoMessage?.gifPlayback,
     );
   } catch {
     return false;

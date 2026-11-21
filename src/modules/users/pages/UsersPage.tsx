@@ -502,8 +502,7 @@ export function UserFormDialog({
                   className={cn(
                     "size-7 shrink-0 rounded-full transition-transform hover:scale-110",
                     c.dot,
-                    data.color === c.key &&
-                      "ring-2 ring-ring ring-offset-2 ring-offset-background",
+                    data.color === c.key && "ring-2 ring-ring ring-offset-2 ring-offset-background",
                   )}
                 />
               ))}
@@ -536,7 +535,9 @@ export function UserFormDialog({
           <label className="flex items-center gap-2 text-sm">
             <Checkbox
               checked={data.allTicket === "enable"}
-              onCheckedChange={(c) => setData({ ...data, allTicket: c === true ? "enable" : "disable" })}
+              onCheckedChange={(c) =>
+                setData({ ...data, allTicket: c === true ? "enable" : "disable" })
+              }
             />
             {t("users.form.allTicket")}
           </label>

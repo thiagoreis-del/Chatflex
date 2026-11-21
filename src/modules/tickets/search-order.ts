@@ -1,7 +1,9 @@
 import type { Ticket } from "./types";
 
 /** Envia o termo nos dois nomes aceitos pelo backend (`searchParam` é o lido por ListTicketsService). */
-export function withSearchParams<T extends { search?: string | undefined }>(f: T): T & { searchParam?: string } {
+export function withSearchParams<T extends { search?: string | undefined }>(
+  f: T,
+): T & { searchParam?: string } {
   const s = f.search?.trim();
   return s ? { ...f, search: s, searchParam: s } : f;
 }
@@ -20,7 +22,12 @@ export function ticketMatchesSearch(t: Ticket, search: string): boolean {
   const name = norm(t.contact?.name);
   const last = norm(t.lastMessage);
   if (name.includes(q) || last.includes(q)) return true;
-  return digits.length >= 3 && String(t.contact?.number ?? "").replace(/\D/g, "").includes(digits);
+  return (
+    digits.length >= 3 &&
+    String(t.contact?.number ?? "")
+      .replace(/\D/g, "")
+      .includes(digits)
+  );
 }
 
 /** Conversas com quem já falou: mais recente primeiro. */

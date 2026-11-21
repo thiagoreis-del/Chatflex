@@ -11,17 +11,12 @@ const LIMIT = 2000;
 const storageKey = (companyId: string | number, userId: string | number) =>
   `${PREFIX}.${companyId}.${userId}`;
 
-export function listHiddenMessages(
-  companyId: string | number,
-  userId: string | number,
-): string[] {
+export function listHiddenMessages(companyId: string | number, userId: string | number): string[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(storageKey(companyId, userId));
     const parsed: unknown = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed)
-      ? parsed.filter((id): id is string => typeof id === "string")
-      : [];
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
   } catch {
     return [];
   }

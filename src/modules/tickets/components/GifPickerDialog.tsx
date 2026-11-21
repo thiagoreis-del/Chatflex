@@ -22,12 +22,7 @@ interface GifPickerDialogProps {
   onSend: (gif: GifCatalogItem, requestId: string) => void;
 }
 
-export function GifPickerDialog({
-  open,
-  sending,
-  onOpenChange,
-  onSend,
-}: GifPickerDialogProps) {
+export function GifPickerDialog({ open, sending, onOpenChange, onSend }: GifPickerDialogProps) {
   const { t } = useTranslation("tickets");
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
@@ -140,7 +135,11 @@ export function GifPickerDialog({
         )}
 
         <DialogFooter>
-          <Button variant="outline" disabled={sending} onClick={() => selected ? setSelected(null) : handleOpenChange(false)}>
+          <Button
+            variant="outline"
+            disabled={sending}
+            onClick={() => (selected ? setSelected(null) : handleOpenChange(false))}
+          >
             {t("gif.cancel")}
           </Button>
           {selected && (

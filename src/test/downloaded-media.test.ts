@@ -21,7 +21,9 @@ describe("selo de arquivo baixado para ouvir offline", () => {
   it("marca o mesmo arquivo apenas uma vez", () => {
     markDownloaded("https://api.example.com/audio1.ogg");
     markDownloaded("https://api.example.com/audio1.ogg");
-    expect(JSON.parse(window.localStorage.getItem("chatflex.downloaded-media") ?? "[]")).toHaveLength(1);
+    expect(
+      JSON.parse(window.localStorage.getItem("chatflex.downloaded-media") ?? "[]"),
+    ).toHaveLength(1);
   });
 
   it("não quebra quando o storage está indisponível", () => {

@@ -17,5 +17,7 @@ export function contactInitials(name: string): string {
   const first = words[0];
   if (!first) return "#";
   const last = words.length > 1 ? words[words.length - 1] : undefined;
-  return `${Array.from(first)[0] ?? ""}${last ? Array.from(last)[0] ?? "" : ""}`.toLocaleUpperCase("pt-BR");
+  return `${Array.from(first)[0] ?? ""}${last ? (Array.from(last)[0] ?? "") : ""}`.toLocaleUpperCase(
+    "pt-BR",
+  );
 }

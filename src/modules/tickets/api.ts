@@ -530,10 +530,9 @@ export interface GifCatalogPage {
 }
 
 export const searchGifs = (query = "", position = "", signal?: AbortSignal) =>
-  apiRequest<GifCatalogPage>(
-    withQuery(gifEndpoints.search, { q: query.trim(), pos: position }),
-    { signal },
-  );
+  apiRequest<GifCatalogPage>(withQuery(gifEndpoints.search, { q: query.trim(), pos: position }), {
+    signal,
+  });
 
 export const sendGifMessage = (ticketId: number, gifId: string, requestId: string) =>
   apiRequest<{ message: string; messageId: string | null }>(ep.gif(ticketId), {
