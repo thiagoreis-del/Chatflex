@@ -45,6 +45,7 @@ import {
   BellOff,
   Contact as ContactIcon,
   Trash2,
+  Megaphone,
 } from "lucide-react";
 import { toStickerWebp } from "../sticker-format";
 import { favoriteStickersKey, toggleFavoriteSticker, useFavoriteStickers } from "../favorite-stickers";
@@ -113,6 +114,8 @@ import { AdvertisementCard } from "../components/AdvertisementCard";
 import { isVCard, parseVCards } from "../vcard";
 import { parseLocation, locationText } from "../location";
 import { parseAdvertisement } from "../advertisement";
+import { ticketAdvertisement } from "../advertisement-origin";
+import { useAdvertisementOrigins } from "../use-advertisement-origins";
 import { NewTicketSuggestions } from "../components/NewTicketSuggestions";
 import { sortByRecent, ticketMatchesSearch } from "../search-order";
 import { AudioRecorder } from "../components/AudioRecorder";
@@ -191,6 +194,7 @@ export function TicketsPage() {
   const [tab, setTab] = useState<TicketTab>("open");
   const status: TicketStatus = tab === "groups" ? "open" : tab;
   const session = useSession();
+  const advertisementOrigins = useAdvertisementOrigins();
   const mutedIds = useMutedContacts(
     session.user ? mutedKey(session.user.companyId, session.user.id) : null,
   );
@@ -626,6 +630,7 @@ export function TicketsPage() {
                     const isSel = selected?.id === tk.id;
                     const name = conversationContactName(tk.contact, tk.isGroup, t("tabs.groups"));
                     const preview = stripSignature(tk.lastMessage ?? "");
+                    const advertisement = advertisementOrigins.get(tk.id) ?? ticketAdvertisement(tk);
                     const waitMin =
                       tk.status === "pending"
                         ? Math.max(0, Math.floor((now - new Date(tk.updatedAt).getTime()) / 60000))
@@ -710,6 +715,15 @@ export function TicketsPage() {
                               )}
                             </div>
                             <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1">
+                              {advertisement && (
+                                <span
+                                  className="inline-flex shrink-0 items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary"
+                                  title={advertisement.title ?? t("advertisement.lead")}
+                                >
+                                  <Megaphone className="size-3" aria-hidden="true" />
+                                  {t("advertisement.lead")}
+                                </span>
+                              )}
                               {slaInfo && <SlaBadge info={slaInfo} />}
                               <span className="inline-flex max-w-[45%] items-center gap-1 truncate rounded-md border px-1.5 py-px text-[10px] font-medium text-muted-foreground">
                                 <span
@@ -949,6 +963,7 @@ function Conversation({
     ...olderMessagesQuery(ticket.id),
     enabled: messages.isSuccess && (messages.data?.length ?? 0) > 0,
   });
+  const advertisement = ticketAdvertisement(ticket, messages.data);
   useEffect(() => {
     const history = olderMessages.data;
     if (!history?.length) return;
@@ -1569,6 +1584,16 @@ function Conversation({
             )}
           </div>
           <div className="mt-1 flex items-center gap-1 overflow-x-auto text-[11px] [scrollbar-width:none] sm:flex-wrap">
+            {advertisement && (
+              <span
+                className="inline-flex min-w-0 max-w-full shrink-0 items-center gap-1 rounded-md bg-primary/10 px-1.5 py-0.5 font-semibold text-primary"
+                title={advertisement.title ?? t("advertisement.origin")}
+              >
+                <Megaphone className="size-3 shrink-0" aria-hidden="true" />
+                <span className="shrink-0">{t("advertisement.origin")}</span>
+                {advertisement.title && <span className="truncate font-normal">· {advertisement.title}</span>}
+              </span>
+            )}
             {session.user?.companyName && (
               <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
                 {t("context.company")}:{" "}
