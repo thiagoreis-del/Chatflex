@@ -55,6 +55,7 @@ export const auditKeys = {
 /** Contatos pertencem à empresa da sessão; o backend filtra pelo token. */
 export const contactKeys = {
   all: ["company", "contacts"] as const,
+  photoBatch: () => ["company", "contacts", ...sessionCacheScope(), "photo-batch"] as const,
   detail: (id: number) => ["company", "contacts", ...sessionCacheScope(), "detail", id] as const,
   list: (filters: object) =>
     ["company", "contacts", ...sessionCacheScope(), "list", filters] as const,

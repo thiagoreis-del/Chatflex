@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { Pencil, Plus, RefreshCw, Search, Trash2, Upload } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -30,7 +32,17 @@ import {
   QueryBoundary,
 } from "@/shared/components";
 import { contactKeys } from "@/shared/api/query-keys";
-import { contactsContract, contactsQuery, createContact, deleteContact } from "../api";
+import { useSession } from "@/shared/auth/session-store";
+import {
+  contactPhotoBatchQuery,
+  contactsContract,
+  contactsQuery,
+  createContact,
+  deleteContact,
+  startContactPhotoBatch,
+  stopContactPhotoBatch,
+} from "../api";
+import { contactInitials, contactPhotoUrl } from "../contact-photo";
 import { parseContactsCsv, type ImportRow } from "../import";
 import { ContactFormDialog } from "../components/ContactFormDialog";
 import type { Contact } from "../types";
@@ -38,6 +50,42 @@ import type { Contact } from "../types";
 export function ContactsPage() {
   const { t } = useTranslation("contacts");
   const qc = useQueryClient();
+  const { user } = useSession();
+  const canRefreshAll = user?.role === "company_admin" || user?.role === "superadmin";
+  const batchQuery = useQuery({ ...contactPhotoBatchQuery(), enabled: canRefreshAll });
+  const batch = batchQuery.data?.batch;
+  const batchActive = batch?.status === "running" || batch?.status === "stopping";
+  const [choosingBatch, setChoosingBatch] = useState(false);
+  const batchKey = contactKeys.photoBatch();
+  const applyBatchResult = (response: NonNullable<typeof batchQuery.data>) => {
+    if (batchKey.join(":") !== contactKeys.photoBatch().join(":")) return;
+    qc.setQueryData(batchKey, response);
+  };
+  const startBatch = useMutation({
+    mutationFn: startContactPhotoBatch,
+    onMutate: () => qc.cancelQueries({ queryKey: batchKey, exact: true }),
+    onSuccess: (response) => {
+      applyBatchResult(response);
+      setChoosingBatch(false);
+    },
+    onError: () => toast.error(t("photoBatch.startError")),
+  });
+  const stopBatch = useMutation({
+    mutationFn: stopContactPhotoBatch,
+    onMutate: () => qc.cancelQueries({ queryKey: batchKey, exact: true }),
+    onSuccess: applyBatchResult,
+    onError: () => toast.error(t("photoBatch.stopError")),
+  });
+  const finishedBatchId = batch && !batchActive && batch.updated > 0 ? batch.id : null;
+  const batchCompanyId = user?.companyId;
+  const batchUserId = user?.id;
+  useEffect(() => {
+    if (finishedBatchId && batchCompanyId && batchUserId) {
+      void qc.invalidateQueries({
+        queryKey: [...contactKeys.all, batchCompanyId, batchUserId, "list"],
+      });
+    }
+  }, [qc, finishedBatchId, batchCompanyId, batchUserId]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const query = useQuery(contactsQuery({ search, page }));
@@ -61,7 +109,17 @@ export function ContactsPage() {
         title={t("title")}
         description={t("description")}
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {canRefreshAll && (
+              <Button
+                variant="outline"
+                onClick={() => setChoosingBatch(true)}
+                disabled={batchActive || startBatch.isPending}
+              >
+                <RefreshCw className="size-4" aria-hidden />
+                {t("photoBatch.button")}
+              </Button>
+            )}
             <Button variant="outline" onClick={() => setImporting(true)}>
               <Upload className="size-4" aria-hidden />
               {t("import")}
@@ -73,6 +131,66 @@ export function ContactsPage() {
           </div>
         }
       />
+      {canRefreshAll && batch && (
+        <section
+          aria-label={t("photoBatch.button")}
+          className="space-y-2 rounded-xl border bg-card p-4"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div role="status" className="space-y-1">
+              <p className="text-sm font-medium">{t(`photoBatch.status.${batch.status}`)}</p>
+              {batch.total !== null && (
+                <p className="text-sm text-muted-foreground">
+                  {t("photoBatch.progress", {
+                    ...batch,
+                    total: Math.max(batch.total, batch.processed),
+                  })}
+                </p>
+              )}
+            </div>
+            {batchActive && (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={batch.status === "stopping" || stopBatch.isPending}
+                onClick={() => stopBatch.mutate(batch.id)}
+              >
+                {t("photoBatch.stop")}
+              </Button>
+            )}
+          </div>
+          {batchQuery.isError && (
+            <p role="alert" className="text-sm">
+              {t("photoBatch.statusError")}
+            </p>
+          )}
+        </section>
+      )}
+      {canRefreshAll && (
+        <Dialog open={choosingBatch} onOpenChange={setChoosingBatch}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t("photoBatch.button")}</DialogTitle>
+              <DialogDescription>{t("photoBatch.description")}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                disabled={startBatch.isPending || batchActive}
+                onClick={() => startBatch.mutate("all")}
+              >
+                {t("photoBatch.all")}
+              </Button>
+              <Button
+                disabled={startBatch.isPending || batchActive}
+                onClick={() => startBatch.mutate("missing")}
+              >
+                {t("photoBatch.missing")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
       <div className="relative max-w-sm">
         <Search
           className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -114,9 +232,18 @@ export function ContactsPage() {
                             onClick={() => setForm(c)}
                             className="flex min-w-0 items-center gap-3 text-left"
                           >
-                            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                              {(c.name || "#").charAt(0).toUpperCase()}
-                            </span>
+                            <Avatar className="size-9 shrink-0">
+                              <AvatarImage
+                                src={contactPhotoUrl(c.profilePicUrl)}
+                                alt=""
+                                referrerPolicy="no-referrer"
+                                loading="lazy"
+                                className="object-cover"
+                              />
+                              <AvatarFallback className="bg-primary/10 font-semibold text-primary">
+                                {contactInitials(c.name ?? "")}
+                              </AvatarFallback>
+                            </Avatar>
                             <span className="truncate font-medium hover:underline">{c.name}</span>
                           </button>
                         </TableCell>

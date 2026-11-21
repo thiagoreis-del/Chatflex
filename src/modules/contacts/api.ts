@@ -57,3 +57,36 @@ export const refreshContactProfilePicture = (id: number) =>
     profilePicUrl: string;
     status?: "updated" | "unavailable" | "disconnected" | "retry";
   }>(ep.refreshProfilePicture(id), { method: "POST" });
+
+export type PhotoBatchMode = "missing" | "all";
+interface PhotoBatch {
+  id: string;
+  mode: PhotoBatchMode;
+  status: "running" | "stopping" | "stopped" | "completed" | "failed" | "disconnected";
+  total: number | null;
+  processed: number;
+  updated: number;
+  unavailable: number;
+  failed: number;
+  skipped: number;
+}
+
+interface PhotoBatchResponse {
+  batch: PhotoBatch | null;
+}
+
+export const contactPhotoBatchQuery = () =>
+  queryOptions({
+    queryKey: contactKeys.photoBatch(),
+    queryFn: ({ signal }) => apiRequest<PhotoBatchResponse>(ep.photoBatch, { signal }),
+    refetchInterval: ({ state }) => {
+      const status = state.data?.batch?.status;
+      return status === "running" || status === "stopping" ? 4000 : false;
+    },
+  });
+
+export const startContactPhotoBatch = (mode: PhotoBatchMode) =>
+  apiRequest<PhotoBatchResponse>(ep.photoBatch, { method: "POST", body: { mode } });
+
+export const stopContactPhotoBatch = (id: string) =>
+  apiRequest<PhotoBatchResponse>(ep.stopPhotoBatch(id), { method: "POST" });
