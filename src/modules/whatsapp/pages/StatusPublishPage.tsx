@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { CalendarClock, ImagePlus, Plus, Send, X } from "lucide-react";
+import { CalendarClock, Plus, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,10 +16,13 @@ import {
   StatusPublishError,
   STATUS_MAX_PHOTOS,
   STATUS_PHOTO_FORMATS,
+  type SavedStatusPhoto,
   type StatusItem,
   type StatusSchedule,
 } from "../status";
 import { StatusDashboard } from "./StatusDashboard";
+import { StatusImage } from "./StatusImage";
+import { StatusPhotoPicker } from "./StatusPhotoPicker";
 
 const statusErrors = {
   ERR_STATUS_AUDIENCE: "status.invalidAudience",
@@ -40,16 +43,6 @@ const statusErrors = {
 
 function errorLabel(code: string | null) {
   return statusErrors[code as keyof typeof statusErrors] ?? "status.error";
-}
-
-function PhotoPreview({ file }: { file: File }) {
-  const image = useRef<HTMLImageElement>(null);
-  useEffect(() => {
-    const url = URL.createObjectURL(file);
-    if (image.current) image.current.src = url;
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
-  return <img ref={image} alt={file.name} className="size-full object-cover" />;
 }
 
 export function StatusPublishPage() {
@@ -84,19 +77,19 @@ function StatusWorkspace() {
     !busy &&
     (scheduled ? date && time : connection.status === "CONNECTED"),
   );
-  const reuse = (entry: StatusSchedule, photo: Blob) => {
+  const addSavedPhotos = (photos: SavedStatusPhoto[]) => {
     if (sending.current || items.length >= STATUS_MAX_PHOTOS) return;
-    setItems((current) =>
-      [
-        ...current,
-        {
-          id: crypto.randomUUID(),
-          file: new File([photo], entry.filename || "status.jpg", { type: "image/jpeg" }),
-          caption: entry.caption,
-          sourceId: entry.id,
-        },
-      ].slice(0, STATUS_MAX_PHOTOS),
-    );
+    const additions = photos.map(({ entry, photo }) => ({
+      id: crypto.randomUUID(),
+      file: new File([photo], entry.filename || "status.jpg", { type: "image/jpeg" }),
+      caption: entry.caption,
+      sourceId: entry.id,
+    }));
+    setItems((current) => [...current, ...additions].slice(0, STATUS_MAX_PHOTOS));
+  };
+
+  const reuse = (entry: StatusSchedule, photo: Blob) => {
+    addSavedPhotos([{ entry, photo }]);
     setComposerOpen(true);
     requestAnimationFrame(() => composerRef.current?.scrollIntoView({ block: "start" }));
   };
@@ -278,14 +271,17 @@ function StatusWorkspace() {
                 {t("status.clear")}
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={busy || items.length >= STATUS_MAX_PHOTOS}
-              onClick={() => inputRef.current?.click()}
-            >
-              <ImagePlus className="size-4" aria-hidden /> {t("status.add")}
-            </Button>
+            <StatusPhotoPicker
+              key={connection?.id}
+              connectionId={connection?.id}
+              disabled={busy}
+              remaining={STATUS_MAX_PHOTOS - items.length}
+              draftSourceIds={
+                new Set(items.flatMap(({ sourceId }) => (sourceId ? [sourceId] : [])))
+              }
+              onDevice={() => inputRef.current?.click()}
+              onAdd={addSavedPhotos}
+            />
           </div>
           <input
             ref={inputRef}
@@ -303,7 +299,11 @@ function StatusWorkspace() {
             {items.map((item) => (
               <li key={item.id} className="space-y-2 rounded-lg border bg-background p-2">
                 <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
-                  <PhotoPreview file={item.file} />
+                  <StatusImage
+                    photo={item.file}
+                    title={item.file.name}
+                    className="size-full object-cover"
+                  />
                   <Button
                     type="button"
                     size="icon"

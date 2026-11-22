@@ -39,6 +39,11 @@ export interface StatusSchedule {
   canRemove: boolean;
 }
 
+export interface SavedStatusPhoto {
+  entry: StatusSchedule;
+  photo: Blob;
+}
+
 export type StatusDashboardView = "online" | "scheduled" | "library" | "history";
 
 interface StatusDashboardData {
@@ -71,12 +76,13 @@ export function localStatusDay(date = new Date()): string {
 
 export function statusDashboardQuery(
   whatsappId: number,
-  view: StatusDashboardView,
+  view: StatusDashboardView | "published",
   page: number,
   day: string,
+  search = "",
 ) {
   return queryOptions({
-    queryKey: [...whatsappKeys.statusDashboard(whatsappId), view, page, day],
+    queryKey: [...whatsappKeys.statusDashboard(whatsappId), view, page, day, search],
     queryFn: ({ signal }) => {
       const filters: Record<string, string | number> = { view, page };
       if (view === "scheduled" && day) {
@@ -86,12 +92,13 @@ export function statusDashboardQuery(
         filters["from"] = from.toISOString();
         filters["to"] = to.toISOString();
       }
+      if (view === "published" && search) filters["q"] = search;
       return apiRequest<StatusDashboardData>(withQuery(ep.statusDashboard(whatsappId), filters), {
         signal,
       });
     },
     enabled: Boolean(whatsappId),
-    refetchInterval: 30_000,
+    refetchInterval: view === "published" ? false : 30_000,
   });
 }
 

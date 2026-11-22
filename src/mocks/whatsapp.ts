@@ -54,7 +54,16 @@ export function whatsappMock(path: string, opts: RequestOptions): unknown {
     );
     const scheduled = all.filter((entry) => entry.status === "scheduled");
     const library = all.filter((entry) => !entry.reused);
-    const views = { online, scheduled, library, history: all };
+    const search = (url.searchParams.get("q") ?? "").trim().toLowerCase();
+    const published = all
+      .filter(
+        (entry) =>
+          entry.publishedAt &&
+          entry.photo.size > 0 &&
+          [entry.caption, entry.filename].some((text) => text.toLowerCase().includes(search)),
+      )
+      .sort((left, right) => right.publishedAt!.localeCompare(left.publishedAt!));
+    const views = { online, scheduled, library, history: all, published };
     const view = url.searchParams.get("view") as keyof typeof views;
     const from = url.searchParams.get("from");
     const to = url.searchParams.get("to");

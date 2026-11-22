@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarClock,
@@ -25,6 +25,7 @@ import {
   type StatusDashboardView,
   type StatusSchedule,
 } from "../status";
+import { StatusImage } from "./StatusImage";
 
 const views = [
   { key: "online", icon: CircleDot },
@@ -34,24 +35,6 @@ const views = [
 ] as const;
 
 type ReusePhoto = (entry: StatusSchedule, photo: Blob) => void;
-
-function StatusImage({
-  photo,
-  title,
-  className,
-}: {
-  photo: Blob;
-  title: string;
-  className: string;
-}) {
-  const image = useRef<HTMLImageElement>(null);
-  useEffect(() => {
-    const url = URL.createObjectURL(photo);
-    if (image.current) image.current.src = url;
-    return () => URL.revokeObjectURL(url);
-  }, [photo]);
-  return <img ref={image} alt={title} className={className} />;
-}
 
 function StatusCard({
   connectionId,
