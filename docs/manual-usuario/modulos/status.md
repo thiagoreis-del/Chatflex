@@ -13,7 +13,7 @@ Conexão WhatsApp por QR Code, até 20 fotos JPG, PNG ou WebP de até 8 MB cada 
 1. Escolha o número conectado; se houver só um, pode ser selecionado automaticamente.
 2. Adicione as fotos, confira as prévias e escreva as legendas.
 3. Use **Publicar agora** para enviar as fotos ou **Agendar** para escolher a data e o horário.
-4. Na **Agenda de Status**, escolha o dia para acompanhar ou cancelar publicações pendentes.
+4. No **Painel de Status**, use **No ar** para conferir a foto publicada, **Agendados** para acompanhar ou cancelar publicações pendentes e **Biblioteca** para reutilizar uma foto salva.
 5. Se uma publicação ficar sem confirmação, confira o Status no celular antes de adicionar a foto novamente.
 
 ## Resultado esperado
@@ -27,6 +27,8 @@ Se o número estiver desconectado no horário agendado, o sistema tenta publicar
 ## Observações e limitações
 
 Cada foto mantém seu próprio estado. A confirmação de publicação indica que o WhatsApp aceitou a foto. A visualização por destinatário é verificada no celular.
+
+Em **No ar**, use **Excluir do WhatsApp** para solicitar a remoção de um Status publicado pelo ChatbotFlex. O painel confirma a remoção após a resposta do WhatsApp e mantém a foto na biblioteca. Fotos de publicações antigas só têm prévia quando o arquivo ainda está salvo.
 
 **Captura interna pendente:** registrar esta tela com empresa/usuários de teste, sem mensagens, telefone, e-mail ou credenciais de pessoas reais.
 **Evidências:** `src/modules/whatsapp/pages/StatusPublishPage.tsx`, `status.ts`, `src/test/whatsapp-status.test.ts`.

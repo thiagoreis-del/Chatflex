@@ -111,6 +111,11 @@ export const whatsappEndpoints = {
   statusSchedules: (id: number) => `/whatsapp/${id}/status/schedules`,
   statusSchedule: (id: number, scheduleId: string) =>
     `/whatsapp/${id}/status/schedules/${encodeURIComponent(scheduleId)}`,
+  statusDashboard: (id: number) => `/whatsapp/${id}/status/dashboard`,
+  statusPhoto: (id: number, scheduleId: string) =>
+    `/whatsapp/${id}/status/schedules/${encodeURIComponent(scheduleId)}/photo`,
+  publishedStatus: (id: number, scheduleId: string) =>
+    `/whatsapp/${id}/status/schedules/${encodeURIComponent(scheduleId)}/published`,
 } as const;
 
 /**

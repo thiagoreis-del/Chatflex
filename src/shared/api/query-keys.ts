@@ -66,8 +66,10 @@ export const whatsappKeys = {
   all: ["company", "whatsapp"] as const,
   list: () => ["company", "whatsapp", "list"] as const,
   detail: (id: number) => ["company", "whatsapp", "detail", id] as const,
-  statusSchedules: (id: number, day: string) =>
-    ["company", "whatsapp", ...sessionCacheScope(), "status-schedules", id, day] as const,
+  statusDashboard: (id: number) =>
+    ["company", "whatsapp", ...sessionCacheScope(), "status-dashboard", id] as const,
+  statusPhoto: (id: number, photoId: string) =>
+    ["company", "whatsapp", ...sessionCacheScope(), "status-photo", id, photoId] as const,
 };
 
 /** Usuários e filas pertencem à empresa da sessão; o backend filtra pelo token. */
