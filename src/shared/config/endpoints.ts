@@ -107,8 +107,7 @@ export const whatsappEndpoints = {
   status: (id: number) => `/whatsapp/${id}?session=0`,
   session: (id: number) => `/whatsappsession/${id}`,
   metaOAuthStart: "/meta/oauth/start",
-  /** Experimental: publica 1–20 fotos em status@broadcast. */
-  statusBatch: (id: number) => `/whatsapp/${id}/status/test-batch`,
+  publishPhotoStatus: (id: number) => `/whatsapp/${id}/status`,
 } as const;
 
 /**

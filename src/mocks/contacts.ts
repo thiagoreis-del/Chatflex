@@ -63,7 +63,10 @@ export function contactsMock(path: string, opts: RequestOptions): unknown {
       : db;
     const start = (page - 1) * PAGE_SIZE;
     const result: Paginated<Contact> = {
-      data: filtered.slice(start, start + PAGE_SIZE),
+      data: filtered.slice(start, start + PAGE_SIZE).map((contact) => ({
+        channel: "whatsapp",
+        ...contact,
+      })),
       page,
       pageSize: PAGE_SIZE,
       total: filtered.length,

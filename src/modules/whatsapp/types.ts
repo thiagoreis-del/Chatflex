@@ -10,6 +10,7 @@ export interface WhatsAppConnection {
   isDefault: boolean;
   greetingMessage?: string | null;
   channel?: string;
+  provider?: string;
   updatedAt?: string;
 }
 

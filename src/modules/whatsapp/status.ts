@@ -1,92 +1,91 @@
 import { apiUpload } from "@/shared/api/client";
+import { ApiError } from "@/shared/api/errors";
 import { whatsappEndpoints as ep } from "@/shared/config/endpoints";
-import { normalizeUploadFile } from "@/shared/upload/pdf-file";
+import type { WhatsAppConnection } from "./types";
 
 export const STATUS_MAX_PHOTOS = 20;
+export const STATUS_MAX_CONTACTS = 100;
+export const STATUS_MAX_BYTES = 8 * 1024 * 1024;
+export const STATUS_PHOTO_FORMATS = "image/jpeg,image/png,image/webp";
 
 export interface StatusItem {
+  id: string;
   file: File;
   caption: string;
+  unconfirmed?: boolean;
 }
 
-export interface StatusPublishConfirmation {
-  published: number;
-}
-
-type StatusResultRecord = {
-  success?: unknown;
-  sent?: unknown;
-  published?: unknown;
-  status?: unknown;
-  error?: unknown;
-  id?: unknown;
-  key?: { id?: unknown } | null;
-};
-
-const positiveStatus = new Set(["sent", "published", "success", "ok"]);
-
-function isConfirmedItem(value: unknown): boolean {
-  if (!value || typeof value !== "object") return false;
-  const item = value as StatusResultRecord;
-  if (item.error) return false;
-  if (item.success === true || item.sent === true || item.published === true) return true;
-  if (typeof item.status === "string" && positiveStatus.has(item.status.toLowerCase())) return true;
-  return typeof item.id === "string" || typeof item.key?.id === "string";
-}
-
-/**
- * Só aceita como sucesso respostas que comprovem quantos itens foram publicados.
- * Um HTTP 2xx vazio ou apenas `{ success: true }` significa upload aceito, não Status publicado.
- */
-export function confirmStatusPublish(value: unknown, expected: number): StatusPublishConfirmation {
-  if (!value || typeof value !== "object") throw new Error("STATUS_NOT_CONFIRMED");
-  const response = value as Record<string, unknown>;
-  const results = [response["results"], response["items"], response["data"]].find(Array.isArray) as
-    unknown[] | undefined;
-  if (results) {
-    const published = results.filter(isConfirmedItem).length;
-    if (results.length === expected && published === expected) return { published };
-    throw new Error("STATUS_PARTIALLY_CONFIRMED");
+export class StatusPublishError extends Error {
+  constructor(
+    readonly code: string,
+    readonly photoId: string,
+  ) {
+    super(code);
+    this.name = "StatusPublishError";
   }
-
-  const failed = typeof response["failed"] === "number" ? response["failed"] : 0;
-  const published = [
-    response["published"],
-    response["sent"],
-    response["successCount"],
-    response["count"],
-  ].find((count) => typeof count === "number");
-  if (typeof published === "number" && published === expected && failed === 0) {
-    return { published };
-  }
-  throw new Error("STATUS_NOT_CONFIRMED");
 }
 
-/** Mantém só imagens e respeita o limite de 20 fotos por lote. */
+export function isStatusConnection(connection: WhatsAppConnection) {
+  return (
+    connection.status === "CONNECTED" &&
+    connection.channel === "whatsapp" &&
+    connection.provider?.toLowerCase() !== "wuzapi"
+  );
+}
+
 export function mergeStatusFiles(current: StatusItem[], incoming: File[]) {
-  const images = incoming.filter((f) => f.type.startsWith("image/"));
+  const images = incoming.filter(
+    (file) =>
+      STATUS_PHOTO_FORMATS.split(",").includes(file.type) ||
+      (!file.type && /\.(jpe?g|png|webp)$/i.test(file.name)),
+  );
+  const sized = images.filter((file) => file.size > 0 && file.size <= STATUS_MAX_BYTES);
   const room = Math.max(0, STATUS_MAX_PHOTOS - current.length);
-  const accepted = images.slice(0, room).map((file) => ({ file, caption: "" }));
+  const accepted = sized.slice(0, room).map((file) => ({
+    file,
+    caption: "",
+    id: crypto.randomUUID(),
+  }));
   return {
     items: [...current, ...accepted],
     rejectedNonImage: incoming.length - images.length,
-    overflow: images.length - accepted.length,
+    rejectedSize: images.length - sized.length,
+    overflow: sized.length - accepted.length,
   };
 }
 
 export async function publishStatusBatch(
   whatsappId: number,
+  contactIds: number[],
   items: StatusItem[],
-  onProgress?: (fraction: number) => void,
+  onProgress: (fraction: number) => void,
+  onPublished: (photoId: string) => void,
 ) {
-  const form = new FormData();
-  const files = await Promise.all(items.map((item) => normalizeUploadFile(item.file)));
-  files.forEach((file) => form.append("file", file, file.name));
-  form.append("captions", JSON.stringify(items.map((it) => it.caption.trim())));
-  const response = await apiUpload<unknown>(
-    ep.statusBatch(whatsappId),
-    form,
-    onProgress ? { onProgress } : {},
-  );
-  return confirmStatusPublish(response, items.length);
+  for (const [index, item] of items.entries()) {
+    const form = new FormData();
+    form.append("file", item.file, item.file.name);
+    form.append("caption", item.caption.trim());
+    form.append("requestId", item.id);
+    form.append("contactIds", JSON.stringify(contactIds));
+    let result: { published?: number; id?: string; status?: string } | undefined;
+    try {
+      result = await apiUpload(ep.publishPhotoStatus(whatsappId), form, {
+        onProgress: (fraction) => onProgress((index + fraction) / items.length),
+      });
+    } catch (error) {
+      if (error instanceof ApiError && error.status > 0 && error.status < 500) {
+        const body = error.body as { error?: string; code?: string } | undefined;
+        throw new StatusPublishError(body?.error || body?.code || "ERR_STATUS_INPUT", item.id);
+      }
+      throw new StatusPublishError("ERR_STATUS_UNCONFIRMED", item.id);
+    }
+    if (result?.published !== 1 || typeof result.id !== "string" || !result.id.trim()) {
+      throw new StatusPublishError(
+        result?.status === "rejected" ? "ERR_STATUS_REJECTED" : "ERR_STATUS_UNCONFIRMED",
+        item.id,
+      );
+    }
+    onPublished(item.id);
+    onProgress((index + 1) / items.length);
+  }
 }

@@ -19,13 +19,14 @@ interface BackendContacts {
   page?: number;
   pageSize?: number;
   total?: number;
+  hasMore?: boolean;
 }
 
 /** Backend: GET /contacts?searchParam&pageNumber → { contacts, count, hasMore }. */
 export const contactsQuery = (filters: ContactFilters) =>
   queryOptions({
     queryKey: contactKeys.list(filters),
-    queryFn: async ({ signal }): Promise<Paginated<Contact>> => {
+    queryFn: async ({ signal }): Promise<Paginated<Contact> & { hasMore?: boolean }> => {
       const res = await apiRequest<BackendContacts>(
         withQuery(ep.list, {
           ...filters,
@@ -34,14 +35,20 @@ export const contactsQuery = (filters: ContactFilters) =>
         }),
         { signal },
       );
-      if (res.data) return res as Paginated<Contact>;
+      if (res.data) return res as Paginated<Contact> & { hasMore?: boolean };
       const list = (res.contacts ?? []).map((c) => ({
         ...c,
         tags: (c.tags ?? []).map((tag) =>
           typeof tag === "string" ? tag : String((tag as { name?: string }).name ?? ""),
         ),
       })) as Contact[];
-      return { data: list, page: filters.page, pageSize: 20, total: res.count ?? list.length };
+      return {
+        data: list,
+        page: filters.page,
+        pageSize: 20,
+        total: res.count ?? list.length,
+        ...(typeof res.hasMore === "boolean" && { hasMore: res.hasMore }),
+      };
     },
   });
 
