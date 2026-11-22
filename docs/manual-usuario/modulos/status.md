@@ -6,7 +6,7 @@
 
 ## Campos e opções
 
-Conexão WhatsApp por QR Code, até 20 fotos JPG, PNG ou WebP de até 8 MB cada e legenda opcional de até 700 caracteres por foto. O público é definido a partir dos contatos elegíveis vinculados ao número, com a privacidade **Meus contatos** configurada no WhatsApp.
+Conexão WhatsApp por QR Code, até 20 fotos JPG, PNG ou WebP de até 8 MB cada e legenda opcional de até 700 caracteres por foto. O público é definido a partir dos contatos elegíveis vinculados ao número, respeitando a privacidade do Status no WhatsApp.
 
 ## Passo a passo
 
