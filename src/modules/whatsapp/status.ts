@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { apiRequest, apiUpload } from "@/shared/api/client";
+import { apiDownload, apiRequest, apiUpload } from "@/shared/api/client";
 import { ApiError } from "@/shared/api/errors";
 import { whatsappKeys } from "@/shared/api/query-keys";
 import { whatsappEndpoints as ep, withQuery } from "@/shared/config/endpoints";
@@ -13,6 +13,7 @@ export interface StatusItem {
   id: string;
   file: File;
   caption: string;
+  sourceId?: string;
   unconfirmed?: "send" | "schedule";
 }
 
@@ -21,8 +22,31 @@ export interface StatusSchedule {
   filename: string;
   caption: string;
   publishAt: string;
-  status: "scheduled" | "sending" | "published" | "failed" | "unconfirmed" | "cancelled";
+  publishedAt: string | null;
+  expiresAt: string | null;
+  status:
+    | "scheduled"
+    | "sending"
+    | "published"
+    | "failed"
+    | "unconfirmed"
+    | "cancelled"
+    | "removing"
+    | "removal_unconfirmed"
+    | "removed";
   errorCode: string | null;
+  hasPhoto: boolean;
+  canRemove: boolean;
+}
+
+export type StatusDashboardView = "online" | "scheduled" | "library" | "history";
+
+interface StatusDashboardData {
+  entries: StatusSchedule[];
+  page: number;
+  pageSize: number;
+  total: number;
+  counts: Record<Exclude<StatusDashboardView, "history">, number>;
 }
 
 export class StatusPublishError extends Error {
@@ -45,28 +69,51 @@ export function localStatusDay(date = new Date()): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-export function statusSchedulesQuery(whatsappId: number, day: string) {
+export function statusDashboardQuery(
+  whatsappId: number,
+  view: StatusDashboardView,
+  page: number,
+  day: string,
+) {
   return queryOptions({
-    queryKey: whatsappKeys.statusSchedules(whatsappId, day),
+    queryKey: [...whatsappKeys.statusDashboard(whatsappId), view, page, day],
     queryFn: ({ signal }) => {
-      const from = new Date(`${day}T00:00:00`);
-      const to = new Date(from);
-      to.setDate(to.getDate() + 1);
-      return apiRequest<{ schedules: StatusSchedule[] }>(
-        withQuery(ep.statusSchedules(whatsappId), {
-          from: from.toISOString(),
-          to: to.toISOString(),
-        }),
-        { signal },
-      );
+      const filters: Record<string, string | number> = { view, page };
+      if (view === "scheduled" && day) {
+        const from = new Date(`${day}T00:00:00`);
+        const to = new Date(from);
+        to.setDate(to.getDate() + 1);
+        filters["from"] = from.toISOString();
+        filters["to"] = to.toISOString();
+      }
+      return apiRequest<StatusDashboardData>(withQuery(ep.statusDashboard(whatsappId), filters), {
+        signal,
+      });
     },
-    enabled: Boolean(whatsappId && day),
+    enabled: Boolean(whatsappId),
     refetchInterval: 30_000,
+  });
+}
+
+export function statusPhotoQuery(
+  whatsappId: number,
+  entry: Pick<StatusSchedule, "id" | "hasPhoto">,
+) {
+  return queryOptions({
+    queryKey: whatsappKeys.statusPhoto(whatsappId, entry.id),
+    queryFn: async () =>
+      (await apiDownload(ep.statusPhoto(whatsappId, entry.id), { mockBlob: true })).blob,
+    enabled: entry.hasPhoto,
+    staleTime: Infinity,
+    gcTime: 120_000,
   });
 }
 
 export const cancelStatusSchedule = (whatsappId: number, scheduleId: string) =>
   apiRequest<void>(ep.statusSchedule(whatsappId, scheduleId), { method: "DELETE" });
+
+export const removePublishedStatus = (whatsappId: number, scheduleId: string) =>
+  apiRequest<void>(ep.publishedStatus(whatsappId, scheduleId), { method: "DELETE" });
 
 export function mergeStatusFiles(current: StatusItem[], incoming: File[]) {
   const images = incoming.filter(
@@ -98,7 +145,8 @@ export async function publishStatusBatch(
 ) {
   for (const [index, item] of items.entries()) {
     const form = new FormData();
-    form.append("file", item.file, item.file.name);
+    if (item.sourceId) form.append("sourceId", item.sourceId);
+    else form.append("file", item.file, item.file.name);
     form.append("caption", item.caption.trim());
     form.append("requestId", item.id);
     if (publishAt) form.append("publishAt", publishAt);

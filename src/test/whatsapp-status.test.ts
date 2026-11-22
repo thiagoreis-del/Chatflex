@@ -64,4 +64,13 @@ describe("publicação de fotos no Status", () => {
     expect(vi.mocked(apiUpload).mock.calls[0]?.[1].get("publishAt")).toBe(date);
     expect(published).toHaveBeenCalledExactlyOnceWith(items[0]!.id);
   });
+
+  it("reutiliza a foto salva pelo identificador, sem reenviar os bytes", async () => {
+    vi.mocked(apiUpload).mockResolvedValueOnce({ published: 1, id: "server-ack" });
+    const [item] = photos(1);
+    await publishStatusBatch(6, [{ ...item!, sourceId: "foto-salva" }], vi.fn(), vi.fn());
+    const form = vi.mocked(apiUpload).mock.calls[0]?.[1];
+    expect(form?.get("sourceId")).toBe("foto-salva");
+    expect(form?.get("file")).toBeNull();
+  });
 });

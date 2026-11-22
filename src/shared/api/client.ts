@@ -219,8 +219,15 @@ export async function apiUpload<T>(path: string, form: FormData, opts: UploadOpt
 }
 
 /** Baixa um arquivo autenticado (Blob). Renova o token uma vez se expirado. */
-export async function apiDownload(path: string): Promise<{ blob: Blob; filename: string | null }> {
+export async function apiDownload(
+  path: string,
+  { mockBlob = false }: { mockBlob?: boolean } = {},
+): Promise<{ blob: Blob; filename: string | null }> {
   if (env.useMocks) {
+    if (mockBlob) {
+      const { mockRequest } = await import("@/mocks");
+      return { blob: await mockRequest<Blob>(path, { method: "GET" }), filename: null };
+    }
     return {
       blob: new Blob(["-- backup de demonstração\n"], { type: "application/sql" }),
       filename: "backup-demo.sql",

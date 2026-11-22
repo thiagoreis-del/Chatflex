@@ -74,6 +74,57 @@
     "unconfirmedHint": "Confira esta foto no Status do celular. Se ela estiver ausente, remova-a da fila e adicione novamente.",
     "empty": "Nenhuma foto selecionada.",
     "invalidDate": "Escolha uma data e um horário no futuro.",
+    "dashboard": {
+      "title": "Status do WhatsApp",
+      "description": "Acompanhe os status no ar, organize os próximos e reutilize suas fotos salvas.",
+      "new": "Novo status",
+      "closeComposer": "Fechar rascunho",
+      "view": {
+        "online": "No ar",
+        "scheduled": "Agendados",
+        "library": "Biblioteca",
+        "history": "Histórico"
+      },
+      "empty": {
+        "online": "Nenhum status do ChatbotFlex no ar neste número.",
+        "scheduled": "Nenhum status agendado neste período.",
+        "library": "As fotos de publicações e agendamentos aparecem aqui.",
+        "history": "Nenhum status no histórico deste número."
+      },
+      "filterDay": "Filtrar pelo dia",
+      "allDays": "Todos os dias",
+      "loading": "Carregando status…",
+      "retry": "Carregar status novamente",
+      "photo": "Foto do Status",
+      "loadingPhoto": "Carregando foto…",
+      "noPhoto": "Prévia indisponível",
+      "photoError": "A foto não pôde ser carregada.",
+      "viewPhoto": "Ampliar foto de {{name}}",
+      "reuse": "Reutilizar foto",
+      "expires": "No ar até {{time}}",
+      "expired": "Expirado",
+      "delete": "Excluir do WhatsApp",
+      "deleted": "Remoção confirmada pelo WhatsApp.",
+      "cancelled": "Agendamento cancelado.",
+      "confirmDelete": "Excluir este Status do WhatsApp?",
+      "confirmCancel": "Cancelar este agendamento?",
+      "photoKept": "A foto continuará disponível na biblioteca.",
+      "actionError": "Não foi possível concluir a ação.",
+      "entryError": "Há uma pendência nesta publicação.",
+      "previous": "Anterior",
+      "next": "Próxima",
+      "errors": {
+        "ERR_STATUS_REMOVE_UNCONFIRMED": "O WhatsApp ainda não confirmou a remoção. Confira no celular antes de tentar de novo.",
+        "ERR_STATUS_REMOVE_REJECTED": "O WhatsApp recusou a remoção deste Status.",
+        "ERR_STATUS_REMOVAL_UNAVAILABLE": "A remoção está indisponível para esta publicação.",
+        "ERR_STATUS_DISCONNECTED": "Reconecte o WhatsApp e tente novamente.",
+        "ERR_STATUS_PRIVACY": "Não foi possível consultar a privacidade do Status.",
+        "ERR_STATUS_AUDIENCE": "O número está sem contatos elegíveis para o Status.",
+        "ERR_STATUS_MISSED_TIME": "O horário passou e a publicação não foi concluída.",
+        "ERR_STATUS_UNCONFIRMED": "O WhatsApp ainda não confirmou a publicação.",
+        "ERR_STATUS_REJECTED": "O WhatsApp recusou a publicação."
+      }
+    },
     "agenda": {
       "title": "Agenda de Status",
       "mode": "Agendar",
@@ -98,7 +149,10 @@
         "published": "Publicado",
         "failed": "Falhou",
         "unconfirmed": "Aguardando verificação no WhatsApp",
-        "cancelled": "Cancelado"
+        "cancelled": "Cancelado",
+        "removing": "Removendo",
+        "removal_unconfirmed": "Remoção a confirmar",
+        "removed": "Removido"
       }
     }
   },

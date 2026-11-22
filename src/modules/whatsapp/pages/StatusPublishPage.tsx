@@ -1,24 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { CalendarClock, ImagePlus, Send, X } from "lucide-react";
+import { CalendarClock, ImagePlus, Plus, Send, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { whatsappKeys } from "@/shared/api/query-keys";
+import { useSession } from "@/shared/auth/session-store";
 import { connectionsQuery } from "../api";
 import {
-  cancelStatusSchedule,
   isStatusConnection,
   localStatusDay,
   mergeStatusFiles,
   publishStatusBatch,
-  statusSchedulesQuery,
   StatusPublishError,
   STATUS_MAX_PHOTOS,
   STATUS_PHOTO_FORMATS,
   type StatusItem,
+  type StatusSchedule,
 } from "../status";
+import { StatusDashboard } from "./StatusDashboard";
 
 const statusErrors = {
   ERR_STATUS_AUDIENCE: "status.invalidAudience",
@@ -52,7 +53,12 @@ function PhotoPreview({ file }: { file: File }) {
 }
 
 export function StatusPublishPage() {
-  const { t, i18n } = useTranslation("whatsapp");
+  const { user } = useSession();
+  return <StatusWorkspace key={`${user?.companyId ?? ""}:${user?.id ?? ""}:${user?.role ?? ""}`} />;
+}
+
+function StatusWorkspace() {
+  const { t } = useTranslation("whatsapp");
   const queryClient = useQueryClient();
   const connections = useQuery(connectionsQuery());
   const available = (connections.data ?? []).filter(isStatusConnection);
@@ -63,10 +69,11 @@ export function StatusPublishPage() {
   const [mode, setMode] = useState<"now" | "schedule">("now");
   const [date, setDate] = useState(localStatusDay);
   const [time, setTime] = useState("");
-  const [agendaDay, setAgendaDay] = useState(localStatusDay);
+  const [composerOpen, setComposerOpen] = useState(false);
   const [items, setItems] = useState<StatusItem[]>([]);
   const [progress, setProgress] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const composerRef = useRef<HTMLElement>(null);
   const sending = useRef(false);
   const pending = items.filter((item) => !item.unconfirmed);
   const busy = progress !== null;
@@ -77,13 +84,22 @@ export function StatusPublishPage() {
     !busy &&
     (scheduled ? date && time : connection.status === "CONNECTED"),
   );
-  const agenda = useQuery(statusSchedulesQuery(connection?.id ?? 0, agendaDay));
-  const cancel = useMutation({
-    mutationFn: ({ numberId, statusId }: { numberId: number; statusId: string }) =>
-      cancelStatusSchedule(numberId, statusId),
-    onSuccess: () => void agenda.refetch(),
-    onError: () => toast.error(t("status.agenda.conflict")),
-  });
+  const reuse = (entry: StatusSchedule, photo: Blob) => {
+    if (sending.current || items.length >= STATUS_MAX_PHOTOS) return;
+    setItems((current) =>
+      [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          file: new File([photo], entry.filename || "status.jpg", { type: "image/jpeg" }),
+          caption: entry.caption,
+          sourceId: entry.id,
+        },
+      ].slice(0, STATUS_MAX_PHOTOS),
+    );
+    setComposerOpen(true);
+    requestAnimationFrame(() => composerRef.current?.scrollIntoView({ block: "start" }));
+  };
 
   const addFiles = (files: FileList | null) => {
     if (!files) return;
@@ -117,6 +133,7 @@ export function StatusPublishPage() {
         when?.toISOString(),
       );
       toast.success(t(scheduled ? "status.agenda.added" : "status.success", { count: confirmed }));
+      if (items.length === pending.length) setComposerOpen(false);
     } catch (error) {
       const code = error instanceof StatusPublishError ? error.code : null;
       if (
@@ -139,20 +156,26 @@ export function StatusPublishPage() {
     } finally {
       sending.current = false;
       setProgress(null);
-      if (scheduled) {
-        setAgendaDay(date);
-        void queryClient.invalidateQueries({
-          queryKey: whatsappKeys.statusSchedules(connection.id, date),
-        });
-      }
+      void queryClient.invalidateQueries({ queryKey: whatsappKeys.statusDashboard(connection.id) });
     }
   };
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-6">
-      <header>
-        <h1 className="font-display text-2xl font-semibold">{t("status.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("status.description")}</p>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-semibold">{t("status.dashboard.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("status.dashboard.description")}</p>
+        </div>
+        <Button
+          disabled={!connection || busy}
+          aria-expanded={composerOpen}
+          aria-controls="status-composer"
+          onClick={() => setComposerOpen((open) => !open)}
+        >
+          <Plus className="size-4" aria-hidden />
+          {t(composerOpen ? "status.dashboard.closeComposer" : "status.dashboard.new")}
+        </Button>
       </header>
 
       <section className="space-y-2 rounded-xl border bg-card p-4">
@@ -173,9 +196,10 @@ export function StatusPublishPage() {
             className="h-10 w-full rounded-md border bg-background px-3 text-sm"
             value={connection?.id ?? ""}
             disabled={busy}
-            onChange={(event) =>
-              setWhatsappId(event.target.value ? Number(event.target.value) : "")
-            }
+            onChange={(event) => {
+              setWhatsappId(event.target.value ? Number(event.target.value) : "");
+              setItems((current) => current.filter((item) => !item.sourceId));
+            }}
           >
             <option value="">{t("status.selectConnection")}</option>
             {available.map((item) => (
@@ -191,7 +215,12 @@ export function StatusPublishPage() {
         )}
       </section>
 
-      <section className="space-y-4 rounded-xl border bg-card p-4">
+      <section
+        id="status-composer"
+        ref={composerRef}
+        hidden={!composerOpen}
+        className="space-y-4 rounded-xl border bg-card p-4"
+      >
         <div className="flex flex-wrap gap-2">
           <Button
             aria-pressed={!scheduled}
@@ -326,62 +355,12 @@ export function StatusPublishPage() {
       </section>
 
       {connection && (
-        <section className="space-y-3 rounded-xl border bg-card p-4">
-          <h2 className="text-base font-semibold">{t("status.agenda.title")}</h2>
-          <label className="block w-fit space-y-1 text-sm">
-            <span>{t("status.agenda.chooseDay")}</span>
-            <Input
-              type="date"
-              value={agendaDay}
-              onChange={(event) => setAgendaDay(event.target.value)}
-            />
-          </label>
-          {agendaDay &&
-            (agenda.isPending ? (
-              <p className="text-sm text-muted-foreground">{t("status.agenda.loading")}</p>
-            ) : agenda.isError ? (
-              <button className="text-sm underline" onClick={() => void agenda.refetch()}>
-                {t("status.agenda.retry")}
-              </button>
-            ) : !agenda.data.schedules.length ? (
-              <p className="text-sm text-muted-foreground">{t("status.agenda.empty")}</p>
-            ) : (
-              <ul className="divide-y rounded-lg border">
-                {agenda.data.schedules.map((entry) => (
-                  <li
-                    key={entry.id}
-                    className="flex flex-wrap items-center justify-between gap-2 p-3"
-                  >
-                    <div className="min-w-0">
-                      <p className="break-words text-sm font-medium">
-                        {new Date(entry.publishAt).toLocaleTimeString(i18n.language, {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}{" "}
-                        · {entry.caption || entry.filename}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {t(`status.agenda.state.${entry.status}`)}
-                        {entry.errorCode && ` · ${t(errorLabel(entry.errorCode))}`}
-                      </p>
-                    </div>
-                    {entry.status === "scheduled" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={cancel.isPending}
-                        onClick={() =>
-                          cancel.mutate({ numberId: connection.id, statusId: entry.id })
-                        }
-                      >
-                        {t("status.agenda.cancel")}
-                      </Button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ))}
-        </section>
+        <StatusDashboard
+          key={connection.id}
+          connectionId={connection.id}
+          canReuse={!busy && items.length < STATUS_MAX_PHOTOS}
+          onReuse={reuse}
+        />
       )}
     </div>
   );
