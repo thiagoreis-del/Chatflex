@@ -108,6 +108,9 @@ export const whatsappEndpoints = {
   session: (id: number) => `/whatsappsession/${id}`,
   metaOAuthStart: "/meta/oauth/start",
   publishPhotoStatus: (id: number) => `/whatsapp/${id}/status`,
+  statusSchedules: (id: number) => `/whatsapp/${id}/status/schedules`,
+  statusSchedule: (id: number, scheduleId: string) =>
+    `/whatsapp/${id}/status/schedules/${encodeURIComponent(scheduleId)}`,
 } as const;
 
 /**

@@ -45,7 +45,7 @@ export const contactsQuery = (filters: ContactFilters) =>
       return {
         data: list,
         page: filters.page,
-        pageSize: 20,
+        pageSize: 100,
         total: res.count ?? list.length,
         ...(typeof res.hasMore === "boolean" && { hasMore: res.hasMore }),
       };
