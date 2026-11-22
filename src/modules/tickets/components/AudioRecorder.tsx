@@ -172,7 +172,7 @@ export function AudioRecorder({
   }
 
   return (
-    <div className="col-span-full flex items-center gap-2 rounded-full bg-destructive/10 px-2 py-1 text-sm text-destructive sm:col-span-1">
+    <div className="flex shrink-0 items-center gap-2 rounded-full bg-destructive/10 px-2 py-1 text-sm text-destructive">
       <span className="size-2 animate-pulse rounded-full bg-destructive" aria-hidden />
       <span className="min-w-12 font-mono tabular-nums" aria-label={labels.recording}>
         {formatDuration(seconds)}

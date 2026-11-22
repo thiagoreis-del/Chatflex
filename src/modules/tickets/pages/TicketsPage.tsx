@@ -2406,7 +2406,8 @@ function Conversation({
               )}
             </div>
           )}
-          <div className="grid grid-cols-[auto_auto_auto_auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-2 [&>button]:size-8 sm:[&>button]:size-10">
             <Button
               type="button"
               variant="ghost"
@@ -2439,13 +2440,6 @@ function Conversation({
             >
               GIF
             </Button>
-            {showPicker && (
-              <QuickMessagePicker
-                term={pickerTerm}
-                activeIndex={activeIndex}
-                onPick={(m) => applyQuick(m.message)}
-              />
-            )}
             <Button
               type="button"
               variant="ghost"
@@ -2508,6 +2502,29 @@ function Conversation({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <AudioRecorder
+              disabled={isPrivate || send.isPending || files.length > 0}
+              labels={{
+                start: t("audio.start"),
+                stop: t("audio.stop"),
+                cancel: t("audio.cancel"),
+                recording: t("audio.recording"),
+                unsupported: t("audio.unsupported"),
+              }}
+              onReady={(audio) => {
+                // Gravou e parou: envia direto, sem etapa de confirmação.
+                if (!send.isPending) send.mutate({ body: "", media: [audio], keepComposer: true });
+              }}
+              onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
+            />
+            </div>
+            {showPicker && (
+              <QuickMessagePicker
+                term={pickerTerm}
+                activeIndex={activeIndex}
+                onPick={(m) => applyQuick(m.message)}
+              />
+            )}
             <ShareContactDialog
               open={shareOpen}
               onOpenChange={setShareOpen}
@@ -2543,27 +2560,12 @@ function Conversation({
               className="hidden"
               onChange={pickFile}
             />
-            <AudioRecorder
-              disabled={isPrivate || send.isPending || files.length > 0}
-              labels={{
-                start: t("audio.start"),
-                stop: t("audio.stop"),
-                cancel: t("audio.cancel"),
-                recording: t("audio.recording"),
-                unsupported: t("audio.unsupported"),
-              }}
-              onReady={(audio) => {
-                // Gravou e parou: envia direto, sem etapa de confirmação.
-                if (!send.isPending) send.mutate({ body: "", media: [audio], keepComposer: true });
-              }}
-              onError={(reason) => toast.error(t(`audio.errors.${reason}`))}
-            />
             <textarea
               ref={inputRef}
               rows={2}
               disabled={send.isPending}
               value={text}
-              className="min-w-0 w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="min-w-[10rem] flex-1 resize-none rounded-xl border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onKeyDown={onComposerKey}
               onPaste={onPaste}
               onBlur={() => setPickerOpen(false)}
@@ -2582,6 +2584,7 @@ function Conversation({
             />
             <Button
               type="submit"
+              className="shrink-0"
               disabled={(!text.trim() && !file) || send.isPending}
               aria-label={t("composer.send")}
             >
