@@ -6,27 +6,27 @@
 
 ## Campos e opções
 
-Conexão CONNECTED; até 20 imagens; legenda opcional de até 700 caracteres por imagem; remover, limpar e publicar; progresso.
+Conexão WhatsApp por QR Code, até 20 fotos JPG, PNG ou WebP de até 8 MB cada, legenda opcional de até 700 caracteres por foto e público de até 100 contatos.
 
 ## Passo a passo
 
 1. Escolha o número conectado; se houver só um, pode ser selecionado automaticamente.
-2. Adicione imagens e confira suas prévias.
-3. Escreva legendas opcionais e remova imagens indevidas.
-4. Clique Publicar e aguarde o resultado antes de tentar novamente.
-5. Em teste autorizado, confirme a visibilidade do Status com destinatário elegível; resultado de upload não basta.
+2. Busque os contatos que podem ver as fotos e selecione o público.
+3. Adicione as fotos, confira as prévias e escreva as legendas.
+4. Clique em **Publicar no Status** e aguarde a confirmação de cada foto.
+5. Se uma foto ficar sem confirmação, confira o Status no celular antes de adicioná-la novamente.
 
 ## Resultado esperado
 
-Envio multipart ao endpoint experimental; entrega/visibilidade individual não foi verificada.
+As fotos são enviadas em sequência. O módulo retira da fila cada foto aceita pelo servidor do WhatsApp. A visualização depende da elegibilidade de cada destinatário.
 
 ## Erros e soluções
 
-Nenhuma conexão conectada → pedir ao administrador conferir, sem desconectar sessões. Mais de 20/não imagem → corrigir seleção. Falha de API → confirmar contrato e resultado real antes de reenviar.
+Se o número desconectar, reconecte-o e publique as fotos que ainda faltam. Se o WhatsApp recusar o público, revise os contatos selecionados.
 
 ## Observações e limitações
 
-Campos enviados: arquivos repetidos `file` e `captions` JSON. Não há vídeo, agendamento, seleção múltipla de números nem relatório individual nessa tela. Não há limite local de tamanho por imagem identificado. Histórico informa problemas de visibilidade; não classificar como plenamente validado só porque a API aceitou o envio.
+Cada foto é enviada à conexão escolhida com a legenda e os IDs dos contatos. A confirmação indica que o WhatsApp aceitou a publicação. A visualização por destinatário é verificada no celular.
 
 **Captura interna pendente:** registrar esta tela com empresa/usuários de teste, sem mensagens, telefone, e-mail ou credenciais de pessoas reais.
 **Evidências:** `src/modules/whatsapp/pages/StatusPublishPage.tsx`, `status.ts`, `src/test/whatsapp-status.test.ts`.

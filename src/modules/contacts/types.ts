@@ -10,6 +10,8 @@ export interface Contact {
   whatsapp?: { id: number; name: string } | null;
   /** Contato é um grupo do WhatsApp: número é opcional (JID interno). */
   isGroup?: boolean | undefined;
+  active?: boolean;
+  channel?: string;
   createdAt?: string;
   updatedAt?: string;
 }

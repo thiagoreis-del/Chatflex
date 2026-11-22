@@ -1,30 +1,57 @@
-import { describe, expect, it } from "vitest";
-import { confirmStatusPublish, mergeStatusFiles } from "@/modules/whatsapp/status";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { apiUpload } from "@/shared/api/client";
+import { mergeStatusFiles, publishStatusBatch } from "@/modules/whatsapp/status";
 
-const img = (n: number) => new File(["x"], `f${n}.jpg`, { type: "image/jpeg" });
+vi.mock("@/shared/api/client", () => ({ apiUpload: vi.fn() }));
 
-describe("lote de Status", () => {
-  it("aceita no máximo 20 fotos", () => {
-    const r = mergeStatusFiles(
+const image = (n: number) => new File(["x"], `f${n}.jpg`, { type: "image/jpeg" });
+const photos = (count: number) =>
+  mergeStatusFiles(
+    [],
+    Array.from({ length: count }, (_, index) => image(index)),
+  ).items;
+
+describe("publicação de fotos no Status", () => {
+  beforeEach(() => vi.resetAllMocks());
+
+  it("limita o lote a 20 fotos e exclui formatos inválidos", () => {
+    const result = mergeStatusFiles(
       [],
-      Array.from({ length: 25 }, (_, i) => img(i)),
+      [
+        ...Array.from({ length: 21 }, (_, index) => image(index)),
+        new File(["x"], "a.pdf", { type: "application/pdf" }),
+      ],
     );
-    expect(r.items).toHaveLength(20);
-    expect(r.overflow).toBe(5);
+    expect(result.items).toHaveLength(20);
+    expect(result.overflow).toBe(1);
+    expect(result.rejectedNonImage).toBe(1);
   });
-  it("rejeita arquivos que não são imagem", () => {
-    const r = mergeStatusFiles([], [img(1), new File(["x"], "a.pdf", { type: "application/pdf" })]);
-    expect(r.items).toHaveLength(1);
-    expect(r.rejectedNonImage).toBe(1);
+
+  it("envia a foto e seu público à rota da conexão escolhida", async () => {
+    vi.mocked(apiUpload).mockResolvedValueOnce({ published: 1, id: "server-ack" });
+    const [photo] = photos(1);
+    photo!.caption = " Foto da empresa ";
+    const published = vi.fn();
+    await publishStatusBatch(6, [3, 20], [photo!], vi.fn(), published);
+    const [route, form] = vi.mocked(apiUpload).mock.calls[0]!;
+    expect(route).toBe("/whatsapp/6/status");
+    expect(form.get("contactIds")).toBe("[3,20]");
+    expect(form.get("requestId")).toBe(photo!.id);
+    expect(form.get("caption")).toBe("Foto da empresa");
+    expect(published).toHaveBeenCalledExactlyOnceWith(photo!.id);
   });
-  it("não confunde HTTP aceito com publicação confirmada", () => {
-    expect(() => confirmStatusPublish(undefined, 1)).toThrow("STATUS_NOT_CONFIRMED");
-    expect(() => confirmStatusPublish({ success: true }, 1)).toThrow("STATUS_NOT_CONFIRMED");
-  });
-  it("confirma somente o lote completo", () => {
-    expect(confirmStatusPublish({ published: 2, failed: 0 }, 2)).toEqual({ published: 2 });
-    expect(() =>
-      confirmStatusPublish({ results: [{ success: true }, { error: "falhou" }] }, 2),
-    ).toThrow("STATUS_PARTIALLY_CONFIRMED");
+
+  it("para em uma foto sem confirmação e mantém as confirmações anteriores", async () => {
+    vi.mocked(apiUpload)
+      .mockResolvedValueOnce({ published: 1, id: "server-ack" })
+      .mockResolvedValueOnce({ success: true });
+    const items = photos(3);
+    const published = vi.fn();
+    await expect(publishStatusBatch(6, [3], items, vi.fn(), published)).rejects.toMatchObject({
+      code: "ERR_STATUS_UNCONFIRMED",
+      photoId: items[1]!.id,
+    });
+    expect(published).toHaveBeenCalledExactlyOnceWith(items[0]!.id);
+    expect(apiUpload).toHaveBeenCalledTimes(2);
   });
 });
