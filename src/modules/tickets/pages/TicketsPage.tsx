@@ -339,6 +339,25 @@ export function TicketsPage() {
     enabled: debouncedSearch.length >= 2,
     refetchInterval: fallback,
   }).data;
+  const groupTickets = useQuery({
+    ...groupTicketsQuery(debouncedSearch),
+    enabled: debouncedSearch.length >= 2,
+    refetchInterval: fallback,
+  }).data;
+  /** Com busca ativa, Atendendo, Aguardando e Grupos são pesquisados juntos. */
+  const searchAll = debouncedSearch.length >= 2 && tab !== "closed";
+  const searchAllTickets = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          [...deduplicateActiveTickets(notGroup([...(openTickets ?? []), ...(pendingTickets ?? [])])), ...(groupTickets ?? [])].map(
+            (x) => [x.id, x],
+          ),
+        ).values(),
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [openTickets, pendingTickets, groupTickets],
+  );
   const activeTickets = useMemo(
     () => [...(openTickets ?? []), ...(pendingTickets ?? [])],
     [openTickets, pendingTickets],
@@ -443,7 +462,7 @@ export function TicketsPage() {
         <Tabs value={tab} onValueChange={(v) => setTab(v as TicketTab)}>
           <TabsList className="grid h-auto w-full grid-cols-4 gap-1 bg-transparent p-0">
             {(["open", "pending", "groups", "closed"] as const).map((s) => {
-              const c = s === tab ? query.data?.length : counts[s];
+              const c = s === tab && !searchAll ? query.data?.length : counts[s];
               const Icon = TAB_ICONS[s];
               const active = s === tab;
               return (
@@ -589,7 +608,9 @@ export function TicketsPage() {
                       firstPage,
                       ...(older.data?.pages ?? []).map((p) => notGroup(p?.tickets ?? [])),
                     ])
-                  : firstPage;
+                  : searchAll
+                    ? searchAllTickets
+                    : firstPage;
               const visible = sortByRecent(
                 list.filter((x) => matchesFilters(x) && ticketMatchesSearch(x, debouncedSearch)),
               );
