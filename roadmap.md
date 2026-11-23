@@ -1,5 +1,14 @@
 # Roadmap
 
+## Busca unificada de atendimentos — 23/11/2026
+
+- [x] Pesquisar Atendendo, Aguardando e Grupos em conjunto quando houver ao menos 2 caracteres, mantendo Finalizados separado e os filtros atuais.
+- [x] Manter os contadores por situação durante a busca e restaurar a aba selecionada ao limpar o campo.
+- [x] Validar 28 testes de busca e atualização dos atendimentos.
+- [x] Publicar na `main` do GitHub no commit `1145f28f59dd405dd0e9b2de9b1fd9b4c5fd30a6`, preservando GIF, figurinhas e o campo de mensagem ampliado.
+- [x] Confirmar deploy na VPS: workflow `Deploy VPS` concluído com sucesso; o bundle público de `/app/atendimento` consulta `open`, `pending` e grupos com ao menos 2 caracteres, exclui `closed` da busca conjunta e mantém o campo ampliado.
+- [ ] Confirmar a busca em uma sessão real do backend externo.
+
 ## Conversa aberta sem novas mensagens — 16/11/2026
 
 - [x] Corrigir invalidação por appMessage (criação/atualização/exclusão), chave da lista por sessão e leitura canônica sem inserir eventos parciais; consulta a cada 3 segundos e atualização imediata ao reabrir.
